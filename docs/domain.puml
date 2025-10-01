@@ -1,0 +1,295 @@
+@startuml Port Logistics Domain Model
+skinparam monochrome true
+
+package "<<Aggregate>> Port" {
+    class Port <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class name <<ValueObject>> {
+    }
+    class facilities <<ValueObject>> {
+    }
+    Port "1" *-- "1" id
+    Port "1" *-- "1" name
+    Port "1" *-- "1..*" facilities
+}
+
+package "<<Aggregate>> Facility" {
+    class Facility <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class type <<ValueObject>> {
+        DOCK
+        YARD
+        WAREHOUSE
+    }
+    class capacity <<ValueObject>> {
+    }
+    class location <<ValueObject>> {
+    }
+    Facility "1" *-- "1" id
+    Facility "1" *-- "1" type
+    Facility "1" *-- "1" capacity
+    Facility "1" *-- "1" location
+}
+
+package "<<Aggregate>> Resource" {
+    class Resource <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class operationalWindow <<ValueObject>> {
+    }
+    class status <<ValueObject>> {
+        AVAILABLE
+        UNAVAILABLE
+        MAINTENANCE
+    }
+    class setupTime <<ValueObject>> {
+    }
+    Resource "1" *-- "1" id
+    Resource "1" *-- "1" operationalWindow
+    Resource "1" *-- "1" status
+    Resource "1" *-- "1" setupTime
+}
+
+package "<<Aggregate>> PhysicalResource" {
+    class PhysicalResource <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class type <<ValueObject>> {
+        STS_CRANE
+        YARD_GANTRY_CRANE
+        TRUCK
+    }
+    class capacity <<ValueObject>> {
+    }
+    class operatingStaffRequirements <<ValueObject>> {
+    }
+    PhysicalResource "1" *-- "1" id
+    PhysicalResource "1" *-- "1" type
+    PhysicalResource "1" *-- "1" capacity
+    PhysicalResource "1" *-- "1..*" operatingStaffRequirements
+}
+
+package "<<Aggregate>> HumanResource" {
+    class HumanResource <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class mecanographicNumber <<ValueObject>> {
+    }
+    class shortName <<ValueObject>> {
+    }
+    class email <<ValueObject>> {
+    }
+    class phone <<ValueObject>> {
+    }
+    class qualifications <<ValueObject>> {
+    }
+    class operationalWindow <<ValueObject>> {
+    }
+    class status <<ValueObject>> {
+        AVAILABLE
+        UNAVAILABLE
+        REASSIGNED
+    }
+    HumanResource "1" *-- "1" id
+    HumanResource "1" *-- "1" mecanographicNumber
+    HumanResource "1" *-- "1" shortName
+    HumanResource "1" *-- "1" email
+    HumanResource "1" *-- "1" phone
+    HumanResource "1" *-- "1..*" qualifications
+    HumanResource "1" *-- "1" operationalWindow
+    HumanResource "1" *-- "1" status
+}
+
+package "<<Aggregate>> Vessel" {
+    class Vessel <<Entity>> <<Root>> {
+    }
+    class imo <<ValueObject>> {
+    }
+    class type <<ValueObject>> {
+        FEEDER
+        PANAMAX
+        POST_PANAMAX
+        ULCV
+    }
+    class maxTEU <<ValueObject>> {
+    }
+    class bayCount <<ValueObject>> {
+    }
+    class rowCount <<ValueObject>> {
+    }
+    class tierCount <<ValueObject>> {
+    }
+    Vessel "1" *-- "1" imo
+    Vessel "1" *-- "1" type
+    Vessel "1" *-- "1" maxTEU
+    Vessel "1" *-- "1" bayCount
+    Vessel "1" *-- "1" rowCount
+    Vessel "1" *-- "1" tierCount
+}
+
+package "<<Aggregate>> ShippingAgentOrganization" {
+    class ShippingAgentOrganization <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class name <<ValueObject>> {
+    }
+    ShippingAgentOrganization "1" *-- "1" id
+    ShippingAgentOrganization "1" *-- "1" name
+}
+
+package "<<Aggregate>> ShippingAgentRepresentative" {
+    class ShippingAgentRepresentative <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class name <<ValueObject>> {
+    }
+    class email <<ValueObject>> {
+    }
+    class phone <<ValueObject>> {
+    }
+    ShippingAgentRepresentative "1" *-- "1" id
+    ShippingAgentRepresentative "1" *-- "1" name
+    ShippingAgentRepresentative "1" *-- "1" email
+    ShippingAgentRepresentative "1" *-- "1" phone
+}
+
+package "<<Aggregate>> VesselVisit" {
+    class VesselVisit <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class eta <<ValueObject>> {
+    }
+    class etd <<ValueObject>> {
+    }
+    class status <<ValueObject>> {
+        PENDING
+        APPROVED
+        REJECTED
+        IN_PROGRESS
+        COMPLETED
+    }
+    class rejectionReason <<ValueObject>> {
+    }
+    class crewCaptainName <<ValueObject>> {
+    }
+    class crewCount <<ValueObject>> {
+    }
+    class safetyOfficers <<ValueObject>> {
+    }
+    VesselVisit "1" *-- "1" id
+    VesselVisit "1" *-- "1" eta
+    VesselVisit "1" *-- "1" etd
+    VesselVisit "1" *-- "1" status
+    VesselVisit "1" *-- "0..1" rejectionReason
+    VesselVisit "1" *-- "1" crewCaptainName
+    VesselVisit "1" *-- "1" crewCount
+    VesselVisit "1" *-- "0..*" safetyOfficers
+}
+
+package "<<Aggregate>> CargoManifest" {
+    class CargoManifest <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class type <<ValueObject>> {
+        UNLOADING
+        LOADING
+    }
+    class hasDangerousCargo <<ValueObject>> {
+    }
+    CargoManifest "1" *-- "1" id
+    CargoManifest "1" *-- "1" type
+    CargoManifest "1" *-- "1" hasDangerousCargo
+}
+
+package "<<Aggregate>> Container" {
+    class Container <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class contentDescription <<ValueObject>> {
+    }
+    class cargoType <<ValueObject>> {
+        REEFER
+        GENERAL
+        ELECTRONICS
+        HAZMAT
+        OVERSIZED
+    }
+    class position <<ValueObject>> {
+    }
+    Container "1" *-- "1" id
+    Container "1" *-- "1" contentDescription
+    Container "1" *-- "1" cargoType
+    Container "1" *-- "1" position
+}
+
+package "<<Aggregate>> Task" {
+    class Task <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class type <<ValueObject>> {
+        UNLOAD_FROM_VESSEL
+        TRANSPORT_TO_YARD
+        STACK_IN_YARD
+        LOAD_TO_VESSEL
+    }
+    class sequenceOrder <<ValueObject>> {
+    }
+    class estimatedDuration <<ValueObject>> {
+    }
+    Task "1" *-- "1" id
+    Task "1" *-- "1" type
+    Task "1" *-- "1" sequenceOrder
+    Task "1" *-- "1" estimatedDuration
+    Task "1" *-- "0..*" dependencies
+}
+
+package "<<Aggregate>> User" {
+    class User <<Entity>> <<Root>> {
+    }
+    class id <<ValueObject>> {
+    }
+    class profile <<ValueObject>> {
+        PORT_AUTHORITY_OFFICER
+        SHIPPING_AGENT_REPRESENTATIVE
+        LOGISTICS_OPERATOR
+        ADMINISTRATOR
+    }
+    class permissions <<ValueObject>> {
+    }
+    User "1" *-- "1" id
+    User "1" *-- "1" profile
+    User "1" *-- "1..*" permissions
+}
+
+' Relationships between Aggregates
+Port "1" *-- "1..*" Facility
+VesselVisit "1" *-- "0..1" Facility
+VesselVisit "1" *-- "1" Vessel
+VesselVisit "1" *-- "1" ShippingAgentRepresentative
+VesselVisit "1" *-- "0..2" CargoManifest
+VesselVisit "1" *-- "1..*" Task
+Vessel "1" *-- "1" ShippingAgentOrganization
+ShippingAgentOrganization "1" *-- "1..*" ShippingAgentRepresentative
+PhysicalResource "1" *-- "1..*" HumanResource
+Task "1" *-- "1..*" Resource
+Task "1" *-- "0..*" Task : dependsOn
+User "1" *-- "1..*" ShippingAgentRepresentative
+User "1" *-- "1..*" VesselVisit
+User "1" *-- "1..*" Task
+CargoManifest "1" *-- "1..*" Container
+
+
+@enduml
