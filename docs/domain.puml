@@ -1,84 +1,42 @@
-@startuml Port Logistics Domain Model
+@startuml
 skinparam monochrome true
+skinparam linetype ortho
 
-package "<<Aggregate>> Port" {
-    class Port <<Entity>> <<Root>> {
-    }
-    class id <<ValueObject>> {
-    }
-    class name <<ValueObject>> {
-    }
-    class facilities <<ValueObject>> {
-    }
-    Port "1" *-- "1" id
-    Port "1" *-- "1" name
-    Port "1" *-- "1..*" facilities
+abstract class Resource <<Entity>> <<Root>> {
 }
-
-package "<<Aggregate>> Facility" {
-    class Facility <<Entity>> <<Root>> {
-    }
-    class id <<ValueObject>> {
-    }
-    class type <<ValueObject>> {
-        DOCK
-        YARD
-        WAREHOUSE
-    }
-    class capacity <<ValueObject>> {
-    }
-    class location <<ValueObject>> {
-    }
-    Facility "1" *-- "1" id
-    Facility "1" *-- "1" type
-    Facility "1" *-- "1" capacity
-    Facility "1" *-- "1" location
+class resourceId <<ValueObject>> {
 }
-
-package "<<Aggregate>> Resource" {
-    class Resource <<Entity>> <<Root>> {
-    }
-    class id <<ValueObject>> {
-    }
-    class operationalWindow <<ValueObject>> {
-    }
-    class status <<ValueObject>> {
-        AVAILABLE
-        UNAVAILABLE
-        MAINTENANCE
-    }
-    class setupTime <<ValueObject>> {
-    }
-    Resource "1" *-- "1" id
-    Resource "1" *-- "1" operationalWindow
-    Resource "1" *-- "1" status
-    Resource "1" *-- "1" setupTime
+class operationalWindow <<ValueObject>> {
 }
+class resourceStatus <<ValueObject>> {
+    AVAILABLE
+    UNAVAILABLE
+    MAINTENANCE
+}
+class setupTime <<ValueObject>> {
+}
+Resource "1" *-- "1" resourceId
+Resource "1" *-- "1" operationalWindow
+Resource "1" *-- "1" resourceStatus
+Resource "1" *-- "1" setupTime
 
 package "<<Aggregate>> PhysicalResource" {
     class PhysicalResource <<Entity>> <<Root>> {
     }
-    class id <<ValueObject>> {
-    }
-    class type <<ValueObject>> {
+    class physicalType <<ValueObject>> {
         STS_CRANE
         YARD_GANTRY_CRANE
         TRUCK
     }
     class capacity <<ValueObject>> {
     }
-    class operatingStaffRequirements <<ValueObject>> {
-    }
-    PhysicalResource "1" *-- "1" id
-    PhysicalResource "1" *-- "1" type
+    PhysicalResource "1" *-- "1" physicalType
     PhysicalResource "1" *-- "1" capacity
-    PhysicalResource "1" *-- "1..*" operatingStaffRequirements
 }
+PhysicalResource -up-|> Resource
 
 package "<<Aggregate>> HumanResource" {
     class HumanResource <<Entity>> <<Root>> {
-    }
-    class id <<ValueObject>> {
     }
     class mecanographicNumber <<ValueObject>> {
     }
@@ -88,23 +46,108 @@ package "<<Aggregate>> HumanResource" {
     }
     class phone <<ValueObject>> {
     }
-    class qualifications <<ValueObject>> {
-    }
-    class operationalWindow <<ValueObject>> {
-    }
-    class status <<ValueObject>> {
-        AVAILABLE
-        UNAVAILABLE
-        REASSIGNED
-    }
-    HumanResource "1" *-- "1" id
     HumanResource "1" *-- "1" mecanographicNumber
     HumanResource "1" *-- "1" shortName
     HumanResource "1" *-- "1" email
     HumanResource "1" *-- "1" phone
-    HumanResource "1" *-- "1..*" qualifications
-    HumanResource "1" *-- "1" operationalWindow
-    HumanResource "1" *-- "1" status
+}
+HumanResource -up-|> Resource
+
+package "<<Aggregate>> Qualification" {
+    class Qualification <<Entity>> <<Root>> {
+    }
+    class qualCode <<ValueObject>> {
+    }
+    class qualName <<ValueObject>> {
+    }
+    Qualification "1" *-- "1" qualCode
+    Qualification "1" *-- "1" qualName
+}
+
+package "<<Aggregate>> Facility" {
+    abstract class Facility <<Entity>> <<Root>> {
+    }
+    class facilityId <<ValueObject>> {
+    }
+    class facilityLocation <<ValueObject>> {
+    }
+    Facility "1" *-- "1" facilityId
+    Facility "1" *-- "1" facilityLocation
+}
+
+package "<<Aggregate>> Dock" {
+    class Dock <<Entity>> <<Root>> {
+    }
+    class dockName <<ValueObject>> {
+    }
+    class length <<ValueObject>> {
+    }
+    class depth <<ValueObject>> {
+    }
+    class maxDraft <<ValueObject>> {
+    }
+    Dock "1" *-- "1" dockName
+    Dock "1" *-- "1" length
+    Dock "1" *-- "1" depth
+    Dock "1" *-- "1" maxDraft
+}
+Dock -up-|> Facility
+
+package "<<Aggregate>> StorageArea" {
+    class StorageArea <<Entity>> <<Root>> {
+    }
+    class storageType <<ValueObject>> {
+        YARD
+        WAREHOUSE
+    }
+    class maxTEU <<ValueObject>> {
+    }
+    class currentOccupancy <<ValueObject>> {
+    }
+    StorageArea "1" *-- "1" storageType
+    StorageArea "1" *-- "1" maxTEU
+    StorageArea "1" *-- "1" currentOccupancy
+}
+StorageArea -up-|> Facility
+
+class Distance <<ValueObject>> {
+}
+
+package "<<Aggregate>> Port" {
+    class Port <<Entity>> <<Root>> {
+    }
+    class portId <<ValueObject>> {
+    }
+    class portName <<ValueObject>> {
+    }
+    Port "1" *-- "1" portId
+    Port "1" *-- "1" portName
+}
+
+package "<<Aggregate>> VesselType" {
+    class VesselType <<Entity>> <<Root>> {
+    }
+    class typeId <<ValueObject>> {
+    }
+    class typeName <<ValueObject>> {
+    }
+    class typeDescription <<ValueObject>> {
+    }
+    class typeCapacity <<ValueObject>> {
+    }
+    class maxBays <<ValueObject>> {
+    }
+    class maxRows <<ValueObject>> {
+    }
+    class maxTiers <<ValueObject>> {
+    }
+    VesselType "1" *-- "1" typeId
+    VesselType "1" *-- "1" typeName
+    VesselType "1" *-- "1" typeDescription
+    VesselType "1" *-- "1" typeCapacity
+    VesselType "1" *-- "1" maxBays
+    VesselType "1" *-- "1" maxRows
+    VesselType "1" *-- "1" maxTiers
 }
 
 package "<<Aggregate>> Vessel" {
@@ -112,70 +155,70 @@ package "<<Aggregate>> Vessel" {
     }
     class imo <<ValueObject>> {
     }
-    class type <<ValueObject>> {
-        FEEDER
-        PANAMAX
-        POST_PANAMAX
-        ULCV
-    }
-    class maxTEU <<ValueObject>> {
-    }
-    class bayCount <<ValueObject>> {
-    }
-    class rowCount <<ValueObject>> {
-    }
-    class tierCount <<ValueObject>> {
+    class vesselName <<ValueObject>> {
     }
     Vessel "1" *-- "1" imo
-    Vessel "1" *-- "1" type
-    Vessel "1" *-- "1" maxTEU
-    Vessel "1" *-- "1" bayCount
-    Vessel "1" *-- "1" rowCount
-    Vessel "1" *-- "1" tierCount
+    Vessel "1" *-- "1" vesselName
 }
 
 package "<<Aggregate>> ShippingAgentOrganization" {
     class ShippingAgentOrganization <<Entity>> <<Root>> {
     }
-    class id <<ValueObject>> {
+    class orgId <<ValueObject>> {
     }
-    class name <<ValueObject>> {
+    class legalName <<ValueObject>> {
     }
-    ShippingAgentOrganization "1" *-- "1" id
-    ShippingAgentOrganization "1" *-- "1" name
+    class altNames <<ValueObject>> {
+    }
+    class address <<ValueObject>> {
+    }
+    class taxNumber <<ValueObject>> {
+    }
+    ShippingAgentOrganization "1" *-- "1" orgId
+    ShippingAgentOrganization "1" *-- "1" legalName
+    ShippingAgentOrganization "1" *-- "0..*" altNames
+    ShippingAgentOrganization "1" *-- "1" address
+    ShippingAgentOrganization "1" *-- "1" taxNumber
 }
 
 package "<<Aggregate>> ShippingAgentRepresentative" {
     class ShippingAgentRepresentative <<Entity>> <<Root>> {
     }
-    class id <<ValueObject>> {
+    class repId <<ValueObject>> {
     }
-    class name <<ValueObject>> {
+    class repName <<ValueObject>> {
     }
-    class email <<ValueObject>> {
+    class citizenId <<ValueObject>> {
     }
-    class phone <<ValueObject>> {
+    class nationality <<ValueObject>> {
     }
-    ShippingAgentRepresentative "1" *-- "1" id
-    ShippingAgentRepresentative "1" *-- "1" name
-    ShippingAgentRepresentative "1" *-- "1" email
-    ShippingAgentRepresentative "1" *-- "1" phone
+    class repEmail <<ValueObject>> {
+    }
+    class repPhone <<ValueObject>> {
+    }
+    ShippingAgentRepresentative "1" *-- "1" repId
+    ShippingAgentRepresentative "1" *-- "1" repName
+    ShippingAgentRepresentative "1" *-- "1" citizenId
+    ShippingAgentRepresentative "1" *-- "1" nationality
+    ShippingAgentRepresentative "1" *-- "1" repEmail
+    ShippingAgentRepresentative "1" *-- "1" repPhone
 }
 
 package "<<Aggregate>> VesselVisit" {
     class VesselVisit <<Entity>> <<Root>> {
     }
-    class id <<ValueObject>> {
+    class visitId <<ValueObject>> {
     }
     class eta <<ValueObject>> {
     }
     class etd <<ValueObject>> {
     }
-    class status <<ValueObject>> {
+    class visitStatus <<ValueObject>> {
+        IN_PROGRESS
+        SUBMITTED
         PENDING
         APPROVED
         REJECTED
-        IN_PROGRESS
         COMPLETED
     }
     class rejectionReason <<ValueObject>> {
@@ -184,38 +227,41 @@ package "<<Aggregate>> VesselVisit" {
     }
     class crewCount <<ValueObject>> {
     }
-    class safetyOfficers <<ValueObject>> {
+    class safetyOfficer <<ValueObject>> {
+        // name, citizenId, nationality
     }
-    VesselVisit "1" *-- "1" id
+    VesselVisit "1" *-- "1" visitId
     VesselVisit "1" *-- "1" eta
     VesselVisit "1" *-- "1" etd
-    VesselVisit "1" *-- "1" status
+    VesselVisit "1" *-- "1" visitStatus
     VesselVisit "1" *-- "0..1" rejectionReason
     VesselVisit "1" *-- "1" crewCaptainName
     VesselVisit "1" *-- "1" crewCount
-    VesselVisit "1" *-- "0..*" safetyOfficers
+    VesselVisit "1" *-- "0..*" safetyOfficer
 }
 
 package "<<Aggregate>> CargoManifest" {
     class CargoManifest <<Entity>> <<Root>> {
     }
-    class id <<ValueObject>> {
+    class manifestId <<ValueObject>> {
     }
-    class type <<ValueObject>> {
+    class manifestType <<ValueObject>> {
         UNLOADING
         LOADING
     }
     class hasDangerousCargo <<ValueObject>> {
+        // derived
     }
-    CargoManifest "1" *-- "1" id
-    CargoManifest "1" *-- "1" type
+    CargoManifest "1" *-- "1" manifestId
+    CargoManifest "1" *-- "1" manifestType
     CargoManifest "1" *-- "1" hasDangerousCargo
 }
 
 package "<<Aggregate>> Container" {
     class Container <<Entity>> <<Root>> {
     }
-    class id <<ValueObject>> {
+    class containerId <<ValueObject>> {
+        // ISO 6346
     }
     class contentDescription <<ValueObject>> {
     }
@@ -227,8 +273,9 @@ package "<<Aggregate>> Container" {
         OVERSIZED
     }
     class position <<ValueObject>> {
+        // bay, row, tier
     }
-    Container "1" *-- "1" id
+    Container "1" *-- "1" containerId
     Container "1" *-- "1" contentDescription
     Container "1" *-- "1" cargoType
     Container "1" *-- "1" position
@@ -237,9 +284,9 @@ package "<<Aggregate>> Container" {
 package "<<Aggregate>> Task" {
     class Task <<Entity>> <<Root>> {
     }
-    class id <<ValueObject>> {
+    class taskId <<ValueObject>> {
     }
-    class type <<ValueObject>> {
+    class taskType <<ValueObject>> {
         UNLOAD_FROM_VESSEL
         TRANSPORT_TO_YARD
         STACK_IN_YARD
@@ -249,17 +296,16 @@ package "<<Aggregate>> Task" {
     }
     class estimatedDuration <<ValueObject>> {
     }
-    Task "1" *-- "1" id
-    Task "1" *-- "1" type
+    Task "1" *-- "1" taskId
+    Task "1" *-- "1" taskType
     Task "1" *-- "1" sequenceOrder
     Task "1" *-- "1" estimatedDuration
-    Task "1" *-- "0..*" dependencies
 }
 
 package "<<Aggregate>> User" {
     class User <<Entity>> <<Root>> {
     }
-    class id <<ValueObject>> {
+    class userId <<ValueObject>> {
     }
     class profile <<ValueObject>> {
         PORT_AUTHORITY_OFFICER
@@ -269,27 +315,34 @@ package "<<Aggregate>> User" {
     }
     class permissions <<ValueObject>> {
     }
-    User "1" *-- "1" id
+    User "1" *-- "1" userId
     User "1" *-- "1" profile
     User "1" *-- "1..*" permissions
 }
 
-' Relationships between Aggregates
-Port "1" *-- "1..*" Facility
-VesselVisit "1" *-- "0..1" Facility
+' Relationships
+Port "1" *-- "1..*" Facility : hasFacilities >
+Facility <|-- Dock
+Facility <|-- StorageArea
+StorageArea "1" *-- "0..*" Dock : serves >
+StorageArea "1" *-- "0..*" Distance : toDocks
+Dock "1" *-- "0..*" VesselType : allowedTypes >
+PhysicalResource "1" -- "0..1" Facility : assignedTo >
+PhysicalResource "1" *-- "1..*" Qualification : requires >
+HumanResource "1" *-- "1..*" Qualification :  >
+Vessel "1" *-- "1" VesselType
+Vessel "1" *-- "1" ShippingAgentOrganization : operator >
+ShippingAgentOrganization "1" *-- "1..*" ShippingAgentRepresentative
 VesselVisit "1" *-- "1" Vessel
-VesselVisit "1" *-- "1" ShippingAgentRepresentative
+VesselVisit "1" *-- "1" ShippingAgentRepresentative : notifiedBy >
+VesselVisit "1" *-- "0..1" Dock : assignedTo
 VesselVisit "1" *-- "0..2" CargoManifest
 VesselVisit "1" *-- "1..*" Task
-Vessel "1" *-- "1" ShippingAgentOrganization
-ShippingAgentOrganization "1" *-- "1..*" ShippingAgentRepresentative
-PhysicalResource "1" *-- "1..*" HumanResource
-Task "1" *-- "1..*" Resource
-Task "1" *-- "0..*" Task : dependsOn
-User "1" *-- "1..*" ShippingAgentRepresentative
-User "1" *-- "1..*" VesselVisit
-User "1" *-- "1..*" Task
 CargoManifest "1" *-- "1..*" Container
-
+Task "1" *-- "1..*" Resource : uses >
+Task "1" *-- "0..*" Task : dependsOn >
+User "1" *-- "0..1" ShippingAgentRepresentative : associatedWith
+User "1" -- "0..*" VesselVisit : manages
+User "1" -- "0..*" Task : assigns
 
 @enduml
