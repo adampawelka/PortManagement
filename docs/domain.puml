@@ -78,7 +78,11 @@ package "<<Aggregate>> Facility" {
 package "<<Aggregate>> Dock" {
     class Dock <<Entity>> <<Root>> {
     }
+    class dockId <<ValueObject>> {
+    }
     class dockName <<ValueObject>> {
+    }
+    class location <<ValueObject>> {
     }
     class length <<ValueObject>> {
     }
@@ -86,7 +90,9 @@ package "<<Aggregate>> Dock" {
     }
     class maxDraft <<ValueObject>> {
     }
+    Dock "1" *-- "1" dockId
     Dock "1" *-- "1" dockName
+    Dock "1" *-- "1" location
     Dock "1" *-- "1" length
     Dock "1" *-- "1" depth
     Dock "1" *-- "1" maxDraft
