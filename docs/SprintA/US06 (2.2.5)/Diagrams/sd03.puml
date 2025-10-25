@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Sequence Diagram - Level 3 (Detailed) for US06
+
+actor "Port Authority Officer" as PAO
+participant ":ShippingAgentsController" as CTRL
+participant ":ShippingAgentService" as SVC
+participant ":ShippingAgentRepository" as REPO
+participant ":ShippingAgentOrganization" as SAO
+
+PAO -> CTRL : POST /api/shipping-agents (dto)
+CTRL -> SVC : RegisterOrganizationAsync(dto)
+SVC -> SAO : new ShippingAgentOrganization(...)
+SAO -> SAO : Validate (at least one rep)
+SAO --> SVC : Instance
+SVC -> REPO : AddAsync(organization)
+REPO --> SVC : Success
+SVC --> CTRL : ShippingAgentOrganizationDto
+CTRL --> PAO : 201 Created
+@enduml

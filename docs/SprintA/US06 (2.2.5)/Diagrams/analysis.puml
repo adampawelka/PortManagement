@@ -1,0 +1,48 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title Analysis - US06
+
+hide circle
+hide methods
+
+class User {
+    id
+    profile
+    permissions
+}
+
+class ShippingAgentOrganization {
+    id
+    legalName
+    alternativeNames
+    address
+    taxNumber
+    representatives
+}
+
+class ShippingAgentRepresentative {
+    id
+    name
+    citizenId
+    nationality
+    email
+    phone
+}
+
+note right of User
+  Only users with profile "PORT_AUTHORITY_OFFICER"
+  can register ShippingAgentOrganization instances.
+end note
+
+note right of ShippingAgentOrganization
+  Organization is created with at least one representative.
+end note
+
+User "1" --> "*" ShippingAgentOrganization : registers
+ShippingAgentOrganization "1" *-- "1..*" ShippingAgentRepresentative : includes
+
+@enduml

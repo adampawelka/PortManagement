@@ -332,7 +332,7 @@ Facility <|-- Dock
 Facility <|-- StorageArea
 StorageArea "1" *-- "0..*" Dock : serves >
 StorageArea "1" *-- "0..*" Distance : toDocks
-Dock "1" *-- "1..*" VesselType : allowedTypes >
+Dock "1" *-- "0..*" VesselType : allowedTypes >
 PhysicalResource "1" -- "0..1" Facility : assignedTo >
 PhysicalResource "1" *-- "1..*" Qualification : requires >
 HumanResource "1" *-- "1..*" Qualification :  >

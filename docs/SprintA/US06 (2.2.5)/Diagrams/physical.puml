@@ -1,0 +1,19 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Physical View - Level 2 (Deployment) for US06
+
+node "API Server" {
+    [ASP.NET Core API] <<Runtime>>
+    [ShippingAgentsController]
+    [ShippingAgentService]
+}
+
+node "Database Server" {
+    [Server] <<Database>>
+    [ShippingAgentOrganizations Table]
+}
+
+"ASP.NET Core API" --> "Server" : Connects
+@enduml

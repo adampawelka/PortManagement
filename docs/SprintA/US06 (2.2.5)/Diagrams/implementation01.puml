@@ -1,0 +1,22 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+title Implementation View - Level 1 (Modules) for US06
+
+folder "Project Root" {
+    folder "src"
+    folder "Controllers"
+    folder "Domain"
+    folder "Infrastructure"
+    folder "test"
+}
+
+src --> Controllers
+src --> Domain
+src --> Infrastructure
+Controllers --> Domain : References
+Domain --> Infrastructure : Persists to
+@enduml

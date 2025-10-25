@@ -1,0 +1,30 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam monochrome true
+
+node "Client Browser" {
+    [Web SPA] as SPA
+}
+
+node "Application Server" {
+    [ASP.NET Core API] as API
+    database "In-Memory Database" as DB
+}
+
+cloud "External Services" {
+    [Identity Provider] as IDP
+    [Email Service] as Email
+}
+
+SPA --> API : HTTPS/REST
+API --> DB : EF Core ORM
+API --> IDP : OAuth 2.0
+API --> Email : SMTP
+
+note right of API
+  Single deployment unit
+  containing all business logic,
+  API endpoints, and data access
+end note
+
+@enduml

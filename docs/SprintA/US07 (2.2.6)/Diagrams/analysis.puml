@@ -1,0 +1,51 @@
+```plantuml
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+title Analysis - US07
+
+hide circle
+hide methods
+
+class User {
+    id
+    profile
+    permissions
+}
+
+class ShippingAgentRepresentative {
+    id
+    name
+    citizenId
+    nationality
+    email
+    phone
+    status
+    organization
+}
+
+class ShippingAgentOrganization {
+    id
+    legalName
+    alternativeNames
+    address
+    taxNumber
+    representatives
+}
+
+note right of User
+  Only users with profile "PORT_AUTHORITY_OFFICER" can manage ShippingAgentRepresentative instances.
+end note
+
+note right of ShippingAgentRepresentative
+  Organization is created with at least one representative.
+end note
+
+User "1" --> "*" ShippingAgentRepresentative : manages
+ShippingAgentRepresentative "*" --> "1" ShippingAgentOrganization : belongs to
+
+@enduml

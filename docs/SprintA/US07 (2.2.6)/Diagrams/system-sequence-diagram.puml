@@ -1,0 +1,32 @@
+```markdown
+```plantuml
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+autonumber
+
+title System Sequence Diagram (SSD) - US07
+
+actor "Port Authority Officer" as PAO
+participant ":System" as System
+
+activate PAO
+
+    PAO -> System : requests to manage a representative
+    activate System
+        System --> PAO : collects inputs for selected fields (name, citizenId, nationality, email, phone, action)
+    deactivate System
+
+    PAO -> System : provides inputs
+    activate System
+        System --> PAO : displays "Representative edited successfully: <repId>"
+    deactivate System
+
+deactivate PAO
+
+@enduml
+```
+```

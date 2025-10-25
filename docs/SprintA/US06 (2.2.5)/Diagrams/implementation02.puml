@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+title Implementation View - Level 2 (Sub-Modules) for US06
+
+folder "Controllers" {
+    [ShippingAgentsController.cs]
+}
+
+folder "Domain" {
+    folder "ShippingAgents" {
+        [ShippingAgentService.cs]
+        [ShippingAgentOrganization.cs]
+        [ShippingAgentRepresentative.cs]
+    }
+}
+
+folder "Infrastructure" {
+    folder "ShippingAgents " {
+        [ShippingAgentRepository.cs]
+        [ShippingAgentEntityTypeConfiguration.cs]
+    }
+}
+
+ShippingAgentsController.cs --> ShippingAgentService.cs : Depends on
+ShippingAgentService.cs --> ShippingAgentOrganization.cs : Uses
+ShippingAgentService.cs --> ShippingAgentRepository.cs : Injects
+@enduml

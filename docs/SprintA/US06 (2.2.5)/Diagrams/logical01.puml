@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+title Logical View - Level 1 (Layers) for US06
+
+package "Presentation Layer" {
+    [ShippingAgentsController]
+}
+
+package "Application Layer" {
+    [ShippingAgentService]
+}
+
+package "Domain Layer" {
+    [ShippingAgentOrganization]
+    [ShippingAgentRepresentative]
+}
+
+package "Persistence Layer" {
+    [ShippingAgentRepository]
+    [DDDSample1DbContext]
+}
+
+"Presentation Layer" --> "Application Layer" : Calls
+"Application Layer" --> "Domain Layer" : Uses
+"Application Layer" --> "Persistence Layer" : Persists via
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Class Diagram - US06
+
+class ShippingAgentsController {
+    + ShippingAgentsController(ShippingAgentService)
+    + Register(CreatingShippingAgentOrganizationDto) : ActionResult<ShippingAgentOrganizationDto>
+}
+
+class ShippingAgentService {
+    + ShippingAgentService(IShippingAgentRepository, IUnitOfWork)
+    + RegisterOrganizationAsync(CreatingShippingAgentOrganizationDto) : Task<ShippingAgentOrganizationDto>
+}
+
+class ShippingAgentRepository {
+    + ShippingAgentRepository(DDDSample1DbContext)
+    + AddAsync(ShippingAgentOrganization) : Task
+}
+
+class ShippingAgentOrganization {
+    - Id: ShippingAgentOrganizationId
+    - LegalName: LegalName
+    - AlternativeNames: List<AlternativeName>
+    - Address: Address
+    - TaxNumber: TaxNumber
+    - Representatives: List<ShippingAgentRepresentative>
+    + ShippingAgentOrganization(id, legalName, alternativeNames, address, taxNumber, representatives)
+}
+
+class ShippingAgentRepresentative {
+    - Id: ShippingAgentRepresentativeId
+    - Name: RepName
+    - CitizenId: CitizenId
+    - Nationality: Nationality
+    - Email: RepEmail
+    - Phone: RepPhone
+    + ShippingAgentRepresentative(id, name, citizenId, nationality, email, phone)
+}
+
+ShippingAgentsController "1" ..> "1" ShippingAgentService
+ShippingAgentService "1" ..> "1" ShippingAgentRepository
+ShippingAgentService ..> ShippingAgentOrganization : creates
+ShippingAgentRepository "1" ..> "1" ShippingAgentOrganization : persists
+ShippingAgentOrganization "1" *-- "1..*" ShippingAgentRepresentative : includes
+
+@enduml

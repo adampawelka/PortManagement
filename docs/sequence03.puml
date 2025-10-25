@@ -1,0 +1,77 @@
+@startuml
+skinparam monochrome true
+
+participant "Controller" as Controller
+participant "Service" as Service
+participant "Repository" as Repo
+participant "DbContext" as DB
+database "Database" as DataStore
+
+== GetAll Request ==
+
+Controller -> Service : GetAllAsync()
+activate Service
+
+Service -> Repo : GetAllAsync()
+activate Repo
+
+Repo -> DB : Entities\n.Include(e => e.Children)\n.Include(e => e.OtherRelations)\n.AsNoTracking()\n.ToListAsync()
+activate DB
+
+note right of DB
+  AsNoTracking():
+  - Read-only query
+  - Better performance
+  - No change tracking overhead
+end note
+
+DB -> DataStore : SELECT e.*, c.*, o.*\nFROM Entities e\nLEFT JOIN Children c ON ...\nLEFT JOIN OtherRelations o ON ...
+activate DataStore
+DataStore --> DB : Result set
+deactivate DataStore
+
+DB -> DB : Materialize entities
+DB --> Repo : List<Entity>
+deactivate DB
+
+Repo --> Service : entities
+deactivate Repo
+
+== Map to DTOs ==
+
+loop For each entity
+    Service -> Service : MapToDto(entity)
+    note right
+      Extract:
+      - Entity ID
+      - Value Object values
+      - Child entity data
+      - Computed properties
+    end note
+end
+
+Service --> Controller : List<ResponseDto>
+deactivate Service
+
+Controller --> Controller : 200 OK + List<ResponseDto>
+
+note over Controller, DataStore
+  **Query Patterns:**
+
+  **GetAll:**
+  - Load all entities
+  - Include related data
+  - AsNoTracking for performance
+
+  **GetById:**
+  - Single entity lookup
+  - Include navigations
+  - Return null if not found
+
+  **GetByFilter:**
+  - Where clause
+  - Pagination support
+  - Sorting support
+end note
+
+@enduml

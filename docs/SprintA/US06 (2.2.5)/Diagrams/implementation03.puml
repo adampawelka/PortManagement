@@ -1,0 +1,31 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Implementation View - Level 3 (Code Elements) for US06
+
+namespace DDDNetCore.Controllers {
+    class ShippingAgentsController {
+        + Register() : ActionResult
+    }
+}
+
+namespace DDDNetCore.Domain.ShippingAgents {
+    class ShippingAgentService {
+        + RegisterOrganizationAsync() : Task
+    }
+    class ShippingAgentOrganization {
+        + Constructor()
+    }
+}
+
+namespace DDDNetCore.Infrastructure.ShippingAgents {
+    class ShippingAgentRepository {
+        + AddAsync() : Task
+    }
+}
+
+ShippingAgentsController ..> ShippingAgentService : Uses namespace
+ShippingAgentService ..> ShippingAgentOrganization : Instantiates
+ShippingAgentService ..> ShippingAgentRepository : Calls
+@enduml

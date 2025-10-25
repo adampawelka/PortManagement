@@ -1,0 +1,62 @@
+```plantuml
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+title Class Diagram - US07
+
+class ShippingAgentsController {
+    + ShippingAgentsController(ShippingAgentService)
+    + CreateRepresentative(orgId: string, dto: CreatingShippingAgentRepresentativeDto) : ActionResult<ShippingAgentRepresentativeDto>
+    + UpdateRepresentative(orgId: string, repId: string, dto: CreatingShippingAgentRepresentativeDto) : ActionResult<ShippingAgentRepresentativeDto>
+    + DeactivateRepresentative(orgId: string, repId: string) : ActionResult
+}
+
+class ShippingAgentService {
+    + ShippingAgentService(IShippingAgentRepository, IUnitOfWork)
+    + CreateRepresentative(orgId: string, dto: CreatingShippingAgentRepresentativeDto) : ShippingAgentRepresentativeDto
+    + UpdateRepresentative(orgId: string, repId: string, dto: CreatingShippingAgentRepresentativeDto) : ShippingAgentRepresentativeDto
+    + DeactivateRepresentative(orgId: string, repId: string) : void
+}
+
+class IShippingAgentRepository {
+    + FindByIdAsync(id: ShippingAgentOrganizationId) : Task<ShippingAgentOrganization>
+    + FindRepresentativeByIdAsync(id: ShippingAgentRepresentativeId) : Task<ShippingAgentRepresentative>
+    + SaveAsync(entity: ShippingAgentRepresentative) : Task<ShippingAgentRepresentative>
+}
+
+class ShippingAgentRepresentative {
+    - Id: ShippingAgentRepresentativeId
+    - Name: RepName
+    - CitizenId: CitizenId
+    - Nationality: Nationality
+    - Email: RepEmail
+    - Phone: RepPhone
+    - Status: RepresentativeStatus
+    + ValidateInputs(...)
+    + Update(name: RepName, email: RepEmail, phone: RepPhone)
+    + Deactivate()
+}
+
+class ShippingAgentOrganization {
+    - Id: ShippingAgentOrganizationId
+    - Representatives: List<ShippingAgentRepresentative>
+    + AddRepresentative(rep: ShippingAgentRepresentative)
+}
+
+class RepresentativeStatus {
+    + ACTIVE
+    + INACTIVE
+}
+
+ShippingAgentsController "1" ..> "1" ShippingAgentService
+ShippingAgentService "1" ..> "1" IShippingAgentRepository
+ShippingAgentService ..> ShippingAgentRepresentative : creates/updates
+IShippingAgentRepository "1" ..> "1" ShippingAgentRepresentative : persists
+IShippingAgentRepository "1" ..> "1" ShippingAgentOrganization : queries
+ShippingAgentRepresentative "*" --> "1" ShippingAgentOrganization : belongs to
+
+@enduml

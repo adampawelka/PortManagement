@@ -1,0 +1,44 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Logical View - Level 3 (Detailed Classes) for US06
+
+class ShippingAgentsController {
+    + ShippingAgentsController(ShippingAgentService)
+    + Register(CreatingShippingAgentOrganizationDto) : ActionResult<ShippingAgentOrganizationDto>
+}
+
+class ShippingAgentService {
+    - _repo: IShippingAgentRepository
+    - _unitOfWork: IUnitOfWork
+    + RegisterOrganizationAsync(dto: CreatingShippingAgentOrganizationDto) : Task<ShippingAgentOrganizationDto>
+}
+
+class ShippingAgentOrganization {
+    - Id: ShippingAgentOrganizationId
+    - LegalName: LegalName
+    - AlternativeNames: List<AlternativeName>
+    - Address: Address
+    - TaxNumber: TaxNumber
+    - Representatives: List<ShippingAgentRepresentative>
+    + ShippingAgentOrganization(id, legalName, alternativeNames, address, taxNumber, representatives)
+    + ValidateRepresentatives()
+}
+
+class ShippingAgentRepresentative {
+    - Id: ShippingAgentRepresentativeId
+    - Name: RepName
+    - CitizenId: CitizenId
+    - Nationality: Nationality
+    - Email: RepEmail
+    - Phone: RepPhone
+    + ShippingAgentRepresentative(id, name, citizenId, nationality, email, phone)
+}
+
+ShippingAgentsController ..> ShippingAgentService
+ShippingAgentService ..> ShippingAgentOrganization : Creates
+ShippingAgentOrganization *-- ShippingAgentRepresentative : 1..*
+@enduml

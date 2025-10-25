@@ -1,0 +1,46 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title Full Sequence Diagram - US06
+
+actor "Port Authority Officer" as PAO
+participant ":ShippingAgentsController" as CTRL
+participant ":ShippingAgentService" as SVC
+participant ":ShippingAgentRepository" as REPO
+participant ":ShippingAgentOrganization" as SAO
+participant ":ShippingAgentRepresentative" as SAR
+
+activate PAO
+
+      PAO -> CTRL : POST /api/shipping-agents
+      activate CTRL
+            CTRL -> SVC : RegisterOrganizationAsync(dto)
+            activate SVC
+                  SVC -> REPO : findById(identifier) // Optional check for uniqueness
+                  activate REPO
+                        REPO --> SVC : null (if unique)
+                  deactivate REPO
+                  SVC -> SAO : new ShippingAgentOrganization(id, legalName, alternativeNames, address, taxNumber, representatives)
+                  activate SAO
+                        SAO -> SAO : validateInputs(...)
+                        SAO -> SAR : new ShippingAgentRepresentative(...) // For each rep
+                        activate SAR
+                              SAR --> SAO : ShippingAgentRepresentative
+                        deactivate SAR
+                        SAO --> SVC : ShippingAgentOrganization
+                  deactivate SAO
+                  SVC -> REPO : AddAsync(organization)
+                  activate REPO
+                        REPO --> SVC : ShippingAgentOrganization
+                  deactivate REPO
+            SVC --> CTRL : ShippingAgentOrganizationDto
+      deactivate CTRL
+      CTRL --> PAO : Created with ID
+
+deactivate PAO
+
+@enduml

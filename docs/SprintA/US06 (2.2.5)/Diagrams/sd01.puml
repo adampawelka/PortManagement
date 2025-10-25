@@ -1,0 +1,12 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Sequence Diagram - Level 1 (System) for US06
+
+actor "Port Authority Officer" as PAO
+participant "System" as SYS
+
+PAO -> SYS : POST /api/shipping-agents (data)
+SYS --> PAO : 201 Created (ID)
+@enduml

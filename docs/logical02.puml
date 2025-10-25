@@ -1,0 +1,66 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam monochrome true
+skinparam linetype ortho
+
+package "Presentation Layer" {
+    [Web SPA UI] as UI
+    [REST API Controllers] as Controllers
+}
+
+package "Application Layer" {
+    [Services] as Services
+    [DTOs] as DTOs
+}
+
+package "Domain Layer" {
+    [Entities & Aggregates] as Entities
+    [Value Objects] as VOs
+    [Domain Services] as DomainServices
+    [Repository Interfaces] as RepoInterfaces
+    [Business Rules] as Rules
+}
+
+package "Infrastructure Layer" {
+    [EF Core DbContext] as EFCore
+    [Repositories] as Repos
+    [Entity Configurations] as EntityConfig
+    [External Services] as External
+}
+
+package "Cross-Cutting" {
+    [Authentication] as Auth
+    [Logging] as Log
+    [Validation] as Valid
+}
+
+UI --> Controllers : HTTP Requests
+Controllers --> Services : Use
+Controllers --> DTOs : Transform
+Services --> Entities : Manipulate
+Services --> RepoInterfaces : Call
+Services --> DomainServices : Use
+Entities --> VOs : Composed of
+Entities --> Rules : Apply
+RepoInterfaces <|.. Repos : Implement
+Repos --> EFCore : Use
+EFCore --> EntityConfig : Configure
+Services --> External : Use
+
+Auth ..> Controllers : Secure
+Log ..> Services : Log
+Valid ..> DTOs : Validate
+
+note right of "Domain Layer"
+  Core business logic
+  Framework-agnostic
+  No dependencies on infrastructure
+end note
+
+note right of "Infrastructure Layer"
+  Technical implementations
+  Database access
+  External integrations
+end note
+
+@enduml

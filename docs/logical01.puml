@@ -1,0 +1,37 @@
+@startuml
+!define RECTANGLE class
+
+skinparam componentStyle rectangle
+skinparam monochrome true
+
+actor "Port Authority Officer" as PAO
+actor "Shipping Agent Representative" as SAR
+actor "Logistics Operator" as LO
+actor "Administrator" as Admin
+
+rectangle "Port Management System" as PMS {
+}
+
+rectangle "Identity Provider\n(Google/Microsoft/Facebook)" as IDP
+rectangle "Email Service" as Email
+rectangle "Document Storage" as Docs
+
+PAO --> PMS : Manages facilities,\napproves visits,\nmanages agents
+SAR --> PMS : Submits vessel\nvisit notifications
+LO --> PMS : Plans operations,\nallocates resources
+Admin --> PMS : Manages users\nand permissions
+
+PMS --> IDP : Authenticates users
+PMS --> Email : Sends notifications
+PMS --> Docs : Stores documents
+
+note right of PMS
+  Core system for managing:
+  - Port facilities (docks, storage)
+  - Shipping agents & representatives
+  - Vessel visits & cargo manifests
+  - Resource allocation & scheduling
+  - Task planning & execution
+end note
+
+@enduml

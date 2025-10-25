@@ -1,0 +1,88 @@
+```plantuml
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+autonumber
+
+title Full Sequence Diagram - US07
+
+actor "Port Authority Officer" as PAO
+participant ":ShippingAgentsController" as CTRL
+participant ":ShippingAgentService" as SVC
+participant ":ShippingAgentRepository" as REPO
+participant ":ShippingAgentRepresentative" as REP
+participant ":ShippingAgentOrganization" as ORG
+
+activate PAO
+
+    PAO -> CTRL : POST /api/shipping-agents/{orgId}/representatives
+    activate CTRL
+        CTRL -> SVC : CreateRepresentative(orgId, dto)
+        activate SVC
+            SVC -> REPO : FindByIdAsync(orgId)
+            activate REPO
+                REPO --> SVC : ShippingAgentOrganization
+            deactivate REPO
+            SVC -> REP : new ShippingAgentRepresentative(id, name, citizenId, nationality, email, phone)
+            activate REP
+                REP -> REP : ValidateInputs(...)
+                REP -> ORG : AddRepresentative(rep)
+                activate ORG
+                    ORG --> REP : Success
+                deactivate ORG
+                REP --> SVC : ShippingAgentRepresentative
+            deactivate REP
+            SVC -> REPO : SaveAsync(rep)
+            activate REPO
+                REPO --> SVC : ShippingAgentRepresentative
+            deactivate REPO
+        SVC --> CTRL : ShippingAgentRepresentativeDto
+        CTRL --> PAO : 201 Created
+    deactivate CTRL
+
+    PAO -> CTRL : PUT /api/shipping-agents/{orgId}/representatives/{repId}
+    activate CTRL
+        CTRL -> SVC : UpdateRepresentative(orgId, repId, dto)
+        activate SVC
+            SVC -> REPO : FindByIdAsync(repId)
+            activate REPO
+                REPO --> SVC : ShippingAgentRepresentative
+            deactivate REPO
+            SVC -> REP : Update(name, email, phone)
+            activate REP
+                REP --> SVC : Success
+            deactivate REP
+            SVC -> REPO : SaveAsync(rep)
+            activate REPO
+                REPO --> SVC : ShippingAgentRepresentative
+            deactivate REPO
+        SVC --> CTRL : ShippingAgentRepresentativeDto
+        CTRL --> PAO : 200 OK
+    deactivate CTRL
+
+    PAO -> CTRL : DELETE /api/shipping-agents/{orgId}/representatives/{repId}
+    activate CTRL
+        CTRL -> SVC : DeactivateRepresentative(orgId, repId)
+        activate SVC
+            SVC -> REPO : FindByIdAsync(repId)
+            activate REPO
+                REPO --> SVC : ShippingAgentRepresentative
+            deactivate REPO
+            SVC -> REP : Deactivate()
+            activate REP
+                REP --> SVC : Success
+            deactivate REP
+            SVC -> REPO : SaveAsync(rep)
+            activate REPO
+                REPO --> SVC : ShippingAgentRepresentative
+            deactivate REPO
+        SVC --> CTRL : Success
+        CTRL --> PAO : 204 No Content
+    deactivate CTRL
+
+deactivate PAO
+
+@enduml

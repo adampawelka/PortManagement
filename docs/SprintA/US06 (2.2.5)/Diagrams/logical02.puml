@@ -1,0 +1,36 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Logical View - Level 2 (Components) for US06
+
+package "Presentation Layer" {
+    component "API Endpoint" as API {
+        [POST /api/shipping-agents]
+    }
+    [ShippingAgentsController]
+}
+
+package "Application Layer" {
+    [ShippingAgentService]
+    [CreatingShippingAgentOrganizationDto]
+}
+
+package "Domain Layer" {
+    [ShippingAgentOrganization] <<Aggregate Root>>
+    [ShippingAgentRepresentative] <<Entity>>
+    [LegalName] <<Value Object>>
+    [RepEmail] <<Value Object>>
+}
+
+package "Persistence Layer" {
+    [ShippingAgentRepository]
+    [ShippingAgentEntityTypeConfiguration]
+}
+
+ShippingAgentsController --> ShippingAgentService : Invokes RegisterOrganizationAsync
+ShippingAgentService --> ShippingAgentOrganization : Creates
+ShippingAgentOrganization *-- ShippingAgentRepresentative : Includes
+ShippingAgentService --> ShippingAgentRepository : Adds via
+@enduml

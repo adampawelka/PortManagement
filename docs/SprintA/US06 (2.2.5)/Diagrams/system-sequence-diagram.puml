@@ -1,0 +1,29 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title System Sequence Diagram (SSD) - US06
+
+actor "Port Authority Officer" as PAO
+participant ":System" as System
+
+activate PAO
+
+    PAO -> System : requests to register shipping agent organization
+    activate System
+
+    System --> PAO : collects inputs (legalName, alternativeNames, address, taxNumber, representatives)
+    deactivate System
+
+    PAO -> System : provides inputs
+    activate System
+
+    System --> PAO : displays "Shipping Agent Organization created with ID: <id>"
+    deactivate System
+
+deactivate PAO
+
+@enduml

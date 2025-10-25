@@ -1,0 +1,38 @@
+@startuml
+skinparam monochrome true
+
+actor "Shipping Agent\nRepresentative" as SAR
+participant "Port Management\nSystem" as PMS
+actor "Port Authority\nOfficer" as PAO
+actor "Logistics\nOperator" as LO
+
+== Vessel Visit Notification Process ==
+
+SAR -> PMS : 1. Submit Vessel Visit Notification\n(with cargo manifest)
+activate PMS
+PMS --> SAR : Notification submitted (IN_PROGRESS)
+deactivate PMS
+
+PAO -> PMS : 2. Review notification
+activate PMS
+PMS --> PAO : Display notification details
+deactivate PMS
+
+PAO -> PMS : 3. Approve & assign dock
+activate PMS
+PMS --> PAO : Visit approved
+PMS --> SAR : Notification: Visit approved
+deactivate PMS
+
+LO -> PMS : 4. Plan operations & allocate resources
+activate PMS
+PMS --> LO : Schedule created
+deactivate PMS
+
+LO -> PMS : 5. Execute tasks
+activate PMS
+PMS --> LO : Task status updates
+deactivate PMS
+
+
+@enduml
