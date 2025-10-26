@@ -1,0 +1,37 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title System Sequence Diagram (SSD) - US2211
+
+actor "Logistics Operator" as LO
+participant ":System" as System 
+
+activate LO
+
+    LO -> System : requests to register a new staff member 
+    activate System
+        System --> LO : collects inputs (mecanographicNumber, name, contact, qualifications, etc.) 
+    deactivate System
+
+    LO -> System : provides inputs
+    activate System
+        System --> LO : displays "Staff member created with ID: <StaffID>"
+    deactivate System
+
+    LO -> System : requests to deactivate a staff member 
+    activate System
+        System --> LO : requests staff member ID
+    deactivate System
+    
+    LO -> System : provides ID
+    activate System
+        System --> LO : confirms deactivation 
+    deactivate System
+
+deactivate LO
+
+@enduml

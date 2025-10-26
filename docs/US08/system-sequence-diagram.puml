@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title System Sequence Diagram (SSD) - US227
+
+actor "Port Authority Officer" as PAO
+participant ":System" as System
+
+activate PAO
+    PAO -> System : requests to see pending notifications 
+    activate System
+        System --> PAO : displays list of "Submitted" notifications
+    deactivate System
+    
+    PAO -> System : selects notification (ID) to approve (providing DockId) [cite: 65]
+    activate System
+        System --> PAO : confirms approval, shows updated status 
+    deactivate System
+
+    PAO -> System : selects notification (ID) to reject (providing Reason) [cite: 66]
+    activate System
+        System --> PAO : confirms rejection, shows updated status 
+    deactivate System
+deactivate PAO
+
+@enduml

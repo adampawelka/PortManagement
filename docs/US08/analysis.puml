@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title Analysis - US227 - Review Visit Notification
+
+hide circle
+hide methods
+top to bottom direction
+
+class User {
+    userId
+    profile
+    permissions
+}
+
+class VesselVisitNotification {
+    Id
+    Status
+    RejectionReason
+    DecisionTimestamp
+}
+
+class Dock {
+    DockID
+    DockName
+    Location
+}
+
+note right of User
+    Only users with profile "Port Authority Officer"
+    can approve or reject notifications.
+end note
+
+User "1" --> "1..*" VesselVisitNotification : reviews
+VesselVisitNotification "0..1" -- "1" Dock : is assigned to >
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title System Sequence Diagram (SSD) - US229
+
+actor "Shipping Agent" as Agent
+participant ":System" as System
+
+activate Agent
+    Agent -> System : requests to update visit notification (id)
+    activate System
+        System --> Agent : requests data to be modified
+    deactivate System
+    
+    Agent -> System : provides new data (cargo manifest, submit=true)
+    activate System
+        System --> Agent : displays "Notification updated"
+        ' alt if status is not 'InProgress'
+        ' System --> Agent : displays "Error: Notification is already submitted."
+        ' end
+    deactivate System
+deactivate Agent
+
+@enduml

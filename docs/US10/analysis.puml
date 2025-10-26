@@ -1,0 +1,43 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title Analysis - US229 - Modify Visit Notification
+
+hide circle
+hide methods
+top to bottom direction
+
+class User {
+    userId
+    profile
+}
+
+class VesselVisitNotification << (A, #FF7700) >> {
+    Id
+    Status
+}
+
+class CargoManifest << (V, #FFCC88) >> {
+    Data
+}
+
+enum NotificationStatus {
+    InProgress
+    Submitted
+    Approved
+    Rejected
+}
+
+note right of User
+    Only users with profile "Shipping Agent"
+    can modify their own notifications.
+end note
+
+User "1" --> "0..*" VesselVisitNotification : modifies
+VesselVisitNotification "1" *-- "1" NotificationStatus : has
+VesselVisitNotification "1" *-- "1" CargoManifest : has
+
+@enduml

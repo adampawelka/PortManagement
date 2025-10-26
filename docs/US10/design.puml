@@ -1,0 +1,64 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+autonumber
+
+title Full Sequence Diagram - US229 - Update Notification
+
+actor "Shipping Agent" as Agent
+participant ":VesselVisitNotificationsController" as CTRL
+participant ":VesselVisitNotificationService" as SVC
+participant ":IVesselVisitNotificationRepository" as REPO
+participant "notification:VesselVisitNotification" as N_MODEL
+participant ":IUnitOfWork" as UOW
+
+activate Agent
+    Agent -> CTRL : PUT /api/vesselvisitnotifications/{id} (dto)
+    activate CTRL
+        CTRL -> SVC : UpdateAsync(notificationId, dto)
+        activate SVC
+            ' 1. Get the Aggregate Root
+            SVC -> REPO : GetByIdAsync(notificationId)
+            activate REPO
+                REPO --> SVC : notification
+            deactivate REPO
+            
+            ' 2. Execute business logic on the entity
+            SVC -> N_MODEL : UpdateData(newManifest)
+            activate N_MODEL
+                ' AC4: Entity validates its own state
+                N_MODEL -> N_MODEL : check (Status == InProgress)
+                alt if validation fails
+                    N_MODEL -->> SVC : throw InvalidOperationException
+                else
+                    N_MODEL -> N_MODEL : set CargoManifest
+                end
+            deactivate N_MODEL
+
+            ' 3. Execute state transition on the entity
+            ' if (dto.Submit == true)
+            SVC -> N_MODEL : SubmitForApproval()
+            activate N_MODEL
+                ' AC4: Entity validates its own state again
+                N_MODEL -> N_MODEL : check (Status == InProgress)
+                N_MODEL -> N_MODEL : set Status = Submitted
+            deactivate N_MODEL
+            ' end
+
+            ' 4. Commit transaction
+            SVC -> UOW : CompleteAsync()
+            activate UOW
+                UOW --> SVC : void
+            deactivate UOW
+
+            ' 5. Map response
+            SVC -> SVC : MapToDto(notification)
+            SVC --> CTRL : VesselVisitNotificationDto
+        deactivate SVC
+        
+        CTRL --> Agent : 200 OK (notificationDto)
+    deactivate CTRL
+deactivate Agent
+
+@enduml

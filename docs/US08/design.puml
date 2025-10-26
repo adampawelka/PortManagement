@@ -1,0 +1,61 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+autonumber
+
+title Full Sequence Diagram - US227 - Approve Notification
+
+actor "Port Authority Officer" as PAO
+participant ":PortAuthorityMenu" as UI
+participant ":VsvNotificationsController" as CTRL
+participant ":VsvNotificationService" as SVC
+participant ":PortManagementContext" as CTX
+participant "notification:VesselVisitNotification" as N_MODEL
+
+activate PAO
+    PAO -> UI : requests to approve notification (id, dockId)
+    activate UI
+        UI -> CTRL : PUT /api/vsvnotifications/{id}/approve (dto)
+        activate CTRL
+            CTRL -> SVC : ApproveNotificationAsync(id, dto, officerId)
+            activate SVC
+                ' 1. Encontrar la notificación
+                SVC -> CTX : FirstOrDefaultAsync(n => n.Id == id)
+                activate CTX
+                    CTX --> SVC : notification
+                deactivate CTX
+                
+                ' 2. Validar el muelle [cite: 65]
+                SVC -> CTX : FindAsync(dto.DockId)
+                activate CTX
+                    CTX --> SVC : dock
+                deactivate CTX
+
+                ' 3. Llamar a la lógica de negocio del modelo
+                SVC -> N_MODEL : Approve(dto.DockId, officerId)
+                activate N_MODEL
+                    N_MODEL -> N_MODEL : set Status = Approved
+                    N_MODEL -> N_MODEL : set AssignedDockId = ...
+                    N_MODEL -> N_MODEL : set DecisionTimestamp = ... 
+                deactivate N_MODEL
+
+                ' 4. Guardar cambios
+                SVC -> CTX : SaveChangesAsync()
+                activate CTX
+                    CTX --> SVC : int (rows affected)
+                deactivate CTX
+
+                ' 5. Mapear DTO de respuesta
+                SVC -> SVC : MapToDto(notification)
+                SVC --> CTRL : VesselVisitNotificationDto
+            deactivate SVC
+            
+            CTRL --> UI : 200 OK (notificationDto)
+        deactivate CTRL
+        
+        UI --> PAO : displays "Notification Approved"
+    deactivate UI
+deactivate PAO
+
+@enduml

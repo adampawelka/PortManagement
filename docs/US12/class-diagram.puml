@@ -1,0 +1,63 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Class Diagram - US2211
+
+class LogisticsOperatorMenu {
+    + registerStaffMember()
+    + deactivateStaffMember() 
+}
+
+class StaffMembersController {
+    + StaffMembersController(StaffMemberService)
+    + CreateStaffMember(CreateStaffMemberDto) : Task<ActionResult>
+    + DeactivateStaffMember(Guid) : Task<IActionResult>
+}
+
+class StaffMemberService {
+    - _context: PortManagementContext
+    + StaffMemberService(PortManagementContext)
+    + CreateStaffMemberAsync(CreateStaffMemberDto) : Task<StaffMemberDto>
+    + DeactivateStaffMemberAsync(Guid) : Task<StaffMemberDto?>
+    - MapToDto(StaffMember) : StaffMemberDto
+}
+
+' Replaced Repository with DbContext
+class PortManagementContext {
+    + StaffMembers : DbSet<StaffMember>
+    + Qualifications : DbSet<Qualification>
+    + SaveChangesAsync() : Task<int>
+}
+
+class StaffMember {
+    - Id: Guid
+    - MecanographicNumber: string
+    - ShortName: string
+    - Status: StaffStatus
+    - Qualifications: List<Qualification>
+    + StaffMember(CreateStaffMemberDto)
+    + Deactivate()
+    + Reactivate()
+    + SetQualifications(List<Qualification>)
+}
+
+class Qualification {
+    - Id: Guid
+    - Code: string
+    - Name: string
+}
+
+"Logistics Operator" "1" ..> "1" LogisticsOperatorMenu
+LogisticsOperatorMenu "1" ..> "1" StaffMembersController
+StaffMembersController "1" ..> "1" StaffMemberService
+StaffMemberService "1" ..> "1" PortManagementContext : uses
+StaffMemberService ..> StaffMember : creates
+PortManagementContext "1" ..> "0..*" StaffMember : persists
+PortManagementContext "1" ..> "0..*" Qualification : persists
+StaffMember "0..*" -- "0..*" Qualification : has
+
+@enduml
