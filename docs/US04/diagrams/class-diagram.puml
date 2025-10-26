@@ -1,0 +1,69 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Class Diagram - US223
+
+class DocksController {
+    + DocksController(DockService)
+    + CreateDock(CreatingDockDto) : ActionResult<DockDto>
+    + UpdateDock(UpdatingDockDto) : ActionResult<DockDto>
+}
+
+' createDock and updateDock returns a message
+
+class DockService {
+    + DocksService(DockRepository)
+    + AddDockAsync(CreatingDockDto) : DockDto
+    + UpdateDockAsync(UpdatingDockDto) : DockDto
+    + SearchAsync(name?, location?, vesselId?) : List<DockDto>
+}
+
+class DockRepository {
+    + DockRepository(DDDSample1Context)
+    + AddDockAsync(Dock) : DockDto
+    + SearchAsync(name?, location?, vesselId?) : List<Dock>
+}
+
+class Dock {
+    - DockId: Guid
+    - DockName: string
+    - Depth: double
+    - Length: double
+    - MaxDraft: double
+    - AllowedVesselTypes: List<VesselType>
+    + getDockId(): Guid
+    + getDockName(): string
+    + getDepth(): double
+    + getLength(): double
+    + getMaxDraft(): double
+    + get AllowedVesselTypes(): List<VesselType>
+
+    + Dock(name, location, length, depth, maxDraft)
+    + UpdateDock(newName?, newLocation?, newLength?, newDepth?, newMaxDraft?) 
+}
+
+class VesselType {
+    - VesselName: string
+    - Description: string
+    - Capacity: double
+    - Constraints : OperationalConstraints
+    + getVesselName(): string
+    + getDescription(): string
+    + getCapacity(): double
+    + getConstraints(): OperationalConstraints
+
+    + VesselType(vesselName, description, capacity, contraints)
+}
+
+
+DocksController "1" ..> "1" DockService
+DockService "1" ..> "1" DockRepository
+DockService ..> Dock : creates
+DockRepository "1" ..> "1" Dock : persists
+Dock "1.." --> "0.." VesselType : allows 
+
+@enduml

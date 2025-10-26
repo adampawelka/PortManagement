@@ -1,0 +1,95 @@
+@startuml VesselTypes REST API
+
+actor "Port Authority Officer" as User
+
+rectangle "VesselTypes API" {
+    [GET /api/vesseltypes] as GetAll
+    [GET /api/vesseltypes/{id}] as GetById  
+    [POST /api/vesseltypes] as Create
+    [PUT /api/vesseltypes/{id}] as Update
+    [DELETE /api/vesseltypes/{id}] as Delete
+}
+
+rectangle "Data Models" {
+    [CreatingVesselTypeDto] as CreateDto
+    [UpdatingVesselTypeDto] as UpdateDto
+    [VesselTypeDto] as ResponseDto
+}
+
+User --> GetAll : "Get all vessel types"
+User --> GetById : "Get vessel type by ID"
+User --> Create : "Create new vessel type"
+User --> Update : "Update vessel type"
+User --> Delete : "Delete vessel type"
+
+Create --> CreateDto : "Accepts"
+Update --> UpdateDto : "Accepts"
+GetAll --> ResponseDto : "Returns"
+GetById --> ResponseDto : "Returns"
+Create --> ResponseDto : "Returns"
+Update --> ResponseDto : "Returns"
+Delete --> ResponseDto : "Returns"
+
+note right of GetAll
+    Returns: List<VesselTypeDto>
+    Status: 200 OK
+end note
+
+note right of GetById
+    Parameter: Guid id
+    Returns: VesselTypeDto
+    Status: 200 OK / 404 Not Found
+end note
+
+note right of Create
+    Body: CreatingVesselTypeDto
+    Returns: VesselTypeDto
+    Status: 201 Created / 400 Bad Request
+end note
+
+note right of Update
+    Parameter: Guid id
+    Body: UpdatingVesselTypeDto
+    Returns: VesselTypeDto
+    Status: 200 OK / 404 Not Found
+end note
+
+note right of Delete
+    Parameter: Guid id
+    Returns: VesselTypeDto
+    Status: 200 OK / 404 Not Found
+end note
+
+note bottom of CreateDto
+    Properties:
+    - Name: String
+    - Description: String
+    - Capacity: Integer
+    - MaxRows: Integer
+    - MaxBays: Integer
+    - MaxTiers: Integer
+end note
+
+note bottom of UpdateDto
+    Properties:
+    - Id: String
+    - Name: String
+    - Description: String
+    - Capacity: Integer
+    - MaxRows: Integer
+    - MaxBays: Integer
+    - MaxTiers: Integer
+end note
+
+note bottom of ResponseDto
+    Properties:
+    - Id: String
+    - Name: String
+    - Description: String
+    - Capacity: Integer
+    - MaxRows: Integer
+    - MaxBays: Integer
+    - MaxTiers: Integer
+end note
+
+@enduml

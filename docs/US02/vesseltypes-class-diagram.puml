@@ -1,0 +1,128 @@
+@startuml VesselTypes Class Diagram
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam linetype ortho
+
+package "Domain Layer" {
+    class VesselType <<Entity>> <<AggregateRoot>> {
+        - Id: VesselTypeId
+        - Name: string
+        - Description: string
+        - Capacity: int
+        - Constraints: OperationalConstraints
+        --
+        + VesselType(name, description, capacity, constraints)
+        + ChangeName(name: string)
+        + ChangeDescription(description: string)
+        + ChangeCapacity(capacity: int)
+        + ChangeConstraints(constraints: OperationalConstraints)
+    }
+    
+    class VesselTypeId <<ValueObject>> {
+        - Value: Guid
+        --
+        + VesselTypeId(value: Guid)
+        + VesselTypeId(value: string)
+        + AsGuid(): Guid
+        + AsString(): string
+    }
+    
+    class OperationalConstraints <<ValueObject>> {
+        - MaxRows: int
+        - MaxBays: int
+        - MaxTiers: int
+        --
+        + OperationalConstraints(maxRows, maxBays, maxTiers)
+    }
+    
+    class VesselTypeDto <<DTO>> {
+        + Id: Guid
+        + Name: string
+        + Description: string
+        + Capacity: int
+        + Constraints: OperationalConstraints
+        --
+        + VesselTypeDto(id, name, description, capacity, constraints)
+    }
+    
+    class CreatingVesselTypeDto <<DTO>> {
+        + Name: string
+        + Description: string
+        + Capacity: int
+        + Constraints: OperationalConstraints
+        --
+        + CreatingVesselTypeDto(name, description, capacity, constraints)
+    }
+    
+    class UpdatingVesselTypeDto <<DTO>> {
+        + Id: Guid
+        + Name: string
+        + Description: string
+        + Capacity: int
+        + Constraints: OperationalConstraints
+        --
+        + UpdatingVesselTypeDto(id, name, description, capacity, constraints)
+    }
+    
+    interface IVesselTypeRepository <<Repository>> {
+        + GetAllAsync(): Task<List<VesselType>>
+        + GetByIdAsync(id: VesselTypeId): Task<VesselType>
+        + AddAsync(vesselType: VesselType): Task
+        + UpdateAsync(vesselType: VesselType): Task
+        + Remove(vesselType: VesselType): void
+    }
+}
+
+package "Service Layer" {
+    class VesselTypeService <<Service>> {
+        - _unitOfWork: IUnitOfWork
+        - _vesselTypeRepository: IVesselTypeRepository
+        --
+        + VesselTypeService(unitOfWork, repository)
+        + GetAllAsync(): Task<List<VesselTypeDto>>
+        + GetByIdAsync(id: Guid): Task<VesselTypeDto>
+        + AddAsync(dto: CreatingVesselTypeDto): Task<VesselTypeDto>
+        + UpdateAsync(dto: UpdatingVesselTypeDto): Task<VesselTypeDto>
+        + DeleteAsync(id: Guid): Task<VesselTypeDto>
+        - ToDto(vesselType: VesselType): VesselTypeDto
+    }
+}
+
+package "Infrastructure Layer" {
+    class VesselTypeRepository <<Repository Implementation>> {
+        - _context: DDDSample1DbContext
+        --
+        + VesselTypeRepository(context)
+    }
+    
+    class VesselTypeEntityTypeConfiguration <<EF Configuration>> {
+        + Configure(builder: EntityTypeBuilder<VesselType>)
+    }
+}
+
+package "API Layer" {
+    class VesselTypesController <<Controller>> {
+        - _service: VesselTypeService
+        --
+        + VesselTypesController(service)
+        + GetAll(): Task<ActionResult<List<VesselTypeDto>>>
+        + GetById(id: Guid): Task<ActionResult<VesselTypeDto>>
+        + Create(dto: CreatingVesselTypeDto): Task<ActionResult<VesselTypeDto>>
+        + Update(id: Guid, dto: UpdatingVesselTypeDto): Task<ActionResult<VesselTypeDto>>
+        + Delete(id: Guid): Task<ActionResult<VesselTypeDto>>
+    }
+}
+
+' Relationships
+VesselType "1" *-- "1" VesselTypeId
+VesselType "1" *-- "1" OperationalConstraints
+VesselTypeService "1" --> "1" IVesselTypeRepository
+VesselTypeService "1" --> "1" IUnitOfWork
+VesselTypeRepository ..|> IVesselTypeRepository
+VesselTypesController "1" --> "1" VesselTypeService
+VesselTypeService "1" --> "1" VesselTypeDto
+VesselTypeService "1" --> "1" CreatingVesselTypeDto
+VesselTypeService "1" --> "1" UpdatingVesselTypeDto
+
+@enduml

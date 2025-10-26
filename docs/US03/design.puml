@@ -1,0 +1,64 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title Full Sequence Diagram - US223
+
+actor "Port Officer Authority" as POA
+participant ":PortOfficerAuthorityMenu" as UI
+participant ":VesselsController" as VCTRL
+participant ":VesselService" as VSVC
+participant ":VesselRepository" as DREPO
+participant ":Vessel" as V
+participant ":VesselTypeService" as VTSVC
+participant ":VesselTypeRepository" as VTREPO
+participant ":ShippingAgentOrganization" as SAO
+participant ":ShippingAgentOService" as SAOSVC
+participant ":ShippingAgentORepository" as SAOREPO
+
+activate POA
+
+      POA -> UI : requests to register a Vessel
+      activate UI
+            UI -> UI : collect inputs (imo, vesselName, vesselType, owner)
+            UI -> VCTRL : Create(imo, vesselName, vesselType, owner)
+            activate VCTRL
+                  VCTRL -> VSVC : AddVessel(imo, vesselName, vesselType, owner)
+                  activate VSVC
+                        VSVC -> VTSVC : GetVesselTypeByID(vesselID)
+                        activate VTSVC
+                              VTSVC -> VTREPO : GetVesselTypeByID(vesselTypeID)
+                              activate VTREPO
+                                    VTREPO --> VTSVC : VesselType
+                              deactivate VTREPO
+                              VTSVC -> VSVC : VesselType
+
+                        VSVC -> SAOSVC : GetShippingAgentOrganizationTypeByID(shippingAgentOrganizationID)
+                        activate SAOSVC
+                              SAOSVC -> SAOREPO : GetShippingAgentOrganizationTypeByID(shippingAgentOrganizationID)
+                              activate SAOREPO
+                                    SAOREPO --> SAOSVC : ShippingAgentOrganization
+                              deactivate SAOREPO
+                              SAOSVC -> VSVC : ShippingAgentOrganization
+                  VCTRL -> VSVC : CreateVessel(imo, vesselName, vesselType, owner)
+                  activate VSVC
+                        VSVC -> V : new Vessel(imo, vesselName, vesselType, owner)
+                        activate V
+                              V -> V : validateInputs(...)
+                              V --> VSVC : Vessel
+                        deactivate V
+                        VSVC -> DREPO : save(Vessel)
+                        activate DREPO
+                              DREPO --> VSVC : Vessel
+                        deactivate DREPO
+                  VSVC --> VCTRL : Vessel
+            deactivate VCTRL
+            UI --> POA : displays "Vessel created with ID: ..."
+      deactivate UI
+
+deactivate POA
+
+@enduml

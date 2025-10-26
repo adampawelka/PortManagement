@@ -2,8 +2,18 @@ using Microsoft.EntityFrameworkCore;
 using DDDSample1.Domain.Categories;
 using DDDSample1.Domain.Products;
 using DDDSample1.Domain.Families;
+using DDDSample1.Domain.ShippingAgents;
+using DDDSample1.Domain.Docks;
+using DDDSample1.Domain.Vessels;
+using DDDSample1.Domain.VesselTypes;
 using DDDSample1.Infrastructure.Categories;
 using DDDSample1.Infrastructure.Products;
+using DDDSample1.Infrastructure.ShippingAgents;
+using DDDSample1.Infrastructure.Docks;
+using DDDSample1.Infrastructure.Vessels;
+using DDDSample1.Infrastructure.VesselTypes;
+using DDDSample1.Domain.VesselVisitNotifications;
+using DDDSample1.Infrastructure.VesselVisitNotifications;
 
 namespace DDDSample1.Infrastructure
 {
@@ -15,6 +25,18 @@ namespace DDDSample1.Infrastructure
 
         public DbSet<Family> Families { get; set; }
 
+        public DbSet<ShippingAgentOrganization> ShippingAgentOrganizations { get; set; }
+
+        public DbSet<ShippingAgentRepresentative> ShippingAgentRepresentatives { get; set; }
+
+        public DbSet<VesselType> VesselTypes { get; set; }
+
+        public DbSet<Dock> Docks { get; set; }
+
+        public DbSet<Vessel> Vessels { get; set; }
+
+        public DbSet<VesselVisitNotification> VesselVisitNotifications { get; set; }
+
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -25,6 +47,12 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new CategoryEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ProductEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new FamilyEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ShippingAgentOEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ShippingAgentREntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new VesselTypeEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new DockEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new VesselEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new VesselVisitNotificationEntityTypeConfiguration());
         }
     }
 }

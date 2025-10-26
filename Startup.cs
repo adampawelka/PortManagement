@@ -10,10 +10,21 @@ using DDDSample1.Infrastructure.Categories;
 using DDDSample1.Infrastructure.Products;
 using DDDSample1.Infrastructure.Families;
 using DDDSample1.Infrastructure.Shared;
+using DDDSample1.Infrastructure.VesselVisitNotifications;
 using DDDSample1.Domain.Shared;
 using DDDSample1.Domain.Categories;
 using DDDSample1.Domain.Products;
 using DDDSample1.Domain.Families;
+using DDDSample1.Domain.ShippingAgents;
+using DDDSample1.Domain.VesselTypes;
+using DDDSample1.Domain.Vessels;
+using DDDSample1.Domain.Docks;
+using DDDSample1.Domain.VesselVisitNotifications;
+using Microsoft.OpenApi.Models;
+using DDDSample1.Infrastructure.ShippingAgents;
+using DDDSample1.Infrastructure.VesselTypes;
+using DDDSample1.Infrastructure.Docks;
+using DDDSample1.Infrastructure.Vessels;
 
 namespace DDDSample1
 {
@@ -26,44 +37,43 @@ namespace DDDSample1
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<DDDSample1DbContext>(opt =>
                 opt.UseInMemoryDatabase("DDDSample1DB")
-                .ReplaceService<IValueConverterSelector, StronglyEntityIdValueConverterSelector>());
+                   .ReplaceService<IValueConverterSelector, StronglyEntityIdValueConverterSelector>());
 
             ConfigureMyServices(services);
-            
 
             services.AddControllers().AddNewtonsoftJson();
+
+            // Configure Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Port Logistics API", Version = "v1" });
+                c.EnableAnnotations();
+            });
+            services.AddRazorPages();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Port Logistics API v1"));
             }
             else
             {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); endpoints.MapRazorPages(); });
         }
-
         public void ConfigureMyServices(IServiceCollection services)
         {
             services.AddTransient<IUnitOfWork,UnitOfWork>();
@@ -76,6 +86,17 @@ namespace DDDSample1
 
             services.AddTransient<IFamilyRepository,FamilyRepository>();
             services.AddTransient<FamilyService>();
+            services.AddTransient<IShippingAgentORepository, ShippingAgentORepository>();
+            services.AddTransient<IShippingAgentRRepository, ShippingAgentRRepository>();
+            services.AddTransient<ShippingAgentService>();
+            services.AddTransient<IVesselTypeRepository, VesselTypeRepository>();
+            services.AddTransient<VesselTypeService>();
+            services.AddTransient<IDockRepository, DockRepository>();
+            services.AddTransient<DockService>();
+            services.AddTransient<IVesselRepository, VesselRepository>();
+            services.AddTransient<VesselService>();
+            services.AddTransient<IVesselVisitNotificationRepository,VesselVisitNotificationRepository>();
+            services.AddTransient<VesselVisitNotificationService>();
         }
     }
 }

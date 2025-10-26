@@ -1,0 +1,47 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title Analysis - US230
+
+hide circle
+hide methods
+
+top to bottom direction
+
+class User {
+    userId
+    profile
+    permissions
+}
+
+class Dock {
+    DockId
+    DockName
+    Location
+    Length
+    Depth 
+    MaxDraft
+    AllowedVesselTypes
+}
+
+class VesselType {
+    VesselTypeId
+    typeName
+    Description
+    Capacity
+    Constraints
+}
+
+note right of User
+  Only users with profile "Port Officer Authority"
+  can register and update Docks.
+end note
+
+User "1" --> "0.." Dock : manages
+Dock "0.." --> "0.." VesselType : allows
+' Dock "*" --> "*" VesselType : allows
+
+@enduml

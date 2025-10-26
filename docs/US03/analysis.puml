@@ -1,0 +1,52 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title Analysis - US222
+
+hide circle
+hide methods
+
+top to bottom direction
+
+class User {
+    userId
+    profile
+    permissions
+}
+
+class VesselType {
+    VesselTypeId
+    Name
+    Description
+    Capacity
+    Constraints
+}
+
+class Vessel {
+    VesselId
+    VesselName
+    VesselType
+    Owner
+}
+
+class ShippingAgentOrganization {
+    ShippingAgentOrganizationId
+    LegalName
+    Address
+    TaxNumber
+    Representatives
+}
+
+note right of User
+  Only users with profile "Port Officer Authority"
+  can register and update Docks.
+end note
+
+User "1" --> "0.." Vessel : manages
+Vessel "0.." --> "0.." VesselType : is of type
+Vessel "0.." --> "1" ShippingAgentOrganization : owned by
+
+@enduml

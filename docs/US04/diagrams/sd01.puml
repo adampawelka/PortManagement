@@ -1,0 +1,21 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Sequence Diagram - Level 1 (System) for US04
+
+actor "Port Authority Officer" as PAO
+participant "System" as SYS
+
+PAO -> SYS : POST /api/docks (data)
+SYS --> PAO : 201 Created (ID)
+
+PAO -> SYS : PUT /api/docks/{id} (updated data)
+SYS --> PAO : 200 OK (updated dock)
+
+PAO -> SYS : GET /api/docks/{id}
+SYS --> PAO : 200 OK (dock details)
+
+PAO -> SYS : GET /api/docks?name=xxx&location=yyy&vesselType=zzz
+SYS --> PAO : 200 OK (filtered list of docks)
+@enduml

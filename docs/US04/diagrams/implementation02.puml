@@ -1,0 +1,42 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype ortho
+
+title Implementation View - Level 2 (Sub-Modules) for US04
+
+folder "Controllers" {
+    [DocksController.cs]
+}
+
+folder "Domain" {
+    folder "Docks" {
+        [DockService.cs]
+        [Dock.cs]
+        [IDockRepository.cs]
+        [IVesselTypeRepository.cs]
+    }
+}
+
+folder "Infrastructure" {
+    folder "Infrastructure.Docks" {
+        [DockRepository.cs]
+        [DockEntityTypeConfiguration.cs]
+    }
+    folder "VesselTypes" {
+        [VesselTypeRepository.cs]
+        [VesselTypeEntityTypeConfiguration.cs]
+    }
+}
+
+DocksController.cs --> DockService.cs : Depends on
+DockService.cs --> Dock.cs : Uses
+
+DockService.cs ..> IDockRepository.cs : Injects
+DockService.cs ..> IVesselTypeRepository.cs : Injects
+
+IDockRepository.cs <|.. DockRepository.cs
+IVesselTypeRepository.cs <|.. VesselTypeRepository.cs
+
+@enduml

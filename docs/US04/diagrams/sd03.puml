@@ -1,0 +1,53 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title Full Sequence Diagram - US223
+
+actor "Port Officer Authority" as POA
+participant ":PortOfficerAuthorityMenu" as UI
+participant ":DocksController" as DCTRL
+participant ":DockService" as DSVC
+participant ":DockRepository" as DREPO
+participant ":Dock" as D
+participant ":VesselTypeService" as VTSVC
+participant ":VesselTypeRepository" as VTREPO
+' participant ":VesselType" as VT
+
+activate POA
+
+      POA -> UI : requests to register a dock
+      activate UI
+            UI -> UI : collect inputs (name, location, length, depth, maxDraft, AllowedVesselTypes)
+            UI -> DCTRL : createDock(name, location, length, depth, maxDraft, AllowedVesselTypes)
+            activate DCTRL
+                  DCTRL -> DSVC
+                  activate DSVC
+                        DSVC -> VTSVC : findVesselType(vesselID)
+                        activate VTSVC
+                              VTSVC -> VTREPO : findByID(vesselTypeID)
+                              activate VTREPO
+                                    VTREPO --> VTSVC : VesselType
+                              deactivate VTREPO
+                              VTSVC -> DSVC : VesselType
+                  DCTRL -> DSVC : createDock(name, location, length, depth, maxDraft,   AllowedVesselTypes)
+                  activate DSVC
+                        DSVC -> D : new Dock(name, location, length, depth, maxDraft,   AllowedVesselTypes)
+                        activate D
+                              D --> DSVC : Dock
+                        deactivate D
+                        DSVC -> DREPO : save(Dock)
+                        activate DREPO
+                              DREPO --> DSVC : Dock
+                        deactivate DREPO
+                  DSVC --> DCTRL : Dock
+            deactivate DCTRL
+            UI --> POA : displays "Dock created with ID: ..."
+      deactivate UI
+
+deactivate POA
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Physical View - Level 2 (Deployment) for US04
+
+node "API Server" {
+    [ASP.NET Core API] <<Runtime>>
+    [DocksController]
+    [DockService]
+}
+
+node "Database Server" {
+    [DB Instance] <<Database>>
+    [Docks Table]
+    [VesselTypes Table]
+}
+
+[ASP.NET Core API] --> [DB Instance] : Connects
+[DocksController] --> [DockService]
+
+[DockService] --> [Docks Table]
+[DockService] --> [VesselTypes Table]
+
+
+@enduml

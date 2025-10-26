@@ -1,0 +1,18 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Sequence Diagram - Level 2 (Components) for US04
+
+actor "Port Authority Officer" as PAO
+participant "Controller" as CTRL
+participant "Service" as SVC
+participant "Repository" as REPO
+
+PAO -> CTRL : POST request
+CTRL -> SVC : CreateDock
+SVC -> REPO : Add dock
+REPO --> SVC : Success
+SVC --> CTRL : DTO
+CTRL --> PAO : Response
+@enduml

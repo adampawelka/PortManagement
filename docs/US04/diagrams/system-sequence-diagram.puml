@@ -1,0 +1,47 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title System Sequence Diagram (SSD) - US223
+
+actor "Port Office Authority" as POA
+participant ":System" as System
+
+activate POA
+
+    POA -> System : requests to register a dock
+    activate System
+        System --> POA : collects inputs (name, location, length, depth, maxDraft, AllowedVesselTypes)
+    deactivate System
+
+    POA -> System : provides inputs
+    activate System
+        System --> POA : displays "Dock created with ID: <DockID>"
+    deactivate System
+
+    POA -> System : requests to update a dock
+    activate System
+        System --> POA : collects inputs (name, location, length, depth, maxDraft, AllowedVesselTypes)
+    deactivate System
+
+    POA -> System : provides inputs
+    activate System
+        System --> POA : displays "Dock <DockId> updated successfully"
+    deactivate System
+
+    POA -> System : requests to filter docks
+    activate System
+        System --> POA : collects inputs (name, location, length, depth, maxDraft, AllowedVesselTypes)
+    deactivate System
+
+    POA -> System : provides inputs
+    activate System
+        System --> POA : displays "List of docks matching criteria <DockList>"
+    deactivate System
+
+deactivate POA
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Logical View - Level 2 (Components) for US04
+
+package "Presentation Layer" {
+    [POST /api/docks] as PostDock
+    [PUT /api/docks/{id}] as PutDock
+    [GET /api/docks] as GetAllDocks
+    [GET /api/docks/{id}] as GetDockById
+
+    [DocksController]
+}
+
+package "Application Layer" {
+    [DockService]
+    [CreateDockDto]
+    [UpdateDockDto]
+}
+
+package "Domain Layer" {
+    [Dock] <<Aggregate Root>>
+    [VesselType] <<Entity>> 
+    [DockLocation] <<Value Object>>
+    [Depth] <<Value Object>>
+    [Length] <<Value Object>>
+    [MaxDraft] <<Value Object>>
+    [DockId] <<Value Object>>
+}
+
+package "Persistence Layer" {
+    [DockRepository]
+    [DockEntityTypeConfiguration]
+}
+
+' === Endpoint to Controller mappings ===
+PostDock --> DocksController : CreateDockAsync()
+PutDock --> DocksController : UpdateDockAsync()
+GetAllDocks --> DocksController : GetAll()
+GetDockById --> DocksController : GetById()
+
+' === Controller to Service mappings ===
+DocksController --> DockService : AddDockAsync(CreateDockDto)
+DocksController --> DockService : UpdateDockAsync(Guid, DockDto)
+DocksController --> DockService : GetAllAsync()
+DocksController --> DockService : GetByIdAsync(DockId)
+
+' === Domain and Persistence ===
+DockService --> Dock : Creates / Updates
+Dock --> VesselType : contains * >
+DockService --> DockRepository : Persists / Queries
+
+@enduml

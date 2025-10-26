@@ -1,0 +1,47 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title System Sequence Diagram (SSD) - US222
+
+actor "Port Office Authority" as POA
+participant ":System" as System
+
+activate POA
+
+    POA -> System : requests to register a vessel
+    activate System
+        System --> POA : collects inputs (imo, vesselName, vesselType, owner)
+    deactivate System
+
+    POA -> System : provides inputs
+    activate System
+        System --> POA : displays "Vessel created with ID: <VesselID>"
+    deactivate System
+
+    POA -> System : requests to update a vessel
+    activate System
+        System --> POA : collects inputs (vesselName, owner)
+    deactivate System
+
+    POA -> System : provides inputs
+    activate System
+        System --> POA : displays "Vessel <VesselId> updated successfully"
+    deactivate System
+
+    POA -> System : requests to filter Vessels
+    activate System
+        System --> POA : collects inputs (imo, name, ownerId)
+    deactivate System
+
+    POA -> System : provides inputs
+    activate System
+        System --> POA : displays "Vessels with these characteristics: <ListOfVessels>"
+    deactivate System
+
+deactivate POA
+
+@enduml
