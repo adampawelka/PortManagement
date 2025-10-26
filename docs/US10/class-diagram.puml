@@ -1,0 +1,74 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Class Diagram - US229 - DDD Structure
+
+package "Controllers" {
+    class VesselVisitNotificationsController {
+        + UpdateNotification(Guid, UpdateVesselVisitNotificationDto)
+    }
+}
+
+package "Domain.VesselVisitNotifications" {
+    class VesselVisitNotificationService {
+        + UpdateAsync(VesselVisitNotificationId, UpdateVesselVisitNotificationDto)
+    }
+
+    interface IVesselVisitNotificationRepository {
+        + GetByIdAsync(VesselVisitNotificationId)
+    }
+
+    class VesselVisitNotification << (A, #FF7700) >> {
+        - Status: NotificationStatus
+        + UpdateData(CargoManifest)
+        + SubmitForApproval()
+    }
+
+    class CargoManifest << (V, #FFCC88) >> {
+        + Data: string
+    }
+
+    class VesselVisitNotificationId << (V, #FFCC88) >> {
+        + Value: Guid
+    }
+
+    class UpdateVesselVisitNotificationDto {
+        + CargoManifestData: string?
+        + Submit: bool?
+    }
+}
+
+package "Domain.Shared" {
+    interface IUnitOfWork {
+        + CompleteAsync()
+    }
+}
+
+package "Infrastructure.VesselVisitNotifications" {
+    class VesselVisitNotificationRepository {
+        + GetByIdAsync(VesselVisitNotificationId)
+    }
+}
+
+package "Infrastructure" {
+    class PortManagementContext {
+        + VesselVisitNotifications: DbSet
+    }
+}
+
+' --- Dependencies ---
+VesselVisitNotificationsController ..> VesselVisitNotificationService
+VesselVisitNotificationService ..> IVesselVisitNotificationRepository
+VesselVisitNotificationService ..> IUnitOfWork
+VesselVisitNotificationService ..> VesselVisitNotification : <<uses>>
+VesselVisitNotificationService ..> UpdateVesselVisitNotificationDto : <<uses>>
+VesselVisitNotificationRepository ..|> IVesselVisitNotificationRepository
+VesselVisitNotificationRepository ..> PortManagementContext
+VesselVisitNotification *-- VesselVisitNotificationId
+VesselVisitNotification *-- CargoManifest
+
+@enduml
