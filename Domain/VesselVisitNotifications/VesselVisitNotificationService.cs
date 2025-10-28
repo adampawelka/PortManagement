@@ -67,43 +67,47 @@ namespace DDDSample1.Domain.VesselVisitNotifications
 
         // --- Método 'Add' de 2.2.9 ---
         public async Task<VesselVisitNotificationDto> AddVesselVisitNotificationAsync(CreatingVesselVisitNotificationDto dto)
+{
+
+    var vessel = await _vesselRepository.GetByIdAsync(new VesselId(dto.VesselId));
+    if (vessel == null)
+        throw new BusinessRuleValidationException("Invalid Vessel ID.");
+
+   
+    var agent = await _shippingAgentRepRepository.GetByIdAsync(
+        new ShippingAgentRepresentativeId(dto.SubmittedById.ToString()));
+    if (agent == null)
+        throw new BusinessRuleValidationException("Invalid Shipping Agent Representative ID.");
+
+    var cargoManifests = dto.CargoManifests?
+        .Select(c =>
         {
-            
-            var vessel = await _vesselRepository.GetByIdAsync(new VesselId(dto.VesselId));
-            if (vessel == null)
-                throw new BusinessRuleValidationException("Invalid Vessel ID.");
+            var containers = c.ContainerIdentifiers.Select(id => new ContainerIdentifier(id)).ToList();
+            return new CargoManifest(c.ManifestType, containers);
+        })
+        .ToList() ?? new List<CargoManifest>();
 
-            
-            var agent = await _shippingAgentRepRepository.GetByIdAsync(
-                new ShippingAgentRepresentativeId(dto.SubmittedById.ToString()));
-            if (agent == null)
-                throw new BusinessRuleValidationException("Invalid Shipping Agent Representative ID.");
+    var crewMembers = dto.CrewMembers?
+        .Select(c => new CrewMember(c.Name, c.CitizenId, c.Nationality))
+        .ToList() ?? new List<CrewMember>();
 
-            var cargoManifests = dto.CargoManifests?
-                .Select(c =>
-                {
-                    var containers = c.ContainerIdentifiers.Select(id => new ContainerIdentifier(id)).ToList();
-                    return new CargoManifest(c.ManifestType, containers);
-                })
-                .ToList() ?? new List<CargoManifest>();
 
-            var crewMembers = dto.CrewMembers?
-                .Select(c => new CrewMember(c.Name, c.CitizenId, c.Nationality))
-                .ToList() ?? new List<CrewMember>();
+    var vnn = new VesselVisitNotification(
+        new VesselId(dto.VesselId),
+        new ShippingAgentRepresentativeId(dto.SubmittedById.ToString()),
+        dto.ETA,
+        dto.ETD,
+        cargoManifests,
+        crewMembers
+    );
 
-            var vnn = new VesselVisitNotification(
-                vessel,
-                agent,
-                dto.ETA,
-                dto.ETD,
-                cargoManifests,
-                crewMembers
-            );
-
-            await _VesselVisitNotificationRepository.AddAsync(vnn);
-            await _unitOfWork.CommitAsync();
-            return ToDto(vnn);
-        }
+    await _VesselVisitNotificationRepository.AddAsync(vnn);
+    await _unitOfWork.CommitAsync();
+    
+    // Need to reload with navigation properties for DTO
+    var savedVnn = await _VesselVisitNotificationRepository.GetNotificationByIdAsync(vnn.Id);
+    return ToDto(savedVnn);
+}
 
         // --- Método 'Update' FUSIONADO ---
         public async Task<VesselVisitNotificationDto> UpdateVesselVisitNotificationAsync(UpdatingVesselVisitNotificationDto dto, Guid id)

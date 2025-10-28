@@ -20,17 +20,20 @@ namespace DDDSample1.Infrastructure.VesselVisitNotifications
 
         public async Task<List<VesselVisitNotification>> GetAllNotificationsAsync()
         {
-            return await _context.VesselVisitNotifications
-            .Include(d => d.SubmittedBy)
-            .ToListAsync();
+        return await _context.VesselVisitNotifications
+        .Include(vvn => vvn.Vessel)
+        .Include(vvn => vvn.SubmittedBy)
+        .ToListAsync();
         }
 
         public async Task<VesselVisitNotification> GetNotificationByIdAsync(VesselVisitNotificationId id)
         {
-            return await _context.VesselVisitNotifications
-            .Include(d => d.SubmittedBy)
-            .FirstOrDefaultAsync(d => d.Id == id);
+        return await _context.VesselVisitNotifications
+        .Include(vvn => vvn.Vessel)
+        .Include(vvn => vvn.SubmittedBy)
+        .FirstOrDefaultAsync(vvn => vvn.Id == id);
         }
+
 
         public async Task<List<VesselVisitNotification>> GetNotificationByVesselIdAsync(Guid vesselId)
         {

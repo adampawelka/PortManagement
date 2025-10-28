@@ -11,57 +11,58 @@ namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public class VesselVisitNotification : Entity<VesselVisitNotificationId>, IAggregateRoot
     {
-        // --- Propiedades de 2.2.9 ---
-        public Vessel Vessel { get; private set; }
-        public ShippingAgentRepresentative SubmittedBy { get; private set; }
-        public VisitStatus Status { get; private set; }
-        public DateTime ETA { get; private set; }
-        public DateTime ETD { get; private set; }
-        public List<CargoManifest> CargoManifests { get; private set; }
-        public List<CrewMember> CrewMembers { get; private set; }
-
-        // --- Propiedades AÑADIDAS de 2.2.8 / 2.2.7 ---
-        public DockId AssignedDockId { get; private set; }
-        public string RejectionReason { get; private set; }
-        public Guid? DecidingOfficerId { get; private set; }
-        public DateTime? DecisionTimestamp { get; private set; }
-
-
-        private VesselVisitNotification()
-        {
-        }
-
-        // --- Constructor de 2.2.9 ---
-        public VesselVisitNotification(
-            Vessel vessel,
-            ShippingAgentRepresentative submittedBy,
-            DateTime eta,
-            DateTime etd,
-            List<CargoManifest> cargoManifests,
-            List<CrewMember> crewMembers)
-        {
-            if (vessel == null)
-                throw new BusinessRuleValidationException("Vessel is required.");
-            if (submittedBy == null)
-                throw new BusinessRuleValidationException("Submitted by is required.");
-            if (eta <= DateTime.Now)
-                throw new BusinessRuleValidationException("ETA must be in the future.");
-            if (etd < eta)
-                throw new BusinessRuleValidationException("ETD must be after ETA.");
-            if (cargoManifests == null || !cargoManifests.Any())
-                throw new BusinessRuleValidationException("At least one cargo manifest is required.");
-
-            Id = new VesselVisitNotificationId(Guid.NewGuid());
-            Vessel = vessel;
-            SubmittedBy = submittedBy;
-            Status = VisitStatus.InProgress(); // Estandarizado
-            ETA = eta;
-            ETD = etd;
-            CargoManifests = cargoManifests;
-            CrewMembers = crewMembers ?? new List<CrewMember>();
-        }
+    public VesselId VesselId { get; private set; }
+    public ShippingAgentRepresentativeId SubmittedById { get; private set; }
     
-        // --- Método de 2.2.9 (Submit) ---
+
+    public virtual Vessel Vessel { get; private set; }
+    public virtual ShippingAgentRepresentative SubmittedBy { get; private set; }
+    
+    public VisitStatus Status { get; private set; }
+    public DateTime ETA { get; private set; }
+    public DateTime ETD { get; private set; }
+    public List<CargoManifest> CargoManifests { get; private set; }
+    public List<CrewMember> CrewMembers { get; private set; }
+    public DockId AssignedDockId { get; private set; }
+    public string RejectionReason { get; private set; }
+    public Guid? DecidingOfficerId { get; private set; }
+    public DateTime? DecisionTimestamp { get; private set; }
+
+    private VesselVisitNotification()
+    {
+    }
+
+
+    public VesselVisitNotification(
+        VesselId vesselId,
+        ShippingAgentRepresentativeId submittedById,
+        DateTime eta,
+        DateTime etd,
+        List<CargoManifest> cargoManifests,
+        List<CrewMember> crewMembers)
+    {
+        if (vesselId == null)
+            throw new BusinessRuleValidationException("Vessel ID is required.");
+        if (submittedById == null)
+            throw new BusinessRuleValidationException("Submitted by ID is required.");
+        if (eta <= DateTime.Now)
+            throw new BusinessRuleValidationException("ETA must be in the future.");
+        if (etd < eta)
+            throw new BusinessRuleValidationException("ETD must be after ETA.");
+        if (cargoManifests == null || !cargoManifests.Any())
+            throw new BusinessRuleValidationException("At least one cargo manifest is required.");
+
+        Id = new VesselVisitNotificationId(Guid.NewGuid());
+        VesselId = vesselId;
+        SubmittedById = submittedById;
+        Status = VisitStatus.InProgress();
+        ETA = eta;
+        ETD = etd;
+        CargoManifests = cargoManifests;
+        CrewMembers = crewMembers ?? new List<CrewMember>();
+    }
+    
+ 
         public void Submit()
         {
             if (Status.Value != "InProgress")
