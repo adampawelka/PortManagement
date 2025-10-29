@@ -111,47 +111,53 @@ namespace DDDSample1.Domain.VesselVisitNotifications
 
         // --- Método 'Update' FUSIONADO ---
         public async Task<VesselVisitNotificationDto> UpdateVesselVisitNotificationAsync(UpdatingVesselVisitNotificationDto dto, Guid id)
+{
+    var vnn = await _VesselVisitNotificationRepository.GetByIdAsync(new VesselVisitNotificationId(id));
+    if (vnn == null)
+        return null;
+    
+    // Mapear DTOs a Entidades de Dominio
+    var cargoManifests = dto.CargoManifests?
+        .Select(c =>
         {
-            var vnn = await _VesselVisitNotificationRepository.GetByIdAsync(new VesselVisitNotificationId(id));
-            if (vnn == null)
-                return null;
-            
-            // Mapear DTOs a Entidades de Dominio
-            var cargoManifests = dto.CargoManifests?
-                .Select(c =>
-                {
-                    var containers = c.ContainerIdentifiers.Select(cid => new ContainerIdentifier(cid)).ToList();
-                    return new CargoManifest(c.ManifestType, containers);
-                })
-                .ToList() ?? new List<CargoManifest>();
+            var containers = c.ContainerIdentifiers.Select(cid => new ContainerIdentifier(cid)).ToList();
+            return new CargoManifest(c.ManifestType, containers);
+        })
+        .ToList() ?? new List<CargoManifest>();
 
-            var crewMembers = dto.CrewMembers?
-                .Select(c => new CrewMember(c.Name, c.CitizenId, c.Nationality))
-                .ToList() ?? new List<CrewMember>();
-            
-            // Llamar a la lógica de negocio en la Entidad
-            vnn.UpdateVesselVisitNotification(
-                dto.ETA,
-                dto.ETD,
-                cargoManifests,
-                crewMembers
-            );
+    var crewMembers = dto.CrewMembers?
+        .Select(c => new CrewMember(c.Name, c.CitizenId, c.Nationality))
+        .ToList() ?? new List<CrewMember>();
+    
+    // Llamar a la lógica de negocio en la Entidad
+    vnn.UpdateVesselVisitNotification(
+        dto.ETA,
+        dto.ETD,
+        cargoManifests,
+        crewMembers
+    );
 
-            await _unitOfWork.CommitAsync();
-            return ToDto(vnn);
-        }
+    await _unitOfWork.CommitAsync();
+    
+    // RELOAD the entity with navigation properties
+    var updatedVnn = await _VesselVisitNotificationRepository.GetNotificationByIdAsync(new VesselVisitNotificationId(id));
+    return ToDto(updatedVnn);
+    }
 
         // --- Método 'Submit' de 2.2.9 ---
         public async Task<VesselVisitNotificationDto> SubmitVesselVisitNotificationAsync(Guid id)
-        {
-            var vnn = await _VesselVisitNotificationRepository.GetNotificationByIdAsync(new VesselVisitNotificationId(id));
-            if (vnn == null)
-                throw new BusinessRuleValidationException("Vessel Visit Notification not found.");
+    {
+    var vnn = await _VesselVisitNotificationRepository.GetNotificationByIdAsync(new VesselVisitNotificationId(id));
+    if (vnn == null)
+        throw new BusinessRuleValidationException("Vessel Visit Notification not found.");
 
-            vnn.Submit();
-            await _unitOfWork.CommitAsync();
-            return ToDto(vnn);
-        }
+    vnn.Submit();
+    await _unitOfWork.CommitAsync();
+    
+    // RELOAD the entity with navigation properties
+    var submittedVnn = await _VesselVisitNotificationRepository.GetNotificationByIdAsync(new VesselVisitNotificationId(id));
+    return ToDto(submittedVnn);
+    }
 
         // --- MÉTODO 'Approve' FUSIONADO (de 2.2.8) ---
         public async Task<VesselVisitNotificationDto> ApproveVesselVisitNotificationAsync(Guid notificationId, ApproveNotificationDto dto, Guid officerId)
