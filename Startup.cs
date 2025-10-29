@@ -11,6 +11,7 @@ using DDDSample1.Infrastructure.Products;
 using DDDSample1.Infrastructure.Families;
 using DDDSample1.Infrastructure.Shared;
 using DDDSample1.Infrastructure.VesselVisitNotifications;
+using DDDSample1.Infrastructure.StorageAreas;
 using DDDSample1.Domain.Shared;
 using DDDSample1.Domain.Categories;
 using DDDSample1.Domain.Products;
@@ -20,6 +21,7 @@ using DDDSample1.Domain.VesselTypes;
 using DDDSample1.Domain.Vessels;
 using DDDSample1.Domain.Docks;
 using DDDSample1.Domain.VesselVisitNotifications;
+using DDDSample1.Domain.StorageAreas;
 using Microsoft.OpenApi.Models;
 using DDDSample1.Infrastructure.ShippingAgents;
 using DDDSample1.Infrastructure.VesselTypes;
@@ -97,6 +99,8 @@ namespace DDDSample1
             services.AddTransient<VesselService>();
             services.AddTransient<IVesselVisitNotificationRepository,VesselVisitNotificationRepository>();
             services.AddTransient<VesselVisitNotificationService>();
+            services.AddTransient<IStorageAreaRepository,StorageAreaRepository>();
+            services.AddTransient<StorageAreaService>();
         }
     }
 }

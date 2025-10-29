@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using DDDSample1.Domain.Vessels;
-//using DDDSample1.Domain.Docks;
 
 namespace DDDSample1.Infrastructure.Vessels
 {

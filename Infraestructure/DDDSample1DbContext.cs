@@ -6,6 +6,7 @@ using DDDSample1.Domain.ShippingAgents;
 using DDDSample1.Domain.Docks;
 using DDDSample1.Domain.Vessels;
 using DDDSample1.Domain.VesselTypes;
+using DDDSample1.Domain.StorageAreas;
 using DDDSample1.Infrastructure.Categories;
 using DDDSample1.Infrastructure.Products;
 using DDDSample1.Infrastructure.ShippingAgents;
@@ -14,6 +15,7 @@ using DDDSample1.Infrastructure.Vessels;
 using DDDSample1.Infrastructure.VesselTypes;
 using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Infrastructure.VesselVisitNotifications;
+using DDDSample1.Infrastructure.StorageAreas;
 
 namespace DDDSample1.Infrastructure
 {
@@ -37,6 +39,8 @@ namespace DDDSample1.Infrastructure
 
         public DbSet<VesselVisitNotification> VesselVisitNotifications { get; set; }
 
+        public DbSet<StorageArea> StorageAreas { get; set; }
+
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -53,6 +57,7 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new DockEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VesselEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VesselVisitNotificationEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new StorageAreaEntityTypeConfiguration());
         }
     }
 }

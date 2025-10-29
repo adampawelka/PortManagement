@@ -1,0 +1,35 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+autonumber
+
+title System Sequence Diagram (SSD) - US224
+
+actor "Port Authority Officer" as PAO
+participant ":System" as System
+
+activate PAO
+    PAO -> System : requests to register a new storage area
+    activate System
+        System --> PAO : collects inputs (type, location, capacity, served docks, distances)
+    deactivate System
+    
+    PAO -> System : provides inputs
+    activate System
+        System --> PAO : displays "Storage area created with ID: <AreaID>"
+    deactivate System
+
+    PAO -> System : requests to update occupancy
+    activate System
+        System --> PAO : collects inputs (areaId, newOccupancy)
+    deactivate System
+
+    PAO -> System : provides inputs
+    activate System
+        System --> PAO : confirms update or shows capacity error (AC6)
+    deactivate System
+deactivate PAO
+
+@enduml
