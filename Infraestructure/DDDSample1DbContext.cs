@@ -5,8 +5,10 @@ using DDDSample1.Domain.Families;
 using DDDSample1.Domain.ShippingAgents;
 using DDDSample1.Domain.Docks;
 using DDDSample1.Domain.Vessels;
-using DDDSample1.Domain.VesselTypes;
+
 using DDDSample1.Domain.StorageAreas;
+using DDDSample1.Domain.Qualifications;
+using DDDSample1.Domain.Resources;
 using DDDSample1.Infrastructure.Categories;
 using DDDSample1.Infrastructure.Products;
 using DDDSample1.Infrastructure.ShippingAgents;
@@ -15,7 +17,13 @@ using DDDSample1.Infrastructure.Vessels;
 using DDDSample1.Infrastructure.VesselTypes;
 using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Infrastructure.VesselVisitNotifications;
+
 using DDDSample1.Infrastructure.StorageAreas;
+using DDDSample1.Infrastructure.Qualifications;
+using DDDSample1.Infrastructure.Resources;
+
+using DDDSample1.Infrastructure.Shared;
+using DDDSample1.Domain.VesselTypes;
 
 namespace DDDSample1.Infrastructure
 {
@@ -41,6 +49,10 @@ namespace DDDSample1.Infrastructure
 
         public DbSet<StorageArea> StorageAreas { get; set; }
 
+        public DbSet<Qualification> Qualifications { get; set; }
+
+        public DbSet<Resource> Resources { get; set; }
+
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -58,6 +70,9 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new VesselEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VesselVisitNotificationEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new StorageAreaEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new QualificationEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new ResourceEntityTypeConfiguration());
+
         }
     }
 }
