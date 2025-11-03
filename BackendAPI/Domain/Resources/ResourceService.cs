@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.Qualifications;
+using Backend.Domain.Shared;
+using Backend.Domain.Qualifications;
 
-namespace DDDSample1.Domain.Resources
+namespace Backend.Domain.Resources
 {
     public class ResourceService
     {

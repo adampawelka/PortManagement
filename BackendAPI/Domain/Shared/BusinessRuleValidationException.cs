@@ -1,6 +1,6 @@
 using System;
 
-namespace DDDSample1.Domain.Shared
+namespace Backend.Domain.Shared
 {
     public class BusinessRuleValidationException : Exception
     {

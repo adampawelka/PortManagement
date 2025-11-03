@@ -1,7 +1,7 @@
-using DDDSample1.Domain.Categories;
-using DDDSample1.Infrastructure.Shared;
+using Backend.Domain.Categories;
+using Backend.Infrastructure.Shared;
 
-namespace DDDSample1.Infrastructure.Categories
+namespace Backend.Infrastructure.Categories
 {
     public class CategoryRepository : BaseRepository<Category, CategoryId>, ICategoryRepository
     {

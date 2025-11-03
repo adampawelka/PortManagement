@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using DDDSample1.Domain.Resources;
-using DDDSample1.Domain.Qualifications;
+using Backend.Domain.Resources;
+using Backend.Domain.Qualifications;
 
-namespace DDDSample1.Controllers
+namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

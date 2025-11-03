@@ -1,7 +1,7 @@
 using System;
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.VesselTypes
+namespace Backend.Domain.VesselTypes
 {
     public class VesselType : Entity<VesselTypeId>, IAggregateRoot
     {

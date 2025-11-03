@@ -1,8 +1,8 @@
 using System;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.Categories;
+using Backend.Domain.Shared;
+using Backend.Domain.Categories;
 
-namespace DDDSample1.Domain.Products
+namespace Backend.Domain.Products
 {
     public class Product : Entity<ProductId>, IAggregateRoot
     {

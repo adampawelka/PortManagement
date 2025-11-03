@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DDDSample1.Domain.Docks;
-using DDDSample1.Domain.VesselTypes;
+using Backend.Domain.Docks;
+using Backend.Domain.VesselTypes;
 using System.Collections.Generic;
 
-namespace DDDSample1.Infrastructure.Docks
+namespace Backend.Infrastructure.Docks
 {
     internal class DockEntityTypeConfiguration : IEntityTypeConfiguration<Dock>
     {

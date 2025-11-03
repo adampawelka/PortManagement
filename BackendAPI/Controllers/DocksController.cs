@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.Docks;
+using Backend.Domain.Shared;
+using Backend.Domain.Docks;
 
-namespace DDDSample1.Controllers
+namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

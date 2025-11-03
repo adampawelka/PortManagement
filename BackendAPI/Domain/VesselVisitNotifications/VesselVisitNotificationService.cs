@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.Vessels;
-using DDDSample1.Domain.ShippingAgents;
-using DDDSample1.Domain.Docks;
+using Backend.Domain.Shared;
+using Backend.Domain.Vessels;
+using Backend.Domain.ShippingAgents;
+using Backend.Domain.Docks;
 
-namespace DDDSample1.Domain.VesselVisitNotifications
+namespace Backend.Domain.VesselVisitNotifications
 {
     public class VesselVisitNotificationService
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DDDSample1.Domain.Docks
+namespace Backend.Domain.Docks
 {
     public class CreatingDockDto
     {

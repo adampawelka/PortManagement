@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.VesselTypes;
+using Backend.Domain.Shared;
+using Backend.Domain.VesselTypes;
 
-namespace DDDSample1.Domain.Docks
+namespace Backend.Domain.Docks
 {
     public class DockService
     {

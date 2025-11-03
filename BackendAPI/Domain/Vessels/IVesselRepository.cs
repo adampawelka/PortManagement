@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.Vessels
+namespace Backend.Domain.Vessels
 {
     public interface IVesselRepository : IRepository<Vessel, VesselId>
     {

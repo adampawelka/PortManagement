@@ -1,6 +1,6 @@
 using System;
 
-namespace DDDSample1.Domain.VesselTypes
+namespace Backend.Domain.VesselTypes
 {
     public class UpdatingVesselTypeDto
     {

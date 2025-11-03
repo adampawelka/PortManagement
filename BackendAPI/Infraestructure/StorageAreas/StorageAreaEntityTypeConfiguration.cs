@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using DDDSample1.Domain.StorageAreas;
+using Backend.Domain.StorageAreas;
 
-namespace DDDSample1.Infrastructure.StorageAreas
+namespace Backend.Infrastructure.StorageAreas
 {
     internal class StorageAreaEntityTypeConfiguration : IEntityTypeConfiguration<StorageArea>
     {

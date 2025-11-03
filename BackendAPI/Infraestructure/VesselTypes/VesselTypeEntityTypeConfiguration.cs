@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DDDSample1.Domain.VesselTypes;
+using Backend.Domain.VesselTypes;
 
-namespace DDDSample1.Infrastructure.VesselTypes
+namespace Backend.Infrastructure.VesselTypes
 {
     internal class VesselTypeEntityTypeConfiguration : IEntityTypeConfiguration<VesselType>
     {
