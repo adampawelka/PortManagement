@@ -1,0 +1,48 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title Analysis - US224 - Storage Area Management
+
+hide circle
+hide methods
+top to bottom direction
+
+class User {
+    userId
+    profile
+    permissions
+}
+
+class StorageArea {
+    Id
+    Type
+    Location
+    MaxCapacityTEU
+    CurrentOccupancyTEU
+}
+
+class Dock {
+    DockID
+    DockName
+    Location
+}
+
+' Association class for AC4 and AC5
+(StorageArea, Dock) .. StorageAreaDockDistance
+class StorageAreaDockDistance {
+    DistanceInMeters
+}
+
+note right of User
+    Only users with profile "Port Authority Officer"
+    can manage Storage Areas.
+end note
+
+User "1" --> "0..*" StorageArea : manages
+StorageArea "1" -- "0..*" StorageAreaDockDistance : (ServedDocks)
+Dock "1" -- "0..*" StorageAreaDockDistance
+
+@enduml

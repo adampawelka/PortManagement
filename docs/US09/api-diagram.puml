@@ -1,0 +1,160 @@
+@startuml US09 - Task Management API Diagram
+
+!theme plain
+skinparam rectangle {
+    BackgroundColor #E8F4FD
+    BorderColor #1E88E5
+}
+skinparam component {
+    BackgroundColor #F3E5F5
+    BorderColor #8E24AA
+}
+
+title US09 - Task Management API Architecture
+
+package "Client Layer" {
+    [Logistics Operator Web App] as WebApp
+    [Mobile App] as MobileApp
+    [External Systems] as External
+}
+
+package "API Gateway" {
+    [API Gateway] as Gateway
+    [Authentication Service] as Auth
+    [Rate Limiting] as RateLimit
+}
+
+package "Task Management API" {
+    [Task Controller] as TaskController
+    [Resource Allocation Controller] as ResourceController
+    [Schedule Controller] as ScheduleController
+    [Task Service] as TaskService
+    [Resource Allocation Service] as ResourceService
+    [Schedule Service] as ScheduleService
+}
+
+package "Domain Layer" {
+    [Task Aggregate] as TaskAggregate
+    [Resource Allocation Aggregate] as ResourceAggregate
+    [Task Schedule Aggregate] as ScheduleAggregate
+    [Domain Events] as DomainEvents
+}
+
+package "Infrastructure Layer" {
+    [Task Repository] as TaskRepo
+    [Resource Repository] as ResourceRepo
+    [Schedule Repository] as ScheduleRepo
+    [Event Store] as EventStore
+    [Message Queue] as MessageQueue
+}
+
+package "External Services" {
+    [Resource Management System] as ResourceSystem
+    [Vessel Visit System] as VesselSystem
+    [Notification Service] as NotificationService
+    [Audit Service] as AuditService
+}
+
+' Client connections
+WebApp --> Gateway
+MobileApp --> Gateway
+External --> Gateway
+
+' API Gateway connections
+Gateway --> Auth
+Gateway --> RateLimit
+Gateway --> TaskController
+Gateway --> ResourceController
+Gateway --> ScheduleController
+
+' Controller to Service connections
+TaskController --> TaskService
+ResourceController --> ResourceService
+ScheduleController --> ScheduleService
+
+' Service to Domain connections
+TaskService --> TaskAggregate
+ResourceService --> ResourceAggregate
+ScheduleService --> ScheduleAggregate
+
+' Domain connections
+TaskAggregate --> DomainEvents
+ResourceAggregate --> DomainEvents
+ScheduleAggregate --> DomainEvents
+
+' Service to Repository connections
+TaskService --> TaskRepo
+ResourceService --> ResourceRepo
+ScheduleService --> ScheduleRepo
+
+' Repository to Infrastructure connections
+TaskRepo --> EventStore
+ResourceRepo --> EventStore
+ScheduleRepo --> EventStore
+
+' External service connections
+TaskService --> ResourceSystem
+TaskService --> VesselSystem
+TaskService --> NotificationService
+TaskService --> AuditService
+
+' Event handling
+DomainEvents --> MessageQueue
+MessageQueue --> NotificationService
+MessageQueue --> AuditService
+
+note right of TaskController
+    **Task Management Endpoints:**
+    - GET /api/tasks
+    - POST /api/tasks
+    - PUT /api/tasks/{id}
+    - DELETE /api/tasks/{id}
+    - POST /api/tasks/{id}/start
+    - POST /api/tasks/{id}/complete
+    - POST /api/tasks/{id}/fail
+end note
+
+note right of ResourceController
+    **Resource Allocation Endpoints:**
+    - GET /api/resource-allocations
+    - POST /api/resource-allocations
+    - PUT /api/resource-allocations/{id}
+    - DELETE /api/resource-allocations/{id}
+    - POST /api/resource-allocations/optimize
+end note
+
+note right of ScheduleController
+    **Schedule Management Endpoints:**
+    - GET /api/schedules
+    - POST /api/schedules
+    - PUT /api/schedules/{id}
+    - POST /api/schedules/{id}/optimize
+    - GET /api/schedules/vessel-visit/{visitId}
+end note
+
+note bottom of TaskAggregate
+    **Core Business Logic:**
+    - Task creation and validation
+    - Dependency management
+    - Status transitions
+    - Resource requirements
+    - Duration calculations
+end note
+
+note bottom of ResourceAggregate
+    **Resource Management:**
+    - Resource allocation
+    - Conflict detection
+    - Availability checking
+    - Qualification matching
+end note
+
+note bottom of ScheduleAggregate
+    **Schedule Optimization:**
+    - Task sequencing
+    - Resource optimization
+    - Constraint satisfaction
+    - Parallel execution planning
+end note
+
+@enduml

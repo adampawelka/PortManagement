@@ -1,0 +1,274 @@
+@startuml US09 - Task Management Class Diagram
+
+!theme plain
+skinparam classAttributeIconSize 0
+
+package "US09 - Task Management Domain" {
+
+    package "<<Aggregate>> Task" {
+        class Task <<Entity>> <<Root>> {
+            - TaskId id
+            - VesselVisitId vesselVisitId
+            - TaskType type
+            - SequenceOrder sequenceOrder
+            - EstimatedDuration estimatedDuration
+            - TaskStatus status
+            - DateTime scheduledStartTime
+            - DateTime actualStartTime
+            - DateTime actualEndTime
+            - List<ResourceRequirement> resourceRequirements
+            - List<TaskDependency> dependencies
+            --
+            + CreateTask(vesselVisitId, type, requirements)
+            + UpdateTask(requirements, dependencies)
+            + ScheduleTask(startTime, resources)
+            + StartTask()
+            + CompleteTask()
+            + FailTask(reason)
+            + CancelTask(reason)
+            + AddDependency(taskId)
+            + RemoveDependency(taskId)
+            + AllocateResource(resourceId, humanResourceId)
+            + DeallocateResource(resourceId)
+            + CalculateEstimatedDuration()
+            + ValidateDependencies()
+            + CanStart()
+            + IsCompleted()
+            + IsFailed()
+            + GetRemainingDuration()
+        }
+
+        class TaskId <<ValueObject>> {
+            - Guid value
+            --
+            + TaskId(guid)
+            + AsGuid()
+            + Equals(other)
+            + GetHashCode()
+            + ToString()
+        }
+
+        class TaskType <<ValueObject>> {
+            - string value
+            --
+            + UNLOAD_FROM_VESSEL
+            + TRANSPORT_TO_YARD
+            + STACK_IN_YARD
+            + LOAD_TO_VESSEL
+            --
+            + TaskType(type)
+            + Value
+            + IsValid()
+            + Equals(other)
+        }
+
+        class SequenceOrder <<ValueObject>> {
+            - int value
+            --
+            + SequenceOrder(order)
+            + Value
+            + IsValid()
+            + CompareTo(other)
+        }
+
+        class EstimatedDuration <<ValueObject>> {
+            - TimeSpan value
+            --
+            + EstimatedDuration(duration)
+            + Value
+            + IsValid()
+            + AddDuration(duration)
+        }
+
+        class TaskStatus <<ValueObject>> {
+            - string value
+            --
+            + PENDING
+            + SCHEDULED
+            + IN_PROGRESS
+            + COMPLETED
+            + FAILED
+            + CANCELLED
+            --
+            + TaskStatus(status)
+            + Value
+            + CanTransitionTo(newStatus)
+            + Equals(other)
+        }
+
+        class ResourceRequirement <<ValueObject>> {
+            - ResourceType resourceType
+            - int quantity
+            - List<Qualification> requiredQualifications
+            - TimeSpan setupTime
+            --
+            + ResourceRequirement(type, quantity, qualifications, setupTime)
+            + ResourceType
+            + Quantity
+            + RequiredQualifications
+            + SetupTime
+            + IsSatisfiedBy(resource)
+        }
+
+        class TaskDependency <<ValueObject>> {
+            - TaskId prerequisiteTaskId
+            - DependencyType type
+            - bool isRequired
+            --
+            + TaskDependency(prerequisiteTaskId, type, isRequired)
+            + PrerequisiteTaskId
+            + Type
+            + IsRequired
+            + Equals(other)
+        }
+
+        class DependencyType <<ValueObject>> {
+            - string value
+            --
+            + FINISH_TO_START
+            + START_TO_START
+            + FINISH_TO_FINISH
+            + START_TO_FINISH
+            --
+            + DependencyType(type)
+            + Value
+            + IsValid()
+        }
+
+        Task "1" *-- "1" TaskId
+        Task "1" *-- "1" TaskType
+        Task "1" *-- "1" SequenceOrder
+        Task "1" *-- "1" EstimatedDuration
+        Task "1" *-- "1" TaskStatus
+        Task "1" *-- "1..*" ResourceRequirement
+        Task "1" *-- "0..*" TaskDependency
+        TaskDependency "1" *-- "1" DependencyType
+    }
+
+    package "<<Aggregate>> ResourceAllocation" {
+        class ResourceAllocation <<Entity>> <<Root>> {
+            - ResourceAllocationId id
+            - TaskId taskId
+            - ResourceId resourceId
+            - HumanResourceId humanResourceId
+            - DateTime allocatedAt
+            - DateTime scheduledStartTime
+            - DateTime scheduledEndTime
+            - AllocationStatus status
+            --
+            + CreateAllocation(taskId, resourceId, humanResourceId, startTime, endTime)
+            + UpdateSchedule(startTime, endTime)
+            + ConfirmAllocation()
+            + ReleaseAllocation()
+            + IsActive()
+            + IsOverlapping(other)
+            + ValidateAllocation()
+        }
+
+        class ResourceAllocationId <<ValueObject>> {
+            - Guid value
+            --
+            + ResourceAllocationId(guid)
+            + AsGuid()
+            + Equals(other)
+        }
+
+        class AllocationStatus <<ValueObject>> {
+            - string value
+            --
+            + PENDING
+            + CONFIRMED
+            + ACTIVE
+            + COMPLETED
+            + CANCELLED
+            --
+            + AllocationStatus(status)
+            + Value
+            + CanTransitionTo(newStatus)
+        }
+    }
+
+    package "<<Aggregate>> TaskSchedule" {
+        class TaskSchedule <<Entity>> <<Root>> {
+            - TaskScheduleId id
+            - VesselVisitId vesselVisitId
+            - List<TaskId> scheduledTasks
+            - DateTime createdAt
+            - DateTime lastModified
+            - ScheduleStatus status
+            --
+            + CreateSchedule(vesselVisitId)
+            + AddTask(taskId, sequenceOrder)
+            + RemoveTask(taskId)
+            + ReorderTasks(taskOrders)
+            + OptimizeSchedule()
+            + ValidateSchedule()
+            + GetNextAvailableSlot(resourceId, duration)
+            + GetConflictingTasks(taskId)
+        }
+
+        class TaskScheduleId <<ValueObject>> {
+            - Guid value
+            --
+            + TaskScheduleId(guid)
+            + AsGuid()
+        }
+
+        class ScheduleStatus <<ValueObject>> {
+            - string value
+            --
+            + DRAFT
+            + OPTIMIZED
+            + CONFIRMED
+            + EXECUTING
+            + COMPLETED
+            --
+            + ScheduleStatus(status)
+            + Value
+        }
+    }
+
+    package "Value Objects" {
+        class ResourceType <<ValueObject>> {
+            - string value
+            --
+            + STS_CRANE
+            + YARD_CRANE
+            + TRUCK
+            + YARD_EQUIPMENT
+            --
+            + ResourceType(type)
+            + Value
+            + IsValid()
+        }
+
+        class Qualification <<ValueObject>> {
+            - string value
+            --
+            + STS_CRANE_OPERATOR
+            + YARD_CRANE_OPERATOR
+            + TRUCK_DRIVER
+            + YARD_PLANNER
+            --
+            + Qualification(qualification)
+            + Value
+            + IsValid()
+        }
+    }
+}
+
+' Relationships with other aggregates
+Task "1" *-- "1" VesselVisit : belongsTo >
+Task "1" *-- "1..*" ResourceAllocation : hasAllocations >
+TaskSchedule "1" *-- "1..*" Task : contains >
+ResourceAllocation "1" *-- "1" PhysicalResource : allocates >
+ResourceAllocation "1" *-- "1" HumanResource : assigns >
+Task "1" *-- "1..*" Container : handles >
+
+' External references
+Task ..> VesselVisit : references
+ResourceAllocation ..> PhysicalResource : references
+ResourceAllocation ..> HumanResource : references
+Task ..> Container : references
+
+@enduml

@@ -1,0 +1,223 @@
+@startuml US09 - Task Management Architecture Diagram
+
+!theme plain
+skinparam rectangle {
+    BackgroundColor #E8F5E8
+    BorderColor #4CAF50
+}
+skinparam component {
+    BackgroundColor #FFF3E0
+    BorderColor #FF9800
+}
+skinparam database {
+    BackgroundColor #E3F2FD
+    BorderColor #2196F3
+}
+
+title US09 - Task Management System Architecture
+
+package "Presentation Layer" {
+    [Task Management Web UI] as WebUI
+    [Mobile Task App] as MobileUI
+    [Dashboard & Analytics] as Dashboard
+}
+
+package "API Layer" {
+    [REST API Gateway] as APIGateway
+    [WebSocket Hub] as WebSocketHub
+    [Authentication Middleware] as AuthMiddleware
+    [Authorization Middleware] as AuthzMiddleware
+}
+
+package "Application Layer" {
+    [Task Management Service] as TaskService
+    [Resource Allocation Service] as ResourceService
+    [Schedule Optimization Service] as ScheduleService
+    [Notification Service] as NotificationService
+    [Audit Service] as AuditService
+}
+
+package "Domain Layer" {
+    package "Task Management" {
+        [Task Aggregate] as TaskAggregate
+        [Task Repository Interface] as TaskRepoInterface
+        [Task Domain Events] as TaskEvents
+    }
+    
+    package "Resource Management" {
+        [Resource Allocation Aggregate] as ResourceAggregate
+        [Resource Repository Interface] as ResourceRepoInterface
+        [Resource Domain Events] as ResourceEvents
+    }
+    
+    package "Schedule Management" {
+        [Task Schedule Aggregate] as ScheduleAggregate
+        [Schedule Repository Interface] as ScheduleRepoInterface
+        [Schedule Domain Events] as ScheduleEvents
+    }
+}
+
+package "Infrastructure Layer" {
+    package "Data Persistence" {
+        [Task Repository Implementation] as TaskRepoImpl
+        [Resource Repository Implementation] as ResourceRepoImpl
+        [Schedule Repository Implementation] as ScheduleRepoImpl
+        [Event Store] as EventStore
+    }
+    
+    package "External Integrations" {
+        [Resource Management System] as ResourceSystem
+        [Vessel Visit System] as VesselSystem
+        [Container Tracking System] as ContainerSystem
+        [Port Authority System] as PortAuthoritySystem
+    }
+    
+    package "Message Infrastructure" {
+        [Message Queue] as MessageQueue
+        [Event Bus] as EventBus
+        [Notification Queue] as NotificationQueue
+    }
+}
+
+package "Data Layer" {
+    database "Task Database" as TaskDB {
+        [Tasks Table]
+        [Task Dependencies Table]
+        [Task Resources Table]
+        [Task Events Table]
+    }
+    
+    database "Resource Database" as ResourceDB {
+        [Resource Allocations Table]
+        [Resource Availability Table]
+        [Resource Qualifications Table]
+    }
+    
+    database "Schedule Database" as ScheduleDB {
+        [Task Schedules Table]
+        [Schedule Optimizations Table]
+        [Schedule Conflicts Table]
+    }
+    
+    database "Event Store" as EventStoreDB {
+        [Domain Events Table]
+        [Event Snapshots Table]
+        [Event Metadata Table]
+    }
+}
+
+package "External Systems" {
+    [Port Authority API] as PortAPI
+    [Resource Management API] as ResourceAPI
+    [Container Tracking API] as ContainerAPI
+    [Notification Gateway] as NotificationGateway
+}
+
+' Presentation Layer connections
+WebUI --> APIGateway
+MobileUI --> APIGateway
+Dashboard --> APIGateway
+WebUI --> WebSocketHub
+MobileUI --> WebSocketHub
+
+' API Layer connections
+APIGateway --> AuthMiddleware
+APIGateway --> AuthzMiddleware
+APIGateway --> TaskService
+APIGateway --> ResourceService
+APIGateway --> ScheduleService
+WebSocketHub --> NotificationService
+
+' Application Layer connections
+TaskService --> TaskAggregate
+ResourceService --> ResourceAggregate
+ScheduleService --> ScheduleAggregate
+TaskService --> ResourceService
+TaskService --> ScheduleService
+TaskService --> NotificationService
+TaskService --> AuditService
+
+' Domain Layer connections
+TaskAggregate --> TaskRepoInterface
+ResourceAggregate --> ResourceRepoInterface
+ScheduleAggregate --> ScheduleRepoInterface
+TaskAggregate --> TaskEvents
+ResourceAggregate --> ResourceEvents
+ScheduleAggregate --> ScheduleEvents
+
+' Infrastructure Layer connections
+TaskRepoInterface --> TaskRepoImpl
+ResourceRepoInterface --> ResourceRepoImpl
+ScheduleRepoInterface --> ScheduleRepoImpl
+TaskRepoImpl --> TaskDB
+ResourceRepoImpl --> ResourceDB
+ScheduleRepoImpl --> ScheduleDB
+
+' Event handling
+TaskEvents --> EventBus
+ResourceEvents --> EventBus
+ScheduleEvents --> EventBus
+EventBus --> MessageQueue
+EventBus --> EventStore
+EventStore --> EventStoreDB
+
+' External integrations
+TaskService --> ResourceSystem
+TaskService --> VesselSystem
+TaskService --> ContainerSystem
+TaskService --> PortAuthoritySystem
+ResourceService --> ResourceSystem
+ScheduleService --> ResourceSystem
+
+' External API connections
+PortAuthoritySystem --> PortAPI
+ResourceSystem --> ResourceAPI
+ContainerSystem --> ContainerAPI
+NotificationService --> NotificationGateway
+
+note right of TaskService
+    **Core Responsibilities:**
+    - Task lifecycle management
+    - Dependency resolution
+    - Status tracking
+    - Resource coordination
+    - Event publishing
+end note
+
+note right of ResourceService
+    **Resource Management:**
+    - Resource allocation
+    - Conflict detection
+    - Availability checking
+    - Qualification matching
+    - Load balancing
+end note
+
+note right of ScheduleService
+    **Schedule Optimization:**
+    - Task sequencing
+    - Resource optimization
+    - Constraint satisfaction
+    - Parallel execution
+    - Conflict resolution
+end note
+
+note bottom of TaskAggregate
+    **Domain Rules:**
+    - Task creation validation
+    - Status transition rules
+    - Dependency constraints
+    - Resource requirements
+    - Business invariants
+end note
+
+note bottom of EventStore
+    **Event Sourcing:**
+    - Complete audit trail
+    - State reconstruction
+    - Event replay capability
+    - Temporal queries
+    - Compliance reporting
+end note
+
+@enduml

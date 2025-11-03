@@ -1,0 +1,70 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Class Diagram - US224
+
+class PortOfficerMenu {
+    + registerStorageArea()
+    + updateStorageArea()
+    + updateOccupancy()
+}
+
+class StorageAreasController {
+    + CreateStorageArea(CreateStorageAreaDto) : Task<ActionResult>
+    + UpdateStorageArea(Guid, UpdateStorageAreaDto) : Task<ActionResult>
+    + UpdateOccupancy(Guid, UpdateOccupancyDto) : Task<ActionResult>
+}
+
+class StorageAreaService {
+    - _context: PortManagementContext
+    + CreateStorageAreaAsync(CreateStorageAreaDto) : Task<StorageAreaDto>
+    + UpdateStorageAreaAsync(Guid, UpdateStorageAreaDto) : Task<StorageAreaDto>
+    + UpdateOccupancyAsync(Guid, UpdateOccupancyDto) : Task<StorageAreaDto>
+}
+
+class PortManagementContext {
+    + StorageAreas : DbSet<StorageArea>
+    + StorageAreaDockDistances : DbSet<StorageAreaDockDistance>
+    + Docks : DbSet<Dock>
+    + SaveChangesAsync() : Task<int>
+}
+
+class StorageArea {
+    - Id: Guid
+    - Type: StorageAreaType
+    - MaxCapacityTEU: int
+    - CurrentOccupancyTEU: int
+    - ServedDocks: ICollection<StorageAreaDockDistance>
+    + StorageArea(CreateStorageAreaDto)
+    + Update(UpdateStorageAreaDto)
+    + UpdateOccupancy(int newOccupancy)
+}
+
+class StorageAreaDockDistance {
+    + StorageAreaId: Guid
+    + DockId: Guid
+    + DistanceInMeters: double
+}
+
+class Dock {
+    + DockID: Guid
+}
+
+"Port Authority Officer" "1" ..> "1" PortOfficerMenu
+PortOfficerMenu "1" ..> "1" StorageAreasController
+StorageAreasController "1" ..> "1" StorageAreaService
+StorageAreaService "1" ..> "1" PortManagementContext : uses
+StorageAreaService ..> StorageArea : creates & updates
+PortManagementContext "1" -- "0..*" StorageArea : persists
+PortManagementContext "1" -- "0..*" StorageAreaDockDistance : persists
+StorageArea "1" -- "0..*" StorageAreaDockDistance : has
+StorageAreaDockDistance "1" -- "1" Dock : refers to
+StorageAreasController ..> CreateStorageAreaDto : receives
+StorageAreasController ..> UpdateStorageAreaDto : receives
+StorageAreasController ..> UpdateOccupancyDto : receives
+
+@enduml

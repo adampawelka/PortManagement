@@ -1,0 +1,156 @@
+@startuml US09 - Task Management Sequence Diagram
+
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+
+title US09 - Task Management and Resource Allocation Sequence
+
+actor "Logistics Operator" as LO
+participant "Task Management API" as API
+participant "Task Service" as TS
+participant "Resource Allocation Service" as RAS
+participant "Task Schedule Service" as TSS
+participant "Task Repository" as TR
+participant "Resource Repository" as RR
+participant "Notification Service" as NS
+
+== Task Creation and Scheduling ==
+
+LO -> API: POST /api/tasks
+activate API
+API -> TS: CreateTask(createTaskDto)
+activate TS
+
+TS -> TS: ValidateTaskRequirements()
+TS -> TS: CreateTaskEntity()
+TS -> TR: AddAsync(task)
+activate TR
+TR --> TS: Task created
+deactivate TR
+
+TS -> RAS: AllocateResources(taskId, requirements)
+activate RAS
+RAS -> RR: FindAvailableResources(requirements)
+activate RR
+RR --> RAS: Available resources
+deactivate RR
+RAS -> RAS: SelectOptimalResources()
+RAS -> RAS: CreateResourceAllocations()
+RAS --> TS: Resources allocated
+deactivate RAS
+
+TS -> TSS: AddTaskToSchedule(taskId, vesselVisitId)
+activate TSS
+TSS -> TSS: CalculateOptimalSequence()
+TSS -> TSS: UpdateTaskSchedule()
+TSS --> TS: Task scheduled
+deactivate TSS
+
+TS --> API: TaskDto
+deactivate TS
+API --> LO: 201 Created
+deactivate API
+
+== Task Execution Workflow ==
+
+LO -> API: POST /api/tasks/{id}/start
+activate API
+API -> TS: StartTask(taskId)
+activate TS
+
+TS -> TS: ValidateTaskCanStart()
+TS -> TS: CheckDependencies()
+TS -> TS: UpdateTaskStatus(IN_PROGRESS)
+TS -> TR: UpdateAsync(task)
+activate TR
+TR --> TS: Task updated
+deactivate TR
+
+TS -> RAS: ActivateResourceAllocations(taskId)
+activate RAS
+RAS -> RAS: UpdateAllocationStatus(ACTIVE)
+RAS --> TS: Allocations activated
+deactivate RAS
+
+TS -> NS: SendTaskStartedNotification(taskId)
+activate NS
+NS --> TS: Notification sent
+deactivate NS
+
+TS --> API: TaskDto
+deactivate TS
+API --> LO: 200 OK
+deactivate API
+
+== Task Monitoring and Status Updates ==
+
+loop Real-time monitoring
+    TS -> TS: MonitorTaskProgress()
+    TS -> TS: CheckTaskCompletion()
+    
+    alt Task completed
+        TS -> TS: UpdateTaskStatus(COMPLETED)
+        TS -> TR: UpdateAsync(task)
+        TS -> RAS: ReleaseResourceAllocations(taskId)
+        TS -> TSS: MarkTaskCompleted(taskId)
+        TS -> NS: SendTaskCompletedNotification(taskId)
+        TS -> TS: TriggerDependentTasks()
+    else Task failed
+        TS -> TS: UpdateTaskStatus(FAILED)
+        TS -> TR: UpdateAsync(task)
+        TS -> RAS: ReleaseResourceAllocations(taskId)
+        TS -> NS: SendTaskFailedNotification(taskId)
+        TS -> TS: ScheduleTaskRetry()
+    end
+end
+
+== Resource Conflict Resolution ==
+
+TS -> RAS: DetectResourceConflicts()
+activate RAS
+RAS -> RAS: AnalyzeResourceAllocations()
+RAS -> RAS: IdentifyConflicts()
+
+alt Conflicts found
+    RAS -> RAS: CalculateResolutionOptions()
+    RAS -> TSS: RequestScheduleAdjustment()
+    activate TSS
+    TSS -> TSS: OptimizeSchedule()
+    TSS -> TSS: RescheduleConflictingTasks()
+    TSS --> RAS: Schedule updated
+    deactivate TSS
+    RAS -> NS: SendConflictResolutionNotification()
+    activate NS
+    NS --> RAS: Notification sent
+    deactivate NS
+end
+
+RAS --> TS: Conflicts resolved
+deactivate RAS
+
+== Task Completion and Cleanup ==
+
+TS -> TS: FinalizeTaskExecution()
+TS -> RAS: ReleaseAllResources(taskId)
+activate RAS
+RAS -> RAS: UpdateAllocationStatus(COMPLETED)
+RAS --> TS: Resources released
+deactivate RAS
+
+TS -> TSS: UpdateScheduleCompletion()
+activate TSS
+TSS -> TSS: MarkScheduleCompleted()
+TSS --> TS: Schedule updated
+deactivate TSS
+
+TS -> NS: SendVesselVisitCompletionNotification()
+activate NS
+NS --> TS: Notification sent
+deactivate NS
+
+TS -> TS: GenerateTaskExecutionReport()
+
+@enduml

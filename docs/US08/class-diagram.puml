@@ -1,0 +1,66 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Class Diagram - US227
+
+class PortAuthorityOfficerMenu {
+    + reviewPendingNotifications()
+    + approveNotification()
+    + rejectNotification()
+}
+
+class VesselVisitNotificationsController {
+    + ApproveNotification(Guid, ApproveNotificationDto) : Task<ActionResult>
+    + RejectNotification(Guid, RejectNotificationDto) : Task<ActionResult>
+}
+
+class VesselVisitNotificationService {
+    - _context: PortManagementContext
+    + ApproveNotificationAsync(Guid, ApproveNotificationDto, Guid) : Task<VsvDto>
+    + RejectNotificationAsync(Guid, RejectNotificationDto, Guid) : Task<VsvDto>
+}
+
+class PortManagementContext {
+    + VesselVisitNotifications : DbSet<VesselVisitNotification>
+    + Docks : DbSet<Dock>
+    + SaveChangesAsync() : Task<int>
+}
+
+class VesselVisitNotification {
+    - Status: NotificationStatus
+    - AssignedDockId: Guid?
+    - RejectionReason: string?
+    - DecidingOfficerId: Guid?
+    - DecisionTimestamp: DateTime?
+    + Approve(Guid dockId, Guid officerId)
+    + Reject(string reason, Guid officerId)
+}
+
+class Dock {
+    - DockID: Guid
+    - DockName: string
+}
+
+class ApproveNotificationDto {
+    + DockId: Guid
+}
+
+class RejectNotificationDto {
+    + Reason: string
+}
+
+"Port Authority Officer" "1" ..> "1" PortAuthorityOfficerMenu
+PortAuthorityOfficerMenu "1" ..> "1" VesselVisitNotificationsController
+VesselVisitNotificationsController "1" ..> "1" VesselVisitNotificationService
+VesselVisitNotificationService "1" ..> "1" PortManagementContext : uses
+VesselVisitNotificationService ..> VesselVisitNotification : loads & updates
+VesselVisitNotificationService ..> Dock : validates
+VesselVisitNotificationsController ..> ApproveNotificationDto : receives
+VesselVisitNotificationsController ..> RejectNotificationDto : receives
+VesselVisitNotification "0..1" -- "1" Dock : (AssignedDock)
+
+@enduml

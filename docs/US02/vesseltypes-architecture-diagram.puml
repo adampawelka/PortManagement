@@ -1,0 +1,99 @@
+@startuml VesselTypes Architecture Diagram
+!theme plain
+skinparam linetype ortho
+skinparam backgroundColor #f8f9fa
+skinparam packageBackgroundColor #e3f2fd
+skinparam packageBorderColor #1976d2
+
+package "Presentation Layer" #lightblue {
+    [VesselTypesController]
+    note right of [VesselTypesController]
+        REST API Endpoints:
+        • GET /api/vesseltypes
+        • GET /api/vesseltypes/{id}
+        • POST /api/vesseltypes
+        • PUT /api/vesseltypes/{id}
+        • DELETE /api/vesseltypes/{id}
+    end note
+}
+
+package "Application/Service Layer" #lightgreen {
+    [VesselTypeService]
+    note right of [VesselTypeService]
+        Business Logic:
+        • CRUD Operations
+        • Data Validation
+        • DTO Mapping
+        • Transaction Management
+    end note
+}
+
+package "Domain Layer" #lightyellow {
+    [VesselType Entity]
+    [VesselTypeId ValueObject]
+    [OperationalConstraints ValueObject]
+    [VesselTypeDto]
+    [CreatingVesselTypeDto]
+    [UpdatingVesselTypeDto]
+    
+    note right of [VesselType Entity]
+        Domain Model:
+        • Business Rules
+        • Invariants
+        • Domain Logic
+    end note
+}
+
+package "Infrastructure Layer" #lightcoral {
+    [VesselTypeRepository]
+    [VesselTypeEntityTypeConfiguration]
+    [DDDSample1DbContext]
+    
+    note right of [VesselTypeRepository]
+        Data Access:
+        • Entity Framework
+        • Database Operations
+        • ORM Mapping
+    end note
+}
+
+package "Database" #lightgray {
+    database "SQL Server" {
+        [VesselTypes Table]
+    }
+}
+
+' Layer Dependencies (following DDD principles)
+[VesselTypesController] --> [VesselTypeService] : "Uses"
+[VesselTypeService] --> [VesselType Entity] : "Manages"
+[VesselTypeService] --> [VesselTypeRepository] : "Uses"
+[VesselTypeService] --> [VesselTypeDto] : "Returns"
+[VesselTypeService] --> [CreatingVesselTypeDto] : "Accepts"
+[VesselTypeService] --> [UpdatingVesselTypeDto] : "Accepts"
+
+[VesselType Entity] --> [VesselTypeId ValueObject] : "Contains"
+[VesselType Entity] --> [OperationalConstraints ValueObject] : "Contains"
+
+[VesselTypeRepository] --> [VesselType Entity] : "Persists"
+[VesselTypeRepository] --> [DDDSample1DbContext] : "Uses"
+[VesselTypeEntityTypeConfiguration] --> [VesselType Entity] : "Configures"
+[DDDSample1DbContext] --> [VesselTypes Table] : "Maps to"
+
+' DDD Principles
+note top of [VesselType Entity]
+    <b>Domain-Driven Design Principles:</b>
+    • Entity: Has identity (VesselTypeId)
+    • Aggregate Root: Controls access
+    • Business Rules: Enforced in domain
+    • Value Objects: Immutable
+end note
+
+note bottom of [VesselTypeService]
+    <b>Service Layer Responsibilities:</b>
+    • Orchestrates domain operations
+    • Handles transactions
+    • Maps between DTOs and Entities
+    • Coordinates with repositories
+end note
+
+@enduml

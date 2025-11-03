@@ -1,0 +1,59 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+
+title Implementation View - Level 3 (Code Elements) for US04
+
+namespace PortManagement.Controllers {
+    class DocksController {
+        + CreateDockAsync(dto: CreateDockDto) : Task<ActionResult<DockDto>>
+        + UpdateDockAsync(id: Guid, dto: DockDto) : Task<ActionResult<DockDto>>
+        + GetAll() : Task<ActionResult<IEnumerable<DockDto>>>
+        + GetById(id: Guid) : Task<ActionResult<DockDto>>
+    }
+}
+
+namespace PortManagement.Application.Docks {
+    class DockService {
+        + AddDockAsync(dto: CreateDockDto) : Task<DockDto>
+        + UpdateDockAsync(id: Guid, dto: DockDto) : Task<DockDto>
+        + GetAllAsync() : Task<IEnumerable<DockDto>>
+        + GetByIdAsync(id: DockId) : Task<DockDto>
+    }
+}
+
+namespace PortManagement.Domain.Docks {
+    class Dock {
+        + Dock(name, location, length, depth, maxDraft, vesselTypes)
+        + UpdateDock(name, location, length, depth, maxDraft)
+    }
+}
+
+namespace PortManagement.Domain.VesselTypes {
+    class VesselType {
+        + VesselType(string name, string description, int capacity, OperationalConstraints constraints)
+    }
+}
+
+namespace PortManagement.Infrastructure.Docks {
+    class DockRepository {
+        + AddAsync(Dock) : Task
+        + UpdateAsync(Dock) : Task
+        + GetByIdAsync(DockId) : Task<Dock>
+        + GetAllAsync() : Task<IEnumerable<Dock>>
+    }
+}
+
+namespace PortManagement.Infrastructure.VesselTypes {
+    class VesselTypeRepository {
+        + GetByIdAsync(VesselTypeId) : Task<VesselType>
+    }
+}
+
+DocksController ..> DockService : uses
+DockService ..> Dock : creates/updates
+DockService ..> DockRepository : calls
+DockService ..> VesselTypeRepository : calls
+Dock --> VesselType : contains *>
+
+@enduml

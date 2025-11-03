@@ -1,0 +1,44 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title Analysis - US2211 - Staff Management
+
+hide circle
+hide methods
+
+top to bottom direction
+
+class User {
+    userId
+    profile
+    permissions
+}
+
+class StaffMember {
+    Id
+    MecanographicNumber
+    ShortName
+    Email
+    Phone
+    OperationalWindow
+    Status
+}
+
+class Qualification {
+    Id
+    Code 
+    Name
+}
+
+note right of User
+    Only users with profile "Logistics Operator"
+    can register and manage Staff Members. 
+end note
+
+User "1" --> "0..*" StaffMember : manages
+StaffMember "0..*" -- "0..*" Qualification : has 
+
+@enduml

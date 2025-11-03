@@ -1,0 +1,82 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Class Diagram - US222
+
+class VesselsController {
+    + VesselsController(VesselService)
+    + Create(CreatingVesselDto) : ActionResult<VesselDto>
+    + Update(UpdatingVesselDto) : ActionResult<VesselDto>
+    + GetFiltered(imo?, name?, ownerId?) : ActionResult<IEnumerable<DockDto>>
+}
+
+' createVessel and updateVessel returns a message
+
+class VesselService {
+    + VesselService(VesselRepository)
+    + AddVesselAsync(CreatingVesselDto) : VesselDto
+    + UpdateVesselAsync(UpdatingVesselDto) : VesselDto
+    + SearchAsync(imo?, name?, ownerId?) : <List<VesselDto>>
+}
+
+class VesselRepository {
+    + VesselRepository(DDDSample1Context)
+    + AddVesselAsync(Vessel) : VesselDto
+    + SearchAsync(imo?, name?, ownerId?) : List<VesselDto>
+}
+
+class Vessel {
+    - VesselId: Guid
+    - VesselName: string
+    - VesselType : VesselType
+    - Owner : ShippingAgentOrganization
+    + getVesselId(): Guid
+    + getVesselName(): string
+    + getVesselType(): VesselType
+    + getOwner(): ShippingAgentOrganization
+
+    + Vessel(name, location, length, depth, maxDraft)
+    + UpdateVessel(VesselName?, Owner?)
+}
+
+class VesselType {
+    - VesselName: string
+    - Description: string
+    - Capacity: double
+    - Constraints : OperationalConstraints
+    + getVesselName(): string
+    + getDescription(): string
+    + getCapacity(): double
+    + getConstraints(): OperationalConstraints
+
+    + VesselType(vesselName, description, capacity, contraints)
+}
+
+class ShippingAgentOrganization {
+    - OrganizationId: Guid
+    - LegalName: string
+    - Address: string
+    - TaxNumber: string
+    - Representatives : List<ShippingAgentRepresentative>
+    + getOrganizationId(): Guid
+    + getOrganizationName(): string
+    + getAddress(): string
+    + getTaxNumber(): string
+    + getRepresentatives(): List<ShippingAgentRepresentative
+    
+    + ShippingAgentOrganization(id, legalnName, address, taxNumber, representatives)
+}
+
+
+VesselsController "1" ..> "1" VesselService
+VesselService "1" ..> "1" VesselRepository
+VesselService ..> Vessel : creates
+VesselRepository "1" ..> "1" Vessel : persists
+Vessel "1.." --> "0.." VesselType : allows 
+Vessel "1.." --> "0.." ShippingAgentOrganization : allows 
+
+@enduml

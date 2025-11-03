@@ -313,17 +313,23 @@ package "<<Aggregate>> User" {
     }
     class userId <<ValueObject>> {
     }
-    class profile <<ValueObject>> {
+    class username <<ValueObject>> {
+    }
+    class email <<ValueObject>> {
+    }
+    class role <<ValueObject>> {
         PORT_AUTHORITY_OFFICER
         SHIPPING_AGENT_REPRESENTATIVE
         LOGISTICS_OPERATOR
         ADMINISTRATOR
     }
-    class permissions <<ValueObject>> {
+    class status <<ValueObject>> {
     }
     User "1" *-- "1" userId
-    User "1" *-- "1" profile
-    User "1" *-- "1..*" permissions
+    User "1" *-- "1" username
+    User "1" *-- "1" role
+    User "1" *-- "1" email
+    User "1" *-- "1" status
 }
 
 ' Relationships

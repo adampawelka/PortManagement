@@ -1,0 +1,68 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+autonumber
+
+title Full Sequence Diagram - US2211 - Create Staff Member
+
+actor "Logistics Operator" as LO
+participant ":LogisticsOperatorMenu" as UI
+participant ":StaffMembersController" as CTRL
+participant ":StaffMemberService" as SVC
+participant ":PortManagementContext" as CTX
+participant ":StaffMember" as SM 
+
+activate LO
+    LO -> UI : requests to register a staff member
+    activate UI
+        UI -> UI : collect inputs (dto: CreateStaffMemberDto)
+        UI -> CTRL : CreateStaffMember(dto)
+        activate CTRL
+            CTRL -> SVC : CreateStaffMemberAsync(dto)
+            activate SVC
+                ' 1. Check for duplicates
+                SVC -> CTX : FirstOrDefaultAsync(s.MecanographicNumber == dto.MecanographicNumber)
+                activate CTX
+                    CTX --> SVC : null
+                deactivate CTX
+
+                ' 2. Validate qualifications
+                SVC -> CTX : Qualifications.Where(q => dto.QualificationIds.Contains(q.Id)).ToListAsync()
+                activate CTX
+                    CTX --> SVC : List<Qualification>
+                deactivate CTX
+
+                ' 3. Create entity
+                SVC -> SM : new StaffMember(dto)
+                activate SM
+                    SM --> SVC : StaffMember (instance)
+                deactivate SM
+
+                ' 4. Set qualifications
+                SVC -> SM : SetQualifications(List<Qualification>)
+
+                ' 5. Add to context
+                SVC -> CTX : StaffMembers.Add(staffMember)
+                activate CTX
+                deactivate CTX
+
+                ' 6. Save changes
+                SVC -> CTX : SaveChangesAsync()
+                activate CTX
+                    CTX --> SVC : int (rows affected)
+                deactivate CTX
+
+                ' 7. Map to DTO
+                SVC -> SVC : MapToDto(staffMember)
+                SVC --> CTRL : StaffMemberDto
+            deactivate SVC
+            
+            CTRL --> UI : 201 Created (StaffMemberDto)
+        deactivate CTRL
+        
+        UI --> LO : displays "Staff member created with ID: ..."
+    deactivate UI
+deactivate LO
+
+@enduml

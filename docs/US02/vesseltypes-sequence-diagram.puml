@@ -1,0 +1,94 @@
+@startuml VesselTypes Sequence Diagram
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam sequenceArrowThickness 2
+skinparam sequenceReferenceHeaderBackgroundColor #lightblue
+
+actor "Port Authority Officer" as User
+participant "VesselTypesController" as Controller
+participant "VesselTypeService" as Service
+participant "VesselTypeRepository" as Repository
+participant "Database" as DB
+
+== Create Vessel Type ==
+User -> Controller: POST /api/vesseltypes
+note right: CreatingVesselTypeDto
+Controller -> Service: AddAsync(dto)
+Service -> Service: new VesselType(name, description, capacity, constraints)
+Service -> Repository: AddAsync(vesselType)
+Repository -> DB: INSERT INTO VesselTypes
+DB --> Repository: Success
+Repository --> Service: Task completed
+Service -> Service: ToDto(vesselType)
+Service --> Controller: VesselTypeDto
+Controller --> User: 201 Created + VesselTypeDto
+
+== Get All Vessel Types ==
+User -> Controller: GET /api/vesseltypes
+Controller -> Service: GetAllAsync()
+Service -> Repository: GetAllAsync()
+Repository -> DB: SELECT * FROM VesselTypes
+DB --> Repository: List<VesselType>
+Repository --> Service: List<VesselType>
+Service -> Service: ToDto() for each
+Service --> Controller: List<VesselTypeDto>
+Controller --> User: 200 OK + List<VesselTypeDto>
+
+== Get Vessel Type by ID ==
+User -> Controller: GET /api/vesseltypes/{id}
+Controller -> Service: GetByIdAsync(id)
+Service -> Repository: GetByIdAsync(vesselTypeId)
+Repository -> DB: SELECT * FROM VesselTypes WHERE Id = @id
+DB --> Repository: VesselType or null
+Repository --> Service: VesselType or null
+alt VesselType found
+    Service -> Service: ToDto(vesselType)
+    Service --> Controller: VesselTypeDto
+    Controller --> User: 200 OK + VesselTypeDto
+else VesselType not found
+    Service --> Controller: null
+    Controller --> User: 404 Not Found
+end
+
+== Update Vessel Type ==
+User -> Controller: PUT /api/vesseltypes/{id}
+note right: UpdatingVesselTypeDto
+Controller -> Service: UpdateAsync(dto)
+Service -> Repository: GetByIdAsync(vesselTypeId)
+Repository -> DB: SELECT * FROM VesselTypes WHERE Id = @id
+DB --> Repository: VesselType or null
+Repository --> Service: VesselType or null
+alt VesselType found
+    Service -> Service: vesselType.ChangeName(name)
+    Service -> Service: vesselType.ChangeDescription(description)
+    Service -> Service: vesselType.ChangeCapacity(capacity)
+    Service -> Service: vesselType.ChangeConstraints(constraints)
+    Service -> Service: ToDto(vesselType)
+    Service --> Controller: VesselTypeDto
+    Controller --> User: 200 OK + VesselTypeDto
+else VesselType not found
+    Service --> Controller: null
+    Controller --> User: 404 Not Found
+end
+
+== Delete Vessel Type ==
+User -> Controller: DELETE /api/vesseltypes/{id}
+Controller -> Service: DeleteAsync(id)
+Service -> Repository: GetByIdAsync(vesselTypeId)
+Repository -> DB: SELECT * FROM VesselTypes WHERE Id = @id
+DB --> Repository: VesselType or null
+Repository --> Service: VesselType or null
+alt VesselType found
+    Service -> Repository: Remove(vesselType)
+    Repository -> DB: DELETE FROM VesselTypes WHERE Id = @id
+    DB --> Repository: Success
+    Repository --> Service: Task completed
+    Service -> Service: ToDto(vesselType)
+    Service --> Controller: VesselTypeDto
+    Controller --> User: 200 OK + VesselTypeDto
+else VesselType not found
+    Service --> Controller: null
+    Controller --> User: 404 Not Found
+end
+
+@enduml

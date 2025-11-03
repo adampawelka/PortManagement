@@ -1,0 +1,59 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+autonumber
+
+title Full Sequence Diagram - US224 - Update Occupancy (AC6)
+
+actor "Port Authority Officer" as PAO
+participant ":PortOfficerMenu" as UI
+participant ":StorageAreasController" as CTRL
+participant ":StorageAreaService" as SVC
+participant ":PortManagementContext" as CTX
+participant "area:StorageArea" as SA_MODEL
+
+activate PAO
+    PAO -> UI : requests to update occupancy (id, dto)
+    activate UI
+        UI -> CTRL : PUT /api/storageareas/{id}/occupancy (dto)
+        activate CTRL
+            CTRL -> SVC : UpdateOccupancyAsync(id, dto)
+            activate SVC
+                ' 1. Encontrar el área
+                SVC -> CTX : FindAsync(id)
+                activate CTX
+                    CTX --> SVC : area
+                deactivate CTX
+                
+                ' 2. Llamar a la lógica de negocio del modelo
+                SVC -> SA_MODEL : UpdateOccupancy(dto.CurrentOccupancyTEU)
+                activate SA_MODEL
+                    ' 3. (AC6) Modelo valida la regla de negocio
+                    SA_MODEL -> SA_MODEL : check (newOccupancy <= MaxCapacityTEU)
+                    alt if validation fails
+                        SA_MODEL -->> SVC : throw InvalidOperationException
+                    else
+                        SA_MODEL -> SA_MODEL : set CurrentOccupancyTEU = newOccupancy
+                    end
+                deactivate SA_MODEL
+
+                ' 4. Guardar cambios
+                SVC -> CTX : SaveChangesAsync()
+                activate CTX
+                    CTX --> SVC : int (rows affected)
+                deactivate CTX
+
+                ' 5. Mapear DTO de respuesta
+                SVC -> SVC : MapToDto(area)
+                SVC --> CTRL : StorageAreaDto
+            deactivate SVC
+            
+            CTRL --> UI : 200 OK (StorageAreaDto)
+        deactivate CTRL
+        
+        UI --> PAO : displays "Occupancy Updated"
+    deactivate UI
+deactivate PAO
+
+@enduml

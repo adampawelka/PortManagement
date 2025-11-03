@@ -1,0 +1,66 @@
+@startuml
+skinparam monochrome true
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+title Logical View - Level 3 (Detailed Classes) for US04
+
+class DocksController {
+    + DocksController(DockService)
+    + GetAll() : Task<ActionResult<IEnumerable<DockDto>>>
+    + GetFiltered(name: string?, location: string?, vesselTypeId: Guid?) : Task<ActionResult<IEnumerable<DockDto>>>
+    + GetById(Guid id) : Task<ActionResult<DockDto>>
+    + CreateDockAsync(CreateDockDto dto) : Task<ActionResult<DockDto>>
+    + UpdateDockAsync(UpdateDockDto dto, Guid id) : Task<ActionResult<DockDto>>
+}
+
+class DockService {
+    - _repo: IDockRepository, IVesselTypeRepository
+    - _unitOfWork: IUnitOfWork
+    + GetAllAsync() : Task<IEnumerable<DockDto>>
+    + GetByIdAsync(DockId id) : Task<DockDto>
+    + AddDockAsync(CreateDockDto dto) : Task<DockDto>
+    + UpdateDockAsync(UpdateDockDto dto, Guid id) : Task<DockDto>
+    + ValidateAndGetVesselTypesAsync(List<Guid> vesselTypeIds) : Task<List<VesselType>>
+    + SearchAsync(string? name, string? location, Guid? vesselTypeId) : Task<List<DockDto>>
+}
+
+class Dock {
+    - DockId: DockId
+    - DockName: string
+    - DockLocation: DockLocation
+    - Depth: Depth
+    - Length: Length
+    - MaxDraft: MaxDraft
+    - AllowedVesselTypes: List<VesselType>
+    
+    + Dock(name, location, length, depth, maxDraft, allowedVesselTypes)
+    + UpdateDock(newName, newLocation, newLength, newDepth, newMaxDraft)
+    + getDockId(): DockId
+    + getDockName(): string
+    + getDockLocation(): DockLocation
+    + getDepth(): Depth
+    + getLength(): Length
+    + getMaxDraft(): MaxDraft
+    + getAllowedVesselTypes(): List<VesselType>
+}
+
+class VesselType {
+    - VesselName: string
+    - Description: string
+    - Capacity: double
+    - Constraints: OperationalConstraints 
+
+    + getVesselName(): string
+    + getDescription(): string
+    + getCapacity(): double
+    + getConstraints(): OperationalConstraints
+}
+
+' === Relationships ===
+DocksController ..> DockService
+DockService ..> Dock : Creates / Updates / Retrieves
+Dock *-- VesselType : contains >
+
+@enduml
