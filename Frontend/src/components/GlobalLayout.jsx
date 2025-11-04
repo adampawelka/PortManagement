@@ -1,12 +1,15 @@
 import React from "react";
 import Header from "./Header";
 import PrimaryNavigation from "./PrimaryNavigation";
+import Breadcrumbs from "./Breadcrumbs";
 
 const GlobalLayout = ({ children }) => {
   return (
     <div style={{ width: "100%", minHeight: "100vh", boxSizing: "border-box" }}>
       <Header />
       <PrimaryNavigation />
+
+      <Breadcrumbs />
 
       {/* Main content centered */}
       <main
