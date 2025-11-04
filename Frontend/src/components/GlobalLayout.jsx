@@ -2,6 +2,7 @@ import React from "react";
 import Header from "./Header";
 import PrimaryNavigation from "./PrimaryNavigation";
 import Breadcrumbs from "./Breadcrumbs";
+import Footer from "./Footer";
 
 const GlobalLayout = ({ children }) => {
   return (
@@ -23,7 +24,7 @@ const GlobalLayout = ({ children }) => {
       >
         <div style={{ maxWidth: "600px", width: "100%" }}>{children}</div>
       </main>
-
+      <Footer />
     </div>
   );
 };
