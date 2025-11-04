@@ -1,25 +1,36 @@
-// --- App.jsx ---
-// Componente principal de la aplicación
-
-// Importamos los estilos CSS para este componente
+// src/App.jsx
 import "./App.css";
+import LoginButton from "./components/LoginButton";
+import LogoutButton from "./components/LogoutButton";
+import { useAuth0 } from "@auth0/auth0-react"; // <-- Importamos el hook
 
 function App() {
-  // El "return" define lo que se va a pintar en la pantalla
+  const { user, isAuthenticated, isLoading } = useAuth0();
+
+  // No mostrar nada hasta que Auth0 termine de cargar
+  if (isLoading) {
+    return <div>Cargando...</div>;
+  }
+
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>🚢 Dock Manage System</h1>
-        <p>
-          Welcome to the project. This is main page (`App.jsx`).
-        </p>
-        <p className="hint">
-          ( US 3.1.1 Test completed sucessfully )
-        </p>
+        <h1>🚢 Sistema de Gestión Portuaria</h1>
+
+        {/* Muestra un botón u otro dependiendo del estado */}
+        {!isAuthenticated ? (
+          <LoginButton />
+        ) : (
+          <div>
+            <p>
+              ¡Hello, <strong>{user.name}</strong>! ({user.email})
+            </p>
+            <LogoutButton />
+          </div>
+        )}
       </header>
     </div>
   );
 }
 
-// Exportamos el componente para que 'main.jsx' pueda importarlo
 export default App;
