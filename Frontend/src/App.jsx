@@ -1,4 +1,5 @@
-// src/App.jsx
+import React from "react";
+import GlobalLayout from "./components/GlobalLayout.jsx";
 import "./App.css";
 import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
@@ -13,6 +14,7 @@ function App() {
   }
 
   return (
+    <GlobalLayout>
     <div className="app-container">
       <header className="app-header">
         <h1>🚢 Sistema de Gestión Portuaria</h1>
@@ -30,7 +32,9 @@ function App() {
         )}
       </header>
     </div>
+    </GlobalLayout>
   );
 }
 
 export default App;
+

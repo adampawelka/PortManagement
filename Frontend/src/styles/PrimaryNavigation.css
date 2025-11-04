@@ -1,0 +1,72 @@
+/* Main navigation container */
+.nav {
+  display: flex;
+  justify-content: center;
+  background-color: #200963ff;
+  padding: 10px 0;
+}
+
+/* Each nav item (main menu) */
+.nav-item {
+  position: relative;
+  margin: 0 15px;
+  display: inline-block; /* Ensure horizontal alignment */
+}
+
+/* Link styles for main menu items */
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 12px;
+  display: block;
+}
+
+/* Submenu container (hidden by default) */
+.submenu-wrapper {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%; /* Position it directly below the menu item */
+  left: 0;
+  background-color: #200963ff;
+  flex-direction: column;
+  min-width: 180px;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+/* Show the submenu when hovering over the parent menu item */
+.nav-item:hover > .submenu-wrapper {
+  display: flex; /* Show submenu when hovering over parent */
+  flex-direction: column;
+}
+
+/* Styling for submenu items */
+.submenu-item {
+  position: relative;
+}
+
+.submenu-link {
+  color: white;
+  text-decoration: none;
+  padding: 8px 15px;
+  display: block;
+}
+
+/* Nested submenu (hidden by default) */
+.nested-submenu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background-color: #200963ff;
+  flex-direction: column;
+  min-width: 180px;
+  border-radius: 5px;
+}
+
+/* Show nested submenus when hovering over the parent submenu item */
+.submenu-item:hover > .nested-submenu {
+  display: flex; /* Show nested submenu when hovering over parent item */
+  flex-direction: column;
+}
