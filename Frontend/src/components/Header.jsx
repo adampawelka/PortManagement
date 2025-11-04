@@ -20,14 +20,12 @@ const Header = () => {
                 borderRadius: "8px",     
             }}
         >
-            {/* Logo */}
             <img
                 src={logo}
                 alt="Company Logo"
                 style={{ height: "50px", marginRight: "15px" }}
             />
 
-            {/* System/Company Name */}
             <h1 style={{ fontSize: "1.5rem", margin: 0 }}>Port Management Company</h1>
         </header>
     );

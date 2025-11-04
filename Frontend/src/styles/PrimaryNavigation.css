@@ -1,0 +1,68 @@
+/* Style for the main navigation items */
+.nav {
+  display: flex;
+  justify-content: center;
+  background-color: #200963ff;
+  padding: 10px 0;
+}
+
+.nav-item {
+  position: relative;
+  margin: 0 15px;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  padding: 8px 12px;
+  display: block;
+}
+
+/* Style for submenu, hidden by default */
+.submenu {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #200963ff;
+  flex-direction: column;
+  min-width: 180px;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+/* Hover effect to show submenu */
+.nav-item:hover > .submenu {
+  display: flex; /* Show submenu when parent is hovered */
+  flex-direction: column;
+}
+
+.submenu-item {
+  position: relative;
+}
+
+.submenu-link {
+  color: white;
+  text-decoration: none;
+  padding: 8px 15px;
+  display: block;
+}
+
+/* Nested submenu - similar behavior */
+.nested-submenu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background-color: #200963ff;
+  flex-direction: column;
+  min-width: 180px;
+  border-radius: 5px;
+}
+
+/* Hover effect for nested submenus */
+.submenu-item:hover > .nested-submenu {
+  display: flex; /* Show nested submenu when parent item is hovered */
+  flex-direction: column;
+}

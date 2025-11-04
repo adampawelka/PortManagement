@@ -1,6 +1,5 @@
 import React from "react";
 import GlobalLayout from "./components/GlobalLayout.jsx";
-import Header from "./components/Header.jsx";
 import "./App.css";
 
 function App() {
@@ -12,3 +11,4 @@ function App() {
 }
 
 export default App;
+
