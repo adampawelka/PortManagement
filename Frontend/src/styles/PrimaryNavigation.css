@@ -1,4 +1,4 @@
-/* Style for the main navigation items */
+/* Main navigation container */
 .nav {
   display: flex;
   justify-content: center;
@@ -6,11 +6,14 @@
   padding: 10px 0;
 }
 
+/* Each nav item (main menu) */
 .nav-item {
   position: relative;
   margin: 0 15px;
+  display: inline-block; /* Ensure horizontal alignment */
 }
 
+/* Link styles for main menu items */
 .nav-link {
   color: white;
   text-decoration: none;
@@ -19,11 +22,11 @@
   display: block;
 }
 
-/* Style for submenu, hidden by default */
-.submenu {
+/* Submenu container (hidden by default) */
+.submenu-wrapper {
   display: none; /* Hidden by default */
   position: absolute;
-  top: 100%;
+  top: 100%; /* Position it directly below the menu item */
   left: 0;
   background-color: #200963ff;
   flex-direction: column;
@@ -32,12 +35,13 @@
   z-index: 1000;
 }
 
-/* Hover effect to show submenu */
-.nav-item:hover > .submenu {
-  display: flex; /* Show submenu when parent is hovered */
+/* Show the submenu when hovering over the parent menu item */
+.nav-item:hover > .submenu-wrapper {
+  display: flex; /* Show submenu when hovering over parent */
   flex-direction: column;
 }
 
+/* Styling for submenu items */
 .submenu-item {
   position: relative;
 }
@@ -49,7 +53,7 @@
   display: block;
 }
 
-/* Nested submenu - similar behavior */
+/* Nested submenu (hidden by default) */
 .nested-submenu {
   display: none;
   position: absolute;
@@ -61,8 +65,8 @@
   border-radius: 5px;
 }
 
-/* Hover effect for nested submenus */
+/* Show nested submenus when hovering over the parent submenu item */
 .submenu-item:hover > .nested-submenu {
-  display: flex; /* Show nested submenu when parent item is hovered */
+  display: flex; /* Show nested submenu when hovering over parent item */
   flex-direction: column;
 }
