@@ -14,5 +14,7 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Testing
 
 - We need to install npm.
-- in the Frontend folder run npm run dev.
+- in the Frontend folder run: npm run dev.
 - Copy the localhost URL and type it on browser.
+
+(You should add/import the created files of each US to the main.jsx, as the comment ones (index.css, etc.))
