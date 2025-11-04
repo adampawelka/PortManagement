@@ -14,10 +14,10 @@ function App() {
   }
 
   return (
-    <GlobalLayout>
+    
     <div className="app-container">
       <header className="app-header">
-        <h1>🚢 Sistema de Gestión Portuaria</h1>
+        <h1>🚢 Port Management System</h1> 
 
         {/* Muestra un botón u otro dependiendo del estado */}
         {!isAuthenticated ? (
@@ -25,14 +25,16 @@ function App() {
         ) : (
           <div>
             <p>
+              <GlobalLayout>
               ¡Hello, <strong>{user.name}</strong>! ({user.email})
+              </GlobalLayout>
             </p>
             <LogoutButton />
           </div>
         )}
       </header>
     </div>
-    </GlobalLayout>
+    
   );
 }
 

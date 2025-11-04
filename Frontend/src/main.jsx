@@ -14,7 +14,7 @@ const AUTH0_CLIENT_ID = "2mdcHk7V1KzulJ83QKvrvUToZwvVqjCm";    // <--- User id
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
+    
       <Auth0Provider
         domain={AUTH0_DOMAIN}
         clientId={AUTH0_CLIENT_ID}
@@ -24,9 +24,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           audience: "http://3dl-e-04api", 
         }}
       >
+        <BrowserRouter>
         <App />
+        </BrowserRouter>
       </Auth0Provider>
-    </BrowserRouter>
+    
   </React.StrictMode>
 );
 

@@ -8,7 +8,7 @@ const Header = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "100%",
+                width: "100%", 
                 padding: "10px 20px",
                 backgroundColor: "#f5f5f5",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
