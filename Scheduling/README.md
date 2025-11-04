@@ -28,7 +28,7 @@ There are two tests that we can make here:
 - To test that C# --> PROLOG it's working propperly: 
     - http://localhost:5107/api/Scheduling/test-prolog
 
--To test SchedulingAPI --> BackendAPI:
+- To test SchedulingAPI --> BackendAPI:
     - http://localhost:5107/api/Scheduling/test-api-call
 
 
