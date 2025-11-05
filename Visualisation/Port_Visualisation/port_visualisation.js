@@ -34,6 +34,7 @@ export default class Port {
         const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
         const cubeMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.position.set(0, 0, 0); // Move the cube a bit back
         this.scene3D.add(cube);
 
         this.thirdPersonViewCamera = new Camera(this.thirdPersonViewCameraParameters, window.innerWidth, window.innerHeight);

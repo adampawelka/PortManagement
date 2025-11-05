@@ -202,10 +202,24 @@ export default class Camera {
         this.aspectRatio = viewport.width / viewport.height;
     }
 
-    updateWindowSize(windowWidth, windowHeight) {
-        this.setWindowSize(windowWidth, windowHeight);
-        this.setProjectionParameters();
-    }
+    // Update the camera's aspect ratio and frustum when the window is resized
+updateWindowSize(windowWidth, windowHeight) {
+    this.setWindowSize(windowWidth, windowHeight);
+    
+    // Perspective camera: update the aspect ratio
+    this.perspective.aspect = windowWidth / windowHeight;
+    this.perspective.updateProjectionMatrix();
+
+    // Orthographic camera: update the left/right/top/bottom planes
+    const aspectRatio = windowWidth / windowHeight;
+    const halfWidth = Math.tan(THREE.MathUtils.degToRad(this.initialFov / 2)) * this.initialDistance;
+    this.orthographic.left = -halfWidth * aspectRatio;
+    this.orthographic.right = halfWidth * aspectRatio;
+    this.orthographic.top = halfWidth;
+    this.orthographic.bottom = -halfWidth;
+    this.orthographic.updateProjectionMatrix();
+}
+
 
     setTarget(target) {
         this.target.copy(target);
