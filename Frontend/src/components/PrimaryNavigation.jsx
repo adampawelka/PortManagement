@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { menuItems } from "../data/menus.js"; // Import menu items
 import "../styles/PrimaryNavigation.css"; // Import the CSS
 
+
 const PrimaryNavigation = () => {
   const { t } = useTranslation(); // Translation function
   const currentUserRole = "user"; // Example: Change this to "admin", "user", or "guest"

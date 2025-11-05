@@ -5,8 +5,9 @@ import { Auth0Provider } from "@auth0/auth0-react"; // <--- 1. AUTH0
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import App from "./App";
-import "./index.css";
+import "./styles/variables.css"
+import './styles/global.css';
+import App from "./App.jsx";
 import "./i18n/i18n.js";
 
 

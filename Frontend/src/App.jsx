@@ -1,6 +1,5 @@
 import React from "react";
 import GlobalLayout from "./components/GlobalLayout.jsx";
-import "./App.css";
 import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -15,8 +14,8 @@ function App() {
 
   return (
     <GlobalLayout>
-      <div className="app-container">
-        <header className="app-header">
+      <div className="container">
+        <header>
           {/* Conditional render based on authentication */}
           {!isAuthenticated ? (
             <LoginButton />

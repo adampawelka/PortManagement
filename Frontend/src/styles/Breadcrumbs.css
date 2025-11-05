@@ -1,15 +1,16 @@
 .breadcrumb-container {
-  margin: 10px 0;
-  font-size: 14px;
-  color: #333;
+  margin: var(--spacing-sm) 0;          /* uses global spacing */
+  font-size: var(--font-size-base);      /* uses global font size */
+  color: var(--color-text-dark);         /* uses global text color */
 }
 
 .breadcrumb-link {
-  color: #200963;
+  color: var(--color-primary);           /* main primary color */
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;                       /* matches nav-link weight */
 }
 
 .breadcrumb-link:hover {
   text-decoration: underline;
+  color: var(--color-primary-light);     /* hover effect using lighter primary */
 }

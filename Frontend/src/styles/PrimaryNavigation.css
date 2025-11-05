@@ -1,33 +1,35 @@
+
+
 /* ===== Main navigation bar ===== */
 .nav {
   width: 100%;                  
   display: flex;
   justify-content: center;      
   align-items: center;
-  background-color: #200963;
-  padding: 5px 0;               /* mniejszy padding */
-  font-family: Arial, sans-serif;
+  background-color: var(--color-primary);
+  font-family: var(--font-family-base);
+  flex-wrap: wrap; /* wrap items if not enough space */
 }
 
 /* ===== Main menu item ===== */
 .nav-item {
   position: relative;
-  margin: 0 8px;                /* mniejsze odstępy między elementami */
+  margin: 0 clamp(var(--spacing-xs), 1vw, var(--spacing-sm)); /* spacing scales with screen */              
 }
 
 .nav-link {
-  color: #fff;
+  color: var(--color-text-light);
   text-decoration: none;
   font-weight: 600;
-  padding: 5px 10px;            /* bardziej zwarte napisy */
   display: block;
   transition: background-color 0.3s ease;
-  font-size: 14px;              
+  padding: clamp(var(--spacing-xs), 1vw, var(--spacing-sm)) clamp(var(--spacing-sm), 2vw, var(--spacing-md)); /* responsive padding */
+  font-size: clamp(var(--font-size-small), 2vw, var(--font-size-base)); /* responsive font size */
+  border-radius: var(--radius-sm);
 }
 
 .nav-link:hover {
-  background-color: #34147b;
-  border-radius: 4px;
+  background-color: var(--color-primary-light);
 }
 
 /* ===== Submenu wrapper (level 1) ===== */
@@ -36,10 +38,11 @@
   position: absolute;
   top: 100%;
   left: 0;
-  background-color: #2c0d80;
-  flex-direction: column;       /* normalnie w dół */
-  min-width: 200px;             
-  border-radius: 5px;
+  background-color: var(--color-primary-light);
+  flex-direction: column;
+  width: 100%;              /* match parent width exactly */
+  box-sizing: border-box;   /* include padding in width */
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
@@ -54,16 +57,19 @@
 }
 
 .submenu-link {
-  color: #fff;
+  color: var(--color-text-light);
   text-decoration: none;
-  padding: 5px 8px;             /* węższe napisy */
+  padding: 0.35em 0.5em;             
   display: block;
   transition: background-color 0.3s ease;
-  font-size: 13px;              
+  font-size: 0.85em;               /* scales relative to nav-link automatically */
+  width: 100%;                 /* fill submenu width */
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
 }
 
 .submenu-link:hover {
-  background-color: #4522a1;
+  background-color: var(--color-primary);
 }
 
 /* ===== Nested submenu (level 2+) ===== */
@@ -71,11 +77,12 @@
   display: none;
   position: absolute;
   top: 0;
-  left: 100%;
-  background-color: #2c0d80;
+  left: 100%;                 /* opens to the right of parent */
+  background-color: var(--color-primary-light);
   flex-direction: column;
-  min-width: 200px;
-  border-radius: 5px;
+  width: 100%;                /* match parent width */
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
   box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
 }
 
