@@ -1,0 +1,86 @@
+body {
+  margin: 0;
+}
+
+#parent {
+  position: relative;
+  left: 50vw;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid black;
+}
+
+table.views {
+  background-color: #70707070;
+  text-align: right;
+}
+
+table.help {
+  width: 50vmin;
+  background-color: #70707050;
+}
+
+table.subwindows {
+  position: absolute;
+  background-color: #70707070;
+  text-align: right;
+}
+
+th,
+td {
+  overflow: hidden;
+  border: 1px solid black;
+}
+
+a {
+  color: var(--color-text-light);
+}
+
+#view,
+#projection {
+  width: 18ch;
+  font-size: 1.5vmin;
+}
+
+#horizontal,
+#vertical,
+#distance,
+#zoom {
+  width: 10ch;
+  font-size: 1.5vmin;
+}
+
+#reset,
+#reset-all {
+  width: 16ch;
+  font-size: 1.5vmin;
+}
+
+input:invalid {
+  background-color: pink;
+}
+
+canvas {
+  display: block;
+}
+
+#viz-container {
+  width: 100%;
+  max-width: 1200px; /* ograniczenie szerokości */
+  height: 600px;
+  margin: 0 auto 20px auto; /* wycentrowanie kontenera */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden; /* żeby nic nie wychodziło poza kontener */
+}
+
+#viz-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}

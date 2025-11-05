@@ -1,12 +1,11 @@
 import * as THREE from "three";
-import Stats from "three/addons/libs/stats.module.js";
+import Stats from "../three.js-master/examples/jsm/libs/stats.module.js";
 import Orientation from "./orientation.js";
 import { generalData, cameraData } from "./default_data.js";
 import { merge } from "./merge.js";
 // import Lights from "./lights_template.js";
 import Camera from "./camera.js";
 import CameraController from "./mouse.js";
-// import UserInterface from "./user_interface_template.js";
 
 
 export default class Port {
@@ -39,19 +38,34 @@ export default class Port {
 
         this.thirdPersonViewCamera = new Camera(this.thirdPersonViewCameraParameters, window.innerWidth, window.innerHeight);
 
-        // Create the statistics and make its node invisible
-        this.statistics = new Stats();
-        this.statistics.dom.style.visibility = "hidden";
-        document.body.appendChild(this.statistics.dom);
+    // Create the statistics and make its node invisible
+    this.statistics = new Stats();
+    this.statistics.dom.style.visibility = "hidden";
+    // Prefer mounting UI elements inside the #parent container when available
+    const container = document.getElementById('parent') || document.body;
+    container.appendChild(this.statistics.dom);
 
         // Create a renderer and turn on shadows in the renderer
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
         if (this.generalParameters.setDevicePixelRatio) {
             this.renderer.setPixelRatio(window.devicePixelRatio);
         }
         this.renderer.autoClear = false;
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(this.renderer.domElement);
+    
+    // Size renderer to fit parent container or fallback to a reasonable default
+    const width = container.clientWidth || 800;
+    const height = Math.min(container.clientHeight || 600, window.innerHeight - 200);
+    this.renderer.setSize(width, height);
+    
+    // Make sure the canvas is positioned within the parent container
+    this.renderer.domElement.style.position = 'relative';
+    this.renderer.domElement.style.display = 'block';
+    this.renderer.domElement.style.margin = '0 auto';
+    this.renderer.domElement.style.zIndex = '0';
+    
+    // Set a default clear color so the canvas isn't transparent against the page background
+    this.renderer.setClearColor(0x0a0a0a);
+    container.appendChild(this.renderer.domElement);
 
         // Create a single camera controller and keep a reference so we can reuse it
         // when switching the active view camera. The controller attaches listeners
@@ -78,16 +92,6 @@ export default class Port {
         this.distance.step = 0.1;
         this.zoom = document.getElementById("zoom");
         this.zoom.step = 0.1;
-        this.reset = document.getElementById("reset");
-        this.resetAll = document.getElementById("reset-all");
-        this.helpPanel = document.getElementById("help-panel");
-        this.helpPanel.style.visibility = "hidden";
-        this.userInterfaceCheckBox = document.getElementById("user-interface");
-        this.userInterfaceCheckBox.checked = true;
-        this.helpCheckBox = document.getElementById("help");
-        this.helpCheckBox.checked = false;
-        this.statisticsCheckBox = document.getElementById("statistics");
-        this.statisticsCheckBox.checked = false;
 
         // Build the help panel
         this.buildHelpPanel();
@@ -113,15 +117,25 @@ export default class Port {
         this.renderer.domElement.addEventListener("contextmenu", event => this.contextMenu(event))
 
         // Register the event handler to be called on select, input number, or input checkbox change
-        this.view.addEventListener("change", event => this.elementChange(event));
-        this.projection.addEventListener("change", event => this.elementChange(event));
-        this.horizontal.addEventListener("change", event => this.elementChange(event));
-        this.vertical.addEventListener("change", event => this.elementChange(event));
-        this.distance.addEventListener("change", event => this.elementChange(event));
-        this.zoom.addEventListener("change", event => this.elementChange(event));
-        this.userInterfaceCheckBox.addEventListener("change", event => this.elementChange(event));
-        this.helpCheckBox.addEventListener("change", event => this.elementChange(event));
-        this.statisticsCheckBox.addEventListener("change", event => this.elementChange(event));
+        // this.view.addEventListener("change", event => this.elementChange(event));
+        // this.projection.addEventListener("change", event => this.elementChange(event));
+        // this.horizontal.addEventListener("change", event => this.elementChange(event));
+        // this.vertical.addEventListener("change", event => this.elementChange(event));
+        // this.distance.addEventListener("change", event => this.elementChange(event));
+        // this.zoom.addEventListener("change", event => this.elementChange(event));
+        // this.userInterfaceCheckBox.addEventListener("change", event => this.elementChange(event));
+        // this.helpCheckBox.addEventListener("change", event => this.elementChange(event));
+        // this.statisticsCheckBox.addEventListener("change", event => this.elementChange(event));
+
+        this.reset = document.getElementById("reset");
+        this.resetAll = document.getElementById("reset-all");
+        this.userInterfaceCheckBox = document.getElementById("user-interface");
+        this.helpCheckBox = document.getElementById("help");
+        this.statisticsCheckBox = document.getElementById("statistics");
+        
+        // Also ensure panel references are retrieved for setVisibility/etc.
+        this.subwindowsPanel = document.getElementById("subwindows-panel"); 
+        this.helpPanel = document.getElementById("help-panel");
 
         // Register the event handler to be called on input button click
         this.reset.addEventListener("click", event => this.buttonClick(event));

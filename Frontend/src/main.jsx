@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client";
 import { Auth0Provider } from "@auth0/auth0-react"; // <--- 1. AUTH0
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./styles/variables.css"
 import './styles/global.css';
 import App from "./App.jsx";
@@ -26,9 +26,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           audience: "http://3dl-e-04api", 
         }}
       >
-        <BrowserRouter>
-        <App />
-        </BrowserRouter>
+        <Router>
+          <App />
+        </Router>
       </Auth0Provider>
     
   </React.StrictMode>

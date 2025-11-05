@@ -240,7 +240,12 @@
             port = new Port(
                 {}, // General Parameters
                 // {}, // Lights parameters TO-DO
-                { view: "third-person", multipleViewsViewport: new THREE.Vector4(0.0, 0.0, 0.55, 0.5), initialOrientation: new Orientation(0.0, -20.0), initialDistance: 2.0, distanceMin: 1.0, distanceMax: 4.0 }, // Third-person view camera parameters
+                { view: "third-person", 
+                multipleViewsViewport: new THREE.Vector4(0.0, 0.0, 0.55, 0.5), 
+                initialOrientation: new Orientation(0.0, -20.0), 
+                initialDistance: 2.0, 
+                distanceMin: 1.0, 
+                distanceMax: 4.0 }, // Third-person view camera parameters
             );
         }
         function animate() {

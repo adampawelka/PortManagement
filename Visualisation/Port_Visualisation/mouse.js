@@ -1,5 +1,6 @@
 // CameraController.js
-import * as THREE from 'three';
+import * as THREE from "three"
+;
 
 export default class CameraController {
     constructor(camera, renderer) {
