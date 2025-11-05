@@ -1,21 +1,24 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import "../styles/Breadcrumbs.css"; // optional: create a CSS file for styling
 
 const Breadcrumbs = () => {
-  const location = useLocation(); // Get the current location (URL path)
-  const pathnames = location.pathname.split("/").filter(Boolean); // Split the path into an array
+  const { t } = useTranslation();
+  const location = useLocation(); // Get current path
+  const pathnames = location.pathname.split("/").filter(Boolean); // Split path into array
 
   return (
-    <div style={breadcrumbContainerStyle}>
-      <Link to="/" style={breadcrumbLinkStyle}>Home</Link> {/* Always start with Home */}
+    <div className="breadcrumb-container">
+      <Link to="/" className="breadcrumb-link">{t("home")}</Link>
 
       {pathnames.map((path, index) => {
-        const linkPath = `/${pathnames.slice(0, index + 1).join("/")}`; // Build the full path dynamically
+        const linkPath = `/${pathnames.slice(0, index + 1).join("/")}`;
         return (
           <span key={index}>
             {" > "}
-            <Link to={linkPath} style={breadcrumbLinkStyle}>
-              {capitalizeFirstLetter(path)}
+            <Link to={linkPath} className="breadcrumb-link">
+              {t(formatBreadcrumbKey(path))}
             </Link>
           </span>
         );
@@ -24,22 +27,12 @@ const Breadcrumbs = () => {
   );
 };
 
-// Helper function to capitalize the first letter of each breadcrumb
-const capitalizeFirstLetter = (str) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
-
-// Styles for breadcrumbs
-const breadcrumbContainerStyle = {
-  margin: "10px 0",
-  fontSize: "14px",
-  color: "#333",
-};
-
-const breadcrumbLinkStyle = {
-  color: "#200963ff",
-  textDecoration: "none",
-  fontWeight: "bold",
+// Helper function: convert path segment to translation key
+const formatBreadcrumbKey = (path) => {
+  return path
+    .toLowerCase()
+    .replace(/-/g, "_"); // e.g., "storage-areas" -> "storage_areas"
 };
 
 export default Breadcrumbs;
+

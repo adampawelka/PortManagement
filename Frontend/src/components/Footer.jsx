@@ -1,39 +1,18 @@
-import React from "react";
+import { useTranslation } from "react-i18next";
+import "../styles/Footer.css"; // optional: create a CSS file for styling
 
 const Footer = () => {
+  const { t } = useTranslation();
+
   return (
-    <footer style={footerStyle}>
-      <p style={textStyle}>&copy; 2025 Port Management System</p>
-      <p style={textStyle}>
-        <a href="/privacy" style={linkStyle}>Privacy Policy</a> | 
-        <a href="/terms" style={linkStyle}>Terms of Service</a>
+    <footer className="footer">
+      <p className="footer-text">&copy; 2025 Port Management System</p>
+      <p className="footer-text">
+        <a href="/privacy" className="footer-link">{t("privacy_policy")}</a> |{" "}
+        <a href="/terms" className="footer-link">{t("terms_of_service")}</a>
       </p>
     </footer>
   );
-};
-
-// Footer Styles
-const footerStyle = {
-  width: "100%",
-  backgroundColor: "#200963ff",
-  color: "white",
-  padding: "10px 0",  // Reduced padding for a smaller footer
-  textAlign: "center",
-  position: "fixed",
-  bottom: 0,
-  fontSize: "12px",  // Smaller font size
-};
-
-const textStyle = {
-  margin: "0",  // Removes default margin around text
-  padding: "0", // Removes padding around text
-};
-
-const linkStyle = {
-  color: "white",
-  textDecoration: "none",
-  margin: "0 5px",
-  fontSize: "12px",  // Smaller link font size
 };
 
 export default Footer;

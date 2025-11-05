@@ -1,33 +1,35 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { menuItems } from "../data/menus.js"; // Import menu items
 import "../styles/PrimaryNavigation.css"; // Import the CSS
 
 const PrimaryNavigation = () => {
+  const { t } = useTranslation(); // Translation function
   const currentUserRole = "user"; // Example: Change this to "admin", "user", or "guest"
 
   // Filter menu items based on the user's role
-  const filteredMenuItems = menuItems.filter((item) => {
-    return !item.roles || item.roles.includes(currentUserRole); // Show item if the user's role matches
-  });
+  const filteredMenuItems = menuItems.filter(
+    (item) => !item.roles || item.roles.includes(currentUserRole)
+  );
 
   // Recursive function to render submenus
   const renderSubMenu = (subMenu) => {
     return (
       <div className="submenu">
         {subMenu.map((sub) => {
-          // Filter submenus based on role
-          if (sub.roles && !sub.roles.includes(currentUserRole)) {
-            return null; // If the user doesn't have permission, skip this submenu item
-          }
+          if (sub.roles && !sub.roles.includes(currentUserRole)) return null;
+
           return (
-            <div key={sub.name} className="submenu-item">
-              <Link to={sub.path} className="submenu-link">{sub.name}</Link>
+            <div key={sub.key} className="submenu-item">
+              <Link to={sub.path} className="submenu-link">
+                {t(sub.key)}
+              </Link>
 
               {/* Render nested submenus */}
               {sub.subMenu && sub.subMenu.length > 0 && (
                 <div className="nested-submenu">
-                  {renderSubMenu(sub.subMenu)} {/* Recursively render nested submenus */}
+                  {renderSubMenu(sub.subMenu)}
                 </div>
               )}
             </div>
@@ -40,14 +42,14 @@ const PrimaryNavigation = () => {
   return (
     <nav className="nav">
       {filteredMenuItems.map((item) => (
-        <div key={item.name} className="nav-item">
-          <Link to={item.path} className="nav-link">{item.name}</Link>
+        <div key={item.key} className="nav-item">
+          <Link to={item.path} className="nav-link">
+            {t(item.key)}
+          </Link>
 
           {/* Render submenu if it exists */}
           {item.subMenu && item.subMenu.length > 0 && (
-            <div className="submenu-wrapper">
-              {renderSubMenu(item.subMenu)} {/* Recursively render submenus */}
-            </div>
+            <div className="submenu-wrapper">{renderSubMenu(item.subMenu)}</div>
           )}
         </div>
       ))}

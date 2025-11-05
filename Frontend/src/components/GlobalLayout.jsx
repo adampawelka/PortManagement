@@ -3,6 +3,7 @@ import Header from "./Header";
 import PrimaryNavigation from "./PrimaryNavigation";
 import Breadcrumbs from "./Breadcrumbs";
 import Footer from "./Footer";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const GlobalLayout = ({ children }) => {
   return (
@@ -10,7 +11,11 @@ const GlobalLayout = ({ children }) => {
       <Header />
       <PrimaryNavigation />
 
-      <Breadcrumbs />
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 20px" }}>
+        <Breadcrumbs />
+        <LanguageSwitcher />
+      </div>
+
 
       {/* Main content centered */}
       <main

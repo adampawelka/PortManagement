@@ -1,0 +1,15 @@
+.breadcrumb-container {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.breadcrumb-link {
+  color: #200963;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}

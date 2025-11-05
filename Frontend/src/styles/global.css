@@ -1,0 +1,10 @@
+/* src/styles/global.css */
+@import "./variables.css";
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-text-dark);
+  margin: 0;
+  padding: 0;
+}
