@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DDDSample1.Domain.Products;
+using Backend.Domain.Products;
 
-namespace DDDSample1.Infrastructure.Products
+namespace Backend.Infrastructure.Products
 {
     internal class ProductEntityTypeConfiguration : IEntityTypeConfiguration<Product>
     {

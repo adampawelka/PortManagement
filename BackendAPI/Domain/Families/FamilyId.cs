@@ -1,7 +1,7 @@
 using System;
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.Families
+namespace Backend.Domain.Families
 {
     public class FamilyId : EntityId
     {

@@ -1,6 +1,6 @@
-using DDDSample1.Domain.Categories;
+using Backend.Domain.Categories;
 
-namespace DDDSample1.Domain.Products
+namespace Backend.Domain.Products
 {
     public class CreatingProductDto
     {

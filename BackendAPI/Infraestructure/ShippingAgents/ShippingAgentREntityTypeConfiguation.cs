@@ -1,9 +1,9 @@
-using DDDSample1.Domain.ShippingAgents;
-using DDDSample1.Infrastructure;
+using Backend.Domain.ShippingAgents;
+using Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DDDSample1.Infrastructure.ShippingAgents
+namespace Backend.Infrastructure.ShippingAgents
 {
     public class ShippingAgentREntityTypeConfiguration : IEntityTypeConfiguration<ShippingAgentRepresentative>
     {

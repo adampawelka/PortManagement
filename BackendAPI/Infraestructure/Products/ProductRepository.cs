@@ -1,7 +1,7 @@
-using DDDSample1.Domain.Products;
-using DDDSample1.Infrastructure.Shared;
+using Backend.Domain.Products;
+using Backend.Infrastructure.Shared;
 
-namespace DDDSample1.Infrastructure.Products
+namespace Backend.Infrastructure.Products
 {
     public class ProductRepository : BaseRepository<Product, ProductId>,IProductRepository
     {

@@ -1,7 +1,7 @@
-using DDDSample1.Domain.Families;
-using DDDSample1.Infrastructure.Shared;
+using Backend.Domain.Families;
+using Backend.Infrastructure.Shared;
 
-namespace DDDSample1.Infrastructure.Families
+namespace Backend.Infrastructure.Families
 {
     public class FamilyRepository : BaseRepository<Family, FamilyId>, IFamilyRepository
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace DDDSample1.Domain.Resources
+namespace Backend.Domain.Resources
 {
     public class ResourceDto
     {

@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.Docks;
+using Backend.Domain.Shared;
+using Backend.Domain.Docks;
 
-namespace DDDSample1.Domain.StorageAreas
+namespace Backend.Domain.StorageAreas
 {
     public class StorageAreaService
     {

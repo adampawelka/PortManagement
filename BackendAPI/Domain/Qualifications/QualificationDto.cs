@@ -1,6 +1,6 @@
 using System;
 
-namespace DDDSample1.Domain.Qualifications
+namespace Backend.Domain.Qualifications
 {
     public class QualificationDto
     {

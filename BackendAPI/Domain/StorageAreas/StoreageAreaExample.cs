@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.StorageAreas;
+using Backend.Domain.Shared;
+using Backend.Domain.StorageAreas;
 
 public class StorageAreaExample
 {

@@ -1,6 +1,6 @@
-using DDDSample1.Domain.VesselTypes;
+using Backend.Domain.VesselTypes;
 
-namespace DDDSample1.Domain.VesselTypes
+namespace Backend.Domain.VesselTypes
 {
     public class CreatingVesselTypeDto
     {

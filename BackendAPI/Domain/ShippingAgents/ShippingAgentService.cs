@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.ShippingAgents
+namespace Backend.Domain.ShippingAgents
 {
     public class ShippingAgentService
     {

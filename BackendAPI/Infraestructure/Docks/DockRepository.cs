@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using DDDSample1.Domain.Docks;
-using DDDSample1.Infrastructure.Shared;
-using DDDSample1.Domain.VesselTypes;
+using Backend.Domain.Docks;
+using Backend.Infrastructure.Shared;
+using Backend.Domain.VesselTypes;
 
-namespace DDDSample1.Infrastructure.Docks
+namespace Backend.Infrastructure.Docks
 {
     public class DockRepository : BaseRepository<Dock, DockId>, IDockRepository
     {

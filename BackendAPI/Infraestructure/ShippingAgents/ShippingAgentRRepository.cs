@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.ShippingAgents;
+using Backend.Domain.ShippingAgents;
 using Microsoft.EntityFrameworkCore;
 
-namespace DDDSample1.Infrastructure.ShippingAgents
+namespace Backend.Infrastructure.ShippingAgents
 {
     public class ShippingAgentRRepository : IShippingAgentRRepository
     {

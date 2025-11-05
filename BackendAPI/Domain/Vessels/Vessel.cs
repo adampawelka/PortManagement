@@ -1,9 +1,9 @@
 using System;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.VesselTypes;
-using DDDSample1.Domain.ShippingAgents;
+using Backend.Domain.Shared;
+using Backend.Domain.VesselTypes;
+using Backend.Domain.ShippingAgents;
 
-namespace DDDSample1.Domain.Vessels
+namespace Backend.Domain.Vessels
 {
     public class Vessel : Entity<VesselId>, IAggregateRoot
     {

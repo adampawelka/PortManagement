@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.StorageAreas;
-using DDDSample1.Infrastructure.Shared;
+using Backend.Domain.StorageAreas;
+using Backend.Infrastructure.Shared;
 using Microsoft.EntityFrameworkCore;
 
-namespace DDDSample1.Infrastructure.StorageAreas
+namespace Backend.Infrastructure.StorageAreas
 {
     public class StorageAreaRepository : BaseRepository<StorageArea, StorageAreaId>, IStorageAreaRepository
     {

@@ -5,35 +5,35 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using DDDSample1.Infrastructure;
-using DDDSample1.Infrastructure.Categories;
-using DDDSample1.Infrastructure.Products;
-using DDDSample1.Infrastructure.Families;
-using DDDSample1.Infrastructure.Shared;
-using DDDSample1.Infrastructure.VesselVisitNotifications;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Domain.Categories;
-using DDDSample1.Domain.Products;
-using DDDSample1.Domain.Families;
-using DDDSample1.Domain.ShippingAgents;
-using DDDSample1.Domain.VesselTypes;
-using DDDSample1.Domain.Vessels;
-using DDDSample1.Domain.Docks;
-using DDDSample1.Domain.VesselVisitNotifications;
+using Backend.Infrastructure;
+using Backend.Infrastructure.Categories;
+using Backend.Infrastructure.Products;
+using Backend.Infrastructure.Families;
+using Backend.Infrastructure.Shared;
+using Backend.Infrastructure.VesselVisitNotifications;
+using Backend.Domain.Shared;
+using Backend.Domain.Categories;
+using Backend.Domain.Products;
+using Backend.Domain.Families;
+using Backend.Domain.ShippingAgents;
+using Backend.Domain.VesselTypes;
+using Backend.Domain.Vessels;
+using Backend.Domain.Docks;
+using Backend.Domain.VesselVisitNotifications;
 using Microsoft.OpenApi.Models;
-using DDDSample1.Infrastructure.ShippingAgents;
-using DDDSample1.Infrastructure.VesselTypes;
-using DDDSample1.Infrastructure.Docks;
-using DDDSample1.Infrastructure.Vessels;
-using DDDSample1.Domain.StorageAreas;
-using DDDSample1.Infrastructure.StorageAreas;
-using DDDSample1.Domain.Qualifications;
-using DDDSample1.Infrastructure.Qualifications;
-using DDDSample1.Domain.Resources;
-using DDDSample1.Infrastructure.Resources;
+using Backend.Infrastructure.ShippingAgents;
+using Backend.Infrastructure.VesselTypes;
+using Backend.Infrastructure.Docks;
+using Backend.Infrastructure.Vessels;
+using Backend.Domain.StorageAreas;
+using Backend.Infrastructure.StorageAreas;
+using Backend.Domain.Qualifications;
+using Backend.Infrastructure.Qualifications;
+using Backend.Domain.Resources;
+using Backend.Infrastructure.Resources;
 
 
-namespace DDDSample1
+namespace Backend
 {
     public class Startup
     {

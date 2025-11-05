@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DDDSample1.Controllers
+namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

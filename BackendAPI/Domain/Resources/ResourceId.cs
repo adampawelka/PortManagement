@@ -1,7 +1,7 @@
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 using System;
 
-namespace DDDSample1.Domain.Resources
+namespace Backend.Domain.Resources
 {
     public class ResourceId : EntityId
     {

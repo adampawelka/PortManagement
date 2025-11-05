@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using DDDSample1.Domain.VesselVisitNotifications;
-using DDDSample1.Domain.Shared;
-using DDDSample1.Infrastructure.Shared;
+using Backend.Domain.VesselVisitNotifications;
+using Backend.Domain.Shared;
+using Backend.Infrastructure.Shared;
 
-namespace DDDSample1.Infrastructure.VesselVisitNotifications
+namespace Backend.Infrastructure.VesselVisitNotifications
 {
     public class VesselVisitNotificationRepository : BaseRepository<VesselVisitNotification, VesselVisitNotificationId>, IVesselVisitNotificationRepository
     {

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using DDDSample1.Domain.VesselTypes;
+using Backend.Domain.VesselTypes;
 
-namespace DDDSample1.Controllers
+namespace Backend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -1,7 +1,7 @@
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 using System;
 
-namespace DDDSample1.Domain.Qualifications
+namespace Backend.Domain.Qualifications
 {
     public class Qualification : Entity<QualificationId>, IAggregateRoot
     {

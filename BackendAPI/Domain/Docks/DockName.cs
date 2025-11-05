@@ -1,6 +1,6 @@
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.Docks
+namespace Backend.Domain.Docks
 {
     public class DockName : IValueObject
     {

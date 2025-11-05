@@ -1,8 +1,8 @@
-using DDDSample1.Domain.Qualifications;
+using Backend.Domain.Qualifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DDDSample1.Infrastructure.Qualifications
+namespace Backend.Infrastructure.Qualifications
 {
     internal class QualificationEntityTypeConfiguration : IEntityTypeConfiguration<Qualification>
     {

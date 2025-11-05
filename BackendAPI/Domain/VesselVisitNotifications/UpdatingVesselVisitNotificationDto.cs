@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DDDSample1.Domain.VesselVisitNotifications
+namespace Backend.Domain.VesselVisitNotifications
 {
     public class UpdatingVesselVisitNotificationDto
     {

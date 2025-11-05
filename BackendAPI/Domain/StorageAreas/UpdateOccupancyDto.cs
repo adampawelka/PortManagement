@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DDDSample1.Domain.StorageAreas
+namespace Backend.Domain.StorageAreas
 {
     public class UpdateOccupancyDto
     {

@@ -1,6 +1,6 @@
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.Vessels
+namespace Backend.Domain.Vessels
 {
     public class VesselName : IValueObject
     {
