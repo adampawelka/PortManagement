@@ -33,7 +33,7 @@ const Sidebar = () => {
                 onClick={() => handleToggle(item.key)}
                 style={{ cursor: "pointer" }}
               >
-                {t(item.name)}
+                {t(item.key)}
               </div>
             ) : (
               <NavLink
@@ -42,7 +42,7 @@ const Sidebar = () => {
                   isActive ? "sidebar-link active" : "sidebar-link"
                 }
               >
-                {t(item.name)}
+                {t(item.key)}
               </NavLink>
             )}
 
@@ -57,7 +57,7 @@ const Sidebar = () => {
                       isActive ? "sidebar-sublink active" : "sidebar-sublink"
                     }
                   >
-                    {t(sub.name)}
+                    {t(sub.key)}
                   </NavLink>
                 ))}
               </div>
