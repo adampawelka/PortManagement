@@ -31,5 +31,7 @@
   "types": "Tipos",
   "vvn": "Notificações de Visita de Embarcação",
   "visualisation": "Visualização",
-  "scheduling": "Agendamento"
+  "scheduling": "Agendamento",
+  "schedule": "Agendamento",
+  "alternative_schedule": "Agendamento Alternativo" 
 }

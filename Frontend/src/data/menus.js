@@ -165,5 +165,20 @@ export const menuItems = [
     key: "scheduling",
     path: "/scheduling",
     roles: ["admin", "user"],
+    subMenu: [
+          {
+            name: "Schedule",
+            key: "schedule",
+            path: "/schedule",
+            roles: ["admin", "user", "guest"],
+          },
+          {
+            name: "Alternative Schedule",
+            key: "alternative_schedule",
+            path: "/alternative-schedule",
+            roles: ["admin", "user", "guest"],
+          },
+          
+    ]
   },
 ];

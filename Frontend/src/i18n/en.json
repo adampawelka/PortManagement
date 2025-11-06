@@ -31,5 +31,7 @@
   "types": "Types",
   "vvn": "Vessel Visit Notifications",
   "visualisation": "Visualisation",
-  "scheduling": "Scheduling"
+  "scheduling": "Scheduling",
+  "schedule": "Schedule",
+  "alternative_schedule": "Alternative Schedule"
 }

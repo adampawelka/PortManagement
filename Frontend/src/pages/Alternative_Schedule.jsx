@@ -1,7 +1,7 @@
 // src/pages/Scheduling.jsx
 import React, { useState } from "react";
 
-const Scheduling = () => {
+const Schedule = () => {
   const [targetDate, setTargetDate] = useState("");
   const [scheduleResults, setScheduleResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -84,4 +84,4 @@ const fakeScheduleAPI = async (date) => {
   ];
 };
 
-export default Scheduling;
+export default Schedule;
