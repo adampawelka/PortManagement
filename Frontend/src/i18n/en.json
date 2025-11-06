@@ -29,5 +29,7 @@
   "resources": "Resources",
   "list": "List",
   "types": "Types",
-  "vvn": "Vessel Visit Notifications"
+  "vvn": "Vessel Visit Notifications",
+  "visualisation": "Visualisation",
+  "scheduling": "Scheduling"
 }

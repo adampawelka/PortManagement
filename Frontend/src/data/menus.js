@@ -154,4 +154,16 @@ export const menuItems = [
       },
     ],
   },
+  {
+    name: "Visualisation",
+    key: "visualisation",
+    path: "/visualisation",
+    roles: ["admin", "user"],
+  },
+  {
+    name: "Scheduling",
+    key: "scheduling",
+    path: "/scheduling",
+    roles: ["admin", "user"],
+  },
 ];
