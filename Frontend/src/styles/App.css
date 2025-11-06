@@ -1,0 +1,25 @@
+/* --- App.css --- */
+/* Estilos específicos para el componente App.jsx */
+
+.app-container {
+  width: 80%;
+  max-width: 900px;
+  margin: 40px auto; /* Centra el contenedor */
+  padding: 20px 40px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.app-header h1 {
+  color: #004a99; /* Un azul oscuro para el título */
+  margin-bottom: 10px;
+}
+
+.app-header .hint {
+  color: #007a20; /* Un verde para el mensaje de éxito */
+  font-weight: bold;
+  font-style: italic;
+  margin-top: 30px;
+}
