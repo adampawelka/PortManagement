@@ -1,36 +1,70 @@
+// App.jsx
 import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
+
 import GlobalLayout from "./components/GlobalLayout.jsx";
 import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
-import { useAuth0 } from "@auth0/auth0-react";
 
-function App() {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+import Home from "./pages/Home.jsx";
+import Visualisation from "./pages/Visualisation.jsx";
+import Scheduling from "./pages/Scheduling.jsx";
 
-  // Show loading indicator while Auth0 is initializing
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
+// Protected route wrapper
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth0();
 
+  if (isLoading) return <div>Loading...</div>;
+
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+const App = () => {
   return (
-    <GlobalLayout>
-      <div className="container">
-        <header>
-          {/* Conditional render based on authentication */}
-          {!isAuthenticated ? (
+    <Routes>
+      {/* Public Login Page */}
+      <Route
+        path="/login"
+        element={
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+              textAlign: "center",
+            }}
+          >
+            <h1>Login</h1>
             <LoginButton />
-          ) : (
-            <div>
-              <p>
-                Hello, <strong>{user.name}</strong> ({user.email})
-              </p>
-              <LogoutButton />
-            </div>
-          )}
-        </header>
-      </div>
-    </GlobalLayout>
+          </div>
+        }
+      />
+
+      {/* Protected Routes */}
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <GlobalLayout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/visualisation" element={<Visualisation />} />
+                <Route path="/scheduling" element={<Scheduling />} />
+                <Route path="*" element={<div>Page not found</div>} />
+              </Routes>
+
+              <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <LogoutButton />
+              </div>
+            </GlobalLayout>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
-}
+};
 
 export default App;
