@@ -1,11 +1,56 @@
 @startuml
-'https://plantuml.com/sequence-diagram
+skinparam monochrome true
+skinparam linetype ortho
+skinparam shadowing false
 
-autonumber
+title Implementation View - Level 2 (Sub-Modules)
 
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+folder "Controllers" {
+    [ShippingAgentsController.cs]
+    [VesselsController.cs]
+    [FacilitiesController.cs]
+}
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+folder "Domain" {
+    folder "ShippingAgents" {
+        [ShippingAgentOService.cs]
+        [ShippingAgentOrganization.cs]
+        [ShippingAgentRepresentative.cs]
+    }
+    folder "Vessels" {
+        [VesselService.cs]
+        [Vessel.cs]
+        [VesselType.cs]
+    }
+    folder "Facilities" {
+        [FacilityService.cs]
+        [Dock.cs]
+        [StorageArea.cs]
+    }
+}
+
+folder "Infrastructure" {
+    folder "ShippingAgents" {
+        [ShippingAgentORepository.cs]
+        [ShippingAgentRRepository.cs]
+        [ShippingAgentOEntityTypeConfiguration.cs]
+        [ShippingAgentREntityTypeConfiguration.cs]
+    }
+    folder "Vessels" {
+        [VesselRepository.cs]
+        [VesselEntityTypeConfiguration.cs]
+    }
+    folder "Facilities" {
+        [FacilityRepository.cs]
+        [DockEntityTypeConfiguration.cs]
+    }
+    [DDDSample1DbContext.cs]
+}
+
+
+ShippingAgentsController.cs --> ShippingAgentOService.cs : Depends on
+VesselsController.cs --> VesselService.cs : Depends on
+ShippingAgentOService.cs --> ShippingAgentORepository.cs : Injects
+ShippingAgentOService.cs --> ShippingAgentRRepository.cs : Injects
+VesselService.cs --> VesselRepository.cs : Injects
 @enduml

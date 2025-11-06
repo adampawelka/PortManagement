@@ -1,0 +1,69 @@
+@startuml
+skinparam monochrome true
+skinparam linetype ortho
+skinparam shadowing false
+
+title Implementation View - Level 3 (Code Elements)
+
+namespace DDDSample1.Controllers {
+    class ShippingAgentsController {
+        + Register(...): ActionResult
+        + GetAll(...): ActionResult
+        + GetById(...): ActionResult
+    }
+    class VesselsController {
+        + RegisterVessel(...): ActionResult
+        + GetVesselById(...): ActionResult
+    }
+}
+
+namespace DDDSample1.Domain.ShippingAgents {
+    class ShippingAgentOService {
+        + RegisterOrganizationAsync(...): Task
+        + GetAllAsync(...): Task
+        + UpdateRepresentativeAsync(...): Task
+    }
+    class ShippingAgentOrganization {
+        + Constructor(...)
+        + Update(...)
+    }
+}
+
+namespace DDDSample1.Domain.Vessels {
+    class VesselService {
+        + RegisterVesselAsync(...): Task
+        + GetVesselByIdAsync(...): Task
+    }
+    class Vessel {
+        + Constructor(...)
+    }
+}
+
+namespace DDDSample1.Infrastructure.ShippingAgents {
+    class ShippingAgentORepository {
+        + GetAllAsync(...): Task
+        + GetByIdAsync(...): Task
+        + AddAsync(...): Task
+    }
+    class ShippingAgentRRepository {
+        + GetAllAsync(...): Task
+        + GetByIdsAsync(...): Task
+        + AddAsync(...): Task
+    }
+}
+
+namespace DDDSample1.Infrastructure.Vessels {
+    class VesselRepository {
+        + GetAllAsync(...): Task
+        + GetByIdAsync(...): Task
+        + AddAsync(...): Task
+    }
+}
+
+ShippingAgentsController ..> ShippingAgentOService : Uses
+VesselsController ..> VesselService : Uses
+ShippingAgentOService ..> ShippingAgentOrganization : Instantiates
+VesselService ..> Vessel : Instantiates
+ShippingAgentOService ..> ShippingAgentORepository : Calls
+VesselService ..> VesselRepository : Calls
+@enduml
