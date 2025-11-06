@@ -6,8 +6,8 @@ import "../styles/Sidebar.css";
 
 const Sidebar = () => {
   const { t } = useTranslation();
-  const currentUserRole = "user"; // replace with actual user role
-  const [expandedMenu, setExpandedMenu] = useState(null); // track which menu is expanded
+  const currentUserRole = "user";
+  const [expandedMenu, setExpandedMenu] = useState(null);
 
   const filteredMenuItems = menuItems.filter(
     (item) => !item.roles || item.roles.includes(currentUserRole)
@@ -18,7 +18,7 @@ const Sidebar = () => {
   );
 
   const handleToggle = (key) => {
-    setExpandedMenu(expandedMenu === key ? null : key); // toggle
+    setExpandedMenu(expandedMenu === key ? null : key);
   };
 
   return (
@@ -26,23 +26,28 @@ const Sidebar = () => {
       <nav className="sidebar-nav">
         {sidebarItems.map((item) => (
           <div key={item.key} className="sidebar-item">
-            <div 
-              className="sidebar-link-wrapper" 
-              onClick={() => item.subMenu ? handleToggle(item.key) : null}
-              style={{ cursor: item.subMenu ? "pointer" : "default" }}
-            >
+            {/* Parent menu */}
+            {item.subMenu && item.subMenu.length > 0 ? (
+              <div
+                className="sidebar-link clickable"
+                onClick={() => handleToggle(item.key)}
+                style={{ cursor: "pointer" }}
+              >
+                {t(item.name)}
+              </div>
+            ) : (
               <NavLink
                 to={item.path}
                 className={({ isActive }) =>
                   isActive ? "sidebar-link active" : "sidebar-link"
                 }
               >
-                {t(item.key)}
+                {t(item.name)}
               </NavLink>
-            </div>
+            )}
 
-            {/* Render submenu if it exists AND this menu is expanded */}
-            {item.subMenu && item.subMenu.length > 0 && expandedMenu === item.key && (
+            {/* Render submenu if expanded */}
+            {item.subMenu && expandedMenu === item.key && (
               <div className="sidebar-submenu">
                 {item.subMenu.map((sub) => (
                   <NavLink
