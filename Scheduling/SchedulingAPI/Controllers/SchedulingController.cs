@@ -124,6 +124,7 @@ namespace SchedulingAPI.Controllers
         [HttpGet("calculate-schedule")]
         public async Task<IActionResult> CalculateSchedule([FromQuery] string date)
         {
+
             if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
             {
                 return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
@@ -138,6 +139,7 @@ namespace SchedulingAPI.Controllers
 
                 if (vessels == null)
                     return BadRequest(new { message = "No vessels received from the API." });
+                
 
                 // Filter only approved vessels that are assigned to a dock
                 var approvedVessels = vessels
@@ -152,13 +154,18 @@ namespace SchedulingAPI.Controllers
                     .GroupBy(v => v.AssignedDockId)
                     .ToList();
 
-                // fetching resources
-                var resourceResponse = await client.GetAsync("http://localhost:5000/api/Resources");
-                resourceResponse.EnsureSuccessStatusCode();
-                var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
+                Console.WriteLine("HEHE");
+                
 
-                if (allResources == null)
-                    return BadRequest(new { message = "No resources received from the API." });
+                // fetching resources
+                // var resourceResponse = await client.GetAsync("http://localhost:5000/api/Resources");
+                // resourceResponse.EnsureSuccessStatusCode();
+                // var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
+
+                // if (allResources == null)
+                //     return BadRequest(new { message = "No resources received from the API." });
+
+                
 
                 // Filter available cranes (type = Crane, status = Active, no assigned dock)
                 // var availableCranes = allResources
@@ -184,7 +191,7 @@ namespace SchedulingAPI.Controllers
 
                     var dockResponse = await client.GetAsync("http://localhost:5000/api/Docks/" + dockId);
                     dockResponse.EnsureSuccessStatusCode();
-                    var dock = await resourceResponse.Content.ReadFromJsonAsync<DockDto>();
+                    var dock = await dockResponse.Content.ReadFromJsonAsync<DockDto>();
 
                     if (dock == null)
                         return BadRequest(new { message = "No dock received from the API." });
@@ -208,7 +215,8 @@ namespace SchedulingAPI.Controllers
                     }
                     ));
 
-                    string query = $"{facts} run_schedule(Solution), format('~q', [Solution]), halt.";
+                    //string query = $"{facts} run_schedule(Solution), format('~q', [Solution]), halt.";
+                    string query = "run_schedule";
 
                     // Execute Prolog query
                     string result = RunPrologQuery(query, _scriptPath);

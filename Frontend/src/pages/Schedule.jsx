@@ -106,9 +106,9 @@ const Schedule = () => {
             <thead>
               <tr>
                 <th>Vessel</th>
-                <th>Dock</th>
                 <th>Start Time</th>
                 <th>End Time</th>
+                <th>Dock</th>
                 <th>Assigned Crane</th>
                 <th>Staff</th>
               </tr>
@@ -117,9 +117,9 @@ const Schedule = () => {
               {scheduleResults.map((item, idx) => (
                 <tr key={idx}>
                   <td>{item.vessel}</td>
-                  <td>{item.dock}</td>
                   <td>{item.start}</td>
                   <td>{item.end}</td>
+                  <td>{item.dock}</td>
                   <td>{item.crane}</td>
                   <td>{item.staff}</td>
                 </tr>
