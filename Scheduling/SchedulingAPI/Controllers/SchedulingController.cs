@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.Json; // Importante para JSON
 using System.Net.Http;
+using System.IO;
+
 
 namespace SchedulingAPI.Controllers
 {
@@ -22,8 +24,14 @@ namespace SchedulingAPI.Controllers
             
             _swiplPath = "swipl"; 
             string baseDir = AppContext.BaseDirectory;
-            _scriptPath = Path.GetFullPath(Path.Combine(baseDir, "PrologFiles", "scheduling_vessels_1.pl"));
+            _scriptPath = Path.GetFullPath(Path.Combine(baseDir, "PrologFiles", "vessels_scheduling1.pl"));
             _scriptPath = _scriptPath.Replace("\\", "/"); 
+
+            Console.WriteLine($"SWI-Prolog path: {_swiplPath}");
+            Console.WriteLine($"Prolog script path: {_scriptPath}");
+            if (!System.IO.File.Exists(_scriptPath))
+                throw new Exception($"Prolog script not found at {_scriptPath}");
+
         }
 
         [HttpGet("test-prolog")]
@@ -93,10 +101,11 @@ namespace SchedulingAPI.Controllers
 
 
 
-        // Tus compañeros usarán esto para su tarea (US 3.4.2)
+        
         [HttpGet("calculate-schedule")]
         public IActionResult CalculateSchedule([FromQuery] string date)
         {
+            // data is necessary to fetch
             // 1. CONSEGUIR DATOS:
             //    Aquí llamarías al BackendAPI (usando IHttpClientFactory) para
             //    obtener los barcos, muelles, etc., para la 'date'.
@@ -104,19 +113,18 @@ namespace SchedulingAPI.Controllers
             
             // 2. PREPARAR DATOS PARA PROLOG:
             //    Ej: "barco(v1, 50). barco(v2, 30). muelle(d1, 60)."
-            string facts = $"barco(v1, 50). barco(v2, 30). muelle(d1, 60). fecha('{date}').";
+            //string facts = $"barco(v1, 50). barco(v2, 30). muelle(d1, 60). fecha('{date}').";
+            // HERE WE ONLY PUT VESSELS
 
             // 3. PREPARAR CONSULTA:
             //    Tus compañeros definirán un predicado principal, ej: "generar_horario(Solucion)"
-            string query = $"{facts} generar_horario(Solucion), format('~q', [Solucion]), halt.";
-            
+            //string query = $"{facts} generar_horario(Solucion), format('~q', [Solucion]), halt.";
+string query = "run_schedule";
             try
             {
                 // 4. EJECUTAR
                 string result = RunPrologQuery(query, _scriptPath);
                 
-                // 5. DEVOLVER SOLUCIÓN
-                // El resultado será la solución, ej: "[horario(v1,d1,10), ...]"
                 return Ok(new { scheduleResult = result });
             }
             catch (Exception ex)

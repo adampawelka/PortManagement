@@ -1,31 +1,47 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ----------------------------------------------------
+// 1️⃣ Add services to the container
+// ----------------------------------------------------
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
 
-// Add CORS policy
+// 🟢 Add Swagger services (required for UseSwagger)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// 🟢 Add CORS policy (to allow React or other clients)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()   // Allow React dev server
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
 });
 
+// ----------------------------------------------------
+// 2️⃣ Build the app
+// ----------------------------------------------------
 var app = builder.Build();
 
-// Configure Swagger
+// ----------------------------------------------------
+// 3️⃣ Configure the HTTP request pipeline
+// ----------------------------------------------------
+
+// 🟢 Enable Swagger *only* in development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// Enable CORS
+// 🟢 Enable CORS globally
 app.UseCors();
+
+// (Optional) Comment this out if you’re working only with HTTP
+// app.UseHttpsRedirection();
 
 app.MapControllers();
 

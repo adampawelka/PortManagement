@@ -1,37 +1,32 @@
-# TESTING STEPS.
+var builder = WebApplication.CreateBuilder(args);
 
-First of all, I'm going to explain how this Scheduling works. 
-- SchedulingAPI is a .NET web project.
-- The purpose of this branch is to connect PROLOG with the previous Backend and C# code.
-- Moodle IARTI files are already added to the folder.
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddHttpClient();
 
-There are two tests that we can make here:
-    - C# --> PROLOG ( C# communicates with PROLOG )
-    - SchedulingAPI --> BackendAPI ( SchedulingAPI communicates with BackendAPI )
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()   // Allow React dev server
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
+var app = builder.Build();
 
-## 1. Two terminals at the same time. (On the IARTI branch)
+// Configure Swagger
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-### First Terminal
-- cd BackendAPI
-- dotnet run
-- Remind the port (It usually is 5000)
+// Enable CORS
+app.UseCors();
 
+app.MapControllers();
 
-### Second Terminal
-- cd Scheduling/SchedulingAPI
-- dotnet run
-- Remind the port, I already define 5107
-
-## 2. Web browser
-
-- To test that C# --> PROLOG it's working propperly: 
-    - http://localhost:5107/api/Scheduling/test-prolog
-
-- To test SchedulingAPI --> BackendAPI:
-    - http://localhost:5107/api/Scheduling/test-api-call
-
-
-( For any question/doubt, I reccomend you to take a look at SchedulingController, there you can see the methods done with the endpoints name, etc. )
-
-( Aclaration: we are working with http, not https, so in Both folders (BackendAPI and SchedulingAPI) the line "app.UseHttpsRedirection();" in "Program.cs" or "Startup.cs" should be comment )
+app.Run();

@@ -35,7 +35,7 @@ const Schedule = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5001/api/Scheduling/calculate-schedule?date=${targetDate}`
+        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${targetDate}`
       );
       if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
