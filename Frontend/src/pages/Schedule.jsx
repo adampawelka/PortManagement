@@ -9,22 +9,25 @@ const Schedule = () => {
   const handleDateChange = (e) => setTargetDate(e.target.value);
 
   const parsePrologResult = (resultString) => {
-    const trimmed = resultString.replace(/^\[|\]$/g, "");
-    if (!trimmed) return [];
+    // Remove all brackets and whitespace/newlines
+    const cleaned = resultString.replace(/\[|\]/g, "").trim();
+    if (!cleaned) return [];
 
-    return trimmed.split("),").map((item) => {
+    return cleaned.split(/\),/).map((item) => {
       const clean = item.replace(/\(|\)/g, "").trim();
       const parts = clean.split(",");
+
       return {
-        vessel: parts[0],
-        dock: parts[1],
-        start: parts[2],
-        end: parts[3],
-        crane: parts[4],
-        staff: parseInt(parts[5]),
+        vessel: parts[0] || "",
+        start: parts[1] || "",
+        end: parts[2] || "",
+        dock: "",
+        crane: "",
+        staff: "",
       };
     });
   };
+
 
   const handleGenerateSchedule = async () => {
     if (!targetDate) return alert("Please select a date");

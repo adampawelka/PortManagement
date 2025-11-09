@@ -51,6 +51,6 @@ compare_shortest_delay(SeqTriplets,S):-
 
 run_schedule :-
     obtain_seq_shortest_delay(Solution, _Delay),
-    format('~q', [Solution]),
+    format('~w~n', [Solution]),
     nl,
     halt.
