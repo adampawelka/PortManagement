@@ -4,6 +4,8 @@ using System.IO;
 using System.Text.Json; // Importante para JSON
 using System.Net.Http;
 using System.IO;
+using System.Globalization;
+
 
 using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Domain.Resources;
@@ -122,9 +124,10 @@ namespace SchedulingAPI.Controllers
         [HttpGet("calculate-schedule")]
         public async Task<IActionResult> CalculateSchedule([FromQuery] string date)
         {
-            if (!DateTime.TryParse(date, out var targetDate))
-                return BadRequest("Invalid date format.");
-
+            if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
+            {
+                return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
+            }
             try
             {
                 // Fetch vessels from the VesselVisitNotifications API
@@ -134,7 +137,7 @@ namespace SchedulingAPI.Controllers
                 var vessels = await response.Content.ReadFromJsonAsync<List<VesselVisitNotificationDto>>();
 
                 if (vessels == null)
-                    return BadRequest("No vessels received from the API.");
+                    return BadRequest(new { message = "No vessels received from the API." });
 
                 // Filter only approved vessels that are assigned to a dock
                 var approvedVessels = vessels
@@ -142,7 +145,7 @@ namespace SchedulingAPI.Controllers
                     .ToList();
 
                 if (!approvedVessels.Any())
-                    return BadRequest("No approved vessels assigned to any dock.");
+                    return BadRequest(new { message = "No approved vessels assigned to any dock." });
 
                 // Group vessels by dock
                 var dockGroups = approvedVessels
@@ -155,15 +158,15 @@ namespace SchedulingAPI.Controllers
                 var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
 
                 if (allResources == null)
-                    return BadRequest("No resources received from the API.");
+                    return BadRequest(new { message = "No resources received from the API." });
 
                 // Filter available cranes (type = Crane, status = Active, no assigned dock)
-                var availableCranes = allResources
-                    .Where(r => r.Type == "Crane" && r.Status == "Active")
-                    .ToList();
+                // var availableCranes = allResources
+                //     .Where(r => r.Type == "Crane" && r.Status == "Active")
+                //     .ToList();
 
-                if (!availableCranes.Any())
-                    return BadRequest("No available active cranes.");
+                // if (!availableCranes.Any())
+                //     return BadRequest(new { message = "No available active cranes." });
 
                 // Fetch all staff
                 //var staffResponse = await client.GetAsync("http://localhost:5000/api/Staff");
@@ -182,6 +185,9 @@ namespace SchedulingAPI.Controllers
                     var dockResponse = await client.GetAsync("http://localhost:5000/api/Docks/" + dockId);
                     dockResponse.EnsureSuccessStatusCode();
                     var dock = await resourceResponse.Content.ReadFromJsonAsync<DockDto>();
+
+                    if (dock == null)
+                        return BadRequest(new { message = "No dock received from the API." });
 
                     // Filter vessels arriving on the requested date
                     var vesselsForDate = dockGroup
@@ -210,21 +216,21 @@ namespace SchedulingAPI.Controllers
                     var craneRandom = new Random();
 
                     // Pick a random crane for this dock
-                    var crane = availableCranes[craneRandom.Next(availableCranes.Count)];
+                    //var crane = availableCranes[craneRandom.Next(availableCranes.Count)];
 
 
                     dockSchedules[dockId] = new
                     {
                         schedule = result,
                         dock = dock.DockName,
-                        crane = crane.Code,
+                        crane = "to-add",
                         staff = "todo"
                     };
-                    availableCranes.Remove(crane);
+                    //availableCranes.Remove(crane);
                 }
 
                 if (!dockSchedules.Any())
-                    return BadRequest("No vessels arriving on the selected date for any dock.");
+                    return BadRequest(new { message = "No vessels arriving on the selected date for any dock." });
 
                 return Ok(dockSchedules);
             }

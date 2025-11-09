@@ -34,13 +34,15 @@ const Schedule = () => {
   const handleGenerateSchedule = async () => {
     if (!targetDate) return alert("Please select a date");
 
+    const isoDate = new Date(targetDate).toISOString().split('T')[0];
+
     setLoading(true);
     setError("");
     setScheduleResults([]);
 
     try {
       const response = await fetch(
-        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${targetDate}`
+        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}`
       );
 
       // Read the response body as text — even if not 200 OK
