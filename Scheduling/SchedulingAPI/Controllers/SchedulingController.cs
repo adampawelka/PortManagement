@@ -5,6 +5,11 @@ using System.Text.Json; // Importante para JSON
 using System.Net.Http;
 using System.IO;
 
+using DDDSample1.Domain.VesselVisitNotifications;
+using DDDSample1.Domain.Resources;
+using DDDSample1.Domain.Docks;
+
+
 
 namespace SchedulingAPI.Controllers
 {
@@ -115,33 +120,117 @@ namespace SchedulingAPI.Controllers
 
 
         [HttpGet("calculate-schedule")]
-        public IActionResult CalculateSchedule([FromQuery] string date)
+        public async Task<IActionResult> CalculateSchedule([FromQuery] string date)
         {
-            // data is necessary to fetch
-            // 1. CONSEGUIR DATOS:
-            //    Aquí llamarías al BackendAPI (usando IHttpClientFactory) para
-            //    obtener los barcos, muelles, etc., para la 'date'.
-            //    (Este es el Criterio 3.4.1b)
+            if (!DateTime.TryParse(date, out var targetDate))
+                return BadRequest("Invalid date format.");
 
-            // 2. PREPARAR DATOS PARA PROLOG:
-            //    Ej: "barco(v1, 50). barco(v2, 30). muelle(d1, 60)."
-            //string facts = $"barco(v1, 50). barco(v2, 30). muelle(d1, 60). fecha('{date}').";
-            // HERE WE ONLY PUT VESSELS
-
-            // 3. PREPARAR CONSULTA:
-            //    Tus compañeros definirán un predicado principal, ej: "generar_horario(Solucion)"
-            //string query = $"{facts} generar_horario(Solucion), format('~q', [Solucion]), halt.";
-            string query = "run_schedule";
             try
             {
-                // 4. EJECUTAR
-                string result = RunPrologQuery(query, _scriptPath);
+                // Fetch vessels from the VesselVisitNotifications API
+                var client = _httpClientFactory.CreateClient();
+                var response = await client.GetAsync("http://localhost:5000/api/VesselVisitNotifications");
+                response.EnsureSuccessStatusCode();
+                var vessels = await response.Content.ReadFromJsonAsync<List<VesselVisitNotificationDto>>();
 
-                return Ok(new { scheduleResult = result });
+                if (vessels == null)
+                    return BadRequest("No vessels received from the API.");
+
+                // Filter only approved vessels that are assigned to a dock
+                var approvedVessels = vessels
+                    .Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue)
+                    .ToList();
+
+                if (!approvedVessels.Any())
+                    return BadRequest("No approved vessels assigned to any dock.");
+
+                // Group vessels by dock
+                var dockGroups = approvedVessels
+                    .GroupBy(v => v.AssignedDockId)
+                    .ToList();
+
+                // fetching resources
+                var resourceResponse = await client.GetAsync("http://localhost:5000/api/Resources");
+                resourceResponse.EnsureSuccessStatusCode();
+                var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
+
+                if (allResources == null)
+                    return BadRequest("No resources received from the API.");
+
+                // Filter available cranes (type = Crane, status = Active, no assigned dock)
+                var availableCranes = allResources
+                    .Where(r => r.Type == "Crane" && r.Status == "Active")
+                    .ToList();
+
+                if (!availableCranes.Any())
+                    return BadRequest("No available active cranes.");
+
+                // Fetch all staff
+                //var staffResponse = await client.GetAsync("http://localhost:5000/api/Staff");
+                //staffResponse.EnsureSuccessStatusCode();
+                //var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffDto>>();
+
+
+
+                var dockSchedules = new Dictionary<string, object>();
+
+                foreach (var dockGroup in dockGroups)
+                {
+                    // Convert nullable GUID to string or "unknown"
+                    var dockId = dockGroup.Key.HasValue ? dockGroup.Key.Value.ToString() : "unknown";
+
+                    var dockResponse = await client.GetAsync("http://localhost:5000/api/Docks/" + dockId);
+                    dockResponse.EnsureSuccessStatusCode();
+                    var dock = await resourceResponse.Content.ReadFromJsonAsync<DockDto>();
+
+                    // Filter vessels arriving on the requested date
+                    var vesselsForDate = dockGroup
+                        .Where(v => v.ETA.Date == targetDate.Date)
+                        .ToList();
+
+                    if (!vesselsForDate.Any())
+                        continue;
+
+                    var random = new Random();
+                    // Prepare Prolog facts - TO-DO: add the time of loading and unloading to the facts, for now random values
+                    string facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
+                    {
+                        // losowy czas załadunku i rozładunku w godzinach (np. 1-4h)
+                        int loadTime = random.Next(5, 20);
+                        int unloadTime = random.Next(5, 20);
+                        return $"vessel('{v.VesselName.ToLower()}', {v.ETA.Hour}, {v.ETD.Hour}).";
+                    }
+                    ));
+
+                    string query = $"{facts} run_schedule(Solution), format('~q', [Solution]), halt.";
+
+                    // Execute Prolog query
+                    string result = RunPrologQuery(query, _scriptPath);
+
+                    var craneRandom = new Random();
+
+                    // Pick a random crane for this dock
+                    var crane = availableCranes[craneRandom.Next(availableCranes.Count)];
+
+
+                    dockSchedules[dockId] = new
+                    {
+                        schedule = result,
+                        dock = dock.DockName,
+                        crane = crane.Code,
+                        staff = "todo"
+                    };
+                    availableCranes.Remove(crane);
+                }
+
+                if (!dockSchedules.Any())
+                    return BadRequest("No vessels arriving on the selected date for any dock.");
+
+                return Ok(dockSchedules);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error generando horario: {ex.Message}");
+                return StatusCode(500, $"Error generating schedule: {ex.Message}");
             }
         }
 
@@ -149,7 +238,7 @@ namespace SchedulingAPI.Controllers
         /// <summary>
         /// Función principal que ejecuta un comando en SWI-Prolog.
         /// </summary>
-        private string RunPrologQuery(string query, string scriptFile = null)
+        private string RunPrologQuery(string query, string? scriptFile = null)
         {
             using (var process = new Process())
             {
@@ -191,3 +280,4 @@ namespace SchedulingAPI.Controllers
         }
     }
 }
+

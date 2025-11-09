@@ -8,8 +8,10 @@ const Schedule = () => {
 
   const handleDateChange = (e) => setTargetDate(e.target.value);
 
-  const parsePrologResult = (resultString) => {
-    // Remove all brackets and whitespace/newlines
+  // --- Helper to parse Prolog output ---
+  const parsePrologResult = (resultString, dockName, craneCode, staffID) => {
+    if (!resultString) return [];
+
     const cleaned = resultString.replace(/\[|\]/g, "").trim();
     if (!cleaned) return [];
 
@@ -18,17 +20,17 @@ const Schedule = () => {
       const parts = clean.split(",");
 
       return {
-        vessel: parts[0] || "",
-        start: parts[1] || "",
-        end: parts[2] || "",
-        dock: "",
-        crane: "",
-        staff: "",
+        vessel: parts[0]?.trim() || "",
+        start: parts[1]?.trim() || "",
+        end: parts[2]?.trim() || "",
+        dock: dockName || "Unknown Dock",
+        crane: craneCode || "Unassigned",
+        staff: staffID || "Unassigned",
       };
     });
   };
 
-
+  // --- Fetch and process schedule from backend ---
   const handleGenerateSchedule = async () => {
     if (!targetDate) return alert("Please select a date");
 
@@ -40,18 +42,45 @@ const Schedule = () => {
       const response = await fetch(
         `http://localhost:5107/api/Scheduling/calculate-schedule?date=${targetDate}`
       );
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-      const data = await response.json();
-      const parsedResults = parsePrologResult(data.scheduleResult);
+      // Read the response body as text — even if not 200 OK
+      const text = await response.text();
+
+      if (!response.ok) {
+        // Try to parse JSON { message: "..."} or just show plain text
+        let errorMessage = text;
+        try {
+          const json = JSON.parse(text);
+          errorMessage = json.message || json.error || text;
+        } catch (_) { }
+
+        throw new Error(errorMessage);
+      }
+
+      // Parse valid JSON response
+      const data = JSON.parse(text);
+
+      // The API returns an object of dock schedules
+      const parsedResults = Object.entries(data).flatMap(([dockId, dockInfo]) =>
+        parsePrologResult(
+          dockInfo.schedule,
+          dockInfo.dock || dockId,
+          dockInfo.crane,
+          dockInfo.staff
+        )
+      );
+
       setScheduleResults(parsedResults);
     } catch (err) {
+      // Show backend message
       setError("Scheduling failed: " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
+
+  // --- Render ---
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
       <h1>Scheduling</h1>
