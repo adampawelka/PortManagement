@@ -47,3 +47,10 @@ obtain_seq_shortest_delay1:-
 compare_shortest_delay(SeqTriplets,S):-
  shortest_delay(_,SLower),
     ((S<SLower,!,retract(shortest_delay(_,_)),asserta(shortest_delay(SeqTriplets,S)));true).
+
+
+run_schedule :-
+    obtain_seq_shortest_delay(Solution, _Delay),
+    format('~q', [Solution]),
+    nl,
+    halt.
