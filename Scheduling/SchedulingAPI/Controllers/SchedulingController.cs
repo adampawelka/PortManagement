@@ -155,6 +155,7 @@ namespace SchedulingAPI.Controllers
                     .ToList();
 
 
+                
                 // fetching resources
                 // var resourceResponse = await client.GetAsync("http://localhost:5000/api/Resources");
                 // resourceResponse.EnsureSuccessStatusCode();
@@ -244,7 +245,8 @@ namespace SchedulingAPI.Controllers
                         schedule = result,
                         dock = dock.DockName,
                         crane = "to-add",
-                        staff = "todo"
+                        staff = "todo",
+                        area = "to-add"
                     };
                     //availableCranes.Remove(crane);
                 }

@@ -9,7 +9,7 @@ const Schedule = () => {
   const handleDateChange = (e) => setTargetDate(e.target.value);
 
   // --- Helper to parse Prolog output ---
-  const parsePrologResult = (resultString, dockName, craneCode, staffID) => {
+  const parsePrologResult = (resultString, dockName, craneCode, staffID, areaID) => {
     if (!resultString) return [];
 
     const cleaned = resultString.replace(/\[|\]/g, "").trim();
@@ -26,6 +26,7 @@ const Schedule = () => {
         dock: dockName || "Unknown Dock",
         crane: craneCode || "Unassigned",
         staff: staffID || "Unassigned",
+        area: areaID || "Unassigned"
       };
     });
   };
