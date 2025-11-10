@@ -1,19 +1,15 @@
 % First support for IARTI project 2025/2026
 % Scheduling Vessels Unload/Load
 
+:-dynamic vessel/5.
 :-dynamic shortest_delay/2.
-
-vessel(zeus, 6, 63, 10, 16).
-vessel(poseidon, 23, 50, 9, 7).
-vessel(marenostrum, 8, 40, 5, 12).
-vessel(nautilus, 10, 30, 0, 8).
-vessel(floating, 36, 70, 12, 0).
 
 %vessel(zeus, 6, 63, 10, 16).
 %vessel(poseidon, 23, 50, 9, 7).
 %vessel(marenostrum, 8, 40, 5, 12).
 %vessel(nautilus, 10, 30, 0, 8).
 %vessel(floating, 36, 70, 12, 0).
+
 
 
 sequence_temporization(LV,SeqTriplets):-

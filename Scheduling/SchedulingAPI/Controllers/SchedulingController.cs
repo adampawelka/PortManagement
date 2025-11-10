@@ -139,7 +139,7 @@ namespace SchedulingAPI.Controllers
 
                 if (vessels == null)
                     return BadRequest(new { message = "No vessels received from the API." });
-                
+
 
                 // Filter only approved vessels that are assigned to a dock
                 var approvedVessels = vessels
@@ -154,8 +154,6 @@ namespace SchedulingAPI.Controllers
                     .GroupBy(v => v.AssignedDockId)
                     .ToList();
 
-                Console.WriteLine("HEHE");
-                
 
                 // fetching resources
                 // var resourceResponse = await client.GetAsync("http://localhost:5000/api/Resources");
@@ -165,7 +163,7 @@ namespace SchedulingAPI.Controllers
                 // if (allResources == null)
                 //     return BadRequest(new { message = "No resources received from the API." });
 
-                
+
 
                 // Filter available cranes (type = Crane, status = Active, no assigned dock)
                 // var availableCranes = allResources
@@ -209,17 +207,31 @@ namespace SchedulingAPI.Controllers
                     string facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
                     {
                         // losowy czas załadunku i rozładunku w godzinach (np. 1-4h)
-                        int loadTime = random.Next(5, 20);
+                        int loadTime = random.Next(5, 15);
                         int unloadTime = random.Next(5, 20);
-                        return $"vessel('{v.VesselName.ToLower()}', {v.ETA.Hour}, {v.ETD.Hour}).";
+
+                        int etaHour = v.ETA.Minute >= 30 ? v.ETA.Hour + 1 : v.ETA.Hour;
+                        int etdHour = v.ETD.Minute >= 30 ? v.ETD.Hour + 1 : v.ETD.Hour;
+
+                        string vesselName = v.VesselName.ToLower().Replace(" ", "_");
+
+                        return $"asserta(vessel({vesselName}, {etaHour}, {etdHour}, {loadTime}, {unloadTime})),";
                     }
                     ));
 
-                    //string query = $"{facts} run_schedule(Solution), format('~q', [Solution]), halt.";
-                    string query = "run_schedule";
+                    Console.WriteLine($"{facts}");
+
+                    string query = $"{facts} obtain_seq_shortest_delay(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
+                    //string query = "run_schedule";
+                    //string query = $"obtain_seq_shortest_delay(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
+                    
+                    
+                    Console.WriteLine($"{query}");
 
                     // Execute Prolog query
                     string result = RunPrologQuery(query, _scriptPath);
+
+                    Console.WriteLine($"{result}");
 
                     var craneRandom = new Random();
 
