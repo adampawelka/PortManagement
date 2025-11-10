@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Backend.Domain.Shared;
 using Backend.Domain.Qualifications;
@@ -15,17 +17,36 @@ namespace Backend.Domain.Resources
             _unitOfWork = unitOfWork;
             _resourceRepo = resourceRepo;
         }
-        public async Task<List<Resource>> GetAllAsync()
+
+        private ResourceDto ToDto(Resource resource)
         {
-            return await _resourceRepo.GetAllAsync();
+            return new ResourceDto
+            {
+                Id = resource.Id.AsGuid(),
+                Code = resource.Code.Value,
+                Description = resource.Description.Value,
+                Type = resource.Type.Value,
+                Capacity = resource.Capacity.Value,
+                Status = resource.Status.Value,
+                SetupTime = resource.SetupTime.Value
+            };
         }
 
-        public async Task<Resource> GetByIdAsync(ResourceId id)
+
+        public async Task<List<ResourceDto>> GetAllAsync()
         {
-            return await _resourceRepo.GetByIdAsync(id);
+            var resources = await _resourceRepo.GetAllAsync();
+            return resources.Select(ToDto).ToList();
         }
 
-        public async Task<Resource> AddAsync(string code, string description, string type, double capacity, string status, int setupTime)
+        public async Task<ResourceDto> GetByIdAsync(ResourceId id)
+        {
+            var resource = await _resourceRepo.GetByIdAsync(id);
+            if (resource == null) return null;
+            return ToDto(resource);
+        }
+
+        public async Task<ResourceDto> AddAsync(string code, string description, string type, double capacity, string status, int setupTime)
         {
             var resource = new Resource(
                 new ResourceCode(code),
@@ -39,10 +60,10 @@ namespace Backend.Domain.Resources
             await _resourceRepo.AddAsync(resource);
             await _unitOfWork.CommitAsync();
 
-            return resource;
+            return ToDto(resource);
         }
 
-        public async Task<Resource> UpdateAsync(ResourceId id, string newDescription, double newCapacity, int newSetupTime)
+        public async Task<ResourceDto> UpdateAsync(ResourceId id, string newDescription, double newCapacity, int newSetupTime)
         {
             var resource = await _resourceRepo.GetByIdAsync(id);
             if (resource == null) return null;
@@ -54,10 +75,10 @@ namespace Backend.Domain.Resources
             );
 
             await _unitOfWork.CommitAsync();
-            return resource;
+            return ToDto(resource);
         }
 
-        public async Task<Resource> ChangeStatusAsync(ResourceId id, string newStatus)
+        public async Task<ResourceDto> ChangeStatusAsync(ResourceId id, string newStatus)
         {
             var resource = await _resourceRepo.GetByIdAsync(id);
             if (resource == null) return null;
@@ -65,9 +86,10 @@ namespace Backend.Domain.Resources
             resource.ChangeStatus(new AvailabilityStatus(newStatus));
             await _unitOfWork.CommitAsync();
 
-            return resource;
+            return ToDto(resource);
         }
-        public async Task<Resource> AssignQualificationAsync(ResourceId id, QualificationId qualificationId)
+
+        public async Task<ResourceDto> AssignQualificationAsync(ResourceId id, QualificationId qualificationId)
         {
             var resource = await _resourceRepo.GetByIdAsync(id);
             if (resource == null) return null;
@@ -75,10 +97,10 @@ namespace Backend.Domain.Resources
             resource.AssignQualification(qualificationId);
             await _unitOfWork.CommitAsync();
 
-            return resource;
+            return ToDto(resource);
         }
 
-        public async Task<Resource> RemoveQualificationAsync(ResourceId id, QualificationId qualificationId)
+        public async Task<ResourceDto> RemoveQualificationAsync(ResourceId id, QualificationId qualificationId)
         {
             var resource = await _resourceRepo.GetByIdAsync(id);
             if (resource == null) return null;
@@ -86,16 +108,7 @@ namespace Backend.Domain.Resources
             resource.RemoveQualification(qualificationId);
             await _unitOfWork.CommitAsync();
 
-            return resource;
+            return ToDto(resource);
         }
     }
 }
-/*
-`GetAllAsync():  Returns all registered resources. 
-`GetByIdAsync():  Retrieves a resource by its identifier.
-`AddAsync():  Creates a new resource using all its Value Objects.
-`UpdateAsync():  Updates the resource’s capacity, description, and setup time.
-`ChangeStatusAsync():  Changes the resource’s status (`active`, `inactive`, `maintenance`).
-`AssignQualificationAsync():  Associates an existing qualification (from US14) with the resource.
-`RemoveQualificationAsync():  Removes an associated qualification from the resource.
-*/
