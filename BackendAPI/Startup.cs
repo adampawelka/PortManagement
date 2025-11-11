@@ -20,6 +20,7 @@ using DDDSample1.Domain.VesselTypes;
 using DDDSample1.Domain.Vessels;
 using DDDSample1.Domain.Docks;
 using DDDSample1.Domain.VesselVisitNotifications;
+using DDDSample1.Domain.Users;
 using Microsoft.OpenApi.Models;
 using DDDSample1.Infrastructure.ShippingAgents;
 using DDDSample1.Infrastructure.VesselTypes;
@@ -31,6 +32,7 @@ using DDDSample1.Domain.Qualifications;
 using DDDSample1.Infrastructure.Qualifications;
 using DDDSample1.Domain.Resources;
 using DDDSample1.Infrastructure.Resources;
+using DDDSample1.Infrastructure.Users;
 
 
 namespace DDDSample1
@@ -111,6 +113,8 @@ namespace DDDSample1
             services.AddTransient<QualificationService>();
             services.AddTransient<IResourceRepository, ResourceRepository>();
             services.AddTransient<ResourceService>();
+            services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<UserService>();
 
         }
     }

@@ -181,4 +181,10 @@ export const menuItems = [
           
     ]
   },
+  {
+  name: "User Management",
+  key: "user_management",
+  path: "/user-management",
+  roles: ["admin", "user", "guest"],
+  },
 ];

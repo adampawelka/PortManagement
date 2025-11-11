@@ -11,6 +11,7 @@ import Home from "./pages/Home.jsx";
 import Visualisation from "./pages/Visualisation.jsx";
 import Scheduling from "./pages/Scheduling.jsx";
 import Schedule from "./pages/Schedule.jsx"
+import UserManagement from "./pages/UserManagement.jsx";
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -55,6 +56,7 @@ const App = () => {
                 <Route path="/visualisation" element={<Visualisation />} />
                 <Route path="/scheduling" element={<Scheduling />} />
                 <Route path="/schedule" element={<Schedule />} />
+                <Route path="/user-management" element={<UserManagement />} />
                 <Route path="*" element={<div>Page not found</div>} />
               </Routes>
 
