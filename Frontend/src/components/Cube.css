@@ -1,0 +1,6 @@
+.cube-canvas {
+  display: block;
+  width: 100%;      /* fill the width of the parent container */
+  height: 400px;    /* or any fixed height that fits your layout */
+  background-color: blue; /* optional for visibility */
+}

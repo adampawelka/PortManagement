@@ -3,6 +3,7 @@ import GlobalLayout from "./components/GlobalLayout.jsx";
 import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
 import PortVisualisation from "./components/PortVisualisation.jsx";
+import Cube from "./components/Cube.tsx"
 import { useAuth0 } from "@auth0/auth0-react";
 
 function App() {
@@ -28,7 +29,17 @@ function App() {
         {isAuthenticated ? (
           <main>
             <h2>Welcome to Dock Manage System</h2>
-            <PortVisualisation />
+            <div style={{ maxWidth: 800, margin: "0 auto" }}>
+              <Cube
+                rotationSpeedX={0.02}
+                rotationSpeedY={0.03}
+                size={1.5}
+                texture="assets/logo.png"
+                fieldOfView={45}
+                cameraZ={8}
+              />
+            </div>
+
           </main>
         ) : (
           <div>
