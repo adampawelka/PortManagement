@@ -25,6 +25,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           // 'audience' is the identifier of the API of C#.
           audience: "http://3dl-e-04api", 
         }}
+        useRefreshTokens={true}
+        cacheLocation="localstorage"
       >
         <BrowserRouter>
         <App />
