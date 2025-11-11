@@ -2,9 +2,11 @@ import React from "react";
 import GlobalLayout from "./components/GlobalLayout.jsx";
 import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
-import PortVisualisation from "./components/PortVisualisation.jsx";
+//import PortVisualisation from "./components/PortVisualisation.jsx";
 import Cube from "./components/Cube.tsx"
 import { useAuth0 } from "@auth0/auth0-react";
+import ThumbRaiser from "./components/Thumb_Raiser.tsx"
+import ThumbRaiserUI from "./components/Thumb_RaiserUI.tsx";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useAuth0();
@@ -29,7 +31,7 @@ function App() {
         {isAuthenticated ? (
           <main>
             <h2>Welcome to Dock Manage System</h2>
-            <div style={{ maxWidth: 800, margin: "0 auto" }}>
+            {/* <div style={{ maxWidth: 800, margin: "0 auto" }}>
               <Cube
                 rotationSpeedX={0.02}
                 rotationSpeedY={0.03}
@@ -38,6 +40,13 @@ function App() {
                 fieldOfView={45}
                 cameraZ={8}
               />
+            </div> */}
+            <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
+              {/* 3D game renders in the background */}
+              <ThumbRaiser />
+
+              {/* UI overlays the canvas */}
+              <ThumbRaiserUI />
             </div>
 
           </main>
