@@ -1,8 +1,8 @@
 // src/components/ThumbRaiser/ThumbRaiser.tsx
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
-import Orientation from "../../../Visualisation/Thumb_Raiser/orientation";
-import ThumbRaiser from '@visualisation/thumb_raiser.js';
+import Orientation from "../../Visualisation/Thumb_Raiser/orientation";
+import ThumbRaiser from '../../Visualisation/Thumb_Raiser/thumb_raiser.js';
 
 
 const ThumbRaiserComponent: React.FC = () => {
