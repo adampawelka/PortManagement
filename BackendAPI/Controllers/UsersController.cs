@@ -43,6 +43,21 @@ namespace DDDSample1.Controllers
             return Ok(user);
         }
 
+        // GET: api/Users/5
+        [HttpGet("{id}/role")]
+        // [Authorize]
+        public async Task<ActionResult<UserDto>> GetRole(Guid id)
+        {
+            var user = await _service.GetByIdAsync(new UserId(id));
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user.Role);
+        }
+
         // PUT: api/Users/5/role
         [HttpPut("{id}/role")]
         // [Authorize]
