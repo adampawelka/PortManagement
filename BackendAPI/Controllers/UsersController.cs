@@ -6,6 +6,7 @@ using DDDSample1.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+// endpoints used by Administrator pass 'Guid id' and endpoints used by SPA while authentication pass 'string id' to the service
 namespace DDDSample1.Controllers
 {
     [Route("api/[controller]")]
@@ -17,6 +18,12 @@ namespace DDDSample1.Controllers
         public UsersController(UserService service)
         {
             _service = service;
+        }
+
+        public class UserRoleStatusDto
+        {
+            public string Role { get; set; }
+            public string Status { get; set; }
         }
 
         // GET: api/Users
@@ -33,7 +40,7 @@ namespace DDDSample1.Controllers
         // [Authorize]
         public async Task<ActionResult<UserDto>> GetById(Guid id)
         {
-            var user = await _service.GetByIdAsync(new UserId(id));
+            var user = await _service.GetUserByIdAsync(id);
 
             if (user == null)
             {
@@ -43,25 +50,32 @@ namespace DDDSample1.Controllers
             return Ok(user);
         }
 
-        // GET: api/Users/5
-        [HttpGet("{id}/role")]
-        // [Authorize]
-        public async Task<ActionResult<UserDto>> GetRole(Guid id)
+        // needed for SPA permissions
+        // GET: api/Users/{auth0|...}/role-status}
+        [HttpGet("{id}/role-status")]
+        public async Task<ActionResult<UserRoleStatusDto>> GetRoleStatus(string id)
         {
-            var user = await _service.GetByIdAsync(new UserId(id));
+            var user = await _service.GetByIamUserIdAsync(id);
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            return Ok(user.Role);
+            var result = new UserRoleStatusDto
+            {
+                Role = user.Role,
+                Status = user.Status
+            };
+
+            return Ok(result);
         }
+
 
         // PUT: api/Users/5/role
         [HttpPut("{id}/role")]
         // [Authorize]
-        public async Task<ActionResult<UserDto>> AssignRole(Guid id, [FromBody] string role)
+        public async Task<ActionResult<UserDto>> AssignRole(string id, [FromBody] string role)
         {
             try
             {
@@ -83,7 +97,7 @@ namespace DDDSample1.Controllers
         // POST: api/Users/5/activation-token
         [HttpPost("{id}/activation-token")]
         // [Authorize]
-        public async Task<ActionResult> GenerateActivationToken(Guid id)
+        public async Task<ActionResult> GenerateActivationToken(string id)
         {
             try
             {

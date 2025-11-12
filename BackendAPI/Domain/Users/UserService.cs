@@ -23,9 +23,9 @@ namespace DDDSample1.Domain.Users
             return list.ConvertAll(user => ToDto(user));
         }
 
-        public async Task<UserDto> GetByIdAsync(UserId id)
+        public async Task<UserDto> GetUserByIdAsync(Guid id)
         {
-            var user = await this._repo.GetByIdAsync(id);
+            var user = await this._repo.GetUserByIdAsync(new UserId(id));
             return user == null ? null : ToDto(user);
         }
 
@@ -125,7 +125,7 @@ namespace DDDSample1.Domain.Users
 
         public async Task<UserDto> AssignRoleAsync(UserId id, string role)
         {
-            var user = await this._repo.GetByIdAsync(id);
+            var user = await this._repo.GetUserByIdAsync(id);
 
             if (user == null)
                 return null;

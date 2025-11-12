@@ -17,12 +17,12 @@ namespace DDDSample1.Infrastructure.Users
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<User>> GetAllAsync()
+        public async Task<List<User>> GetAllUsersAsync()
         {
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<User> GetByIdAsync(UserId id)
+        public async Task<User> GetUserByIdAsync(UserId id)
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == id);

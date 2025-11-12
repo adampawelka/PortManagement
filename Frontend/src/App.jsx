@@ -13,16 +13,80 @@ import Scheduling from "./pages/Scheduling.jsx";
 import Schedule from "./pages/Schedule.jsx";
 import UserManagement from "./pages/UserManagement.jsx";
 
-// ✅ Protected route wrapper
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth0();
+const fetchUserRole = async (iamUserId, token) => {
+  const res = await fetch(`http://localhost:5000/api/users/${iamUserId}/role-status`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-  if (isLoading) return <div>Loading...</div>;
-
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  if (!res.ok)
+    return null; // user not found or other error
+  return res.json(); // { role, status }
 };
 
-// ✅ Debug component to show token + user info
+
+const ProtectedRoute = ({ children, requiredRoles = [] }) => {
+  const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0();
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [userData, setUserData] = useState(null); // { role, status }
+  const [accessDenied, setAccessDenied] = useState(false);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      if (!isAuthenticated) return;
+
+      try {
+        const token = await getAccessTokenSilently();
+        const data = await fetchUserRole(user.sub, token); // { role, status }
+
+        setUserData(data);
+
+        // Deny access if status is not Active or role is not allowed
+        if (!data)
+          setAccessDenied(true);
+        else if (data.status !== "Active" || !requiredRoles.includes(data.role)) {
+          setAccessDenied(true);
+        }
+      } catch (err) {
+        console.error(err);
+        setAccessDenied(true);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    loadUserData();
+  }, [isAuthenticated, getAccessTokenSilently, user, requiredRoles]);
+
+  if (isLoading || loadingUser)
+    return <div>Loading...</div>;
+  if (!isAuthenticated)
+    return <Navigate to="/login" replace />;
+  if (accessDenied) {
+    return (
+      <div>
+        Access Denied. Please contact an administrator.
+        {userData ? (
+          <div>
+            <p>Role: {userData.role}</p>
+            <p>Status: {userData.status}</p>
+          </div>
+        ) : (
+          <div>
+            <p>User not registered in the system.</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // At this point, user is authenticated and authorized
+  return children;
+};
+
+
+
 const DebugUserInfo = () => {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
   const [token, setToken] = useState("");
@@ -74,7 +138,6 @@ const DebugUserInfo = () => {
   );
 };
 
-// ✅ Main app
 const App = () => {
   return (
     <Routes>
@@ -102,7 +165,9 @@ const App = () => {
       <Route
         path="/*"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute
+            requiredRoles={["Administrator", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}
+          >
             <GlobalLayout>
               <Routes>
                 <Route path="/" element={<Home />} />
