@@ -34,7 +34,7 @@ namespace DDDSample1.Infrastructure.Users
                 .FirstOrDefaultAsync(u => u.Email.Value == email.Value);
         }
 
-        public async Task<User> GetByIamUserIdAsync(string iamUserId)
+        public async Task<User> GetUserByIamIdAsync(string iamUserId)
         {
             return await _context.Users
                 .FirstOrDefaultAsync(u => u.IamUserId == iamUserId);

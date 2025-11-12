@@ -31,7 +31,7 @@ namespace DDDSample1.Controllers
         // [Authorize] // Require authentication
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            var users = await _service.GetAllAsync();
+            var users = await _service.GetAllUsersAsync();
             return Ok(users);
         }
 
@@ -52,10 +52,10 @@ namespace DDDSample1.Controllers
 
         // needed for SPA permissions
         // GET: api/Users/{auth0|...}/role-status}
-        [HttpGet("{id}/role-status")]
-        public async Task<ActionResult<UserRoleStatusDto>> GetRoleStatus(string id)
+        [HttpGet("iam/{iam}/role-status")]
+        public async Task<ActionResult<UserRoleStatusDto>> GetRoleStatus(string iam)
         {
-            var user = await _service.GetByIamUserIdAsync(id);
+            var user = await _service.GetUserByIamIdAsync(iam);
 
             if (user == null)
             {
@@ -70,7 +70,6 @@ namespace DDDSample1.Controllers
 
             return Ok(result);
         }
-
 
         // PUT: api/Users/5/role
         [HttpPut("{id}/role")]
@@ -157,5 +156,8 @@ namespace DDDSample1.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+       
+
     }
 }

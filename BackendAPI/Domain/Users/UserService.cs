@@ -17,9 +17,9 @@ namespace DDDSample1.Domain.Users
             this._repo = repo;
         }
 
-        public async Task<List<UserDto>> GetAllAsync()
+        public async Task<List<UserDto>> GetAllUsersAsync()
         {
-            var list = await this._repo.GetAllAsync();
+            var list = await this._repo.GetAllUsersAsync();
             return list.ConvertAll(user => ToDto(user));
         }
 
@@ -36,9 +36,9 @@ namespace DDDSample1.Domain.Users
             return user == null ? null : ToDto(user);
         }
 
-        public async Task<UserDto> GetByIamUserIdAsync(string iamUserId)
+        public async Task<UserDto> GetUserByIamIdAsync(string iamUserId)
         {
-            var user = await this._repo.GetByIamUserIdAsync(iamUserId);
+            var user = await this._repo.GetUserByIamIdAsync(iamUserId);
             return user == null ? null : ToDto(user);
         }
 
@@ -68,7 +68,7 @@ namespace DDDSample1.Domain.Users
             if (existingByEmail != null)
                 throw new BusinessRuleValidationException("A user with this email already exists.");
 
-            var existingByIam = await this._repo.GetByIamUserIdAsync(dto.IamUserId);
+            var existingByIam = await this._repo.GetByIamIdAsync(dto.IamUserId);
             if (existingByIam != null)
                 throw new BusinessRuleValidationException("A user with this IAM ID already exists.");
 
@@ -176,7 +176,7 @@ namespace DDDSample1.Domain.Users
 
         public async Task<UserDto> DeactivateAsync(UserId id)
         {
-            var user = await this._repo.GetByIdAsync(id);
+            var user = await this._repo.GetUserByIdAsync(id);
 
             if (user == null)
                 return null;

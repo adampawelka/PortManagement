@@ -45,7 +45,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
         const data1 = await fetchUserRole(user.sub, token); // { role, status }
 
         const data = {
-          role: "ShippingAgentRepresentative",
+          role: "Administrator",
           status: "Active",
         };
         setUserData(data);
