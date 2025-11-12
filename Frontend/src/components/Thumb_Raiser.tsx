@@ -3,13 +3,17 @@ import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import Orientation from "../../Visualisation/Thumb_Raiser/orientation";
 import ThumbRaiser from '../../Visualisation/Thumb_Raiser/thumb_raiser.js';
-
+import ThumbRaiserUI from "./Thumb_RaiserUI.js";
 
 const ThumbRaiserComponent: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+ // const containerRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const getCanvas = () => canvasRef.current!;
 
+  
   useEffect(() => {
-    if (!containerRef.current) return;
+    //if (!containerRef.current) return;
+    const canvas = getCanvas();
 
     // Create the game instance
     const game = new ThumbRaiser(
@@ -36,12 +40,11 @@ const ThumbRaiserComponent: React.FC = () => {
 
     animate();
 
-    return () => {
-      //game.dispose?.(); // if your game has a cleanup method
-    };
+    
   }, []);
 
-  return <div ref={containerRef} style={{ width: "100vw", height: "100vh", position: "relative" }} />;
+  return <canvas ref={canvasRef} className="cube-canvas" />;
+  //return <div ref={containerRef} style={{ width: "100vw", height: "100vh", position: "relative" }} />;
 };
 
-export default ThumbRaiser;
+export default ThumbRaiserComponent;
