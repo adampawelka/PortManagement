@@ -57,6 +57,8 @@ namespace DDDSample1.Infrastructure
 
         public DbSet<User> Users { get; set; }
 
+        public DbSet<PendingUser> PendingUsers { get; set; }
+
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -77,6 +79,7 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new QualificationEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ResourceEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new PendingUserEntityTypeConfiguration());
         }
     }
 }

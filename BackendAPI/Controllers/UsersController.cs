@@ -13,11 +13,13 @@ namespace DDDSample1.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly UserService _service;
+        private readonly UserService _userService;
+        private readonly PendingUserService _pendingUserService;
 
-        public UsersController(UserService service)
+        public UsersController(UserService userService, PendingUserService pendingUserService)
         {
-            _service = service;
+            _userService = userService;
+            _pendingUserService = pendingUserService;
         }
 
         public class UserRoleStatusDto
@@ -31,7 +33,7 @@ namespace DDDSample1.Controllers
         // [Authorize] // Require authentication
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            var users = await _service.GetAllUsersAsync();
+            var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
 
@@ -40,7 +42,7 @@ namespace DDDSample1.Controllers
         // [Authorize]
         public async Task<ActionResult<UserDto>> GetById(Guid id)
         {
-            var user = await _service.GetUserByIdAsync(id);
+            var user = await _userService.GetUserByIdAsync(id);
 
             if (user == null)
             {
@@ -50,15 +52,30 @@ namespace DDDSample1.Controllers
             return Ok(user);
         }
 
-        // needed for SPA permissions
-        // GET: api/Users/{auth0|...}/role-status}
+       // needed for SPA permissions
+// GET: api/Users/iam/{iam}/role-status
         [HttpGet("iam/{iam}/role-status")]
         public async Task<ActionResult<UserRoleStatusDto>> GetRoleStatus(string iam)
         {
-            var user = await _service.GetUserByIamIdAsync(iam);
+            var user = await _userService.GetUserByIamIdAsync(iam);
 
             if (user == null)
             {
+                var pending = await _pendingUserService.GetPendingUserByIamIdAsync(iam);
+                if (pending == null)
+                {
+                    var email = User?.FindFirst("email")?.Value ?? "unknown@unknown.com";
+                    var name = User?.FindFirst("name")?.Value ?? "Unknown User";
+
+                    await _pendingUserService.AddPendingUserAsync(new CreatingPendingUserDto
+                    {
+                        Email = email,
+                        Name = name,
+                        IamUserId = iam,
+                        AttemptedAt = DateTime.UtcNow
+                    });
+                }
+
                 return NotFound();
             }
 
@@ -71,6 +88,7 @@ namespace DDDSample1.Controllers
             return Ok(result);
         }
 
+
         // PUT: api/Users/5/role
         [HttpPut("{id}/role")]
         // [Authorize]
@@ -78,7 +96,7 @@ namespace DDDSample1.Controllers
         {
             try
             {
-                var user = await _service.AssignRoleAsync(new UserId(id), role);
+                var user = await _userService.AssignRoleAsync(new UserId(id), role);
 
                 if (user == null)
                 {
@@ -100,7 +118,7 @@ namespace DDDSample1.Controllers
         {
             try
             {
-                var token = await _service.GenerateActivationTokenAsync(new UserId(id));
+                var token = await _userService.GenerateActivationTokenAsync(new UserId(id));
                 return Ok(new { Message = "Activation email sent", Token = token });
             }
             catch (EntityNotFoundException ex)
@@ -120,7 +138,7 @@ namespace DDDSample1.Controllers
         {
             try
             {
-                var user = await _service.DeactivateAsync(new UserId(id));
+                var user = await _userService.DeactivateAsync(new UserId(id));
 
                 if (user == null)
                 {
@@ -142,7 +160,7 @@ namespace DDDSample1.Controllers
         {
             try
             {
-                var user = await _service.ReactivateAsync(new UserId(id));
+                var user = await _userService.ReactivateAsync(new UserId(id));
 
                 if (user == null)
                 {
