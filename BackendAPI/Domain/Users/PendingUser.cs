@@ -9,7 +9,7 @@ namespace DDDSample1.Domain.Users
         public UserName Name { get; private set; }
         // IAM Provider attributes
         public string IamUserId { get; private set; }
-        public DateTime AttemptedAt { get; set; };
+        public DateTime AttemptedAt { get; private set; }
 
 
         // Parameterless constructor for EF Core
@@ -26,7 +26,7 @@ namespace DDDSample1.Domain.Users
             if (string.IsNullOrWhiteSpace(iamUserId))
                 throw new BusinessRuleValidationException("IAM User ID cannot be empty.");
 
-            this.Id = new UserId(Guid.NewGuid());
+            this.Id = new PendingUserId(Guid.NewGuid());
             this.Email = email;
             this.Name = name;
             this.IamUserId = iamUserId;

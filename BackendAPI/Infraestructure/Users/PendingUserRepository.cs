@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.PendingUsers;
+using DDDSample1.Domain.Users;
 using DDDSample1.Infrastructure.Shared;
 using Microsoft.EntityFrameworkCore;
 
-namespace DDDSample1.Infrastructure.PendingUsers
+namespace DDDSample1.Infrastructure.Users
 {
     public class PendingUserRepository : BaseRepository<PendingUser, PendingUserId>, IPendingUserRepository
     {
@@ -28,7 +28,7 @@ namespace DDDSample1.Infrastructure.PendingUsers
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
-        public async Task<PendingUser> GetPendingUserByEmailAsync(PendingUserEmail email)
+        public async Task<PendingUser> GetPendingUserByEmailAsync(UserEmail email)
         {
             return await _context.PendingUsers
                 .FirstOrDefaultAsync(u => u.Email.Value == email.Value);
@@ -51,14 +51,20 @@ namespace DDDSample1.Infrastructure.PendingUsers
                 .ToListAsync();
         }
 
-        public async Task AddPendingUserAsync(PendingUser PendingUser)
+        public async Task<PendingUser> AddPendingUserAsync(PendingUser pendingUser)
         {
-            await _context.PendingUsers.AddAsync(PendingUser);
+            await _context.PendingUsers.AddAsync(pendingUser);
+            await _context.SaveChangesAsync(); // Save the changes to the database
+            
+            return pendingUser;
         }
 
-        public void RemovePendingUser(PendingUser PendingUser)
+        public async Task RemovePendingUser(PendingUser pendingUser)
         {
-            _context.PendingUsers.Remove(PendingUser);
+            _context.PendingUsers.Remove(pendingUser);
+            await _context.SaveChangesAsync();
+
         }
     }
+
 }

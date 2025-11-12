@@ -70,14 +70,18 @@ namespace DDDSample1.Infrastructure.Users
                 .ToListAsync();
         }
 
-        public async Task AddAsync(User user)
+        public async Task<User> AddUserAsync(User user)
         {
             await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync(); // Save the changes to the database
+            
+            return user;
         }
 
-        public void Remove(User user)
+        public async Task RemoveUser(User user)
         {
             _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
         }
     }
 }

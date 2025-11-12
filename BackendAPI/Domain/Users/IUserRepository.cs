@@ -14,6 +14,7 @@ namespace DDDSample1.Domain.Users
         Task<List<User>> SearchByNameOrEmailAsync(string searchTerm);
         Task<User> GetUserByIdAsync(UserId id);
         Task<List<User>> GetAllUsersAsync();
-        Task<User> AddUserAsync();
+        Task<User> AddUserAsync(User user);
+        Task RemoveUser(User user);
     }
 }

@@ -62,13 +62,13 @@ namespace DDDSample1.Domain.Users
             return list.ConvertAll(user => ToDto(user));
         }
 
-        public async Task<UserDto> AddAsync(CreatingUserDto dto)
+        public async Task<UserDto> AddUserAsync(CreatingUserDto dto)
         {
             var existingByEmail = await this._repo.GetByEmailAsync(new UserEmail(dto.Email));
             if (existingByEmail != null)
                 throw new BusinessRuleValidationException("A user with this email already exists.");
 
-            var existingByIam = await this._repo.GetByIamIdAsync(dto.IamUserId);
+            var existingByIam = await this._repo.GetUserByIamIdAsync(dto.IamUserId);
             if (existingByIam != null)
                 throw new BusinessRuleValidationException("A user with this IAM ID already exists.");
 

@@ -42,19 +42,18 @@ namespace DDDSample1.Domain.Users
             return user == null ? null : ToDto(user);
         }
 
-        // public async Task<List<UserDto>> SearchAsync(string searchTerm)
-        // {
-        //     var list = await this._repo.SearchByNameOrEmailAsync(searchTerm);
-        //     return list.ConvertAll(user => ToDto(user));
-        // }
+        public async Task<List<PendingUserDto>> SearchAsync(string searchTerm)
+        {
+            var list = await this._repo.SearchByNameOrEmailAsync(searchTerm);
+            return list.ConvertAll(user => ToDto(user));
+        }
 
         public async Task<PendingUserDto> AddPendingUserAsync(CreatingPendingUserDto dto)
         {
             var user = new PendingUser(
                 new UserEmail(dto.Email),
                 new UserName(dto.Name),
-                dto.IamUserId,
-                dto.AttemptedAt
+                dto.IamUserId
             );
 
             await _repo.AddPendingUserAsync(user);

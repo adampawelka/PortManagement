@@ -72,7 +72,6 @@ namespace DDDSample1.Controllers
                         Email = email,
                         Name = name,
                         IamUserId = iam,
-                        AttemptedAt = DateTime.UtcNow
                     });
                 }
 

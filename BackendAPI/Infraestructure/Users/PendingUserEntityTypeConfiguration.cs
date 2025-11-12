@@ -44,7 +44,7 @@ namespace DDDSample1.Infrastructure.Users
             builder.HasIndex(u => u.IamUserId)
                 .IsUnique();
 
-            builder.Property(u => u.AttemtpedAt)
+            builder.Property(u => u.AttemptedAt)
                 .IsRequired();
 
         }
