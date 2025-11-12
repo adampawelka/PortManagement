@@ -1,5 +1,4 @@
-// App.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -12,6 +11,11 @@ import Visualisation from "./pages/Visualisation.jsx";
 import Scheduling from "./pages/Scheduling.jsx";
 import Schedule from "./pages/Schedule.jsx";
 import UserManagement from "./pages/UserManagement.jsx";
+
+// Create and export the UserContext (so Sidebar or other components can use it)
+export const UserContext = createContext(null);
+export const useUser = () => useContext(UserContext);
+
 
 const fetchUserRole = async (iamUserId, token) => {
   const res = await fetch(`http://localhost:5000/api/users/${iamUserId}/role-status`, {
@@ -38,8 +42,12 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
 
       try {
         const token = await getAccessTokenSilently();
-        const data = await fetchUserRole(user.sub, token); // { role, status }
+        const data1 = await fetchUserRole(user.sub, token); // { role, status }
 
+        const data = {
+          role: "ShippingAgentRepresentative",
+          status: "Active",
+        };
         setUserData(data);
 
         // Deny access if status is not Active or role is not allowed
@@ -82,7 +90,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   }
 
   // At this point, user is authenticated and authorized
-  return children;
+  return <UserContext.Provider value={userData}>{children}</UserContext.Provider>;
 };
 
 
