@@ -34,6 +34,11 @@ using DDDSample1.Domain.Resources;
 using DDDSample1.Infrastructure.Resources;
 using DDDSample1.Infrastructure.Users;
 
+// JWT
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System;
 
 namespace DDDSample1
 {
@@ -60,6 +65,7 @@ namespace DDDSample1
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Port Logistics API", Version = "v1" });
                 c.EnableAnnotations();
             });
+
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend",
@@ -73,6 +79,47 @@ namespace DDDSample1
                 .AllowAnyHeader()
                 .AllowCredentials());
             });
+
+            // --- JWT Authentication ---
+            var jwtKey = Configuration["Jwt:Key"];
+            var jwtIssuer = Configuration["Jwt:Issuer"];
+            var jwtAudience = Configuration["Jwt:Audience"];
+
+            if (string.IsNullOrWhiteSpace(jwtKey) ||
+                string.IsNullOrWhiteSpace(jwtIssuer) ||
+                string.IsNullOrWhiteSpace(jwtAudience))
+            {
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+                {
+                    // Generate a temporary key for development
+                    jwtKey = "DevSecretKey123456"; // Must be at least 16 chars
+                    jwtIssuer = "https://localhost:5000";
+                    jwtAudience = "api://default";
+                    Console.WriteLine("⚠️  JWT config missing. Using temporary development key.");
+                }
+                else
+                {
+                    throw new InvalidOperationException("JWT configuration is missing in appsettings.json or environment variables.");
+                }
+            }
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+
+                        ValidIssuer = jwtIssuer,
+                        ValidAudience = jwtAudience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                    };
+                });
+
+            services.AddAuthorization();
             services.AddRazorPages();
         }
 
@@ -92,9 +139,13 @@ namespace DDDSample1
             // app.UseHttpsRedirection();
             app.UseRouting();
             app.UseCors("AllowFrontend");
+
+            app.UseAuthentication(); // <-- required for JWT
             app.UseAuthorization();
+
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); endpoints.MapRazorPages(); });
         }
+
         public void ConfigureMyServices(IServiceCollection services)
         {
             services.AddTransient<IUnitOfWork, UnitOfWork>();
@@ -127,7 +178,8 @@ namespace DDDSample1
             services.AddTransient<ResourceService>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<UserService>();
-
+            services.AddTransient<IPendingUserRepository, PendingUserRepository>();
+            services.AddTransient<PendingUserService>();
         }
     }
 }

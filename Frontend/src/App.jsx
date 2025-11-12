@@ -21,6 +21,7 @@ const fetchUserRole = async (iamUserId, token) => {
   const res = await fetch(`http://localhost:5000/api/users/${iamUserId}/role-status`, {
     headers: {
       Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
     },
   });
 
