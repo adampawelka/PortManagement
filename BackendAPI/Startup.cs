@@ -55,12 +55,23 @@ namespace DDDSample1
             ConfigureMyServices(services);
 
             services.AddControllers().AddNewtonsoftJson();
-
-            // Configure Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Port Logistics API", Version = "v1" });
                 c.EnableAnnotations();
+            });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                builder => builder
+                .WithOrigins(
+                    "http://localhost:5173",
+                    "http://localhost:3000",
+                    "https://localhost:5173"
+                )
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
             });
             services.AddRazorPages();
         }
@@ -78,8 +89,9 @@ namespace DDDSample1
                 app.UseHsts();
             }
 
-            //app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors("AllowFrontend");
             app.UseAuthorization();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); endpoints.MapRazorPages(); });
         }

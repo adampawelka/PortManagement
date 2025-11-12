@@ -32,7 +32,6 @@ const UserManagement = () => {
       const data = await response.json();
       setUsers(data);
     } catch (error) {
-      console.error('Error loading users:', error);
       alert('Failed to load users');
     } finally {
       setLoading(false);
