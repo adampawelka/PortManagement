@@ -11,6 +11,7 @@ using Backend.Infrastructure.Products;
 using Backend.Infrastructure.Families;
 using Backend.Infrastructure.Shared;
 using Backend.Infrastructure.VesselVisitNotifications;
+using Backend.Infrastructure.StaffMembers;
 using Backend.Domain.Shared;
 using Backend.Domain.Categories;
 using Backend.Domain.Products;
@@ -20,6 +21,7 @@ using Backend.Domain.VesselTypes;
 using Backend.Domain.Vessels;
 using Backend.Domain.Docks;
 using Backend.Domain.VesselVisitNotifications;
+using Backend.Domain.StaffMembers;
 using Microsoft.OpenApi.Models;
 using Backend.Infrastructure.ShippingAgents;
 using Backend.Infrastructure.VesselTypes;
@@ -111,6 +113,8 @@ namespace Backend
             services.AddTransient<QualificationService>();
             services.AddTransient<IResourceRepository, ResourceRepository>();
             services.AddTransient<ResourceService>();
+            services.AddTransient<IStaffMemberRepository, StaffMemberRepository>();
+            services.AddTransient<StaffMemberService>();
 
         }
     }

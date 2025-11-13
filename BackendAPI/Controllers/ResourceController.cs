@@ -119,7 +119,7 @@ namespace Backend.Controllers
             {
                 var resource = await _service.AssignQualificationAsync(
                     new ResourceId(id),
-                    new QualificationId(qualificationId)
+                    new QualificationId(qualificationId.ToString())
                 );
                 if (resource == null)
                     return NotFound();
@@ -139,7 +139,7 @@ namespace Backend.Controllers
             {
                 var resource = await _service.RemoveQualificationAsync(
                     new ResourceId(id),
-                    new QualificationId(qualificationId)
+                    new QualificationId(qualificationId.ToString())
                 );
                 if (resource == null)
                     return NotFound();

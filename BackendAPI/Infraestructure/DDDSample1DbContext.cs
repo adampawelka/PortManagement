@@ -5,6 +5,7 @@ using Backend.Domain.Families;
 using Backend.Domain.ShippingAgents;
 using Backend.Domain.Docks;
 using Backend.Domain.Vessels;
+using Backend.Domain.StaffMembers;
 
 using Backend.Domain.StorageAreas;
 using Backend.Domain.Qualifications;
@@ -12,6 +13,7 @@ using Backend.Domain.Resources;
 using Backend.Infrastructure.Categories;
 using Backend.Infrastructure.Products;
 using Backend.Infrastructure.ShippingAgents;
+using Backend.Infrastructure.StaffMembers;
 using Backend.Infrastructure.Docks;
 using Backend.Infrastructure.Vessels;
 using Backend.Infrastructure.VesselTypes;
@@ -53,6 +55,8 @@ namespace Backend.Infrastructure
 
         public DbSet<Resource> Resources { get; set; }
 
+        public DbSet<StaffMember> StaffMembers { get; set; }
+
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -72,6 +76,7 @@ namespace Backend.Infrastructure
             modelBuilder.ApplyConfiguration(new StorageAreaEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new QualificationEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ResourceEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new StaffMemberEntityTypeConfiguration());
 
         }
     }

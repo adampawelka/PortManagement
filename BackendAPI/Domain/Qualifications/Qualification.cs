@@ -12,7 +12,7 @@ namespace Backend.Domain.Qualifications
 
         public Qualification(QualificationCode code, QualificationName name)
         {
-            Id = new QualificationId(Guid.NewGuid());
+            Id = new QualificationId(Guid.NewGuid().ToString());
             Code = code;
             Name = name;
         }

@@ -39,7 +39,7 @@ namespace Backend.Controllers
         {
             try
             {
-                var qualification = await _service.GetByIdAsync(new QualificationId(id));
+                var qualification = await _service.GetByIdAsync(new QualificationId(id.ToString()));
                 if (qualification == null)
                     return NotFound();
 
@@ -72,7 +72,7 @@ namespace Backend.Controllers
         {
             try
             {
-                var updated = await _service.UpdateAsync(new QualificationId(id), dto.Code, dto.Name);
+                var updated = await _service.UpdateAsync(new QualificationId(id.ToString()), dto.Code, dto.Name);
                 if (updated == null)
                     return NotFound();
 
