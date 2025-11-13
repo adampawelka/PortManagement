@@ -38,35 +38,35 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
-    const loadUserData = async () => {
-      if (!isAuthenticated) return;
+  const loadUserData = async () => {
+    if (!isAuthenticated) {
+      setLoadingUser(false);
+      return;
+    }
 
-      try {
-        const token = await getAccessTokenSilently();
-        const data1 = await fetchUserRole(user.sub, token); // { role, status }
+    try {
+      const token = await getAccessTokenSilently();
+       const data = await fetchUserRole(user.sub, token); // uncomment for real API
+      // const data = {
+      //   role: "Administrator",
+      //   status: "Active",
+      // };
+      setUserData(data);
 
-        const data = {
-          role: "Administrator",
-          status: "Active",
-        };
-        setUserData(data);
-
-        // Deny access if status is not Active or role is not allowed
-        if (!data)
-          setAccessDenied(true);
-        else if (data.status !== "Active" || !requiredRoles.includes(data.role)) {
-          setAccessDenied(true);
-        }
-      } catch (err) {
-        console.error(err);
+      if (!data || data.status !== "Active" || !requiredRoles.includes(data.role)) {
         setAccessDenied(true);
-      } finally {
-        setLoadingUser(false);
       }
-    };
+    } catch (err) {
+      console.error(err);
+      setAccessDenied(true);
+    } finally {
+      setLoadingUser(false);
+    }
+  };
 
-    loadUserData();
-  }, [isAuthenticated, getAccessTokenSilently, user, requiredRoles]);
+  loadUserData();
+}, [isAuthenticated, getAccessTokenSilently, user?.sub, requiredRoles]);
+
 
   if (isLoading || loadingUser)
     return <div>Loading...</div>;
