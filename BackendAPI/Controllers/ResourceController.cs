@@ -64,7 +64,8 @@ namespace Backend.Controllers
                     dto.SetupTime
                 );
 
-                return CreatedAtAction(nameof(GetById), new { id = resource.Id.AsGuid() }, resource);
+                return CreatedAtAction(nameof(GetById), new { id = resource.Id }, resource);
+
             }
             catch (Exception ex)
             {
