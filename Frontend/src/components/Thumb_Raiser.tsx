@@ -34,6 +34,7 @@ export default (): React.JSX.Element => {
     }, []);
     
     return <>
+    
         <div id="parent">
           <div id="views-panel">
               <table className="views">

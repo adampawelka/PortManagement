@@ -41,7 +41,7 @@ function App() {
                 cameraZ={8}
               />
             </div>  */}
-            <div> 
+            <div className="App"> 
               <ThumbRaiser></ThumbRaiser>
             </div>
 
