@@ -6,22 +6,16 @@
 // Linear and affine transformations
 // Lighting and materials
 // Shadow projection
-// Fog
 // Texture mapping
 // User interaction
 
 import * as THREE from "three";
-import Stats from "three/addons/libs/stats.module.js";
 import Orientation from "./orientation.js";
-import { generalData, mazeData, playerData, lightsData, fogData, cameraData } from "./default_data.js";
+import { generalData, mazeData, lightsData, cameraData } from "./default_data.js";
 import { merge } from "./merge.js";
 import Maze from "./maze.js";
-import Player from "./player.js";
 import Lights from "./lights.js";
-import Fog from "./fog.js";
 import Camera from "./camera.js";
-import Animations from "./animations.js";
-import UserInterface from "./user_interface.js";
 
 /*
  * generalParameters = {
@@ -52,13 +46,7 @@ import UserInterface from "./user_interface.js";
  *  spotLight: { color: Integer, intensity: Float, range: Float, angle: Float, penumbra: Float, position: Vector3, direction: Float }
  * }
  *
- * fogParameters = {
- *  enabled: Boolean,
- *  color: Integer,
- *  near: Float,
- *  far: Float
- * }
- *
+
 
  *
 
@@ -85,12 +73,10 @@ import UserInterface from "./user_interface.js";
  */
 
 export default class ThumbRaiser {
-    constructor(generalParameters, mazeParameters, playerParameters, lightsParameters, fogParameters, thirdPersonViewCameraParameters) {
+    constructor(generalParameters, mazeParameters, lightsParameters, thirdPersonViewCameraParameters) {
         this.generalParameters = merge({}, generalData, generalParameters);
         this.mazeParameters = merge({}, mazeData, mazeParameters);
-        this.playerParameters = merge({}, playerData, playerParameters);
         this.lightsParameters = merge({}, lightsData, lightsParameters);
-        this.fogParameters = merge({}, fogData, fogParameters);
         this.thirdPersonViewCameraParameters = merge({}, cameraData, thirdPersonViewCameraParameters);
 
         // Create a 2D scene (the viewports frames)
@@ -112,17 +98,12 @@ export default class ThumbRaiser {
         // Create the maze
         this.maze = new Maze(this.mazeParameters);
 
-        // Create the player
-        this.player = new Player(this.playerParameters);
-
         // Create the lights
         this.lights = new Lights(this.lightsParameters);
 
-        // Create the fog
-        this.fog = new Fog(this.fogParameters);
-
         // Create the cameras corresponding to the four different views:, third-person view 
         this.thirdPersonViewCamera = new Camera(this.thirdPersonViewCameraParameters, window.innerWidth, window.innerHeight);
+        this.camera = this.thirdPersonViewCamera;
 
 
         this.theCanvas = document.getElementById("myCanvas");
@@ -190,20 +171,6 @@ keyChange(event, state) {
         // Prevent scrolling with Space or Arrow keys
         const keysToPrevent = ["Space", "ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp"];
         if (keysToPrevent.includes(event.code)) event.preventDefault();
-
-        // Update player key states
-        const kc = this.player.keyCodes;
-        if (event.code === kc.run) this.player.keyStates.run = state;
-        else if (event.code === kc.left) this.player.keyStates.left = state;
-        else if (event.code === kc.right) this.player.keyStates.right = state;
-        else if (event.code === kc.backward) this.player.keyStates.backward = state;
-        else if (event.code === kc.forward) this.player.keyStates.forward = state;
-        else if (event.code === kc.jump) this.player.keyStates.jump = state;
-        else if (event.code === kc.yes) this.player.keyStates.yes = state;
-        else if (event.code === kc.no) this.player.keyStates.no = state;
-        else if (event.code === kc.wave) this.player.keyStates.wave = state;
-        else if (event.code === kc.punch) this.player.keyStates.punch = state;
-        else if (event.code === kc.thumbsUp) this.player.keyStates.thumbsUp = state;
     }
 }
 
@@ -236,84 +203,28 @@ contextMenu(event) {
 }
 
 
-    
-
-    
-
     finalSequence() {
-        // Disable the fog
-        this.fog.enabled = false;
         // Reconfigure the third-person view camera
         this.thirdPersonViewCamera.setOrientation(new Orientation(180.0, this.thirdPersonViewCamera.initialOrientation.v));
         this.thirdPersonViewCamera.setDistance(this.thirdPersonViewCamera.initialDistance);
         this.thirdPersonViewCamera.setZoom(2.0);
-        // Set the final action
-        this.animations.fadeToAction("Dance", 0.2);
-    }
-
-    collision(position) {
-        return this.maze.distanceToWestWall(position) < this.player.radius || this.maze.distanceToEastWall(position) < this.player.radius || this.maze.distanceToNorthWall(position) < this.player.radius || this.maze.distanceToSouthWall(position) < this.player.radius;
     }
 
     update() {
+    
+
     if (!this.gameRunning) {
-        if (this.maze.loaded && this.player.loaded) {
-            this.scene3D.add(this.maze.object, this.player.object, this.lights.object);
+        if (this.maze.loaded) {
+            this.scene3D.add(this.maze.object, this.lights.object);
             this.clock = new THREE.Clock();
-            this.animations = new Animations(this.player.object, this.player.animations);
-            this.player.position.copy(this.maze.initialPosition);
-            this.player.direction = this.maze.initialDirection;
-            this.userInterface = new UserInterface(this.scene3D, this.renderer, this.lights, this.fog, this.player.object, this.animations);
             this.gameRunning = true;
         }
         return;
     }
 
-    const deltaT = this.clock.getDelta();
-    this.animations.update(deltaT);
-
-    if (!this.animations.actionInProgress) {
-        // Handle movement & actions
-        const coveredDistance = this.player.walkingSpeed * deltaT * (this.player.keyStates.run ? this.player.runningFactor : 1);
-        const directionIncrement = this.player.turningSpeed * deltaT * (this.player.keyStates.run ? this.player.runningFactor : 1);
-
-        if (this.player.keyStates.left) this.player.direction += directionIncrement;
-        if (this.player.keyStates.right) this.player.direction -= directionIncrement;
-
-        const dirRad = THREE.MathUtils.degToRad(this.player.direction);
-        let newPosition = this.player.position.clone();
-
-        if (this.player.keyStates.forward) {
-            newPosition.add(new THREE.Vector3(Math.sin(dirRad) * coveredDistance, 0, Math.cos(dirRad) * coveredDistance));
-        } else if (this.player.keyStates.backward) {
-            newPosition.add(new THREE.Vector3(-Math.sin(dirRad) * coveredDistance, 0, -Math.cos(dirRad) * coveredDistance));
-        }
-
-        if (this.collision(newPosition)) {
-            this.animations.fadeToAction("Death", 0.2);
-        } else if (this.player.keyStates.forward || this.player.keyStates.backward) {
-            this.animations.fadeToAction(this.player.keyStates.run ? "Running" : "Walking", 0.2);
-            this.player.position.copy(newPosition);
-        } else if (this.player.keyStates.jump) this.animations.fadeToAction("Jump", 0.2);
-        else if (this.player.keyStates.yes) this.animations.fadeToAction("Yes", 0.2);
-        else if (this.player.keyStates.no) this.animations.fadeToAction("No", 0.2);
-        else if (this.player.keyStates.wave) this.animations.fadeToAction("Wave", 0.2);
-        else if (this.player.keyStates.punch) this.animations.fadeToAction("Punch", 0.2);
-        else if (this.player.keyStates.thumbsUp) this.animations.fadeToAction("ThumbsUp", 0.2);
-        else this.animations.fadeToAction(this.animations.activeName !== "Death" ? "Idle" : 0.6);
-
-        this.player.object.position.copy(this.player.position);
-        this.player.object.rotation.y = dirRad - this.player.initialDirection;
-    }
-
-    // Update single camera
-    const target = new THREE.Vector3(this.player.position.x, this.player.position.y + this.player.eyeHeight, this.player.position.z);
-    this.camera.playerDirection = this.player.direction;
-    this.camera.setTarget(target);
 
     // Render
     this.renderer.clear();
-    this.scene3D.fog = this.fog.enabled ? this.fog.object : null;
     this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     this.renderer.render(this.scene3D, this.camera.object);
     this.renderer.render(this.scene2D, this.camera2D);
