@@ -15,6 +15,18 @@ body {
   line-height: 1.5;                           /* Better readability */
 }
 
+/* Base layout for all pages */
+.container {
+  width: 100%;
+  max-width: 1200px;   /* optional: keeps layout centered */
+  margin: 0 auto;      /* centers content horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers children */
+  gap: 20px;
+  padding: 20px;
+}
+
 /* ===== Tablet adjustments ===== */
 @media (max-width: 1024px) {
   .container 

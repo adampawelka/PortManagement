@@ -5,8 +5,8 @@ import LogoutButton from "./components/LogoutButton";
 //import PortVisualisation from "./components/PortVisualisation.jsx";
 import Cube from "./components/Cube.tsx"
 import { useAuth0 } from "@auth0/auth0-react";
-import ThumbRaiserComponent from "./components/Thumb_Raiser.tsx"
-import ThumbRaiserUI from "./components/Thumb_RaiserUI.tsx";
+import ThumbRaiser from "./components/Thumb_Raiser.tsx"
+import './styles/App.css'
 
 function App() {
   const { user, isAuthenticated, isLoading } = useAuth0();
@@ -41,12 +41,8 @@ function App() {
                 cameraZ={8}
               />
             </div>  */}
-            <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
-              {/* 3D game renders in the background */}
-              <ThumbRaiserComponent />
-
-              {/* UI overlays the canvas */}
-              <ThumbRaiserUI />
+            <div> 
+              <ThumbRaiser></ThumbRaiser>
             </div>
 
           </main>
