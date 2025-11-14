@@ -1,7 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Backend.Domain.Categories;
-using Backend.Domain.Products;
-using Backend.Domain.Families;
 using Backend.Domain.ShippingAgents;
 using Backend.Domain.Docks;
 using Backend.Domain.Vessels;
@@ -10,8 +7,6 @@ using Backend.Domain.StaffMembers;
 using Backend.Domain.StorageAreas;
 using Backend.Domain.Qualifications;
 using Backend.Domain.Resources;
-using Backend.Infrastructure.Categories;
-using Backend.Infrastructure.Products;
 using Backend.Infrastructure.ShippingAgents;
 using Backend.Infrastructure.StaffMembers;
 using Backend.Infrastructure.Docks;
@@ -31,11 +26,6 @@ namespace Backend.Infrastructure
 {
     public class DDDSample1DbContext : DbContext
     {
-        public DbSet<Category> Categories { get; set; }
-
-        public DbSet<Product> Products { get; set; }
-
-        public DbSet<Family> Families { get; set; }
 
         public DbSet<ShippingAgentOrganization> ShippingAgentOrganizations { get; set; }
 
@@ -64,9 +54,6 @@ namespace Backend.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new CategoryEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new ProductEntityTypeConfiguration());
-            modelBuilder.ApplyConfiguration(new FamilyEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ShippingAgentOEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ShippingAgentREntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new VesselTypeEntityTypeConfiguration());

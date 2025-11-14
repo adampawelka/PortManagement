@@ -11,6 +11,12 @@ namespace Backend.Infrastructure.Vessels
             builder.ToTable("Vessels", SchemaNames.DDDSample1);
             builder.HasKey(b => b.Id);
 
+            builder.Property(v => v.Id)
+            .HasConversion(
+            id => id.AsGuid(),          // to database
+            value => new VesselId(value) // from database
+            );
+            
             builder.OwnsOne(v => v.IMO, imo =>
             {
                 imo.Property(i => i.Value)

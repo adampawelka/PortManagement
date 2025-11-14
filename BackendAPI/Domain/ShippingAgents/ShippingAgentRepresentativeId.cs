@@ -1,3 +1,4 @@
+using System;
 using Backend.Domain.Shared;
 
 namespace Backend.Domain.ShippingAgents
@@ -11,6 +12,10 @@ namespace Backend.Domain.ShippingAgents
         }
 
         public override string AsString() => Value.ToString();
+        public Guid AsGuid()
+        {
+            return (Guid)ObjValue;
+        }
 
         protected override object createFromString(string text)
         {

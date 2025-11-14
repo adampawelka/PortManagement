@@ -6,16 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Backend.Infrastructure;
-using Backend.Infrastructure.Categories;
-using Backend.Infrastructure.Products;
-using Backend.Infrastructure.Families;
 using Backend.Infrastructure.Shared;
 using Backend.Infrastructure.VesselVisitNotifications;
 using Backend.Infrastructure.StaffMembers;
 using Backend.Domain.Shared;
-using Backend.Domain.Categories;
-using Backend.Domain.Products;
-using Backend.Domain.Families;
 using Backend.Domain.ShippingAgents;
 using Backend.Domain.VesselTypes;
 using Backend.Domain.Vessels;
@@ -48,9 +42,7 @@ namespace Backend
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DDDSample1DbContext>(opt =>
-                opt.UseInMemoryDatabase("DDDSample1DB")
-                   .ReplaceService<IValueConverterSelector, StronglyEntityIdValueConverterSelector>());
+            services.AddDbContext<DDDSample1DbContext>(options =>options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
             ConfigureMyServices(services);
 
@@ -86,15 +78,6 @@ namespace Backend
         public void ConfigureMyServices(IServiceCollection services)
         {
             services.AddTransient<IUnitOfWork, UnitOfWork>();
-
-            services.AddTransient<ICategoryRepository, CategoryRepository>();
-            services.AddTransient<CategoryService>();
-
-            services.AddTransient<IProductRepository, ProductRepository>();
-            services.AddTransient<ProductService>();
-
-            services.AddTransient<IFamilyRepository, FamilyRepository>();
-            services.AddTransient<FamilyService>();
 
             services.AddTransient<IShippingAgentORepository, ShippingAgentORepository>();
             services.AddTransient<IShippingAgentRRepository, ShippingAgentRRepository>();

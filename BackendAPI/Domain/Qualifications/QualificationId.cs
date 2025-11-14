@@ -1,13 +1,21 @@
 using Backend.Domain.Shared;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Backend.Domain.Qualifications
 {
     public class QualificationId : EntityId
     {
+        [JsonConstructor]
+        public QualificationId(Guid value) : base(value.ToString()) { }
+
         public QualificationId(string value) : base(ValidateAndReturn(value))
         {
+            Value = value;  // Set the property
         }
+
+        // Expose Value as a public property for mapping
+        public string Value { get; private set; }
 
         private static string ValidateAndReturn(string value)
         {
