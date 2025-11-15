@@ -5,6 +5,8 @@ using DDDSample1.Domain.Shared;
 using DDDSample1.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims; 
+
 
 // endpoints used by Administrator pass 'Guid id' and endpoints used by SPA while authentication pass 'string id' to the service
 namespace DDDSample1.Controllers
@@ -174,6 +176,45 @@ namespace DDDSample1.Controllers
             }
         }
 
+        
+        // POST: api/Users/activate
+        [HttpPost("activate")]
+        [Authorize] // ¡ATTENTION! User must be logged with Auth0
+        public async Task<ActionResult<UserDto>> ActivateUser([FromBody] ActivateUserDto dto)
+        {
+            // --- Aditional security 3.2.6 ---
+            // We verify that the User is activated
+
+            // 1. We obtein the Auth0 ID token
+            var authenticatedIamId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(authenticatedIamId))
+            {
+                return Unauthorized(new { Message = "Token de sesión inválido." });
+            }
+
+            // 2. Compare the ID token with the one given by DTO
+            if (authenticatedIamId != dto.IamUserId)
+            {
+                return Forbid("No tienes permiso para activar esta cuenta.");
+            }
+
+            // 3. Call service 
+            try
+            {
+                var userDto = await _userService.ActivateAsync(dto);
+                return Ok(userDto);
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                // Service manage errors 
+                return BadRequest(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = $"Error interno: {ex.Message}" });
+            }
+        }
        
 
     }
