@@ -1,0 +1,37 @@
+{
+  "portName": "ISEPorto",
+  "mapDimensions": {
+    "width": 2000,
+    "length": 1000
+  },
+  "facilities": [
+    {
+      "type": "dock",
+      "id": "DOCK_01", 
+      "name": "Dock A - Containers",
+      "position": { "x": 50, "y": 0, "z": 0 },
+      "dimensions": { "length": 400, "width": 30, "depth": 15 }
+    },
+    {
+      "type": "dock",
+      "id": "DOCK_02", 
+      "name": "Dock B - General Cargo",
+      "position": { "x": 500, "y": 0, "z": 0 },
+      "dimensions": { "length": 300, "width": 30, "depth": 12 }
+    },
+    {
+      "type": "storageArea",
+      "id": "YARD_A",
+      "name": "Container Yard A",
+      "position": { "x": 100, "y": 0, "z": 150 },
+      "dimensions": { "length": 200, "width": 300 }
+    },
+    {
+      "type": "storageArea",
+      "id": "WAREHOUSE_B", 
+      "name": "Warehouse B",
+      "position": { "x": 550, "y": 0, "z": 100 },
+      "dimensions": { "length": 150, "width": 100 }
+    }
+  ]
+}
