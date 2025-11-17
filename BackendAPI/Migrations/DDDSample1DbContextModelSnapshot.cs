@@ -24,8 +24,8 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Domain.Docks.Dock", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -104,8 +104,8 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Domain.ShippingAgents.ShippingAgentRepresentative", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ShippingAgentOrganizationId")
                         .HasColumnType("text");
@@ -273,8 +273,8 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("DockAllowedVesselTypes", b =>
                 {
-                    b.Property<string>("DockId")
-                        .HasColumnType("text");
+                    b.Property<Guid>("DockId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("VesselTypeId")
                         .HasColumnType("uuid");
@@ -305,8 +305,8 @@ namespace Backend.Migrations
                 {
                     b.OwnsOne("Backend.Domain.Docks.Depth", "Depth", b1 =>
                         {
-                            b1.Property<string>("DockId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("DockId")
+                                .HasColumnType("uuid");
 
                             b1.Property<double>("Value")
                                 .HasColumnType("float")
@@ -322,8 +322,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.Docks.DockLocation", "DockLocation", b1 =>
                         {
-                            b1.Property<string>("DockId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("DockId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
@@ -340,8 +340,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.Docks.DockName", "DockName", b1 =>
                         {
-                            b1.Property<string>("DockId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("DockId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
@@ -359,8 +359,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.Docks.Length", "Length", b1 =>
                         {
-                            b1.Property<string>("DockId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("DockId")
+                                .HasColumnType("uuid");
 
                             b1.Property<double>("Value")
                                 .HasColumnType("float")
@@ -376,8 +376,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.Docks.MaxDraft", "MaxDraft", b1 =>
                         {
-                            b1.Property<string>("DockId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("DockId")
+                                .HasColumnType("uuid");
 
                             b1.Property<double>("Value")
                                 .HasColumnType("float")
@@ -439,8 +439,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.ShippingAgents.CitizenId", "CitizenId", b1 =>
                         {
-                            b1.Property<string>("ShippingAgentRepresentativeId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("ShippingAgentRepresentativeId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
@@ -457,8 +457,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.ShippingAgents.Nationality", "Nationality", b1 =>
                         {
-                            b1.Property<string>("ShippingAgentRepresentativeId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("ShippingAgentRepresentativeId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
@@ -475,8 +475,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.ShippingAgents.RepEmail", "Email", b1 =>
                         {
-                            b1.Property<string>("ShippingAgentRepresentativeId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("ShippingAgentRepresentativeId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
@@ -493,8 +493,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.ShippingAgents.RepName", "Name", b1 =>
                         {
-                            b1.Property<string>("ShippingAgentRepresentativeId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("ShippingAgentRepresentativeId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
@@ -511,8 +511,8 @@ namespace Backend.Migrations
 
                     b.OwnsOne("Backend.Domain.ShippingAgents.RepPhone", "Phone", b1 =>
                         {
-                            b1.Property<string>("ShippingAgentRepresentativeId")
-                                .HasColumnType("text");
+                            b1.Property<Guid>("ShippingAgentRepresentativeId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Value")
                                 .IsRequired()

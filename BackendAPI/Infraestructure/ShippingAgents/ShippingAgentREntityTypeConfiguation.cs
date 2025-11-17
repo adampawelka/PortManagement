@@ -14,8 +14,11 @@ namespace Backend.Infrastructure.ShippingAgents
             builder.HasKey(b => b.Id);
             builder.Property(b => b.Id)
                 .HasConversion(
-                    id => id.AsString(),
-                    value => new ShippingAgentRepresentativeId(value));
+                    id => id.AsGuid(),  // To DB: Guid/uuid
+                    value => new ShippingAgentRepresentativeId(value.ToString())  // From DB
+                )
+                .HasColumnType("uuid")
+                .IsRequired();
 
             // Value Objects as Owned Types
             builder.OwnsOne(b => b.Name, name =>

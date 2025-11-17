@@ -13,8 +13,13 @@ namespace Backend.Infrastructure.Docks
             builder.ToTable("Docks", SchemaNames.DDDSample1);
             builder.HasKey(b => b.Id);
             builder.Property(b => b.Id)
-                .HasConversion(id => id.Value, value => new DockId(value));
-
+            .HasConversion(
+            id => id.AsGuid(), 
+            value => new DockId(value) 
+            )
+            .HasColumnType("uuid")  
+            .IsRequired();
+            
             builder.OwnsOne(x => x.DockName, n =>
             {
                 n.Property(v => v.Value)

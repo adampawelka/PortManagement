@@ -20,7 +20,7 @@ namespace Backend.Migrations
                 schema: "ddd",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     DockName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     DockLocation = table.Column<string>(type: "text", nullable: true),
                     Depth = table.Column<double>(type: "float", nullable: true),
@@ -153,7 +153,7 @@ namespace Backend.Migrations
                 schema: "ddd",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: true),
                     CitizenId = table.Column<string>(type: "text", nullable: true),
                     Nationality = table.Column<string>(type: "text", nullable: true),
@@ -202,7 +202,7 @@ namespace Backend.Migrations
                 schema: "ddd",
                 columns: table => new
                 {
-                    DockId = table.Column<string>(type: "text", nullable: false),
+                    DockId = table.Column<Guid>(type: "uuid", nullable: false),
                     VesselTypeId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>

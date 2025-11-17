@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:13-alpine
+    container_name: portmanagement-db
+    environment:
+      POSTGRES_DB: PortManagementDB
+      POSTGRES_USER: portapp
+      POSTGRES_PASSWORD: YourStrongPassword123!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - portmanagement-network
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build:
+      context: ./BackendAPI
+      dockerfile: Dockerfile
+    container_name: portmanagement-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=PortManagementDB;Username=portapp;Password=PortManagement123!
+      - Auth0__Domain=3dl-e-04.eu.auth0.com
+      - Auth0__Audience=http://3dl-e-04api
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    networks:
+      - portmanagement-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+
+networks:
+  portmanagement-network:
+    driver: bridge
