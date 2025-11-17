@@ -11,6 +11,8 @@ This module implements a 3D visualization component for the Port Management Sing
 # User Story 3.3.1: 
 As a Project Manager, I want the team to develop and integrate a 3D visualization module into the SPA, so that users can begin interacting with a visual representation of the port environment.
 
+### 
+
 ### 3D Engine Setup
 
 - Libraries used:`three`, `lodash`
@@ -53,3 +55,17 @@ A single rotating cube has been added to represent a placeholder 3D object and t
 # User Story 3.3.6
 As a System User, I want to control a perspective camera using the mouse, so that I can freely explore the scene and inspect objects from different angles.
 
+### Features
+
+**Mouse rotation:**: 
+Right-click and drag to orbit the camera horizontally and vertically around the target. Rotation is constrained vertically to avoid flipping below the floor or above the horizon.
+
+**Mouse zoom:**
+Left-click and drag vertically or use the mouse wheel to zoom the camera in and out.
+Zoom limits prevent the camera from getting too close or too far from the target.
+
+**Floor boundary enforcement:**
+Prevents the camera from going below a defined floor level, maintaining a natural viewpoint.
+
+**Clean event handling:**
+Adds and removes event listeners on the renderer’s DOM element for mouse actions.
