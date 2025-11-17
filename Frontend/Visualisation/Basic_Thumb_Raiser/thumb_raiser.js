@@ -16,6 +16,7 @@ import { merge } from "./merge.js";
 import Maze from "./maze.js";
 import Lights from "./lights.js";
 import Camera from "./camera.js";
+import { PortBuilder } from "../PortBuilder.js";
 
 /*
  * generalParameters = {
@@ -95,8 +96,12 @@ export default class ThumbRaiser {
         // Create a 3D scene (the game itself)
         this.scene3D = new THREE.Scene();
 
+        const portBuilder = new PortBuilder(this.scene3D);
+        portBuilder.loadPortData();
+
         // Create the maze
         this.maze = new Maze(this.mazeParameters);
+
 
         // Create the lights
         this.lights = new Lights(this.lightsParameters);
@@ -216,6 +221,9 @@ contextMenu(event) {
     if (!this.gameRunning) {
         if (this.maze.loaded) {
             this.scene3D.add(this.maze.object, this.lights.object);
+            this.maze.object.visible = false;
+            this.thirdPersonViewCamera.object.position.set(0, 40, 50);   
+            this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
             this.clock = new THREE.Clock();
             this.gameRunning = true;
         }

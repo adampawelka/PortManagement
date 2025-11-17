@@ -2,6 +2,7 @@ import * as THREE from "three";
 import Ground from "./ground.js";
 import Wall from "./wall.js";
 
+
 /*
  * parameters = {
  *  url: String,

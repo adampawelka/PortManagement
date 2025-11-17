@@ -1,37 +1,68 @@
 {
-  "portName": "ISEPorto",
-  "mapDimensions": {
-    "width": 2000,
-    "length": 1000
-  },
+  "portName": "ISEPorto Canal Largo",
   "facilities": [
     {
       "type": "dock",
-      "id": "DOCK_01", 
-      "name": "Dock A - Containers",
-      "position": { "x": 50, "y": 0, "z": 0 },
-      "dimensions": { "length": 400, "width": 30, "depth": 15 }
+      "id": "SHORE_LEFT", 
+      "name": "Orilla Izquierda",
+      "position": { "x": -15, "y": 0, "z": -20 }, 
+      "dimensions": { "length": 150, "width": 10, "depth": 2 }
     },
     {
       "type": "dock",
-      "id": "DOCK_02", 
-      "name": "Dock B - General Cargo",
-      "position": { "x": 500, "y": 0, "z": 0 },
-      "dimensions": { "length": 300, "width": 30, "depth": 12 }
+      "id": "SHORE_RIGHT", 
+      "name": "Orilla Derecha",
+      "position": { "x": 15, "y": 0, "z": -20 }, 
+      "dimensions": { "length": 150, "width": 10, "depth": 2 }
     },
     {
-      "type": "storageArea",
-      "id": "YARD_A",
-      "name": "Container Yard A",
-      "position": { "x": 100, "y": 0, "z": 150 },
-      "dimensions": { "length": 200, "width": 300 }
+      "type": "vessel",
+      "id": "MSC_MARIA", 
+      "name": "Carguero Estándar",
+      "position": { "x": 0, "y": 0, "z": 20 }, 
+      "dimensions": { "length": 25, "width": 6, "depth": 4 }
     },
     {
-      "type": "storageArea",
-      "id": "WAREHOUSE_B", 
-      "name": "Warehouse B",
-      "position": { "x": 550, "y": 0, "z": 100 },
-      "dimensions": { "length": 150, "width": 100 }
+      "type": "vessel",
+      "id": "OIL_TANKER", 
+      "name": "Gran Petrolero",
+      "position": { "x": -2, "y": 0, "z": -40 }, 
+      "dimensions": { "length": 40, "width": 8, "depth": 5 }
+    },
+    {
+      "type": "crane",
+      "id": "CRANE_01", 
+      "name": "Grúa Pórtico 1",
+      "position": { "x": -12, "y": 2, "z": 20 }, 
+      "dimensions": { "length": 4, "width": 4, "depth": 12 }
+    },
+    {
+      "type": "crane",
+      "id": "CRANE_02", 
+      "name": "Grúa Pórtico 2",
+      "position": { "x": -12, "y": 2, "z": -30 }, 
+      "dimensions": { "length": 4, "width": 4, "depth": 12 }
+    },
+    {
+      "type": "container",
+      "id": "CONT_01", 
+      "name": "Contenedor Rojo",
+      "position": { "x": -15, "y": 1, "z": 5 }, 
+      "dimensions": { "length": 4, "width": 2, "depth": 2 }
+    },
+    {
+      "type": "container",
+      "id": "CONT_02", 
+      "name": "Contenedor Azul",
+      "position": { "x": -15, "y": 3, "z": 5 }, 
+      "dimensions": { "length": 4, "width": 2, "depth": 2 }
+    },
+    {
+      "type": "container",
+      "id": "CONT_03", 
+      "name": "Contenedor Amarillo",
+      "position": { "x": -15, "y": 1, "z": 0 }, 
+      "dimensions": { "length": 4, "width": 2, "depth": 2 }
     }
   ]
 }
