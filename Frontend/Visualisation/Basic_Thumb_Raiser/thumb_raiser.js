@@ -17,6 +17,7 @@ import Maze from "./maze.js";
 import Lights from "./lights.js";
 import Camera from "./camera.js";
 import { PortBuilder } from "../PortBuilder.js";
+import CameraController from "./mouse.js";
 
 /*
  * generalParameters = {
@@ -111,7 +112,6 @@ export default class ThumbRaiser {
         this.thirdPersonViewCamera = new Camera(this.thirdPersonViewCameraParameters, window.innerWidth, window.innerHeight);
         this.camera = this.thirdPersonViewCamera;
 
-
         this.theCanvas = document.getElementById("myCanvas");
 
         // Create a renderer and turn on shadows in the renderer
@@ -124,6 +124,8 @@ export default class ThumbRaiser {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         //document.body.appendChild(this.renderer.domElement);
+
+        this.cameraController = new CameraController(this.camera.object, this.renderer);
 
         // Set the mouse move action (none)
         this.changeCameraDistance = false;
@@ -144,18 +146,6 @@ export default class ThumbRaiser {
 
         // Register the event handler to be called on key release
         document.addEventListener("keyup", event => this.keyChange(event, false));
-
-        // Register the event handler to be called on mouse down
-        this.renderer.domElement.addEventListener("mousedown", event => this.mouseDown(event));
-
-        // Register the event handler to be called on mouse move
-        this.renderer.domElement.addEventListener("mousemove", event => this.mouseMove(event));
-
-        // Register the event handler to be called on mouse up
-        this.renderer.domElement.addEventListener("mouseup", event => this.mouseUp(event));
-
-        // Register the event handler to be called on mouse wheel
-        this.renderer.domElement.addEventListener("wheel", event => this.mouseWheel(event));
 
         // Register the event handler to be called on context menu
         this.renderer.domElement.addEventListener("contextmenu", event => this.contextMenu(event));
