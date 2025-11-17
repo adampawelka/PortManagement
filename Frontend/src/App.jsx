@@ -12,90 +12,96 @@ import Scheduling from "./pages/Scheduling.jsx";
 import Schedule from "./pages/Schedule.jsx";
 import UserManagement from "./pages/UserManagement.jsx";
 
-// Create and export the UserContext (so Sidebar or other components can use it)
+import { useApi } from "./services/api.js";
+
 export const UserContext = createContext(null);
 export const useUser = () => useContext(UserContext);
 
-
-const fetchUserRole = async (iamUserId, token) => {
-  const res = await fetch(`http://localhost:5000/api/users/${iamUserId}/role-status`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-  });
-
-  if (!res.ok)
-    return null; // user not found or other error
+// ---------------------------
+// REAL API CALL (will be re-enabled later)
+// ---------------------------
+const fetchUserRole = async (iamUserId, apiFetch) => {
+  const res = await apiFetch(`/api/users/${iamUserId}/role-status`);
+  if (!res.ok) return null;
   return res.json(); // { role, status }
 };
 
-
+// ---------------------------
+// PROTECTED ROUTE
+// ---------------------------
 const ProtectedRoute = ({ children, requiredRoles = [] }) => {
-  const { isAuthenticated, isLoading, getAccessTokenSilently, user } = useAuth0();
+  const { isAuthenticated, isLoading, user } = useAuth0();
+  const { apiFetch } = useApi();
+
   const [loadingUser, setLoadingUser] = useState(true);
-  const [userData, setUserData] = useState(null); // { role, status }
+  const [userData, setUserData] = useState(null);
   const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
-  const loadUserData = async () => {
-    if (!isAuthenticated) {
-      setLoadingUser(false);
-      return;
-    }
-
-    try {
-      const token = await getAccessTokenSilently();
-       const data = await fetchUserRole(user.sub, token); // uncomment for real API
-      // const data = {
-      //   role: "Administrator",
-      //   status: "Active",
-      // };
-      setUserData(data);
-
-      if (!data || data.status !== "Active" || !requiredRoles.includes(data.role)) {
-        setAccessDenied(true);
+    const loadUserData = async () => {
+      if (!isAuthenticated) {
+        setLoadingUser(false);
+        return;
       }
-    } catch (err) {
-      console.error(err);
-      setAccessDenied(true);
-    } finally {
-      setLoadingUser(false);
-    }
-  };
 
-  loadUserData();
-}, [isAuthenticated, getAccessTokenSilently, user?.sub, requiredRoles]);
+      try {
+        // ----------------------------------------
+        // TEMPORARY DEVELOPMENT USER
+        // ----------------------------------------
+        const data1 = {
+          role: "LogisticsOperator",   // CHANGE HERE THE ROLE (Administrator, LogisticsOperator,...)
+          status: "Active"
+        };
 
+        // ----------------------------------------
+        // REAL API CALL — use this when BD works:
+        // const data1 = await fetchUserRole(user.sub, apiFetch);
+        // ----------------------------------------
+
+        setUserData(data1);
+
+        if (!data1 || data1.status !== "Active" || !requiredRoles.includes(data1.role)) {
+          setAccessDenied(true);
+        }
+      } catch (err) {
+        console.error("Error fetching role:", err);
+        setAccessDenied(true);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    loadUserData();
+  }, [isAuthenticated, user?.sub, requiredRoles, apiFetch]);
 
   if (isLoading || loadingUser)
     return <div>Loading...</div>;
+
   if (!isAuthenticated)
     return <Navigate to="/login" replace />;
+
   if (accessDenied) {
     return (
       <div>
-        Access Denied. Please contact an administrator.
+        <h2>Access Denied</h2>
         {userData ? (
-          <div>
+          <>
             <p>Role: {userData.role}</p>
             <p>Status: {userData.status}</p>
-          </div>
+          </>
         ) : (
-          <div>
-            <p>User not registered in the system.</p>
-          </div>
+          <p>User not registered in system.</p>
         )}
       </div>
     );
   }
 
-  // At this point, user is authenticated and authorized
   return <UserContext.Provider value={userData}>{children}</UserContext.Provider>;
 };
 
-
-
+// ---------------------------
+// DEBUG INFO
+// ---------------------------
 const DebugUserInfo = () => {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
   const [token, setToken] = useState("");
@@ -106,7 +112,6 @@ const DebugUserInfo = () => {
         try {
           const t = await getAccessTokenSilently();
           setToken(t);
-          console.log("🔐 Access Token:", t);
         } catch (err) {
           console.error("Failed to retrieve token:", err);
         }
@@ -121,7 +126,6 @@ const DebugUserInfo = () => {
     <div
       style={{
         background: "#f8f8f8",
-        color: "#333",
         padding: "10px",
         fontSize: "12px",
         marginTop: "10px",
@@ -129,41 +133,37 @@ const DebugUserInfo = () => {
       }}
     >
       <strong>User Info (debug view):</strong>
-      <br />
       <ul>
         <li><strong>ID (sub):</strong> {user.sub}</li>
         <li><strong>Name:</strong> {user.name}</li>
         <li><strong>Email:</strong> {user.email}</li>
-        {user.nickname && <li><strong>Nickname:</strong> {user.nickname}</li>}
       </ul>
-      {process.env.NODE_ENV === "development" && (
-        <>
-          <strong>Access Token (debug view):</strong>
-          <br />
-          {token || "Fetching token..."}
-        </>
-      )}
+
+      <strong>Access Token:</strong>
+      <br />
+      {token || "Fetching token..."}
     </div>
   );
 };
 
+// ---------------------------
+// MAIN APP
+// ---------------------------
 const App = () => {
   return (
     <Routes>
+
       {/* Public Login Page */}
       <Route
         path="/login"
         element={
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100vh",
-              textAlign: "center",
-            }}
-          >
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh"
+          }}>
             <h1>Login</h1>
             <LoginButton />
           </div>
@@ -175,7 +175,12 @@ const App = () => {
         path="/*"
         element={
           <ProtectedRoute
-            requiredRoles={["Administrator", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}
+            requiredRoles={[
+              "Administrator",
+              "PortAuthorityOfficer",
+              "ShippingAgentRepresentative",
+              "LogisticsOperator"
+            ]}
           >
             <GlobalLayout>
               <Routes>
@@ -184,15 +189,14 @@ const App = () => {
                 <Route path="/scheduling" element={<Scheduling />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/user-management" element={<UserManagement />} />
+
                 <Route path="*" element={<div>Page not found</div>} />
               </Routes>
 
-              {/* Logout button */}
               <div style={{ textAlign: "center", marginTop: "20px" }}>
                 <LogoutButton />
               </div>
 
-              {/* Debug: show user info */}
               <DebugUserInfo />
             </GlobalLayout>
           </ProtectedRoute>

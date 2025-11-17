@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Qualifications;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class QualificationsController : ControllerBase
