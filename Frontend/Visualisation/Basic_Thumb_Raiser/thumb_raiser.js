@@ -96,6 +96,7 @@ export default class ThumbRaiser {
         // Create a 3D scene (the game itself)
         this.scene3D = new THREE.Scene();
 
+        // Create the port
         const portBuilder = new PortBuilder(this.scene3D);
         portBuilder.loadPortData();
 
@@ -221,8 +222,8 @@ contextMenu(event) {
     if (!this.gameRunning) {
         if (this.maze.loaded) {
             this.scene3D.add(this.maze.object, this.lights.object);
-            this.maze.object.visible = false;
-            this.thirdPersonViewCamera.object.position.set(0, 40, 50);   
+            this.maze.object.visible = false; // Hide the maze to show the Port
+            this.thirdPersonViewCamera.object.position.set(0, 30, 54); // X = 60, Y = 15, Z = 0 if we want to see the side face
             this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
             this.clock = new THREE.Clock();
             this.gameRunning = true;
