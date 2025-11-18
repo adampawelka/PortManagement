@@ -49,7 +49,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
         // TEMPORARY DEVELOPMENT USER
         // ----------------------------------------
         const data1 = {
-          role: "LogisticsOperator",   // CHANGE HERE THE ROLE (Administrator, LogisticsOperator,...)
+          role: "LogisticsOperator",   // CHANGE HERE THE ROLE (Administrator, LogisticsOperator...)
           status: "Active"
         };
 
