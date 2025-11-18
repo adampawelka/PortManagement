@@ -9,7 +9,7 @@ The goal is to provide a consistent and unified layout across the entire SPA to 
 - **Framework**: React
 - **Routing**: React Router
 - **Localization**: i18next
-- **Testing**: Jest for unit tests, Cypress or Playwright for end-to-end tests
+- **Testing**: Jest for unit tests
 - **Styling**: CSS
 
 ## 3. Features
@@ -29,18 +29,32 @@ The goal is to provide a consistent and unified layout across the entire SPA to 
 - Styled with a unified design system or component library.
 - Ensures consistent typography, colors, and spacing across all pages.
 
-## 4. Testing - TODO
+## 4. Testing
 
 ### Unit Testing
 
-### Integration Testing ??
+**Header Component:**
+- Tested that the logo and app name were rendered correctly.
+- Ensured that the primary navigation links (like Home, About, etc.) were visible and functioning as expected.
 
-### End-to-end Testing ??
+**Primary Navigation:**
+- Verified that the Primary Navigation component was always visible and contained the correct links based on user roles (Admin, User).
+- Tested responsiveness to ensure that the layout adapted correctly for tablet and mobile screens.
 
-Since the tests were implemented in the last stage, the authorization had been already implemented, that's why login was a part of end-to-end testing sequence.
+**Language Switcher:**
+- Verified that the language switcher button rendered correctly.
+- Ensured that clicking the language switcher button toggled between languages (EN/PT) and updated the UI components accordingly.
+
+### Integration Testing 
+
+**Role-Based Navigation:**
+- Verified that different user roles (e.g., Admin, User) saw the correct navigation links.
+- Admin users had access to additional sections like Docks, while regular users only saw standard content.
+
+Disclaimer: Since the tests were implemented in the last stage, the authorization had been already implemented, that's why login was a part of the testing.
 
 ## 5. Demonstration
-Run the Port Management application in web browser and [...].
+Run the Port Management application in web browser with `http://localhost:5173`
 
 ## 6. Observations
 
