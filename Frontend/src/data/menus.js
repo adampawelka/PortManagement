@@ -80,7 +80,7 @@ export const menuItems = [
     name: "Docks",
     key: "docks",
     path: "/docks",
-    roles: ["admin", "user"],
+    roles: ["admin"],
     subMenu: [
       {
         name: "Dock List",

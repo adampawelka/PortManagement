@@ -1,0 +1,15 @@
+
+> package@0.0.0 test
+> jest
+
+PASS src/__tests__/SPA_Layout.test.jsx
+  App Integration Tests
+    Unit Tests
+      ✓ LoginButton jest widoczny na stronie logowania i wywołuje Auth0 (294 ms)
+      ✓ Admin widzi Home w PrimaryNavigation i Visualization w Sidebar (133 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        1.891 s, estimated 4 s
+Ran all test suites.
