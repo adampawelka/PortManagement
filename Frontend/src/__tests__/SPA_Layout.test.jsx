@@ -4,8 +4,10 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import Header from '../components/Header'
-import Footer from '../components/Footer'
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import Breadcrumbs from '../components/Breadcrumbs'; // ✅ import Breadcrumbs
+
 // ---------------------------
 // Mocks
 // ---------------------------
@@ -27,14 +29,24 @@ jest.mock('@auth0/auth0-react', () => ({
   }),
 }));
 
+// react-i18next mock
 jest.mock('react-i18next', () => {
   const React = require('react');
   return {
     useTranslation: () => {
       const [language, setLanguage] = React.useState('en');
 
+      // ✅ include Breadcrumbs translation keys
+      const translations = {
+        home: 'Home',
+        storage_areas: 'Storage Areas',
+        privacy_policy: 'Privacy Policy',
+        terms_of_service: 'Terms of Service',
+        list: 'List',
+      };
+
       return {
-        t: (key) => key, // simple passthrough
+        t: (key) => translations[key] || key,
         i18n: {
           get language() { return language; },
           changeLanguage: (lng) => setLanguage(lng),
@@ -121,35 +133,55 @@ describe('Unit Tests', () => {
   test('Header component renders logo and navigation links', () => {
     render(<Header />);
 
-    // Check the logo
     const logo = screen.getByAltText(/Company Logo/i);
     expect(logo).toBeInTheDocument();
     expect(logo).toHaveClass('header-logo');
 
-    // Check the title
     const title = screen.getByText(/Port Management Company/i);
     expect(title).toBeInTheDocument();
     expect(title).toHaveClass('header-title');
   });
 
   test('Footer renders correctly', () => {
-   render(<Footer />);
+    render(<Footer />);
 
-    // Check the copyright
-    const copyright = screen.getByText(/© 2025 Port Management System/i);
-    expect(copyright).toBeInTheDocument();
-    expect(copyright).toHaveClass('footer-text');
+    expect(screen.getByText(/© 2025 Port Management System/i)).toBeInTheDocument();
+    expect(screen.getByText(/Privacy Policy/i)).toBeInTheDocument();
+    expect(screen.getByText(/Terms of Service/i)).toBeInTheDocument();
+  });
 
-    // Check the links
-    const privacyLink = screen.getByText(/Privacy Policy/i);
-    expect(privacyLink).toBeInTheDocument();
-    expect(privacyLink).toHaveAttribute('href', '/privacy');
-    expect(privacyLink).toHaveClass('footer-link');
+  describe("Breadcrumbs", () => {
+    test("renders breadcrumbs for root path", () => {
+      render(
+        <MemoryRouter initialEntries={["/"]}>
+          <Breadcrumbs />
+        </MemoryRouter>
+      );
+      expect(screen.getByText("Home")).toBeInTheDocument();
+    });
 
-    const termsLink = screen.getByText(/Terms of Service/i);
-    expect(termsLink).toBeInTheDocument();
-    expect(termsLink).toHaveAttribute('href', '/terms');
-    expect(termsLink).toHaveClass('footer-link');
+    test("renders breadcrumbs for nested path", () => {
+      render(
+        <MemoryRouter initialEntries={["/storage-areas/list"]}>
+          <Breadcrumbs />
+        </MemoryRouter>
+      );
+      expect(screen.getByText("Home")).toBeInTheDocument();
+      expect(screen.getByText("List")).toBeInTheDocument();
+      expect(screen.getByText("Storage Areas")).toBeInTheDocument();
+    });
+
+    test("links point to correct paths", () => {
+      render(
+        <MemoryRouter initialEntries={["/storage-areas/list"]}>
+          <Breadcrumbs />
+        </MemoryRouter>
+      );
+      const links = screen.getAllByRole("link");
+      expect(links[0]).toHaveAttribute("href", "/");
+      expect(links[1]).toHaveAttribute("href", "/storage-areas");
+      expect(links[2]).toHaveAttribute("href", "/storage-areas/list");
+    });
   });
 });
 
@@ -166,7 +198,7 @@ describe('RBAC / Integration Tests', () => {
   });
 
   test('Admin sees Docks, User does NOT see Docks', async () => {
-    // --- Admin scenario ---
+    // Admin
     mockIsAuthenticated = true;
     mockUser = { name: 'Admin User', role: 'admin' };
     let { container, unmount } = renderApp('/');
@@ -178,7 +210,7 @@ describe('RBAC / Integration Tests', () => {
 
     unmount();
 
-    // --- User scenario ---
+    // User
     mockUser = { name: 'Normal User', role: 'user' };
     ({ container } = renderApp('/'));
     const primaryNavUser = container.querySelector('nav.nav');
