@@ -36,17 +36,21 @@ jest.mock('react-i18next', () => {
     useTranslation: () => {
       const [language, setLanguage] = React.useState('en');
 
-      // ✅ include Breadcrumbs translation keys
       const translations = {
-        home: 'Home',
-        storage_areas: 'Storage Areas',
-        privacy_policy: 'Privacy Policy',
-        terms_of_service: 'Terms of Service',
-        list: 'List',
+        privacy_policy: { en: 'Privacy Policy', pt: 'Política de Privacidade' },
+        terms_of_service: { en: 'Terms of Service', pt: 'Termos de Serviço' },
+        home: { en: 'Home', pt: 'Início' },
+        list: { en: 'List', pt: 'Lista' },
+        storage_areas: { en: 'Storage Areas', pt: 'Áreas de Armazenamento' },
+        visualisation: { en: 'Visualisation', pt: 'Visualização' },
+        docks: { en: 'Docks', pt: 'Docas' },
       };
 
+      const t = (key) => translations[key]?.[language] || key;
+
+      // Return an object compatible with your components
       return {
-        t: (key) => translations[key] || key,
+        t,
         i18n: {
           get language() { return language; },
           changeLanguage: (lng) => setLanguage(lng),
@@ -55,6 +59,9 @@ jest.mock('react-i18next', () => {
     },
   };
 });
+
+
+
 
 // ---------------------------
 // Helpers
@@ -219,4 +226,114 @@ describe('RBAC / Integration Tests', () => {
       expect(within(primaryNavUser).queryByText(/Docks/i)).not.toBeInTheDocument();
     });
   });
+
+  describe("Full navigation flow", () => {
+
+    beforeEach(() => {
+      mockIsAuthenticated = true;
+      mockUser = { name: 'Admin', role: 'admin' };
+    });
+
+    test('Primary navigation link renders correct page content', async () => {
+      const { container } = renderApp('/');
+
+      // Query the primary nav by class
+      const primaryNav = container.querySelector('nav.nav'); // adjust class if needed
+      expect(primaryNav).toBeInTheDocument();
+
+      // Get all matching links and pick the one inside primaryNav
+      const vesselsLink = within(primaryNav).getAllByText(/Vessels/i)[0];
+      await userEvent.click(vesselsLink);
+
+      // Wait for the page content to render
+      await waitFor(() => {
+        // Pick the element outside nav to avoid the link itself
+        const pageContent = screen.getAllByText(/Vessels/i).find(el => !primaryNav.contains(el));
+        expect(pageContent).toBeInTheDocument();
+      });
+    });
+
+    test('Sidebar link renders Visualisation page content', async () => {
+      const { container } = renderApp('/');
+
+      // Query the sidebar
+      const sidebar = container.querySelector('.sidebar');
+      expect(sidebar).toBeInTheDocument();
+
+      const visualisationLink = within(sidebar).getAllByText(/Visualisation/i)[0];
+      await userEvent.click(visualisationLink);
+
+      // Wait for the Visualisation page content
+      await waitFor(() => {
+        const pageContent = screen.getAllByText(/Visualisation/i).find(el => !sidebar.contains(el));
+        expect(pageContent).toBeInTheDocument();
+      });
+    });
+
+    });
+   
+test('Language switch updates texts throughout the layout', async () => {
+  // Mock user authentication (assuming you have a mock authentication function)
+  mockIsAuthenticated = true;
+
+  // Render the app and ensure it's in the logged-in state
+  const { container } = renderApp('/');
+
+  // Wait for the language switcher to appear (i.e., only visible after login)
+  const langButton = await screen.findByRole('button', { name: /en|pt/i });
+
+  // Ensure the button initially shows 'PT' when the language is 'en'
+  expect(langButton).toHaveTextContent('PT');
+
+  // Check for 'Home' text initially
+  const homeElements = screen.getAllByText('Home');
+  expect(homeElements).toHaveLength(3); // Expect 'Home' to appear in multiple places (e.g., nav, header, etc.)
+
+  // Switch to Portuguese (click the button)
+  await userEvent.click(langButton);
+
+  // Wait for the language change to propagate
+  await waitFor(() => {
+    // After switching, the button should show 'EN'
+    expect(langButton).toHaveTextContent('EN');
+  });
+
+  // Wait for the 'Início' text to appear and 'Home' to disappear
+  await waitFor(() => {
+    expect(screen.getByText(/Início/i)).toBeInTheDocument(); // 'Início' should be visible after switching
+    expect(screen.queryByText('Home')).not.toBeInTheDocument(); // 'Home' should no longer be visible
+  });
+
+  // Switch back to English
+  await userEvent.click(langButton);
+
+  // Wait for the language change to propagate again
+  await waitFor(() => {
+    // After switching back, the button should show 'PT'
+    expect(langButton).toHaveTextContent('PT');
+  });
+
+  // Wait for the 'Home' text to appear again and 'Início' to disappear
+  await waitFor(() => {
+    expect(screen.getByText('Home')).toBeInTheDocument(); // 'Home' should be visible again after switching back
+    expect(screen.queryByText('Início')).not.toBeInTheDocument(); // 'Início' should no longer be visible
+  });
 });
+
+
+  test('Redirects unauthenticated users from internal pages', async () => {
+    mockIsAuthenticated = false; // user is not logged in
+
+    // Try to access a protected page, e.g., Visualisation
+    renderApp('/visualisation');
+
+    // Wait for redirection to /login
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Log In/i })).toBeInTheDocument();
+    });
+
+    // Optionally, check that protected content is NOT rendered
+    expect(screen.queryByText(/Visualisation/i)).not.toBeInTheDocument();
+  });
+});
+
