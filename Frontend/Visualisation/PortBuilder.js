@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 export class PortBuilder {
     constructor(scene) {
         this.scene = scene;
-        this.loader = new GLTFLoader(); // Inicializamos cargador
+        this.loader = new GLTFLoader(); // To initialize models motor
     }
 
     async loadPortData() {
