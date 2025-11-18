@@ -7,8 +7,8 @@ services:
     container_name: portmanagement-db
     environment:
       POSTGRES_DB: PortManagementDB
-      POSTGRES_USER: postgre
-      POSTGRES_PASSWORD: DevPassword123!
+      POSTGRES_USER: portapp
+      POSTGRES_PASSWORD: PortManagement123!
     ports:
       - "5432:5432"
     volumes:
@@ -24,7 +24,8 @@ services:
       dockerfile: Dockerfile
     container_name: portmanagement-api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=PortManagementDB;Username=portapp;Password=PortManagement123!
       - Auth0__Domain=3dl-e-04.eu.auth0.com
       - Auth0__Audience=http://3dl-e-04api

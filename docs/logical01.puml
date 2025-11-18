@@ -14,7 +14,7 @@ rectangle "Port Management System" as PMS {
 
 rectangle "Identity Provider\n(Google/Microsoft/Facebook)" as IDP
 rectangle "Email Service" as Email
-rectangle "Document Storage" as Docs
+
 
 PAO --> PMS : Manages facilities,\napproves visits,\nmanages agents
 SAR --> PMS : Submits vessel\nvisit notifications
@@ -23,7 +23,6 @@ Admin --> PMS : Manages users\nand permissions
 
 PMS --> IDP : Authenticates users
 PMS --> Email : Sends notifications
-PMS --> Docs : Stores documents
 
 note right of PMS
   Core system for managing:

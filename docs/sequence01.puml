@@ -1,38 +1,41 @@
-@startuml
+@startuml sequence01
 skinparam monochrome true
+autonumber
+
+title Sequence View - Level 1\nSubmit Vessel Visit Notification (System-Level Flow)
 
 actor "Shipping Agent\nRepresentative" as SAR
 participant "Port Management\nSystem" as PMS
-actor "Port Authority\nOfficer" as PAO
-actor "Logistics\nOperator" as LO
+participant "Identity\nProvider" as IDP
+participant "Email\nService" as Email
 
-== Vessel Visit Notification Process ==
+== Authentication ==
+SAR -> PMS: Access system
+PMS -> IDP: Authenticate user
+IDP -> IDP: Verify credentials
+IDP --> PMS: Return access token
+PMS --> SAR: Grant access with role-based UI
 
-SAR -> PMS : 1. Submit Vessel Visit Notification\n(with cargo manifest)
-activate PMS
-PMS --> SAR : Notification submitted (IN_PROGRESS)
-deactivate PMS
+== Submit Vessel Visit Notification ==
+SAR -> PMS: Fill visit notification form\n(vessel, ETA/ETD, cargo manifest)
+SAR -> PMS: Submit notification
+PMS -> PMS: Validate data\n(ISO 6346 container IDs,\nbusiness rules)
+PMS -> PMS: Save notification\n(status: "submitted")
+PMS --> SAR: Display success message
 
-PAO -> PMS : 2. Review notification
-activate PMS
-PMS --> PAO : Display notification details
-deactivate PMS
+== View Notification Status ==
+SAR -> PMS: View my notifications
+PMS -> PMS: Retrieve notifications\nfor this representative
+PMS --> SAR: Display notifications list\nwith current status
 
-PAO -> PMS : 3. Approve & assign dock
-activate PMS
-PMS --> PAO : Visit approved
-PMS --> SAR : Notification: Visit approved
-deactivate PMS
-
-LO -> PMS : 4. Plan operations & allocate resources
-activate PMS
-PMS --> LO : Schedule created
-deactivate PMS
-
-LO -> PMS : 5. Execute tasks
-activate PMS
-PMS --> LO : Task status updates
-deactivate PMS
-
+note right of PMS
+  System manages complete
+  visit lifecycle:
+  - In Progress
+  - Submitted
+  - Pending Approval
+  - Approved (with dock)
+  - Rejected (with reason)
+end note
 
 @enduml

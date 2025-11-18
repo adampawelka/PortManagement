@@ -1,56 +1,36 @@
 @startuml
-skinparam monochrome true
-skinparam linetype ortho
-skinparam shadowing false
+!include <C4/C4_Container>
 
-title Implementation View - Level 2 (Sub-Modules)
-
-folder "Controllers" {
-    [ShippingAgentsController.cs]
-    [VesselsController.cs]
-    [FacilitiesController.cs]
-}
-
-folder "Domain" {
-    folder "ShippingAgents" {
-        [ShippingAgentOService.cs]
-        [ShippingAgentOrganization.cs]
-        [ShippingAgentRepresentative.cs]
+title Implementation View - Level 2
+Container_Boundary(pm, "Port Management System") {
+    Container_Boundary(frontend, "Frontend Layer") {
+        Container(spa, "Single Page Application", "React")
+        Container(viz, "3D Visualization Service", "Three.js")
     }
-    folder "Vessels" {
-        [VesselService.cs]
-        [Vessel.cs]
-        [VesselType.cs]
+
+    Container_Boundary(backend, "Backend Layer") {
+        Container(api, "Backend API Module", ".NET Core")
+        Container(scheduling, "Scheduling API Module", ".NET Core + Prolog")
     }
-    folder "Facilities" {
-        [FacilityService.cs]
-        [Dock.cs]
-        [StorageArea.cs]
+
+    Container_Boundary(data, "Data Layer") {
+        ContainerDb(db, "Relational Database", "PostgreSQL")
+    }
+
+    Container_Boundary(external, "External Services") {
+        Container(iam, "Identity Provider", "Google/Microsoft", "Auth0 authentication")
     }
 }
 
-folder "Infrastructure" {
-    folder "ShippingAgents" {
-        [ShippingAgentORepository.cs]
-        [ShippingAgentRRepository.cs]
-        [ShippingAgentOEntityTypeConfiguration.cs]
-        [ShippingAgentREntityTypeConfiguration.cs]
-    }
-    folder "Vessels" {
-        [VesselRepository.cs]
-        [VesselEntityTypeConfiguration.cs]
-    }
-    folder "Facilities" {
-        [FacilityRepository.cs]
-        [DockEntityTypeConfiguration.cs]
-    }
-    [DDDSample1DbContext.cs]
-}
+Rel(spa, api, "Consumes", "HTTPS/REST")
+Rel(spa, scheduling, "Requests schedules", "HTTPS/REST")
+Rel(spa, viz, "Loads 3D scene", "HTTPS/WebGL")
+Rel(spa, iam, "Authenticates", "Auth0")
+
+Rel(api, db, "Reads/Writes", "EF Core/ADO.NET")
+Rel(scheduling, api, "Consumes data", "HTTPS/REST")
+Rel(viz, api, "Fetches layout data", "HTTPS/REST")
 
 
-ShippingAgentsController.cs --> ShippingAgentOService.cs : Depends on
-VesselsController.cs --> VesselService.cs : Depends on
-ShippingAgentOService.cs --> ShippingAgentORepository.cs : Injects
-ShippingAgentOService.cs --> ShippingAgentRRepository.cs : Injects
-VesselService.cs --> VesselRepository.cs : Injects
+
 @enduml
