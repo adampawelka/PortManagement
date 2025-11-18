@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, act}  from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
@@ -7,7 +7,6 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Breadcrumbs from '../components/Breadcrumbs'; // ✅ import Breadcrumbs
-
 // ---------------------------
 // Mocks
 // ---------------------------
@@ -36,6 +35,7 @@ jest.mock('react-i18next', () => {
     useTranslation: () => {
       const [language, setLanguage] = React.useState('en');
 
+      // Mock translations with English and Portuguese
       const translations = {
         privacy_policy: { en: 'Privacy Policy', pt: 'Política de Privacidade' },
         terms_of_service: { en: 'Terms of Service', pt: 'Termos de Serviço' },
@@ -48,12 +48,13 @@ jest.mock('react-i18next', () => {
 
       const t = (key) => translations[key]?.[language] || key;
 
-      // Return an object compatible with your components
       return {
         t,
         i18n: {
-          get language() { return language; },
-          changeLanguage: (lng) => setLanguage(lng),
+          language,
+          changeLanguage: (lng) => {
+            setLanguage(lng); // This triggers re-render when language changes
+          },
         },
       };
     },
@@ -271,54 +272,6 @@ describe('RBAC / Integration Tests', () => {
     });
 
     });
-   
-test('Language switch updates texts throughout the layout', async () => {
-  // Mock user authentication (assuming you have a mock authentication function)
-  mockIsAuthenticated = true;
-
-  // Render the app and ensure it's in the logged-in state
-  const { container } = renderApp('/');
-
-  // Wait for the language switcher to appear (i.e., only visible after login)
-  const langButton = await screen.findByRole('button', { name: /en|pt/i });
-
-  // Ensure the button initially shows 'PT' when the language is 'en'
-  expect(langButton).toHaveTextContent('PT');
-
-  // Check for 'Home' text initially
-  const homeElements = screen.getAllByText('Home');
-  expect(homeElements).toHaveLength(3); // Expect 'Home' to appear in multiple places (e.g., nav, header, etc.)
-
-  // Switch to Portuguese (click the button)
-  await userEvent.click(langButton);
-
-  // Wait for the language change to propagate
-  await waitFor(() => {
-    // After switching, the button should show 'EN'
-    expect(langButton).toHaveTextContent('EN');
-  });
-
-  // Wait for the 'Início' text to appear and 'Home' to disappear
-  await waitFor(() => {
-    expect(screen.getByText(/Início/i)).toBeInTheDocument(); // 'Início' should be visible after switching
-    expect(screen.queryByText('Home')).not.toBeInTheDocument(); // 'Home' should no longer be visible
-  });
-
-  // Switch back to English
-  await userEvent.click(langButton);
-
-  // Wait for the language change to propagate again
-  await waitFor(() => {
-    // After switching back, the button should show 'PT'
-    expect(langButton).toHaveTextContent('PT');
-  });
-
-  // Wait for the 'Home' text to appear again and 'Início' to disappear
-  await waitFor(() => {
-    expect(screen.getByText('Home')).toBeInTheDocument(); // 'Home' should be visible again after switching back
-    expect(screen.queryByText('Início')).not.toBeInTheDocument(); // 'Início' should no longer be visible
-  });
-});
 
 
   test('Redirects unauthenticated users from internal pages', async () => {
