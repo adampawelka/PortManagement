@@ -86,7 +86,7 @@ export const menuItems = [
         name: "Dock List",
         key: "dock_list",
         path: "/docks/list",
-        roles: ["admin", "user", "guest"],
+        roles: ["admin, guest"],
       },
       {
         name: "Add New Dock",
@@ -98,7 +98,7 @@ export const menuItems = [
         name: "Search",
         key: "search",
         path: "/docks/search",
-        roles: ["admin", "user", "guest"],
+        roles: ["admin"],
       },
     ],
   },
