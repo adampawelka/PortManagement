@@ -49,9 +49,9 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
         // TEMPORARY DEVELOPMENT USER
         // ----------------------------------------
         const data1 = {
-          role: "LogisticsOperator",   // CHANGE HERE THE ROLE (Administrator, LogisticsOperator...)
+          role: "LogisticsOperator",   // CHANGE HERE THE ROLE 
           status: "Active"
-        };
+        }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
@@ -147,7 +147,7 @@ const DebugUserInfo = () => {
 };
 
 // ---------------------------
-// MAIN APP
+// MAIN APP 
 // ---------------------------
 const App = () => {
   return (
@@ -170,9 +170,9 @@ const App = () => {
         }
       />
 
-      {/* Protected Routes */}
+      {/* Protected Layout for ALL logged users */}
       <Route
-        path="/*"
+        path="/"
         element={
           <ProtectedRoute
             requiredRoles={[
@@ -182,26 +182,54 @@ const App = () => {
               "LogisticsOperator"
             ]}
           >
-            <GlobalLayout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/visualisation" element={<Visualisation />} />
-                <Route path="/scheduling" element={<Scheduling />} />
-                <Route path="/schedule" element={<Schedule />} />
-                <Route path="/user-management" element={<UserManagement />} />
-
-                <Route path="*" element={<div>Page not found</div>} />
-              </Routes>
-
-              <div style={{ textAlign: "center", marginTop: "20px" }}>
-                <LogoutButton />
-              </div>
-
-              <DebugUserInfo />
-            </GlobalLayout>
+            <GlobalLayout />
           </ProtectedRoute>
         }
-      />
+      >
+
+        {/* ROUTES PROTECTED BY ROLE (3.1.3) */}
+
+        <Route index element={<Home />} />
+
+        <Route
+          path="visualisation"
+          element={
+            <ProtectedRoute requiredRoles={["admin", "user"]}>
+              <Visualisation />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="scheduling"
+          element={
+            <ProtectedRoute requiredRoles={["LogisticsOperator"]}>
+              <Scheduling />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="schedule"
+          element={
+            <ProtectedRoute requiredRoles={["LogisticsOperator"]}>
+              <Schedule />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="user-management"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator"]}>
+              <UserManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="*" element={<div>Page not found</div>} />
+
+      </Route>
     </Routes>
   );
 };
