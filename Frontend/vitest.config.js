@@ -1,4 +1,4 @@
-// Frontend/vitest.config.js
+// npm test
 import { defineConfig } from 'vite';
 
 export default defineConfig({
@@ -7,9 +7,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.js'],
     
-    // --- NUEVA CONFIGURACIÓN PARA EL REPORTE ---
-    reporters: ['default', 'junit'], // Use 'default' (console) and 'junit' reporter
+    // Configuration needed to save the report
+    reporters: ['default', 'junit'], 
     outputFile: 'junit.xml',         // Name of the output file
-    // ------------------------------------------
   },
 });

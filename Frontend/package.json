@@ -8,8 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest" 
-    
+    "test": "vitest"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.8.0",
