@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="3" failures="0" errors="0" time="0.033647416">
+    <testsuite name="src/components/LoginButton.test.jsx" timestamp="2025-11-19T11:27:37.246Z" hostname="Guilles-MacBook-Air.local" tests="2" failures="0" errors="0" skipped="0" time="0.017355208">
+        <testcase classname="src/components/LoginButton.test.jsx" name="LoginButton &gt; should render the &quot;Log in&quot; button" time="0.013829083">
+        </testcase>
+        <testcase classname="src/components/LoginButton.test.jsx" name="LoginButton &gt; should call loginWithRedirect when clicked" time="0.002836166">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/components/LogoutButton.test.jsx" timestamp="2025-11-19T11:27:37.247Z" hostname="Guilles-MacBook-Air.local" tests="1" failures="0" errors="0" skipped="0" time="0.016292208">
+        <testcase classname="src/components/LogoutButton.test.jsx" name="LogoutButton &gt; should call logout function with correct return URL when clicked" time="0.015643041">
+        </testcase>
+    </testsuite>
+</testsuites>
