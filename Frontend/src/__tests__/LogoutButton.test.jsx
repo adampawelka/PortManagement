@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import LogoutButton from './LogoutButton'; 
+import LogoutButton from '../components/LogoutButton'; 
 
 // Reuse the auth0 mock
 vi.mock('@auth0/auth0-react', () => ({

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import LoginButton from './LoginButton'; 
+import LoginButton from '../components/LoginButton'; 
 
 // --- 1. Mock extern library ---
 // It simulates that useAuth0 exists
