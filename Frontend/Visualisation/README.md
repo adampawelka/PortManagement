@@ -48,7 +48,6 @@ A single rotating cube has been added to represent a placeholder 3D object and t
 
 As a System User, I want to see a 3D representation of the port structure (docks, container yards and warehouses) based on real data, so that I can visualize the physical layout accurately.
 
----
 
 ### Data Consumption & Modeling Logic
 
@@ -57,7 +56,7 @@ This module provides the necessary visual components to render the static elemen
 * **Key File Created:** `Frontend/public/port-layout.json`
 * **Modeling Technique:** Procedural Modeling (BoxGeometry) is used for basic structures (Docks, Water Plane) while the **GLTFLoader** is used for complex assets (Vessels, Cranes).
 
-### ### Component Integration & Data Flow
+### Component Integration & Data Flow
 
 * **Module Implemented:** The core logic resides in the `PortBuilder.js` class, created within the `Frontend/Visualisation` directory.
 * **Initialization:** The `PortBuilder` module is initialized in the main application loop (`thumb_raiser.js`) by passing the global Three.js scene object:
@@ -68,7 +67,7 @@ This module provides the necessary visual components to render the static elemen
 * **Data Retrieval:** The data is retrieved asynchronously via `fetch` from the static file: `/port-layout.json`.
 * **Data Mapping:** The module maps the `id`, `position`, and `dimensions` attributes from the JSON to create and position the corresponding 3D meshes (Docks, Cranes, Ships).
 
-### ### Asynchronous Loading & Error Handling
+### Asynchronous Loading & Error Handling
 
 * **Async Asset Loading:** The primary method, `loadPortData()`, is asynchronous (`async/await`) to ensure the main application thread is not blocked while:
     * Fetching the `port-layout.json` file.
@@ -76,7 +75,7 @@ This module provides the necessary visual components to render the static elemen
 * **Internal Error Handling:** A `try...catch` block is implemented within the primary loading sequence to manage potential network failures (e.g., failed `fetch`) or parsing errors in the GLB files, preventing application crashes.
 * **Scale and Positioning:** Logic was added in `loadModelForFacility` to apply specific `scale` and `yOffset` adjustments to downloaded models to correct their arbitrary units.
 
-### ### Verification and Functional Checks
+### Verification and Functional Checks
 
 * **Data Integrity Check:** Verified that the module successfully fetches and parses the data by adding console logs for each facility being built.
 * **Rendering Check:** The module successfully renders multiple object types simultaneously.
