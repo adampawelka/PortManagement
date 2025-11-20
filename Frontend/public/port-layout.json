@@ -53,40 +53,26 @@
   ],
   "materials": {
     "dock": {
-      "colorMap": "/textures/ground.jpg",
-      "normalMap": "/textures/ground-roughness.jpg",
-      "color": "#808080",
+      "colorMap": "/textures/concrete-color.jpg",
+      "normalMap": "/textures/concrete-roughness.jpg",
       "roughness": 0.8,
       "metalness": 0.1
     },
-    "vessel": {
-      "colorMap": "/textures/vessel-hull-color.jpg",
-      "normalMap": "/textures/vessel-hull-details.jpg",
-      "color": "#1a3a52",
-      "roughness": 0.4,
-      "metalness": 0.6
-    },
-    "crane": {
-      "color": "#FFD700",
-      "roughness": 0.3,
+    "water": {
+      "colorMap": "/textures/water-color.png",
+      "normalMap": "/textures/water-normal.jpg",
+      "roughness": 0.1,
       "metalness": 0.8
-    },
-    "container_stack": {
-      "colorMap": "/textures/container-color.jpg",
-      "roughnessMap": "/textures/container-roughness.jpg",
-      "color": "#C41E3A",
-      "roughness": 0.5,
-      "metalness": 0.7
     }
   },
   "lighting": {
     "ambient": {
       "color": "#ffffff",
-      "intensity": 0.4
+      "intensity": 0.5
     },
     "directional": {
       "color": "#ffffff",
-      "intensity": 0.8,
+      "intensity": 1.0,
       "position": { "x": 50, "y": 100, "z": 50 },
       "castShadow": true,
       "shadowMapSize": 2048
@@ -94,7 +80,7 @@
     "hemisphere": {
       "skyColor": "#87CEEB",
       "groundColor": "#8B7355",
-      "intensity": 0.3
+      "intensity": 0.4
     }
   }
 }

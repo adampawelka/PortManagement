@@ -1,10 +1,13 @@
 import * as THREE from "three";
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MaterialManager } from './Port_Visualisation/materials.js';
 
 export class PortBuilder {
     constructor(scene) {
         this.scene = scene;
         this.loader = new GLTFLoader(); // To initialize models motor
+        this.materialManager = new MaterialManager();
+        this.data = null;
     }
 
     async loadPortData() {
@@ -12,9 +15,9 @@ export class PortBuilder {
             this.setupLights();
 
             const response = await fetch('/port-layout.json');
-            const data = await response.json();
+            this.data = await response.json();
             
-            data.facilities.forEach(facility => {
+            this.data.facilities.forEach(facility => {
                 this.buildFacility(facility);
             });
 
@@ -39,7 +42,7 @@ export class PortBuilder {
         // (BlUE SKY)
         this.scene.background = new THREE.Color(0xa0d8ef);
         // (FOG)
-        this.scene.fog = new THREE.Fog(0xa0d8ef, 20, 135);
+        this.scene.fog = new THREE.Fog(0xa0d8ef, 32, 135);
     }
 
     buildFacility(facility) {
@@ -124,31 +127,34 @@ export class PortBuilder {
         const length = facility.dimensions.length;
         
         const geometry = new THREE.BoxGeometry(width, height, length);
-        const material = new THREE.MeshPhongMaterial({ color: 0x555555 });
+        const materialConfig = this.data.materials.dock;
+        const material = this.materialManager.createMaterial(materialConfig);
         const mesh = new THREE.Mesh(geometry, material);
 
         mesh.position.set(
             facility.position.x,
-            facility.position.y + (height / 2), 
+            facility.position.y + (height / 2),
             facility.position.z
         );
         
+        mesh.castShadow = true;
         mesh.receiveShadow = true;
+        
         this.scene.add(mesh);
     }
 
     // Make de sea
     buildWater() {
         const geometry = new THREE.PlaneGeometry(10000, 10000);
-        const material = new THREE.MeshPhongMaterial({ 
-            color: 0x0099ff, 
-            shininess: 100,
-            side: THREE.DoubleSide 
-        });
+        
+        const materialConfig = this.data.materials.water;
+        const material = this.materialManager.createMaterial(materialConfig);
+        
         const water = new THREE.Mesh(geometry, material);
-        water.rotation.x = -Math.PI / 2; 
+        water.rotation.x = -Math.PI / 2;
         water.position.y = -0.2; 
         water.receiveShadow = true;
+        
         this.scene.add(water);
     }
 }
