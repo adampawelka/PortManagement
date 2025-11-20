@@ -1,0 +1,59 @@
+/* Reset default margins and paddings, prevent horizontal scroll */
+html, body, #root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Global body styling */
+body {
+  font-family: var(--font-family-base);       /* Base font from variables */
+  background-color: var(--color-background);  /* Background color */
+  color: var(--color-text-dark);             /* Default text color */
+  font-size: clamp(0.875rem, 1.2vw, 1rem);   /* Responsive font size that scales with viewport */
+  line-height: 1.5;                           /* Better readability */
+}
+
+/* ===== Tablet adjustments ===== */
+@media (max-width: 1024px) {
+  .container 
+  { 
+    flex-direction: column; 
+    padding: clamp(12px, 3vw, 24px); 
+  }
+  .nav {
+    justify-content: center;
+    padding: clamp(8px, 2vw, 12px);
+  }
+
+  .nav-link {
+    font-size: clamp(11px, 1.5vw, 14px);
+    padding: clamp(3px, 1vw, 8px) clamp(6px, 2vw, 12px);
+  }
+
+  .nav-item {
+    margin: 0 clamp(3px, 1vw, 6px);
+  }
+}
+
+/* ===== Mobile adjustments ===== */
+@media (max-width: 600px) {
+  .container { 
+    padding: clamp(5px, 2vw, 10px); 
+    gap: clamp(5px, 2vw, 10px); 
+  }
+  .nav {
+    justify-content: center;
+    padding: clamp(5px, 2vw, 10px);
+  }
+
+  .nav-link {
+    font-size: clamp(9px, 2vw, 12px);
+    padding: clamp(2px, 1vw, 6px) clamp(6px, 3vw, 10px);
+  }
+
+  .nav-item {
+    margin: 0 clamp(2px, 1vw, 5px);
+  }
+}

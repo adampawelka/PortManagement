@@ -1,0 +1,22 @@
+/* --- index.css --- */
+/* Estilos globales para toda la aplicación */
+
+/* 1. Reseteo básico */
+body,
+html,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* 2. Estilo base del body */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background-color: #f4f7f6; /* Un gris muy claro para el fondo */
+  color: #333; /* Color de texto principal */
+  line-height: 1.5;
+}
