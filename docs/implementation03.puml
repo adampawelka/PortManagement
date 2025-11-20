@@ -1,69 +1,239 @@
-@startuml
+@startuml implementation03
+skinparam packageStyle rectangle
 skinparam monochrome true
-skinparam linetype ortho
-skinparam shadowing false
 
-title Implementation View - Level 3 (Code Elements)
+title Implementation View - Level 3\nPort Management System
 
-namespace DDDSample1.Controllers {
-    class ShippingAgentsController {
-        + Register(...): ActionResult
-        + GetAll(...): ActionResult
-        + GetById(...): ActionResult
+package "Port Operations Management" {
+    package "Dock Management" <<Rectangle>> {
+        class DocksController {
+        }
+
+        class DockService {
+        }
+
+        interface IDockRepository {
+        }
+
+        class DockRepository {
+        }
+
+        class Dock <<Aggregate Root>> {
+        }
+
+        DocksController --> DockService
+        DockService --> IDockRepository
+        DockRepository ..|> IDockRepository
+        DockRepository --> Dock
+        DockService ..> Dock
     }
-    class VesselsController {
-        + RegisterVessel(...): ActionResult
-        + GetVesselById(...): ActionResult
+
+    package "Storage Area Management" <<Rectangle>> {
+        class StorageAreasController {
+        }
+
+        class StorageAreaService {
+          }
+
+        class StorageArea <<Aggregate Root>> {
+        }
+
+        StorageAreasController --> StorageAreaService
+        StorageAreaService --> StorageArea
+    }
+
+    package "Vessel Visit Notification" <<Rectangle>> {
+        class VesselVisitNotificationsController {
+        }
+
+        class VesselVisitNotificationService {
+        }
+
+        class VesselVisitNotification <<Aggregate Root>> {
+        }
+
+        VesselVisitNotificationsController --> VesselVisitNotificationService
+        VesselVisitNotificationService --> VesselVisitNotification
+        VesselVisitNotificationService ..> DockService
     }
 }
 
-namespace DDDSample1.Domain.ShippingAgents {
-    class ShippingAgentOService {
-        + RegisterOrganizationAsync(...): Task
-        + GetAllAsync(...): Task
-        + UpdateRepresentativeAsync(...): Task
+package "Vessel & Agent Management" {
+    package "Vessel Registry" <<Rectangle>> {
+        class VesselsController {
+        }
+
+        class VesselService {
+        }
+
+        class Vessel <<Aggregate Root>> {
+        }
+
+        VesselsController --> VesselService
+        VesselService --> Vessel
     }
-    class ShippingAgentOrganization {
-        + Constructor(...)
-        + Update(...)
+
+    package "Vessel Type Catalog" <<Rectangle>> {
+        class VesselTypesController {
+        }
+
+        class VesselTypeService {
+        }
+
+        class VesselType <<Aggregate Root>> {
+        }
+
+        VesselTypesController --> VesselTypeService
+        VesselTypeService --> VesselType
+    }
+
+    package "Shipping Agent Organization" <<Rectangle>> {
+        class ShippingAgentsController {
+        }
+
+        class ShippingAgentOrganization <<Aggregate Root>> {
+        }
+
+
+
+        ShippingAgentsController --> ShippingAgentOrganization
+    }
+
+    package "Shipping Agent Representative" <<Rectangle>> {
+        class ShippingAgentRepresentative <<Aggregate Root>> {
+        }
+    }
+
+    Vessel --> VesselType : references
+    ShippingAgentOrganization --> ShippingAgentRepresentative : manages
+}
+
+package "Resource & Staff Management" {
+    package "Physical Resource Management" <<Rectangle>> {
+        class ResourceController {
+        }
+
+        class ResourceService {
+        }
+
+        class Resource <<Aggregate Root>> {
+        }
+
+        ResourceController --> ResourceService
+        ResourceService --> Resource
+    }
+
+    package "Staff Member Management" <<Rectangle>> {
+        class StaffMemberController {
+       }
+
+        class StaffMemberService {
+        }
+
+        class StaffMember <<Aggregate Root>> {
+        }
+
+        StaffMemberController --> StaffMemberService
+        StaffMemberService --> StaffMember
+    }
+
+    package "Qualification Registry" <<Rectangle>> {
+        class QualificationController {
+        }
+
+        class QualificationService {
+        }
+
+        class Qualification <<Aggregate Root>> {
+        }
+
+        QualificationController --> QualificationService
+        QualificationService --> Qualification
+    }
+
+    package "User & Authorization Management" <<Rectangle>> {
+        class UserController {
+        }
+
+        class UserService {
+        }
+
+        class User <<Aggregate Root>> {
+
+        }
+
+        UserController --> UserService
+        UserService --> User
+    }
+
+    Resource --> Qualification : requires
+    StaffMember --> Qualification : holds
+}
+
+package "Planning & Scheduling Engine" {
+    package "Schedule Computation" <<Rectangle>> {
+        class SchedulingController {
+        }
+
+        class OptimalScheduler {
+        }
+
+        class HeuristicScheduler {
+        }
+
+        SchedulingController --> OptimalScheduler
+        SchedulingController --> HeuristicScheduler
+    }
+
+    package "Dock Assignment Algorithm" <<Rectangle>> {
+        class DockAssignmentAlgorithm {
+        }
+    }
+
+    package "Resource Allocation Algorithm" <<Rectangle>> {
+        class ResourceAllocationAlgorithm {
+
+        }
     }
 }
 
-namespace DDDSample1.Domain.Vessels {
-    class VesselService {
-        + RegisterVesselAsync(...): Task
-        + GetVesselByIdAsync(...): Task
+package "3D Visualization Module" {
+    package "Scene Renderer" <<Rectangle>> {
+        class SceneRenderer {
+        }
     }
-    class Vessel {
-        + Constructor(...)
+
+    package "Camera Controller" <<Rectangle>> {
+        class CameraController {
+        }
     }
+
+    package "Model Loader" <<Rectangle>> {
+        class ModelLoader {
+        }
+    }
+
+    SceneRenderer --> ModelLoader : uses
+    CameraController --> SceneRenderer : controls
 }
 
-namespace DDDSample1.Infrastructure.ShippingAgents {
-    class ShippingAgentORepository {
-        + GetAllAsync(...): Task
-        + GetByIdAsync(...): Task
-        + AddAsync(...): Task
-    }
-    class ShippingAgentRRepository {
-        + GetAllAsync(...): Task
-        + GetByIdsAsync(...): Task
-        + AddAsync(...): Task
-    }
-}
+' Cross-package relationships
+VesselVisitNotification --> Vessel : references
+VesselVisitNotification --> ShippingAgentRepresentative : submitted by
+VesselVisitNotification --> Dock : assigned to
+VesselVisitNotificationService ..> VesselService : uses
 
-namespace DDDSample1.Infrastructure.Vessels {
-    class VesselRepository {
-        + GetAllAsync(...): Task
-        + GetByIdAsync(...): Task
-        + AddAsync(...): Task
-    }
-}
+OptimalScheduler ..> VesselVisitNotificationService : consumes visit data
+OptimalScheduler ..> ResourceService : consumes resources
+OptimalScheduler ..> StaffMemberService : consumes staff
+OptimalScheduler ..> DockService : consumes dock info
 
-ShippingAgentsController ..> ShippingAgentOService : Uses
-VesselsController ..> VesselService : Uses
-ShippingAgentOService ..> ShippingAgentOrganization : Instantiates
-VesselService ..> Vessel : Instantiates
-ShippingAgentOService ..> ShippingAgentORepository : Calls
-VesselService ..> VesselRepository : Calls
+SceneRenderer ..> DockService : fetches docks
+SceneRenderer ..> StorageAreaService : fetches storage areas
+SceneRenderer ..> VesselVisitNotificationService : fetches vessels
+SceneRenderer ..> ResourceService : fetches resources
+
+User --> ShippingAgentRepresentative : associates with
+
+
 @enduml
