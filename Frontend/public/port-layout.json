@@ -55,14 +55,15 @@
     "dock": {
       "colorMap": "/textures/concrete-color.jpg",
       "normalMap": "/textures/concrete-roughness.jpg",
-      "roughness": 0.8,
-      "metalness": 0.1
+      "roughnessMap": "/textures/concrete-roughness.jpg",
+      "roughness": 1,
+      "metalness": 0.0
     },
     "water": {
       "colorMap": "/textures/water-color.png",
       "normalMap": "/textures/water-normal.jpg",
-      "roughness": 0.1,
-      "metalness": 0.8
+      "roughness": 0.2,
+      "metalness": 0.6
     }
   },
   "lighting": {

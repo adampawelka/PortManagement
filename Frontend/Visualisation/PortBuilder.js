@@ -8,15 +8,17 @@ export class PortBuilder {
         this.loader = new GLTFLoader(); // To initialize models motor
         this.materialManager = new MaterialManager();
         this.data = null;
+        this.lights = {};
     }
 
     async loadPortData() {
         try {
-            this.setupLights();
 
             const response = await fetch('/port-layout.json');
             this.data = await response.json();
             
+            this.setupLights();
+
             this.data.facilities.forEach(facility => {
                 this.buildFacility(facility);
             });
@@ -30,21 +32,51 @@ export class PortBuilder {
     }
 
     //Brigther ligths
-    setupLights() {
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        setupLights() {
+        const config = this.data.lighting;
+
+        const ambientLight = new THREE.AmbientLight(
+            config.ambient.color, 
+            config.ambient.intensity
+        );
+        this.lights.ambient = ambientLight;
         this.scene.add(ambientLight);
 
-        const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        sunLight.position.set(50, 100, 50);
+        const sunLight = new THREE.DirectionalLight(
+            config.directional.color, 
+            config.directional.intensity
+        );
+        sunLight.position.set(
+            config.directional.position.x,
+            config.directional.position.y,
+            config.directional.position.z
+        );
+        
+        // Enable shadows
         sunLight.castShadow = true;
+        sunLight.shadow.camera.left = -100;
+        sunLight.shadow.camera.right = 100;
+        sunLight.shadow.camera.top = 100;
+        sunLight.shadow.camera.bottom = -100;
+        sunLight.shadow.mapSize.width = config.directional.shadowMapSize;
+        sunLight.shadow.mapSize.height = config.directional.shadowMapSize;
+        
+        this.lights.directional = sunLight;
         this.scene.add(sunLight);
+        const hemisphereLight = new THREE.HemisphereLight(
+            config.hemisphere.skyColor,
+            config.hemisphere.groundColor,
+            config.hemisphere.intensity
+        );
+        this.lights.hemisphere = hemisphereLight;
+        this.scene.add(hemisphereLight);
 
-        // (BlUE SKY)
-        this.scene.background = new THREE.Color(0xa0d8ef);
-        // (FOG)
-        this.scene.fog = new THREE.Fog(0xa0d8ef, 32, 135);
+        // 4. Sky Background
+        this.scene.background = new THREE.Color(config.hemisphere.skyColor);
+
+        console.log("Lighting setup complete (Ambient + Directional + Hemisphere + Sky)");
+    
     }
-
     buildFacility(facility) {
         // 1. If it is an imported model
         if (facility.type === "vessel" || facility.type === "container_stack" || facility.type === "crane") {
@@ -127,8 +159,11 @@ export class PortBuilder {
         const length = facility.dimensions.length;
         
         const geometry = new THREE.BoxGeometry(width, height, length);
+
+        const repeatU = width / 2; 
+        const repeatV = length / 2;
         const materialConfig = this.data.materials.dock;
-        const material = this.materialManager.createMaterial(materialConfig);
+        const material = this.materialManager.createMaterial(materialConfig, repeatU, repeatV);
         const mesh = new THREE.Mesh(geometry, material);
 
         mesh.position.set(
@@ -147,8 +182,11 @@ export class PortBuilder {
     buildWater() {
         const geometry = new THREE.PlaneGeometry(10000, 10000);
         
+        const repeatU = 100; // Tile 100 times horizontally
+        const repeatV = 100; // Tile 100 times vertically
+
         const materialConfig = this.data.materials.water;
-        const material = this.materialManager.createMaterial(materialConfig);
+        const material = this.materialManager.createMaterial(materialConfig, repeatU, repeatV);
         
         const water = new THREE.Mesh(geometry, material);
         water.rotation.x = -Math.PI / 2;
@@ -156,5 +194,24 @@ export class PortBuilder {
         water.receiveShadow = true;
         
         this.scene.add(water);
+    }
+    toggleShadows(enabled) {
+        if (this.lights.directional) {
+            this.lights.directional.castShadow = enabled;
+            console.log(`Shadows ${enabled ? 'ON' : 'OFF'}`);
+        }
+    }
+
+    adjustBrightness(factor) {
+        if (this.lights.ambient) this.lights.ambient.intensity *= factor;
+        if (this.lights.directional) this.lights.directional.intensity *= factor;
+        if (this.lights.hemisphere) this.lights.hemisphere.intensity *= factor;
+        console.log(`Brightness adjusted by ${factor}x`);
+    }
+
+    dispose() {
+        // Remove lights
+        Object.values(this.lights).forEach(light => this.scene.remove(light));
+        this.lights = {};
     }
 }
