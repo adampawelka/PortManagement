@@ -2,15 +2,16 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { menuItems } from "../data/menus.js"; // Import menu items
+import { useUser } from "../App.jsx"; 
 import "../styles/PrimaryNavigation.css"; // Import the CSS
 import { useAuth0 } from '@auth0/auth0-react';
 
 
 const PrimaryNavigation = () => {
   const { t } = useTranslation(); // Translation function
-  const { user } = useAuth0(); // <-- get user from Auth0
-  const currentUserRole = user?.role || "guest";
-
+  const user = useUser(); 
+  const currentUserRole = user?.role || null;
+  
   // Filter menu items based on the user's role
   const filteredMenuItems = menuItems.filter(
     (item) => !item.roles || item.roles.includes(currentUserRole)

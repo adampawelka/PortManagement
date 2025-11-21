@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
 namespace DDDSample1.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase

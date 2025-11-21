@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { menuItems } from "../data/menus.js"; 
+import { useUser } from "../App.jsx"; 
 import { useAuth0 } from '@auth0/auth0-react';
 
 import "../styles/Sidebar.css";
 
 const Sidebar = () => {
   const { t } = useTranslation();
-  const { user } = useAuth0(); // <-- get user from Auth0
-  const currentUserRole = user?.role || "guest";
+  const user = useUser(); 
+  const currentUserRole = user?.role || null;
   const [expandedMenu, setExpandedMenu] = useState(null);
 
   const filteredMenuItems = menuItems.filter(

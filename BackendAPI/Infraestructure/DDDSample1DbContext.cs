@@ -16,11 +16,13 @@ using DDDSample1.Infrastructure.Docks;
 using DDDSample1.Infrastructure.Vessels;
 using DDDSample1.Infrastructure.VesselTypes;
 using DDDSample1.Domain.VesselVisitNotifications;
+using DDDSample1.Domain.Users;
 using DDDSample1.Infrastructure.VesselVisitNotifications;
 
 using DDDSample1.Infrastructure.StorageAreas;
 using DDDSample1.Infrastructure.Qualifications;
 using DDDSample1.Infrastructure.Resources;
+using DDDSample1.Infrastructure.Users;
 
 using DDDSample1.Infrastructure.Shared;
 using DDDSample1.Domain.VesselTypes;
@@ -53,6 +55,10 @@ namespace DDDSample1.Infrastructure
 
         public DbSet<Resource> Resources { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<PendingUser> PendingUsers { get; set; }
+
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -72,7 +78,8 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new StorageAreaEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new QualificationEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ResourceEntityTypeConfiguration());
-
+            modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new PendingUserEntityTypeConfiguration());
         }
     }
 }

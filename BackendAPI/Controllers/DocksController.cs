@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 using DDDSample1.Domain.Shared;
 using DDDSample1.Domain.Docks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class DocksController : ControllerBase

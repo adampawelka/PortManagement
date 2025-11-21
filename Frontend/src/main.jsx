@@ -16,7 +16,7 @@ const AUTH0_CLIENT_ID = "2mdcHk7V1KzulJ83QKvrvUToZwvVqjCm";    // <--- User id
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    
+
       <Auth0Provider
         domain={AUTH0_DOMAIN}
         clientId={AUTH0_CLIENT_ID}
@@ -25,6 +25,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           // 'audience' is the identifier of the API of C#.
           audience: "http://3dl-e-04api", 
         }}
+        useRefreshTokens={true}
+        cacheLocation="localstorage"
       >
         <BrowserRouter>
         <App />
@@ -33,5 +35,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     
   </React.StrictMode>
 );
-
 
