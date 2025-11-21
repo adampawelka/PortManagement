@@ -158,7 +158,7 @@ export const menuItems = [
     name: "Visualisation",
     key: "visualisation",
     path: "/visualisation",
-    roles: ["admin", "user"],
+    roles: ["admin", "user", "guest"],
   },
   {
     name: "Scheduling",
