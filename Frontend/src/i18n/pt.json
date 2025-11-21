@@ -29,5 +29,9 @@
   "resources": "Recursos",
   "list": "Lista",
   "types": "Tipos",
-  "vvn": "Notificações de Visita de Embarcação"
+  "vvn": "Notificações de Visita de Embarcação",
+  "visualisation": "Visualização",
+  "scheduling": "Agendamento",
+  "schedule": "Agendamento",
+  "alternative_schedule": "Agendamento Alternativo" 
 }

@@ -110,5 +110,7 @@ input:invalid {
 
 canvas {
   display: block;
-  margin-top: 25vh;
+  align-items: center;
+  margin-left: auto;  
+  margin-right: auto;
 }
