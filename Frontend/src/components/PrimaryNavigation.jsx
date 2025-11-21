@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { menuItems } from "../data/menus.js"; // Import menu items
 import { useUser } from "../App.jsx"; 
 import "../styles/PrimaryNavigation.css"; // Import the CSS
+import { useAuth0 } from '@auth0/auth0-react';
 
 
 const PrimaryNavigation = () => {

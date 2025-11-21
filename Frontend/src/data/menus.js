@@ -81,13 +81,13 @@ export const menuItems = [
     name: "Docks",
     key: "docks",
     path: "/docks",
-    roles: ["PortAuthorityOfficer", "LogisticsOperator"],
+    roles: ["PortAuthorityOfficer", "LogisticsOperator", "admin"],
     subMenu: [
       {
         name: "Dock List",
         key: "dock_list",
         path: "/docks/list",
-        roles: ["PortAuthorityOfficer", "LogisticsOperator"],
+        roles: ["PortAuthorityOfficer", "LogisticsOperator","admin", "guest"],
       },
       {
         name: "Add New Dock",
@@ -99,7 +99,7 @@ export const menuItems = [
         name: "Search",
         key: "search",
         path: "/docks/search",
-        roles: ["PortAuthorityOfficer", "LogisticsOperator"],
+        roles: ["PortAuthorityOfficer", "LogisticsOperator", "admin"],
       },
     ],
   },
@@ -160,7 +160,7 @@ export const menuItems = [
     name: "Visualisation",
     key: "visualisation",
     path: "/visualisation",
-    roles: ["admin", "user"],
+    roles: ["admin", "user", "guest"],
   },
   {
     name: "Scheduling",
