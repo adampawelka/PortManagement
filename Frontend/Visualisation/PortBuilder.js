@@ -74,6 +74,7 @@ export class PortBuilder {
         // 4. Sky Background
         this.scene.background = new THREE.Color(config.hemisphere.skyColor);
 
+        this.scene.fog = new THREE.Fog(0xa0d8ef, 40, 135);
         console.log("Lighting setup complete (Ambient + Directional + Hemisphere + Sky)");
     
     }
