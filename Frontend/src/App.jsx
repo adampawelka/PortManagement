@@ -1,44 +1,22 @@
-// App.jsx
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
-
 import GlobalLayout from "./components/GlobalLayout.jsx";
 import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
+//import PortVisualisation from "./components/PortVisualisation.jsx";
+import Cube from "./components/Cube.tsx"
+import { useAuth0 } from "@auth0/auth0-react";
+import ThumbRaiser from "./components/Thumb_Raiser.tsx"
+import './styles/App.css'
 
-import Home from "./pages/Home.jsx";
-import Visualisation from "./pages/Visualisation.jsx";
-import Scheduling from "./pages/Scheduling.jsx";
-import Schedule from "./pages/Schedule.jsx"
+function App() {
+  const { user, isAuthenticated, isLoading } = useAuth0();
 
-// Protected route wrapper
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth0();
-
-  if (isLoading) return <div>Loading...</div>;
-
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
-};
-
-const App = () => {
   return (
-    <Routes>
-      {/* Public Login Page */}
-      <Route
-        path="/login"
-        element={
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "100vh",
-              textAlign: "center",
-            }}
-          >
-            <h1>Login</h1>
+    <GlobalLayout>
+      <div className="container">
+        <header>
+          {/* Conditional render based on authentication */}
+          {!isAuthenticated ? (
             <LoginButton />
           ) : (
             <div>
@@ -76,6 +54,6 @@ const App = () => {
       </div>
     </GlobalLayout>
   );
-};
+}
 
 export default App;

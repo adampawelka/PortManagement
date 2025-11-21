@@ -80,13 +80,13 @@ export const menuItems = [
     name: "Docks",
     key: "docks",
     path: "/docks",
-    roles: ["admin"],
+    roles: ["admin", "user"],
     subMenu: [
       {
         name: "Dock List",
         key: "dock_list",
         path: "/docks/list",
-        roles: ["admin, guest"],
+        roles: ["admin", "user", "guest"],
       },
       {
         name: "Add New Dock",
@@ -98,7 +98,7 @@ export const menuItems = [
         name: "Search",
         key: "search",
         path: "/docks/search",
-        roles: ["admin"],
+        roles: ["admin", "user", "guest"],
       },
     ],
   },
@@ -153,32 +153,5 @@ export const menuItems = [
         ],
       },
     ],
-  },
-  {
-    name: "Visualisation",
-    key: "visualisation",
-    path: "/visualisation",
-    roles: ["admin", "user", "guest"],
-  },
-  {
-    name: "Scheduling",
-    key: "scheduling",
-    path: "/scheduling",
-    roles: ["admin", "user"],
-    subMenu: [
-          {
-            name: "Schedule",
-            key: "schedule",
-            path: "/schedule",
-            roles: ["admin", "user", "guest"],
-          },
-          {
-            name: "Alternative Schedule",
-            key: "alternative_schedule",
-            path: "/alternative-schedule",
-            roles: ["admin", "user", "guest"],
-          },
-          
-    ]
   },
 ];

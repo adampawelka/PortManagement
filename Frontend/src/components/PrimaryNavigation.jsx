@@ -3,13 +3,11 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { menuItems } from "../data/menus.js"; // Import menu items
 import "../styles/PrimaryNavigation.css"; // Import the CSS
-import { useAuth0 } from '@auth0/auth0-react';
 
 
 const PrimaryNavigation = () => {
   const { t } = useTranslation(); // Translation function
-  const { user } = useAuth0(); // <-- get user from Auth0
-  const currentUserRole = user?.role || "guest";
+  const currentUserRole = "user"; // Example: Change this to "admin", "user", or "guest"
 
   // Filter menu items based on the user's role
   const filteredMenuItems = menuItems.filter(
