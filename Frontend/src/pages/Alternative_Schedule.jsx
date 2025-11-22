@@ -6,6 +6,7 @@ const AlternativeSchedule = () => {
   const [scheduleResults, setScheduleResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [executionTime, setExecutionTime] = useState(null);
 
   const handleDateChange = (e) => setTargetDate(e.target.value);
 
@@ -19,6 +20,12 @@ const AlternativeSchedule = () => {
     const timeStr = `${hours.toString().padStart(2, '0')}:00`;
     
     return days > 0 ? `${timeStr} (+${days}d)` : timeStr;
+  };
+
+  // --- Helper to extract execution time from Prolog output ---
+  const extractExecutionTime = (resultString) => {
+    const match = resultString.match(/Heuristic Execution Time:\s*([\d.e-]+)/i);
+    return match ? parseFloat(match[1]) : null;
   };
 
   // --- Helper to parse Prolog output ---
@@ -57,6 +64,7 @@ const AlternativeSchedule = () => {
     setLoading(true);
     setError("");
     setScheduleResults([]);
+    setExecutionTime(null);
 
     try {
       const response = await fetch(
@@ -81,14 +89,18 @@ const AlternativeSchedule = () => {
       const data = JSON.parse(text);
 
       // The API returns an object of dock schedules
-      const parsedResults = Object.entries(data).flatMap(([dockId, dockInfo]) =>
-        parsePrologResult(
+      const parsedResults = Object.entries(data).flatMap(([dockId, dockInfo]) => {
+        // Extract execution time from the first dock's schedule
+        const execTime = extractExecutionTime(dockInfo.schedule);
+        if (execTime !== null) setExecutionTime(execTime);
+
+        return parsePrologResult(
           dockInfo.schedule,
           dockInfo.dock || dockId,
           dockInfo.crane,
           dockInfo.staff
-        )
-      );
+        );
+      });
 
       setScheduleResults(parsedResults);
     } catch (err) {
@@ -119,31 +131,38 @@ const AlternativeSchedule = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {scheduleResults.length > 0 && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-          <table border="1" cellPadding="5">
-            <thead>
-              <tr>
-                <th>Vessel</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Dock</th>
-                <th>Assigned Crane</th>
-                <th>Staff</th>
-              </tr>
-            </thead>
-            <tbody>
-              {scheduleResults.map((item, idx) => (
-                <tr key={idx}>
-                  <td>{item.vessel}</td>
-                  <td>{item.start}</td>
-                  <td>{item.end}</td>
-                  <td>{item.dock}</td>
-                  <td>{item.crane}</td>
-                  <td>{item.staff}</td>
+        <div>
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+            <table border="1" cellPadding="5">
+              <thead>
+                <tr>
+                  <th>Vessel</th>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Dock</th>
+                  <th>Assigned Crane</th>
+                  <th>Staff</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {scheduleResults.map((item, idx) => (
+                  <tr key={idx}>
+                    <td>{item.vessel}</td>
+                    <td>{item.start}</td>
+                    <td>{item.end}</td>
+                    <td>{item.dock}</td>
+                    <td>{item.crane}</td>
+                    <td>{item.staff}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {executionTime !== null && (
+            <div style={{ textAlign: "center", marginTop: "10px", color: "#666" }}>
+              <strong>Heuristic Execution Time:</strong> {(executionTime * 1000).toFixed(4)} ms
+            </div>
+          )}
         </div>
       )}
     </div>

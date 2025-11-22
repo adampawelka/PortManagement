@@ -5,6 +5,7 @@ const Schedule = () => {
   const [scheduleResults, setScheduleResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [executionTime, setExecutionTime] = useState(null);
 
   const handleDateChange = (e) => setTargetDate(e.target.value);
 
@@ -20,11 +21,20 @@ const Schedule = () => {
     return days > 0 ? `${timeStr} (+${days}d)` : timeStr;
   };
 
+  // --- Helper to extract execution time from Prolog output ---
+  const extractExecutionTime = (resultString) => {
+    const match = resultString.match(/Execution Time:\s*([\d.e-]+)/i);
+    return match ? parseFloat(match[1]) : null;
+  };
+
   // --- Helper to parse Prolog output ---
   const parsePrologResult = (resultString, dockName, craneCode, staffID, areaID) => {
     if (!resultString) return [];
 
-    const cleaned = resultString.replace(/\[|\]/g, "").trim();
+    // Remove execution time message if present
+    let cleaned = resultString.replace(/Execution Time:.*?\n/i, "").trim();
+    
+    cleaned = cleaned.replace(/\[|\]/g, "").trim();
     if (!cleaned) return [];
 
     return cleaned.split(/\),/).map((item) => {
@@ -52,6 +62,7 @@ const Schedule = () => {
     setLoading(true);
     setError("");
     setScheduleResults([]);
+    setExecutionTime(null);
 
     try {
       const response = await fetch(
@@ -76,14 +87,18 @@ const Schedule = () => {
       const data = JSON.parse(text);
 
       // The API returns an object of dock schedules
-      const parsedResults = Object.entries(data).flatMap(([dockId, dockInfo]) =>
-        parsePrologResult(
+      const parsedResults = Object.entries(data).flatMap(([dockId, dockInfo]) => {
+        // Extract execution time from the first dock's schedule
+        const execTime = extractExecutionTime(dockInfo.schedule);
+        if (execTime !== null) setExecutionTime(execTime);
+
+        return parsePrologResult(
           dockInfo.schedule,
           dockInfo.dock || dockId,
           dockInfo.crane,
           dockInfo.staff
-        )
-      );
+        );
+      });
 
       setScheduleResults(parsedResults);
     } catch (err) {
@@ -114,31 +129,38 @@ const Schedule = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {scheduleResults.length > 0 && (
-        <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
-          <table border="1" cellPadding="5">
-            <thead>
-              <tr>
-                <th>Vessel</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Dock</th>
-                <th>Assigned Crane</th>
-                <th>Staff</th>
-              </tr>
-            </thead>
-            <tbody>
-              {scheduleResults.map((item, idx) => (
-                <tr key={idx}>
-                  <td>{item.vessel}</td>
-                  <td>{item.start}</td>
-                  <td>{item.end}</td>
-                  <td>{item.dock}</td>
-                  <td>{item.crane}</td>
-                  <td>{item.staff}</td>
+        <div>
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}>
+            <table border="1" cellPadding="5">
+              <thead>
+                <tr>
+                  <th>Vessel</th>
+                  <th>Start Time</th>
+                  <th>End Time</th>
+                  <th>Dock</th>
+                  <th>Assigned Crane</th>
+                  <th>Staff</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {scheduleResults.map((item, idx) => (
+                  <tr key={idx}>
+                    <td>{item.vessel}</td>
+                    <td>{item.start}</td>
+                    <td>{item.end}</td>
+                    <td>{item.dock}</td>
+                    <td>{item.crane}</td>
+                    <td>{item.staff}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {executionTime !== null && (
+            <div style={{ textAlign: "center", marginTop: "10px", color: "#666" }}>
+              <strong>Brute Force Execution Time:</strong> {(executionTime * 1000).toFixed(4)} ms
+            </div>
+          )}
         </div>
       )}
     </div>
