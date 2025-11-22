@@ -8,8 +8,10 @@ const AlternativeSchedule = () => {
   const [error, setError] = useState("");
   const [executionTime, setExecutionTime] = useState(null);
   const [vesselNotifications, setVesselNotifications] = useState([]);
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState("heuristic");
 
   const handleDateChange = (e) => setTargetDate(e.target.value);
+  const handleAlgorithmChange = (e) => setSelectedAlgorithm(e.target.value);
 
   // --- Helper to convert slot number to time format ---
   const slotToTime = (slot) => {
@@ -44,16 +46,33 @@ const AlternativeSchedule = () => {
 
   // --- Helper to extract execution time from Prolog output ---
   const extractExecutionTime = (resultString) => {
-    const match = resultString.match(/Heuristic Execution Time:\s*([\d.e-]+)/i);
-    return match ? parseFloat(match[1]) : null;
+    // Try to match any execution time pattern
+    const patterns = [
+      /Heuristic Execution Time:\s*([\d.e-]+)/i,
+      /SPT Execution Time:\s*([\d.e-]+)/i,
+      /Dynamic MST Execution Time:\s*([\d.e-]+)/i,
+      /Execution Time:\s*([\d.e-]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = resultString.match(pattern);
+      if (match) return parseFloat(match[1]);
+    }
+    
+    return null;
   };
 
   // --- Helper to parse Prolog output ---
   const parsePrologResult = (resultString, dockName, craneCode, staffID, areaID) => {
     if (!resultString) return [];
 
-    // Remove execution time message if present (e.g., "Heuristic Execution Time: 0.0001\n")
-    let cleaned = resultString.replace(/Heuristic Execution Time:.*?\n/i, "").trim();
+    // Remove ALL execution time messages (handles all algorithm types)
+    let cleaned = resultString
+      .replace(/Heuristic Execution Time:.*?\n/i, "")
+      .replace(/SPT Execution Time:.*?\n/i, "")
+      .replace(/Dynamic MST Execution Time:.*?\n/i, "")
+      .replace(/Execution Time:.*?\n/i, "")
+      .trim();
     
     // Remove brackets
     cleaned = cleaned.replace(/\[|\]/g, "").trim();
@@ -115,7 +134,7 @@ const AlternativeSchedule = () => {
 
       // Fetch schedule
       const response = await fetch(
-        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=heuristic`
+        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=${selectedAlgorithm}`
       );
 
       // Read the response body as text — even if not 200 OK
@@ -162,9 +181,17 @@ const AlternativeSchedule = () => {
   // --- Render ---
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
-      <h1>Alternative Scheduling (EDT Heuristic)</h1>
+      <h1>Heuristic Scheduling Algorithms</h1>
 
       <div style={{ marginBottom: "20px" }}>
+        <label style={{ marginRight: "20px" }}>
+          Algorithm:{" "}
+          <select value={selectedAlgorithm} onChange={handleAlgorithmChange} style={{ padding: "5px" }}>
+            <option value="heuristic">EDT - Early Departure Time (Basic)</option>
+            <option value="spt">SPT - Shortest Processing Time (Basic)</option>
+            <option value="dynamic_mst">Dynamic MST - Minimum Slack Time (Improved)</option>
+          </select>
+        </label>
         <label>
           Target Date:{" "}
           <input type="date" value={targetDate} onChange={handleDateChange} />
@@ -220,7 +247,11 @@ const AlternativeSchedule = () => {
           </div>
           {executionTime !== null && (
             <div style={{ textAlign: "center", marginTop: "10px", color: "#666" }}>
-              <strong>Heuristic Execution Time:</strong> {(executionTime * 1000).toFixed(4)} ms
+              <strong>
+                {selectedAlgorithm === "spt" ? "SPT" : 
+                 selectedAlgorithm === "dynamic_mst" ? "Dynamic MST" : "EDT"} 
+                {" "}Execution Time:
+              </strong> {(executionTime * 1000).toFixed(4)} ms
             </div>
           )}
           <div style={{ textAlign: "center", marginTop: "10px", color: "#666" }}>
