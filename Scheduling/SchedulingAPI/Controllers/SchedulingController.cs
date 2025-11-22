@@ -20,6 +20,8 @@ namespace SchedulingAPI.Controllers
     {
         private readonly string _scriptPath;
         private readonly string _alternativeScriptPath;
+        private readonly string _sptScriptPath;
+        private readonly string _dynamicMstScriptPath;
         private readonly string _swiplPath;
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -62,6 +64,34 @@ namespace SchedulingAPI.Controllers
 
             if (!System.IO.File.Exists(_alternativeScriptPath))
                 throw new Exception($"Alternative Prolog script not found at {_alternativeScriptPath}");
+
+            // Initialize SPT script path
+            string sptSourcePath = Path.Combine(baseDir, "..", "..", "..", "PrologFiles", "spt.pl");
+            sptSourcePath = Path.GetFullPath(sptSourcePath).Replace("\\", "/");
+
+            _sptScriptPath = System.IO.File.Exists(sptSourcePath)
+                ? sptSourcePath
+                : Path.Combine(baseDir, "PrologFiles", "spt.pl");
+            _sptScriptPath = Path.GetFullPath(_sptScriptPath).Replace("\\", "/");
+
+            Console.WriteLine($"SPT Prolog script path: {_sptScriptPath}");
+
+            if (!System.IO.File.Exists(_sptScriptPath))
+                throw new Exception($"SPT Prolog script not found at {_sptScriptPath}");
+
+            // Initialize Dynamic MST script path
+            string dynamicMstSourcePath = Path.Combine(baseDir, "..", "..", "..", "PrologFiles", "dynamic_mst.pl");
+            dynamicMstSourcePath = Path.GetFullPath(dynamicMstSourcePath).Replace("\\", "/");
+
+            _dynamicMstScriptPath = System.IO.File.Exists(dynamicMstSourcePath)
+                ? dynamicMstSourcePath
+                : Path.Combine(baseDir, "PrologFiles", "dynamic_mst.pl");
+            _dynamicMstScriptPath = Path.GetFullPath(_dynamicMstScriptPath).Replace("\\", "/");
+
+            Console.WriteLine($"Dynamic MST Prolog script path: {_dynamicMstScriptPath}");
+
+            if (!System.IO.File.Exists(_dynamicMstScriptPath))
+                throw new Exception($"Dynamic MST Prolog script not found at {_dynamicMstScriptPath}");
 
         }
 
@@ -240,13 +270,28 @@ namespace SchedulingAPI.Controllers
                     // Select script and query based on algorithm parameter
                     string scriptToUse;
                     string query;
+                    string algorithmLower = algorithm.ToLower();
 
-                    if (algorithm.ToLower() == "heuristic" || algorithm.ToLower() == "edt")
+                    if (algorithmLower == "heuristic" || algorithmLower == "edt")
                     {
                         // Use EDT Heuristic (Early Departure Time)
                         scriptToUse = _alternativeScriptPath;
                         query = $"{facts} solve_heuristic(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
                         Console.WriteLine($"Using EDT Heuristic algorithm");
+                    }
+                    else if (algorithmLower == "spt")
+                    {
+                        // Use SPT (Shortest Processing Time)
+                        scriptToUse = _sptScriptPath;
+                        query = $"{facts} solve_spt(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
+                        Console.WriteLine($"Using SPT algorithm");
+                    }
+                    else if (algorithmLower == "dynamic_mst" || algorithmLower == "mst")
+                    {
+                        // Use Dynamic MST (Minimum Slack Time)
+                        scriptToUse = _dynamicMstScriptPath;
+                        query = $"{facts} solve_dynamic_mst(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
+                        Console.WriteLine($"Using Dynamic MST algorithm");
                     }
                     else
                     {
