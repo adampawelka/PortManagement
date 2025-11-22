@@ -7,9 +7,8 @@ using System.IO;
 using System.Globalization;
 
 
-using DDDSample1.Domain.VesselVisitNotifications;
-using DDDSample1.Domain.Resources;
-using DDDSample1.Domain.Docks;
+using Backend.Domain.VesselVisitNotifications;
+using Backend.Domain.Docks;
 
 
 
@@ -20,6 +19,7 @@ namespace SchedulingAPI.Controllers
     public class SchedulingController : ControllerBase
     {
         private readonly string _scriptPath;
+        private readonly string _alternativeScriptPath;
         private readonly string _swiplPath;
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -49,6 +49,19 @@ namespace SchedulingAPI.Controllers
             if (!System.IO.File.Exists(_scriptPath))
                 throw new Exception($"Prolog script not found at {_scriptPath}");
 
+            // Initialize alternative heuristic script path 
+            string altSourcePath = Path.Combine(baseDir, "..", "..", "..", "PrologFiles", "alternative_heuristics.pl");
+            altSourcePath = Path.GetFullPath(altSourcePath).Replace("\\", "/");
+
+            _alternativeScriptPath = System.IO.File.Exists(altSourcePath)
+                ? altSourcePath
+                : Path.Combine(baseDir, "PrologFiles", "alternative_heuristics.pl");
+            _alternativeScriptPath = Path.GetFullPath(_alternativeScriptPath).Replace("\\", "/");
+
+            Console.WriteLine($"Alternative Prolog script path: {_alternativeScriptPath}");
+
+            if (!System.IO.File.Exists(_alternativeScriptPath))
+                throw new Exception($"Alternative Prolog script not found at {_alternativeScriptPath}");
 
         }
 
@@ -122,7 +135,7 @@ namespace SchedulingAPI.Controllers
 
 
         [HttpGet("calculate-schedule")]
-        public async Task<IActionResult> CalculateSchedule([FromQuery] string date)
+        public async Task<IActionResult> CalculateSchedule([FromQuery] string date, [FromQuery] string algorithm = "bruteforce")
         {
 
             if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
@@ -222,15 +235,29 @@ namespace SchedulingAPI.Controllers
 
                     Console.WriteLine($"{facts}");
 
-                    string query = $"{facts} obtain_seq_shortest_delay(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
-                    //string query = "run_schedule";
-                    //string query = $"obtain_seq_shortest_delay(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
-                    
-                    
+                    // Select script and query based on algorithm parameter
+                    string scriptToUse;
+                    string query;
+
+                    if (algorithm.ToLower() == "edh")
+                    {
+                        // Use EDH Heuristic (Early Departure Time)
+                        scriptToUse = _alternativeScriptPath;
+                        query = $"{facts} solve_heuristic(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
+                        Console.WriteLine($"Using EDH Heuristic algorithm");
+                    }
+                    else
+                    {
+                        // Use Brute Force (default)
+                        scriptToUse = _scriptPath;
+                        query = $"{facts} obtain_seq_shortest_delay(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
+                        Console.WriteLine($"Using Brute Force algorithm");
+                    }
+
                     Console.WriteLine($"{query}");
 
                     // Execute Prolog query
-                    string result = RunPrologQuery(query, _scriptPath);
+                    string result = RunPrologQuery(query, scriptToUse);
 
                     Console.WriteLine($"{result}");
 
