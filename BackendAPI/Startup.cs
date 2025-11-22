@@ -48,6 +48,17 @@ namespace Backend
 
             services.AddControllers().AddNewtonsoftJson();
 
+            // Add CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend", builder =>
+                {
+                    builder.WithOrigins("http://localhost:5173")
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
+
             // Configure Swagger
             services.AddSwaggerGen(c =>
             {
@@ -71,6 +82,10 @@ namespace Backend
             }
 
             //app.UseHttpsRedirection();
+            
+            // Use CORS
+            app.UseCors("AllowFrontend");
+            
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); endpoints.MapRazorPages(); });
