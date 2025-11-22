@@ -5,6 +5,7 @@ using System.Text.Json; // Importante para JSON
 using System.Net.Http;
 using System.IO;
 using System.Globalization;
+using System.Linq;
 
 
 using Backend.Domain.VesselVisitNotifications;
@@ -22,6 +23,7 @@ namespace SchedulingAPI.Controllers
         private readonly string _alternativeScriptPath;
         private readonly string _sptScriptPath;
         private readonly string _dynamicMstScriptPath;
+        private readonly string _hillClimbingScriptPath;
         private readonly string _swiplPath;
         private readonly IHttpClientFactory _httpClientFactory;
 
@@ -92,6 +94,20 @@ namespace SchedulingAPI.Controllers
 
             if (!System.IO.File.Exists(_dynamicMstScriptPath))
                 throw new Exception($"Dynamic MST Prolog script not found at {_dynamicMstScriptPath}");
+
+            // Initialize Hill Climbing script path
+            string hillClimbingSourcePath = Path.Combine(baseDir, "..", "..", "..", "PrologFiles", "hill_climbing_heuristic.pl");
+            hillClimbingSourcePath = Path.GetFullPath(hillClimbingSourcePath).Replace("\\", "/");
+
+            _hillClimbingScriptPath = System.IO.File.Exists(hillClimbingSourcePath)
+                ? hillClimbingSourcePath
+                : Path.Combine(baseDir, "PrologFiles", "hill_climbing_heuristic.pl");
+            _hillClimbingScriptPath = Path.GetFullPath(_hillClimbingScriptPath).Replace("\\", "/");
+
+            Console.WriteLine($"Hill Climbing Prolog script path: {_hillClimbingScriptPath}");
+
+            if (!System.IO.File.Exists(_hillClimbingScriptPath))
+                throw new Exception($"Hill Climbing Prolog script not found at {_hillClimbingScriptPath}");
 
         }
 
@@ -333,6 +349,158 @@ namespace SchedulingAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error generating schedule: {ex.Message}");
+            }
+        }
+
+        [HttpGet("test-algorithms")]
+        public IActionResult TestAlgorithms([FromQuery] string algorithm = "bruteforce")
+        {
+            try
+            {
+                // Hardcoded test data from dynamic_mst.pl (lines 15-24)
+                string facts = string.Join(Environment.NewLine, new[]
+                {
+                    "asserta(vessel(va, 6, 63, 10, 16)),",
+                    "asserta(vessel(vb, 23, 50, 9, 7)),",
+                    "asserta(vessel(vc, 8, 40, 5, 12)),",
+                    "asserta(vessel(vd, 27, 40, 0, 8)),",
+                    "asserta(vessel(ve, 36, 70, 12, 0)),",
+                    "asserta(vessel(vf, 40, 60, 8, 6)),",
+                    "asserta(vessel(vg, 52, 80, 9, 10)),",
+                    "asserta(vessel(vi, 61, 90, 13, 8)),",
+                    "asserta(vessel(vj, 74, 100, 7, 7)),",
+                    //"asserta(vessel(vk, 81, 110, 6, 8)),"
+                });
+
+                // Select script and query based on algorithm parameter
+                string scriptToUse;
+                string queryPredicate;
+                string algorithmNameForLog;
+
+                switch (algorithm.ToLower())
+                {
+                    case "heuristic":
+                    case "edt":
+                        scriptToUse = _alternativeScriptPath;
+                        queryPredicate = "solve_heuristic(Solution, TotalDelay)";
+                        algorithmNameForLog = "EDT Heuristic";
+                        break;
+                    case "spt":
+                        scriptToUse = _sptScriptPath;
+                        queryPredicate = "solve_spt(Solution, TotalDelay)";
+                        algorithmNameForLog = "SPT Heuristic";
+                        break;
+                    case "dynamic_mst":
+                    case "mst":
+                        scriptToUse = _dynamicMstScriptPath;
+                        queryPredicate = "solve_dynamic_mst(Solution, TotalDelay)";
+                        algorithmNameForLog = "Dynamic MST Heuristic";
+                        break;
+                    case "hill_climbing":
+                    case "hillclimbing":
+                        scriptToUse = _hillClimbingScriptPath;
+                        queryPredicate = "solve_hill_climbing(Solution, TotalDelay)";
+                        algorithmNameForLog = "Hill Climbing";
+                        break;
+                    case "bruteforce":
+                    default:
+                        scriptToUse = _scriptPath;
+                        queryPredicate = "obtain_seq_shortest_delay(Solution, TotalDelay)";
+                        algorithmNameForLog = "Brute Force";
+                        break;
+                }
+
+                Console.WriteLine($"Testing {algorithmNameForLog} algorithm with hardcoded data");
+
+                string query = $"{facts} {queryPredicate}, format('~w~n', [Solution]), format('TotalDelay:~w~n', [TotalDelay]), nl, halt.";
+                
+                // Execute Prolog query
+                string result = RunPrologQuery(query, scriptToUse);
+
+                Console.WriteLine($"Result: {result}");
+
+                // Extract execution time from result - handle scientific notation
+                string executionTime = "N/A";
+                // Pattern to match numbers including scientific notation (e.g., 9.274482727050781e-5)
+                string scientificNotationPattern = @"([\d.]+(?:[eE][+-]?\d+)?)";
+                
+                if (result.Contains("Execution Time:"))
+                {
+                    var timeMatch = System.Text.RegularExpressions.Regex.Match(result, @"Execution Time:\s*" + scientificNotationPattern);
+                    if (timeMatch.Success)
+                    {
+                        executionTime = timeMatch.Groups[1].Value;
+                    }
+                }
+                else if (result.Contains("SPT Execution Time:"))
+                {
+                    var timeMatch = System.Text.RegularExpressions.Regex.Match(result, @"SPT Execution Time:\s*" + scientificNotationPattern);
+                    if (timeMatch.Success)
+                    {
+                        executionTime = timeMatch.Groups[1].Value;
+                    }
+                }
+                else if (result.Contains("Dynamic MST Execution Time:"))
+                {
+                    var timeMatch = System.Text.RegularExpressions.Regex.Match(result, @"Dynamic MST Execution Time:\s*" + scientificNotationPattern);
+                    if (timeMatch.Success)
+                    {
+                        executionTime = timeMatch.Groups[1].Value;
+                    }
+                }
+                else if (result.Contains("EDT Execution Time:") || result.Contains("Heuristic Execution Time:"))
+                {
+                    var timeMatch = System.Text.RegularExpressions.Regex.Match(result, @"(?:EDT|Heuristic) Execution Time:\s*" + scientificNotationPattern);
+                    if (timeMatch.Success)
+                    {
+                        executionTime = timeMatch.Groups[1].Value;
+                    }
+                }
+                else if (result.Contains("Hill Climbing Execution Time:"))
+                {
+                    var timeMatch = System.Text.RegularExpressions.Regex.Match(result, @"Hill Climbing Execution Time:\s*" + scientificNotationPattern);
+                    if (timeMatch.Success)
+                    {
+                        executionTime = timeMatch.Groups[1].Value;
+                    }
+                }
+
+                // Extract total delay
+                string totalDelay = "N/A";
+                if (result.Contains("TotalDelay:"))
+                {
+                    var delayMatch = System.Text.RegularExpressions.Regex.Match(result, @"TotalDelay:(\d+)");
+                    if (delayMatch.Success)
+                    {
+                        totalDelay = delayMatch.Groups[1].Value;
+                    }
+                }
+
+                // Extract sequence (remove execution time and delay lines)
+                string sequence = result;
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*Execution Time:.*\n", "");
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*SPT Execution Time:.*\n", "");
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*Dynamic MST Execution Time:.*\n", "");
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*EDT Execution Time:.*\n", "");
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*Heuristic Execution Time:.*\n", "");
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*Hill Climbing Execution Time:.*\n", "");
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*Initial EDT Delay:.*\n", "");
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*Improved Found!.*\n", "");
+                sequence = System.Text.RegularExpressions.Regex.Replace(sequence, @".*TotalDelay:.*\n", "");
+                sequence = sequence.Trim();
+
+                return Ok(new
+                {
+                    algorithm = algorithmNameForLog,
+                    executionTime = executionTime,
+                    totalDelay = totalDelay,
+                    sequence = sequence,
+                    rawResult = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error testing algorithm: {ex.Message}");
             }
         }
 
