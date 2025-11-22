@@ -216,20 +216,22 @@ namespace SchedulingAPI.Controllers
                     if (!vesselsForDate.Any())
                         continue;
 
-                    var random = new Random();
-                    // Prepare Prolog facts - TO-DO: add the time of loading and unloading to the facts, for now random values
+                    // Prepare Prolog facts - Calculate load/unload time based on container count
                     string facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
                     {
-                        // losowy czas załadunku i rozładunku w godzinach (np. 1-4h)
-                        int loadTime = random.Next(5, 15);
-                        int unloadTime = random.Next(5, 20);
+                        // Calculate load/unload time based on number of containers
+                        int containerCount = v.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
+                        
+                        // Formula: 2 hours base time + 2 hours per container
+                        int loadTime = 2 + (containerCount * 2);
+                        int unloadTime = 2 + (containerCount * 2);
 
                         int etaHour = v.ETA.Minute >= 30 ? v.ETA.Hour + 1 : v.ETA.Hour;
                         int etdHour = v.ETD.Minute >= 30 ? v.ETD.Hour + 1 : v.ETD.Hour;
 
                         string vesselName = v.VesselName.ToLower().Replace(" ", "_");
 
-                        return $"asserta(vessel({vesselName}, {etaHour}, {etdHour}, {loadTime}, {unloadTime})),";
+                        return $"asserta(vessel({vesselName}, {etaHour}, {etdHour}, {unloadTime}, {loadTime})),";
                     }
                     ));
 
@@ -239,12 +241,12 @@ namespace SchedulingAPI.Controllers
                     string scriptToUse;
                     string query;
 
-                    if (algorithm.ToLower() == "edh")
+                    if (algorithm.ToLower() == "heuristic" || algorithm.ToLower() == "edt")
                     {
-                        // Use EDH Heuristic (Early Departure Time)
+                        // Use EDT Heuristic (Early Departure Time)
                         scriptToUse = _alternativeScriptPath;
                         query = $"{facts} solve_heuristic(Solution, _Delay), format('~w~n', [Solution]), nl, halt.";
-                        Console.WriteLine($"Using EDH Heuristic algorithm");
+                        Console.WriteLine($"Using EDT Heuristic algorithm");
                     }
                     else
                     {
