@@ -43,16 +43,29 @@ const Schedule = () => {
 
   // --- Helper to extract execution time from Prolog output ---
   const extractExecutionTime = (resultString) => {
-    const match = resultString.match(/Execution Time:\s*([\d.e-]+)/i);
-    return match ? parseFloat(match[1]) : null;
+    // Try to match any execution time pattern
+    const patterns = [
+      /Brute Force Execution Time:\s*([\d.e-]+)/i,
+      /Execution Time:\s*([\d.e-]+)/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = resultString.match(pattern);
+      if (match) return parseFloat(match[1]);
+    }
+    
+    return null;
   };
 
   // --- Helper to parse Prolog output ---
   const parsePrologResult = (resultString, dockName, craneCode, staffID, areaID) => {
     if (!resultString) return [];
 
-    // Remove execution time message if present
-    let cleaned = resultString.replace(/Execution Time:.*?\n/i, "").trim();
+    // Remove ALL execution time messages
+    let cleaned = resultString
+      .replace(/Brute Force Execution Time:.*?\n/i, "")
+      .replace(/Execution Time:.*?\n/i, "")
+      .trim();
     
     cleaned = cleaned.replace(/\[|\]/g, "").trim();
     if (!cleaned) return [];
@@ -111,9 +124,9 @@ const Schedule = () => {
         // Continue anyway - ETA/ETD columns will show "N/A"
       }
 
-      // Fetch schedule
+      // Fetch schedule (always use Brute Force for optimal solution)
       const response = await fetch(
-        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}`
+        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=bruteforce`
       );
 
       // Read the response body as text — even if not 200 OK
@@ -160,7 +173,7 @@ const Schedule = () => {
   // --- Render ---
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
-      <h1>Scheduling</h1>
+      <h1>Optimal Scheduling (Brute Force)</h1>
 
       <div style={{ marginBottom: "20px" }}>
         <label>
@@ -168,7 +181,7 @@ const Schedule = () => {
           <input type="date" value={targetDate} onChange={handleDateChange} />
         </label>
         <button onClick={handleGenerateSchedule} style={{ marginLeft: "10px" }}>
-          Generate Schedule
+          Generate Optimal Schedule
         </button>
       </div>
 
