@@ -10,7 +10,8 @@ import LogoutButton from "./components/LogoutButton";
 import Home from "./pages/Home.jsx";
 import Visualisation from "./pages/Visualisation.jsx";
 import Scheduling from "./pages/Scheduling.jsx";
-import Schedule from "./pages/Schedule.jsx"
+import Schedule from "./pages/Schedule.jsx";
+import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
 
 // Protected route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -55,6 +56,7 @@ const App = () => {
                 <Route path="/visualisation" element={<Visualisation />} />
                 <Route path="/scheduling" element={<Scheduling />} />
                 <Route path="/schedule" element={<Schedule />} />
+                <Route path="/alternative-schedule" element={<AlternativeSchedule />} />
                 <Route path="*" element={<div>Page not found</div>} />
               </Routes>
 
