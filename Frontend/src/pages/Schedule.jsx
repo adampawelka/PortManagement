@@ -221,6 +221,23 @@ const Schedule = () => {
               <strong>Brute Force Execution Time:</strong> {(executionTime * 1000).toFixed(4)} ms
             </div>
           )}
+          <div style={{ textAlign: "center", marginTop: "10px", color: "#666" }}>
+            <strong>Total Delay:</strong> {
+              (() => {
+                let totalDelay = 0;
+                scheduleResults.forEach(item => {
+                  const notification = getVesselNotification(item.vessel);
+                  if (notification && item.endSlot) {
+                    const etdDate = new Date(notification.etd);
+                    const etdHour = etdDate.getHours();
+                    const delay = item.endSlot - etdHour;
+                    if (delay > 0) totalDelay += delay;
+                  }
+                });
+                return `${totalDelay}h`;
+              })()
+            }
+          </div>
         </div>
       )}
     </div>
