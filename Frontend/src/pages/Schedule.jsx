@@ -8,6 +8,18 @@ const Schedule = () => {
 
   const handleDateChange = (e) => setTargetDate(e.target.value);
 
+  // --- Helper to convert slot number to time format ---
+  const slotToTime = (slot) => {
+    const slotNum = parseInt(slot);
+    if (isNaN(slotNum)) return slot;
+    
+    const hours = slotNum % 24;
+    const days = Math.floor(slotNum / 24);
+    const timeStr = `${hours.toString().padStart(2, '0')}:00`;
+    
+    return days > 0 ? `${timeStr} (+${days}d)` : timeStr;
+  };
+
   // --- Helper to parse Prolog output ---
   const parsePrologResult = (resultString, dockName, craneCode, staffID, areaID) => {
     if (!resultString) return [];
@@ -21,8 +33,8 @@ const Schedule = () => {
 
       return {
         vessel: parts[0]?.trim() || "",
-        start: parts[1]?.trim() || "",
-        end: parts[2]?.trim() || "",
+        start: slotToTime(parts[1]?.trim() || ""),
+        end: slotToTime(parts[2]?.trim() || ""),
         dock: dockName || "Unknown Dock",
         crane: craneCode || "Unassigned",
         staff: staffID || "Unassigned",
