@@ -53,17 +53,6 @@ namespace DDDSample1
 
             services.AddControllers().AddNewtonsoftJson();
 
-            // Add CORS
-            services.AddCors(options =>
-            {
-                options.AddPolicy("AllowFrontend", builder =>
-                {
-                    builder.WithOrigins("http://localhost:5173")
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
-                });
-            });
-
             // Configure Swagger
             services.AddSwaggerGen(c =>
             {
@@ -142,10 +131,7 @@ namespace DDDSample1
             }
 
             //app.UseHttpsRedirection();
-            
-            // Use CORS
-            app.UseCors("AllowFrontend");
-            
+
             app.UseRouting();
             app.UseCors("AllowFrontend");
 

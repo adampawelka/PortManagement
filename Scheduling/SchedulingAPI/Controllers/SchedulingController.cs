@@ -8,8 +8,8 @@ using System.Globalization;
 using System.Linq;
 
 
-using Backend.Domain.VesselVisitNotifications;
-using Backend.Domain.Docks;
+using DDDSample1.Domain.VesselVisitNotifications;
+using DDDSample1.Domain.Docks;
 
 
 
