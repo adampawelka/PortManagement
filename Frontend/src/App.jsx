@@ -1,10 +1,10 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
+import "./styles/App.css";
 
 import GlobalLayout from "./components/GlobalLayout.jsx";
-import LoginButton from "./components/LoginButton";
-import LogoutButton from "./components/LogoutButton";
+import LoginButton from "./components/LoginButton.jsx";
 
 import Home from "./pages/Home.jsx";
 import Visualisation from "./pages/Visualisation.jsx";
@@ -166,6 +166,7 @@ const App = () => {
           }}>
             <h1>Login</h1>
             <LoginButton />
+            <DebugUserInfo /> {/* Mantenemos el debug en login para testing */}
           </div>
         }
       />
@@ -212,7 +213,7 @@ const App = () => {
         <Route
           path="schedule"
           element={
-            <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
+            <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
               <Schedule />
             </ProtectedRoute>
           }
