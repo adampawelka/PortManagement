@@ -22,6 +22,7 @@ using DDDSample1.Infrastructure.Users;
 
 using DDDSample1.Infrastructure.Shared;
 using DDDSample1.Domain.VesselTypes;
+using DDDSample1.Infrastructure.StaffMembers;
 
 namespace DDDSample1.Infrastructure
 {
@@ -46,6 +47,8 @@ namespace DDDSample1.Infrastructure
 
         public DbSet<Resource> Resources { get; set; }
 
+        public DbSet<StaffMember> StaffMembers { get; set; }
+
         public DbSet<User> Users { get; set; }
 
         public DbSet<PendingUser> PendingUsers { get; set; }
@@ -68,6 +71,7 @@ namespace DDDSample1.Infrastructure
             modelBuilder.ApplyConfiguration(new ResourceEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new PendingUserEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new StaffMemberEntityTypeConfiguration());
         }
     }
 }
