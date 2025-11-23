@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.StorageAreas;
 using DDDSample1.Domain.Shared;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class StorageAreasController : ControllerBase

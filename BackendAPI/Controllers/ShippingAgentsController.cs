@@ -5,9 +5,11 @@ using DDDSample1.Domain.ShippingAgents;
 using DDDSample1.Domain.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DDDSample1.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class ShippingAgentsController : ControllerBase

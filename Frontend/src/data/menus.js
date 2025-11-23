@@ -2,37 +2,38 @@ export const menuItems = [
   { 
     name: "Home", 
     key: "home",
-    path: "/" 
+    path: "/",
+    roles: null
   },
   {
     name: "Vessel Visit Notifications",
     key: "vessel_visit_notifications",
     path: "/vvn",
-    roles: ["admin", "user", "guest"],
+    roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
     subMenu: [
       {
         name: "Pending Notifications",
         key: "pending_notifications",
         path: "/vvn/pending",
-        roles: ["admin", "user", "guest"],
+        roles: ["PortAuthorityOfficer"],
       },
       {
         name: "Approved Notifications",
         key: "approved_notifications",
         path: "/vvn/approved",
-        roles: ["admin", "user", "guest"],
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
       },
       {
         name: "Rejected Notifications",
         key: "rejected_notifications",
         path: "/vvn/rejected",
-        roles: ["admin", "user", "guest"],
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
       },
       {
         name: "Add New Notification",
         key: "add_new_notification",
         path: "/vvn/add",
-        roles: ["admin"],
+        roles: ["PortAuthorityOfficer"],
       },
     ],
   },
@@ -40,19 +41,19 @@ export const menuItems = [
     name: "Storage Areas",
     key: "storage_areas",
     path: "/storage-areas",
-    roles: ["admin", "user", "guest"],
+    roles: ["LogisticsOperator"],
     subMenu: [
       {
         name: "Storage Areas List",
         key: "storage_areas",
         path: "/storage-areas/list",
-        roles: ["admin", "user", "guest"],
+        roles: ["LogisticsOperator"],
       },
       {
         name: "Add New Storage",
         key: "add_new_storage",
         path: "/storage-areas/add",
-        roles: ["admin"],
+        roles: ["LogisticsOperator"],
       },
     ],
   },
@@ -60,19 +61,19 @@ export const menuItems = [
     name: "Physical Resources",
     key: "available_resources",
     path: "/resources",
-    roles: ["admin", "user", "guest"],
+    roles: ["LogisticsOperator"],
     subMenu: [
       {
         name: "Available Resources",
         key: "available_resources",
         path: "/resources/list",
-        roles: ["admin", "user", "guest"],
+        roles: ["LogisticsOperator"],
       },
       {
         name: "Allocate Resources",
         key: "allocate_resources",
         path: "/resources/allocate",
-        roles: ["admin"],
+        roles: ["LogisticsOperator"],
       },
     ],
   },
@@ -80,25 +81,25 @@ export const menuItems = [
     name: "Docks",
     key: "docks",
     path: "/docks",
-    roles: ["admin"],
+    roles: ["PortAuthorityOfficer", "LogisticsOperator", "admin"],
     subMenu: [
       {
         name: "Dock List",
         key: "dock_list",
         path: "/docks/list",
-        roles: ["admin, guest"],
+        roles: ["PortAuthorityOfficer", "LogisticsOperator","admin", "guest"],
       },
       {
         name: "Add New Dock",
         key: "add_new_dock",
         path: "/docks/new",
-        roles: ["admin"],
+        roles: ["PortAuthorityOfficer", "LogisticsOperator"],
       },
       {
         name: "Search",
         key: "search",
         path: "/docks/search",
-        roles: ["admin"],
+        roles: ["PortAuthorityOfficer", "LogisticsOperator", "admin"],
       },
     ],
   },
@@ -106,54 +107,55 @@ export const menuItems = [
     name: "Vessels",
     key: "vessels",
     path: "/vessels",
-    roles: ["admin", "user", "guest"],
+    roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
     subMenu: [
       {
         name: "Vessel List",
         key: "vessel_list",
         path: "/vessels/list",
-        roles: ["admin", "user", "guest"],
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
       },
       {
         name: "Add New Vessel",
         key: "add_new_vessel",
         path: "/vessels/new",
-        roles: ["admin"],
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
       },
       {
         name: "Search",
         key: "search",
         path: "/vessels/search",
-        roles: ["admin", "user", "guest"],
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
       },
       {
         name: "Vessel Types",
         key: "vessel_types",
         path: "/vessels/types",
-        roles: ["admin", "user", "guest"],
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
         subMenu: [
           {
             name: "Type List",
             key: "type_list",
             path: "/vessels/types/list",
-            roles: ["admin", "user", "guest"],
+            roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
           },
           {
             name: "Add New Type",
             key: "add_new_type",
             path: "/vessels/types/new",
-            roles: ["admin"],
+            roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
           },
           {
             name: "Search Type",
             key: "search_type",
             path: "/vessels/types/search",
-            roles: ["admin", "user"],
+            roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative"],
           },
         ],
       },
     ],
   },
+  // TO-ADD VISUALISATION PERMS 
   {
     name: "Visualisation",
     key: "visualisation",
@@ -164,21 +166,27 @@ export const menuItems = [
     name: "Scheduling",
     key: "scheduling",
     path: "/scheduling",
-    roles: ["admin", "user"],
+    roles: ["LogisticsOperator"],
     subMenu: [
           {
             name: "Schedule",
             key: "schedule",
             path: "/schedule",
-            roles: ["admin", "user", "guest"],
+            roles: ["LogisticsOperator"],
           },
           {
             name: "Alternative Schedule",
             key: "alternative_schedule",
             path: "/alternative-schedule",
-            roles: ["admin", "user", "guest"],
+            roles: ["LogisticsOperator"],
           },
           
     ]
+  },
+  {
+  name: "User Management",
+  key: "user_management",
+  path: "/user-management",
+  roles: ["Administrator"],
   },
 ];

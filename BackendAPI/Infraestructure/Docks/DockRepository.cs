@@ -104,6 +104,7 @@ namespace DDDSample1.Infrastructure.Docks
         public async Task<Dock> DeleteDockAsync(Dock dock)
         {
             _context.Docks.Remove(dock);
+            await _context.SaveChangesAsync();
             return dock;
         }
     }
