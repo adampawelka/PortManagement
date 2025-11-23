@@ -1,6 +1,6 @@
 /* FROM THUMB RAISER original html */
 body {
-  margin: 0;
+  margin: 0  ;
 }
 
 #parent {
@@ -109,8 +109,18 @@ input:invalid {
 }
 
 canvas {
-  display: block;
-  align-items: center;
-  margin-left: auto;  
-  margin-right: auto;
+  /* Aseguramos que se comporta como un bloque centrado */
+  display: block !important; 
+
+  /* Anulamos cualquier posicionamiento fijo o absoluto */
+  position: relative !important; 
+  left: auto !important;
+
+  /* Centrado horizontal garantizado para bloques */
+  margin-left: -145px !important;  
+  margin-right: auto !important;
+
+  /* Ocupa el 100% del contenedor React */
+  width: 100% !important; 
+  height: auto !important; 
 }
