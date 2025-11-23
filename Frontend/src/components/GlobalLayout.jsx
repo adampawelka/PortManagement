@@ -4,9 +4,10 @@ import PrimaryNavigation from "./PrimaryNavigation";
 import Sidebar from "./Sidebar";
 import Breadcrumbs from "./Breadcrumbs";
 import Footer from "./Footer";
+import { Outlet } from "react-router-dom";
 import LanguageSwitcher from "./LanguageSwitcher";
 
-const GlobalLayout = ({ children }) => {
+const GlobalLayout = () => {
   return (
     <div style={{ width: "100%", minHeight: "100vh", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
       <Header />
@@ -43,7 +44,7 @@ const GlobalLayout = ({ children }) => {
               textAlign: "center",
             }}
           >
-            <div style={{ maxWidth: "600px", width: "100%" }}>{children}</div>
+            <div style={{ maxWidth: "600px", width: "100%" }}><Outlet /></div>
           </main>
         </div>
       </div>
