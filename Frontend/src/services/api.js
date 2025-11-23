@@ -1,12 +1,15 @@
 // src/services/api.js
 import { useAuth0 } from "@auth0/auth0-react";
+import React, { useCallback } from 'react';
 
 const API_BASE_URL = "http://localhost:5000";
 
 export const useApi = () => {
+    // we obtein auth0 functions
     const { getAccessTokenSilently, logout } = useAuth0();
 
-    const apiFetch = async (path, options = {}) => {
+    // To reduce the fecth effect we use callBack
+    const apiFetch = useCallback(async (path, options = {}) => {
         try {
             const token = await getAccessTokenSilently();
 
@@ -15,7 +18,8 @@ export const useApi = () => {
                 headers: {
                     "Content-Type": "application/json",
                     ...(options.headers || {}),
-                    Authorization: `Bearer ${token}`,
+                    // Put here the token
+                    Authorization: `Bearer ${token}`, 
                 },
             });
 
@@ -25,12 +29,12 @@ export const useApi = () => {
 
             return response;
         } catch (err) {
-
+            // if Token obtain function fails, we force the logout
             console.error("Token error:", err);
             logout({ returnTo: window.location.origin });
             throw err;
         }
-    };
-
+    }, [getAccessTokenSilently, logout]); 
+    
     return { apiFetch };
 };
