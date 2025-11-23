@@ -1,5 +1,5 @@
 import react from "react";
-import "../styles/App.css";
+import "../styles/Thumb_Raiser.css";
 
 import Orientation from "../../Visualisation/Basic_Thumb_Raiser/orientation";
 import * as THREE from "three";
