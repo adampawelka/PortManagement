@@ -180,6 +180,12 @@ export const menuItems = [
             path: "/alternative-schedule",
             roles: ["LogisticsOperator"],
           },
+          {
+            name: "Test Algorithms",
+            key: "test_algorithms",
+            path: "/test-algorithms",
+            roles: ["admin", "user", "guest"],
+          },
           
     ]
   },

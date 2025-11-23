@@ -10,6 +10,8 @@ import Home from "./pages/Home.jsx";
 import Visualisation from "./pages/Visualisation.jsx";
 import Scheduling from "./pages/Scheduling.jsx";
 import Schedule from "./pages/Schedule.jsx";
+import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
+import TestAlgorithms from "./pages/TestAlgorithms.jsx";
 import UserManagement from "./pages/UserManagement.jsx";
 
 import { useApi } from "./services/api.js";
@@ -186,7 +188,7 @@ const App = () => {
             <GlobalLayout />
           </ProtectedRoute>
         }
-      >
+      >   
 
         {/* ROUTES PROTECTED BY ROLE (3.1.3) */}
 
@@ -208,7 +210,28 @@ const App = () => {
               <Scheduling />
             </ProtectedRoute>
           }
+            
         />
+
+        <Route
+          path="/alternative-schedule"
+          element={
+            <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
+              <AlternativeSchedule />
+            </ProtectedRoute>
+           }
+        
+        />
+        <Route
+          path="/test-algorithms"
+          element={
+          <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
+            <TestAlgorithms />
+          </ProtectedRoute>
+          } 
+        
+        />
+
 
         <Route
           path="schedule"

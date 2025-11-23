@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using DDDSample1.Infrastructure;
 using DDDSample1.Infrastructure.Shared;
 using DDDSample1.Infrastructure.VesselVisitNotifications;
-using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.Shared; 
 using DDDSample1.Domain.ShippingAgents;
 using DDDSample1.Domain.VesselTypes;
 using DDDSample1.Domain.Vessels;
@@ -52,6 +52,8 @@ namespace DDDSample1
             ConfigureMyServices(services);
 
             services.AddControllers().AddNewtonsoftJson();
+
+            // Configure Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Port Logistics API", Version = "v1" });
@@ -128,7 +130,8 @@ namespace DDDSample1
                 app.UseHsts();
             }
 
-            // app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
+
             app.UseRouting();
             app.UseCors("AllowFrontend");
 

@@ -35,7 +35,12 @@ sum_delays([(V,_,TEndLoad)|LV],S):-
 
 
 obtain_seq_shortest_delay(SeqBetterTriplets, SShortestDelay):-
-    (obtain_seq_shortest_delay1;true),retract(shortest_delay(SeqBetterTriplets, SShortestDelay)),!.
+    get_time(Ti),
+    (obtain_seq_shortest_delay1;true),
+    retract(shortest_delay(SeqBetterTriplets, SShortestDelay)),
+    get_time(Tf),
+    T is Tf-Ti,
+    write('Execution Time: '),write(T),nl,!.
 
 obtain_seq_shortest_delay1:-
     asserta(shortest_delay(_,100000)),

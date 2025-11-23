@@ -11,15 +11,17 @@ namespace DDDSample1.Domain.ShippingAgents
                 throw new BusinessRuleValidationException("Representative ID must be non-empty.");
         }
 
-        public override string AsString() => Value.ToString();
+        public override string AsString() => ObjValue.ToString();
         public Guid AsGuid()
         {
-            return (Guid)ObjValue;
+            if (ObjValue is Guid guid)
+                return guid;
+            return Guid.Parse(ObjValue.ToString());
         }
 
         protected override object createFromString(string text)
         {
-            return text;
+            return Guid.Parse(text);
         }
     }
 }
