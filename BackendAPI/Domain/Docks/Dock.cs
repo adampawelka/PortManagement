@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Backend.Domain.Shared;
-using Backend.Domain.VesselTypes; 
+using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.VesselTypes; 
 
-namespace Backend.Domain.Docks
+namespace DDDSample1.Domain.Docks
 {
     public class Dock : Entity<DockId>, IAggregateRoot
     {

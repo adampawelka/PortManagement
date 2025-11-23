@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Backend.Domain.StaffMembers;
+using DDDSample1.Domain.StaffMembers;
 
-namespace Backend.Infrastructure.StaffMembers
+namespace DDDSample1.Infrastructure.StaffMembers
 {
     public class StaffMemberEntityTypeConfiguration : IEntityTypeConfiguration<StaffMember>
     {

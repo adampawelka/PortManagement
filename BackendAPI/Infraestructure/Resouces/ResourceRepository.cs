@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Backend.Domain.Resources;
-using Backend.Infrastructure.Shared;
+using DDDSample1.Domain.Resources;
+using DDDSample1.Infrastructure.Shared;
 
-namespace Backend.Infrastructure.Resources
+namespace DDDSample1.Infrastructure.Resources
 {
     public class ResourceRepository : BaseRepository<Resource, ResourceId>, IResourceRepository
     {

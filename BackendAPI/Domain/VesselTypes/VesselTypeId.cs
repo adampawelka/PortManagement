@@ -1,8 +1,8 @@
 using System;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 using Newtonsoft.Json;
 
-namespace Backend.Domain.VesselTypes
+namespace DDDSample1.Domain.VesselTypes
 {
     public class VesselTypeId : EntityId
     {

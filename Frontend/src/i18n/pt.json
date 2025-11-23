@@ -33,5 +33,6 @@
   "visualisation": "Visualização",
   "scheduling": "Agendamento",
   "schedule": "Agendamento",
-  "alternative_schedule": "Agendamento Alternativo" 
+  "alternative_schedule": "Agendamento Alternativo" ,
+  "user_management": "Gestão de Utilizadores"
 }

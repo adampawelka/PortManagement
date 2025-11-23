@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 
-namespace Backend.Domain.StorageAreas
+namespace DDDSample1.Domain.StorageAreas
 {
     public class StorageArea : Entity<StorageAreaId>, IAggregateRoot
     {

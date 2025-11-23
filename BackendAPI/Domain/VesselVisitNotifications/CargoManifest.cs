@@ -1,8 +1,8 @@
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Backend.Domain.VesselVisitNotifications
+namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public class CargoManifest : IValueObject
     {

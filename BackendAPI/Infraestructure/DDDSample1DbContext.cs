@@ -1,28 +1,30 @@
 using Microsoft.EntityFrameworkCore;
-using Backend.Domain.ShippingAgents;
-using Backend.Domain.Docks;
-using Backend.Domain.Vessels;
-using Backend.Domain.StaffMembers;
+using DDDSample1.Domain.ShippingAgents;
+using DDDSample1.Domain.Docks;
+using DDDSample1.Domain.Vessels;
+using DDDSample1.Domain.StaffMembers;
 
-using Backend.Domain.StorageAreas;
-using Backend.Domain.Qualifications;
-using Backend.Domain.Resources;
-using Backend.Infrastructure.ShippingAgents;
-using Backend.Infrastructure.StaffMembers;
-using Backend.Infrastructure.Docks;
-using Backend.Infrastructure.Vessels;
-using Backend.Infrastructure.VesselTypes;
-using Backend.Domain.VesselVisitNotifications;
-using Backend.Infrastructure.VesselVisitNotifications;
+using DDDSample1.Domain.StorageAreas;
+using DDDSample1.Domain.Qualifications;
+using DDDSample1.Domain.Resources;
+using DDDSample1.Infrastructure.ShippingAgents;
+using DDDSample1.Infrastructure.Docks;
+using DDDSample1.Infrastructure.Vessels;
+using DDDSample1.Infrastructure.VesselTypes;
+using DDDSample1.Domain.VesselVisitNotifications;
+using DDDSample1.Domain.Users;
+using DDDSample1.Infrastructure.VesselVisitNotifications;
 
-using Backend.Infrastructure.StorageAreas;
-using Backend.Infrastructure.Qualifications;
-using Backend.Infrastructure.Resources;
+using DDDSample1.Infrastructure.StorageAreas;
+using DDDSample1.Infrastructure.Qualifications;
+using DDDSample1.Infrastructure.Resources;
+using DDDSample1.Infrastructure.Users;
 
-using Backend.Infrastructure.Shared;
-using Backend.Domain.VesselTypes;
+using DDDSample1.Infrastructure.Shared;
+using DDDSample1.Domain.VesselTypes;
+using DDDSample1.Infrastructure.StaffMembers;
 
-namespace Backend.Infrastructure
+namespace DDDSample1.Infrastructure
 {
     public class DDDSample1DbContext : DbContext
     {
@@ -47,6 +49,10 @@ namespace Backend.Infrastructure
 
         public DbSet<StaffMember> StaffMembers { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<PendingUser> PendingUsers { get; set; }
+
         public DDDSample1DbContext(DbContextOptions options) : base(options)
         {
 
@@ -63,8 +69,9 @@ namespace Backend.Infrastructure
             modelBuilder.ApplyConfiguration(new StorageAreaEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new QualificationEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new ResourceEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new PendingUserEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new StaffMemberEntityTypeConfiguration());
-
         }
     }
 }

@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Backend.Domain.StorageAreas;
+using DDDSample1.Domain.StorageAreas;
 using System.Text.Json;
 using System.Collections.Generic;
 using System;
 
-namespace Backend.Infrastructure.StorageAreas
+namespace DDDSample1.Infrastructure.StorageAreas
 {
     public class StorageAreaEntityTypeConfiguration : IEntityTypeConfiguration<StorageArea>
     {

@@ -1,77 +1,121 @@
-@startuml
+@startuml sequence03
 skinparam monochrome true
+autonumber
 
-participant "Controller" as Controller
-participant "Service" as Service
-participant "Repository" as Repo
-participant "DbContext" as DB
-database "Database" as DataStore
+title Sequence View - Level 3\nGenerate Daily Schedule (Detailed Component Interaction)
 
-== GetAll Request ==
+actor "Logistics\nOperator" as LO
+participant "ScheduleForm\nComponent" as FORM
+participant "API Client\nService" as API_CLIENT
 
-Controller -> Service : GetAllAsync()
-activate Service
+box "Planning & Scheduling Engine"
+participant "Scheduling\nController" as SCHED_CTRL
+participant "Optimal\nScheduler" as OPT_ALGO
+participant "Prolog\nEngine" as PROLOG
+end box
 
-Service -> Repo : GetAllAsync()
-activate Repo
+box "Backend API Clients"
+participant "Backend API\nClient" as BACKEND_CLIENT
+end box
 
-Repo -> DB : Entities\n.Include(e => e.Children)\n.Include(e => e.OtherRelations)\n.AsNoTracking()\n.ToListAsync()
-activate DB
+box "Port Operations Management"
+participant "VesselVisitNotification\nService" as VVN_SVC
+end box
 
-note right of DB
-  AsNoTracking():
-  - Read-only query
-  - Better performance
-  - No change tracking overhead
-end note
+box "Resource & Staff Management"
+participant "Resource\nService" as RES_SVC
+participant "StaffMember\nService" as STAFF_SVC
+end box
 
-DB -> DataStore : SELECT e.*, c.*, o.*\nFROM Entities e\nLEFT JOIN Children c ON ...\nLEFT JOIN OtherRelations o ON ...
-activate DataStore
-DataStore --> DB : Result set
-deactivate DataStore
+box "Port Operations Management"
+participant "Dock\nService" as DOCK_SVC
+end box
 
-DB -> DB : Materialize entities
-DB --> Repo : List<Entity>
-deactivate DB
+database "System\nDatabase" as DB
 
-Repo --> Service : entities
-deactivate Repo
+== Request Schedule Generation ==
+LO -> FORM: Select date & algorithm\n(Optimal/Heuristic)
+LO -> FORM: Click "Generate Schedule"
+FORM -> FORM: Validate date input
+FORM -> API_CLIENT: generateSchedule(date, "optimal")
+API_CLIENT -> SCHED_CTRL: POST /api/scheduling/generate\n{date: "2025-11-17", algorithm: "optimal"}
 
-== Map to DTOs ==
+== Fetch Required Data from Backend ==
+SCHED_CTRL -> BACKEND_CLIENT: getApprovedVisitsForDate(date)
+BACKEND_CLIENT -> VVN_SVC: GET /api/vesselvisitnotifications\n?date=2025-11-17&status=approved
+VVN_SVC -> DB: SELECT * FROM vessel_visit_notifications\nWHERE date='2025-11-17' AND status='approved'
+DB --> VVN_SVC: Visit records
+VVN_SVC --> BACKEND_CLIENT: List<VesselVisitNotificationDto>
+BACKEND_CLIENT --> SCHED_CTRL: visits[]
 
-loop For each entity
-    Service -> Service : MapToDto(entity)
-    note right
-      Extract:
-      - Entity ID
-      - Value Object values
-      - Child entity data
-      - Computed properties
-    end note
+SCHED_CTRL -> BACKEND_CLIENT: getAvailableResources(date)
+BACKEND_CLIENT -> RES_SVC: GET /api/resources\n?date=2025-11-17&status=available
+RES_SVC -> DB: SELECT * FROM resources\nWHERE status='available'
+DB --> RES_SVC: Resource records
+RES_SVC --> BACKEND_CLIENT: List<ResourceDto>
+BACKEND_CLIENT --> SCHED_CTRL: resources[]
+
+SCHED_CTRL -> BACKEND_CLIENT: getAvailableStaff(date)
+BACKEND_CLIENT -> STAFF_SVC: GET /api/staffmembers\n?date=2025-11-17&status=available
+STAFF_SVC -> DB: SELECT * FROM staff_members\nWHERE status='available'
+DB --> STAFF_SVC: Staff records
+STAFF_SVC --> BACKEND_CLIENT: List<StaffMemberDto>
+BACKEND_CLIENT --> SCHED_CTRL: staff[]
+
+SCHED_CTRL -> BACKEND_CLIENT: getDocks()
+BACKEND_CLIENT -> DOCK_SVC: GET /api/docks
+DOCK_SVC -> DB: SELECT * FROM docks
+DB --> DOCK_SVC: Dock records
+DOCK_SVC --> BACKEND_CLIENT: List<DockDto>
+BACKEND_CLIENT --> SCHED_CTRL: docks[]
+
+== Execute Scheduling Algorithm ==
+SCHED_CTRL -> OPT_ALGO: computeSchedule(visits, resources, staff, docks)
+
+OPT_ALGO -> OPT_ALGO: validateInputs()
+
+OPT_ALGO -> OPT_ALGO: Transform data to Prolog facts:\nvessel(VesselId, ETA, ETD, DockId)\nresource(ResourceId, Type, Capacity)\nstaff(StaffId, Qualifications[])
+
+OPT_ALGO -> PROLOG: loadPrologFile("vessels_scheduling1.pl")
+PROLOG --> OPT_ALGO: File loaded successfully
+
+OPT_ALGO -> PROLOG: assertFacts(prologFactsString)
+PROLOG -> PROLOG: Assert facts into knowledge base
+PROLOG --> OPT_ALGO: Facts asserted
+
+OPT_ALGO -> PROLOG: query("schedule_vessels(Schedule, TotalDelay)")
+PROLOG -> PROLOG: Execute constraint logic:\n- vessel_at_dock(V, D, Start, End)\n- crane_assigned(C, V, Time)\n- staff_assigned(S, C, Time)\n- minimize sum(delays)
+PROLOG --> OPT_ALGO: Solution: Schedule[], TotalDelay
+
+alt Schedule Found
+    OPT_ALGO -> OPT_ALGO: parsePrologSolution(solution)
+    OPT_ALGO -> OPT_ALGO: Create ScheduleResultDto:\n- assignments[]\n- totalDelay: 120 minutes\n- computationTime: 2.5 seconds
+    OPT_ALGO --> SCHED_CTRL: ScheduleResultDto
+    SCHED_CTRL --> API_CLIENT: 200 OK (schedule)
+    API_CLIENT --> FORM: schedule data
+    FORM -> FORM: Render schedule table:\n- Vessel | Dock | Start | End | Crane | Staff | Delay
+    FORM -> FORM: Render timeline visualization
+    FORM --> LO: Display optimized schedule
+else No Feasible Schedule
+    PROLOG --> OPT_ALGO: No solution (constraints unsatisfiable)
+    OPT_ALGO -> OPT_ALGO: Create InfeasibilityDto:\n"Insufficient crane capacity on Dock A"
+    OPT_ALGO --> SCHED_CTRL: InfeasibilityDto
+    SCHED_CTRL --> API_CLIENT: 200 OK (infeasibility report)
+    API_CLIENT --> FORM: infeasibility data
+    FORM --> LO: Display warning:\n"Cannot schedule - insufficient resources"\nSuggestions: Add cranes or adjust ETD
 end
 
-Service --> Controller : List<ResponseDto>
-deactivate Service
+== Compare with Heuristic (Optional) ==
+LO -> FORM: Click "Compare with Heuristic"
+FORM -> API_CLIENT: generateSchedule(date, "heuristic")
+API_CLIENT -> SCHED_CTRL: POST /api/scheduling/generate\n{date: "2025-11-17", algorithm: "heuristic"}
+SCHED_CTRL -> SCHED_CTRL: Select HeuristicScheduler instead\n(greedy approach, no Prolog)
+SCHED_CTRL --> API_CLIENT: 200 OK (heuristic schedule)
+API_CLIENT --> FORM: heuristic schedule
+FORM -> FORM: Display comparison table:\n| Metric | Optimal | Heuristic |\n| Total Delay | 120 min | 180 min |\n| Computation | 2.5 sec | 0.1 sec |\n| Crane Usage | 85% | 92% |
+FORM --> LO: Show side-by-side comparison
 
-Controller --> Controller : 200 OK + List<ResponseDto>
 
-note over Controller, DataStore
-  **Query Patterns:**
 
-  **GetAll:**
-  - Load all entities
-  - Include related data
-  - AsNoTracking for performance
-
-  **GetById:**
-  - Single entity lookup
-  - Include navigations
-  - Return null if not found
-
-  **GetByFilter:**
-  - Where clause
-  - Pagination support
-  - Sorting support
-end note
 
 @enduml

@@ -1,8 +1,8 @@
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 using System;
 using System.Text.Json.Serialization;
 
-namespace Backend.Domain.Qualifications
+namespace DDDSample1.Domain.Qualifications
 {
     public class QualificationId : EntityId
     {

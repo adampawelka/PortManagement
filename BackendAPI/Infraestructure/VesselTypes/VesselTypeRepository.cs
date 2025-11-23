@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Backend.Domain.VesselTypes;
-using Backend.Infrastructure.Shared;
+using DDDSample1.Domain.VesselTypes;
+using DDDSample1.Infrastructure.Shared;
 
-namespace Backend.Infrastructure.VesselTypes
+namespace DDDSample1.Infrastructure.VesselTypes
 {
     public class VesselTypeRepository : BaseRepository<VesselType, VesselTypeId>, IVesselTypeRepository
     {

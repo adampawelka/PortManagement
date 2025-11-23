@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Backend.Domain.VesselVisitNotifications;
-using Backend.Domain.Docks;
-using Backend.Domain.Vessels;
-using Backend.Domain.ShippingAgents;
+using DDDSample1.Domain.VesselVisitNotifications;
+using DDDSample1.Domain.Docks;
+using DDDSample1.Domain.Vessels;
+using DDDSample1.Domain.ShippingAgents;
 
-namespace Backend.Infrastructure.VesselVisitNotifications
+namespace DDDSample1.Infrastructure.VesselVisitNotifications
 {
     internal class VesselVisitNotificationEntityTypeConfiguration : IEntityTypeConfiguration<VesselVisitNotification>
     {

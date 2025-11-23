@@ -1,9 +1,9 @@
 // (IMPORTANT: This DTO also needs to be in QualificationDto)
 using System;
 using System.Collections.Generic;
-using Backend.Domain.Qualifications;
+using DDDSample1.Domain.Qualifications;
 
-namespace Backend.Domain.StaffMembers
+namespace DDDSample1.Domain.StaffMembers
 {
     public class StaffMemberDto
     {

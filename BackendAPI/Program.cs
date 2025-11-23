@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;           
 using System;
 
-namespace Backend
+namespace DDDSample1
 {
     public class Program
     {
@@ -17,7 +17,7 @@ namespace Backend
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var context = services.GetRequiredService<Backend.Infrastructure.DDDSample1DbContext>();
+                    var context = services.GetRequiredService<DDDSample1.Infrastructure.DDDSample1DbContext>();
 
                     context.Database.Migrate();
                     Console.WriteLine("Database Migrated Successfully.");

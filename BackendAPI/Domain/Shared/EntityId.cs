@@ -1,6 +1,6 @@
 using System;
 
-namespace Backend.Domain.Shared
+namespace DDDSample1.Domain.Shared
 {
     /// <summary>
     /// Base class for entities.

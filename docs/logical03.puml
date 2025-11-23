@@ -1,341 +1,106 @@
 @startuml
-skinparam monochrome true
-skinparam linetype ortho
+!define RECTANGLE class
 
-package "<<Presentation Layer>>" {
-    class Controller <<Abstract>> {
-        # _service : Service
-        + Create(dto) : ActionResult<Dto>
-        + GetById(id) : ActionResult<Dto>
-        + GetAll() : ActionResult<List<Dto>>
-        + Update(id, dto) : ActionResult<Dto>
-        + Delete(id) : ActionResult
+skinparam packageStyle rectangle
+
+title Logical View - Level 3
+
+package "Port Management System" {
+    package "Port Operations Management" {
+        [Dock Management] as DM
+        [Storage Area\nManagement] as SAM
+        [Vessel Visit\nNotification] as VVN
+
+        DM -down-> SAM : distance mapping
     }
 
-    class ShippingAgentsController
-    class VesselVisitsController
-    class ResourcesController
-    class FacilitiesController
+    package "Vessel & Agent Management" {
+        [Vessel Registry] as VR
+        [Vessel Type\nCatalog] as VTC
+        [Shipping Agent\nOrganization] as SAO
+        [Shipping Agent\nRepresentative] as SAR_M
 
-    note right of Controller
-      All controllers follow
-      same pattern:
-      - Thin layer
-      - Route HTTP to Service
-      - Handle exceptions
-      - Return appropriate status codes
-    end note
+        VR --> VTC : references
+        SAO --> SAR_M : manages
+        VR --> SAO : operator
+    }
+
+    package "Resource & Staff Management" {
+        [Physical Resource\nManagement] as PRM
+        [Staff Member\nManagement] as SMM
+        [Qualification\nRegistry] as QR
+        [User & Authorization\nManagement] as UAM
+
+        PRM --> QR : requires
+        SMM --> QR : holds
+    }
+
+    package "Planning & Scheduling Engine" {
+        [Schedule\nComputation] as SC
+        [Dock Assignment\nAlgorithm] as DAA
+        [Resource Allocation\nAlgorithm] as RAA
+
+        DAA --> SC : inputs
+        RAA --> SC : inputs
+    }
+
+    package "3D Visualization Module" {
+        [Scene Renderer] as SR
+        [Camera Controller] as CC
+        [Model Loader] as ML
+
+        SR --> ML : uses models
+        CC --> SR : controls view
+    }
+
+    ' Cross-package relationships
+    VVN --> VR : references vessel
+    VVN --> SAR_M : submitted by
+    VVN --> DM : assigned to dock
+    VVN --> SAM : cargo location
+
+    SC ..> VVN : consumes visit data
+    SC ..> PRM : consumes resources
+    SC ..> SMM : consumes staff
+    SC ..> DM : consumes dock info
+
+    SR ..> DM : renders docks
+    SR ..> SAM : renders storage
+    SR ..> VVN : renders vessels
+    SR ..> PRM : renders resources
+
+    UAM --> SAR_M : associates user
+
 }
 
-package "<<Application Layer>>" {
-    class Service <<Abstract>> {
-        # _repository : IRepository
-        # _unitOfWork : IUnitOfWork
-        + CreateAsync(creatingDto) : Task<Dto>
-        + GetByIdAsync(id) : Task<Dto>
-        + GetAllAsync() : Task<List<Dto>>
-        + UpdateAsync(id, updatingDto) : Task<Dto>
-        + DeleteAsync(id) : Task<bool>
-        # MapToDto(entity) : Dto
-        # ValidateDto(dto) : void
-    }
+actor "Port Authority\nOfficer" as PAO
+actor "Shipping Agent\nRepresentative" as SAR
+actor "Logistics\nOperator" as LO
+actor "System\nAdministrator" as ADMIN
 
-    class ShippingAgentOService
-    class VesselVisitService
-    class ResourceService
-    class FacilityService
+component "External IAM\nProvider" as IAM <<external>>
+database "System\nDatabase" as DB
 
-    package "DTOs" {
-        class CreatingDto <<DTO>> {
-            + Field1 : type
-            + Field2 : type
-            + ...
-        }
+' User interactions
+PAO --> "Port Management System"
+SAR --> "Port Management System"
+LO --> "Port Management System"
+ADMIN --> "Port Management System"
 
-        class UpdatingDto <<DTO>> {
-            + Field1 : type
-            + Field2 : type
-            + ...
-        }
+' System interactions
+"Port Operations Management" --> DB : Reads/Writes
+"Vessel & Agent Management" --> DB : Reads/Writes
+"Resource & Staff Management" --> DB : Reads/Writes
+"Planning & Scheduling Engine" ..> "Port Operations Management" : Consumes\nvisit data
+"Planning & Scheduling Engine" ..> "Resource & Staff Management" : Consumes\nresource data
+"3D Visualization Module" ..> "Port Operations Management" : Reads facility\n& visit data
+"3D Visualization Module" ..> "Resource & Staff Management" : Reads resource\ndata
 
-        class ResponseDto <<DTO>> {
-            + Id : string
-            + Field1 : type
-            + Field2 : type
-            + ...
-        }
-    }
+' Authentication
+PAO -> IAM : Authenticates
+SAR -> IAM : Authenticates
+LO -> IAM : Authenticates
+ADMIN -> IAM : Authenticates
 
-    note right of Service
-      Services orchestrate:
-      - DTO validation
-      - Business logic coordination
-      - Repository calls
-      - Transaction management
-      - DTO mapping
-    end note
-}
-
-package "<<Domain Layer>>" {
-    abstract class Entity<TId> {
-        + Id : TId
-        # Entity(id)
-        + Equals(other) : bool
-        + GetHashCode() : int
-    }
-
-    abstract class EntityId {
-        # ObjValue : object
-        + Value : string
-        # EntityId(value)
-        # {abstract} CreateFromString(text) : object
-        + {abstract} AsString() : string
-        + Equals(other) : bool
-        + GetHashCode() : int
-    }
-
-    interface IValueObject {
-    }
-
-    class ValueObject <<Abstract>> {
-        + Value : type
-        # ValueObject(value)
-        + Equals(other) : bool
-        + GetHashCode() : int
-    }
-
-    class AggregateRoot1 <<Entity>> {
-        + Id : EntityId
-        + ValueObject1 : ValueObject
-        + ValueObject2 : ValueObject
-        + ChildEntities : List<ChildEntity>
-        + DomainMethod1() : void
-        + ValidateInvariant() : void
-    }
-
-    class AggregateRoot2 <<Entity>> {
-        + Id : EntityId
-        + ValueObject3 : ValueObject
-        + ValueObject4 : ValueObject
-        + ChildEntities : List<ChildEntity>
-        + DomainMethod2() : void
-        + ValidateInvariant() : void
-    }
-
-    class ChildEntity <<Entity>> {
-        + Id : EntityId
-        + ValueObject5 : ValueObject
-        + ParentReference : AggregateRootId
-    }
-
-    interface IRepository<TEntity, TId> {
-        + GetByIdAsync(id) : Task<TEntity>
-        + GetAllAsync() : Task<List<TEntity>>
-        + AddAsync(entity) : Task<TEntity>
-        + Remove(entity) : void
-    }
-
-    interface IUnitOfWork {
-        + CommitAsync() : Task<int>
-    }
-
-    class DomainService {
-        + ExecuteComplexLogic(entities) : Result
-        + CoordinateAggregates(...) : void
-    }
-
-    note right of AggregateRoot1
-      Aggregate Roots:
-      - Enforce invariants
-      - Coordinate child entities
-      - Contain business rules
-      - Define consistency boundaries
-
-      Examples:
-      - ShippingAgentOrganization
-      - VesselVisit
-      - PhysicalResource
-      - Dock
-    end note
-
-    note right of ValueObject
-      Value Objects:
-      - Immutable
-      - No identity
-      - Defined by attributes
-      - Validate on construction
-
-      Examples:
-      - LegalName, Address
-      - IMO, VesselName
-      - Email, Phone
-      - Capacity, Duration
-    end note
-}
-
-package "<<Infrastructure Layer>>" {
-    class Repository<TEntity, TId> <<Abstract>> {
-        # _context : DbContext
-        + GetByIdAsync(id) : Task<TEntity>
-        + GetAllAsync() : Task<List<TEntity>>
-        + AddAsync(entity) : Task<TEntity>
-        + Remove(entity) : void
-    }
-
-    class ConcreteRepository1
-    class ConcreteRepository2
-    class ConcreteRepository3
-
-    class UnitOfWork {
-        - _context : DbContext
-        + CommitAsync() : Task<int>
-    }
-
-    class DbContext <<EF Core>> {
-        + DbSet1 : DbSet<Entity1>
-        + DbSet2 : DbSet<Entity2>
-        + DbSet3 : DbSet<Entity3>
-        + OnModelCreating(modelBuilder) : void
-        + SaveChangesAsync() : Task<int>
-    }
-
-    class EntityTypeConfiguration<TEntity> <<Abstract>> {
-        + Configure(builder) : void
-    }
-
-    class ConcreteEntityConfig1
-    class ConcreteEntityConfig2
-
-    class ExternalServiceAdapter {
-        + SendEmail(to, subject, body) : Task
-        + AuthenticateUser(credentials) : Task<User>
-        + StoreDocument(file) : Task<string>
-    }
-
-    note right of Repository
-      Repositories:
-      - Abstract data access
-      - Implement domain interfaces
-      - Use EF Core for queries
-      - Handle change tracking
-
-      One repository per
-      aggregate root
-    end note
-}
-
-package "<<Cross-Cutting Concerns>>" {
-    class BusinessRuleValidationException {
-        + Message : string
-        + BusinessRuleValidationException(message)
-    }
-
-    class AuthenticationMiddleware {
-        + InvokeAsync(context) : Task
-    }
-
-    class LoggingService {
-        + LogInformation(message) : void
-        + LogError(exception, message) : void
-    }
-
-    class ValidationService {
-        + ValidateDto(dto) : ValidationResult
-    }
-}
-
-' Relationships - Presentation to Application
-Controller <|-- ShippingAgentsController
-Controller <|-- VesselVisitsController
-Controller <|-- ResourcesController
-Controller <|-- FacilitiesController
-
-Controller --> Service : uses
-Controller ..> CreatingDto : receives
-Controller ..> ResponseDto : returns
-
-' Application Layer
-Service <|-- ShippingAgentOService
-Service <|-- VesselVisitService
-Service <|-- ResourceService
-Service <|-- FacilityService
-
-Service --> IRepository : uses
-Service --> IUnitOfWork : uses
-Service ..> Entity : manipulates
-Service ..> CreatingDto : accepts
-Service ..> ResponseDto : produces
-Service ..> DomainService : may use
-
-' Domain Layer
-Entity <|-- AggregateRoot1
-Entity <|-- AggregateRoot2
-Entity <|-- ChildEntity
-
-EntityId <|-- "ConcreteEntityId1"
-EntityId <|-- "ConcreteEntityId2"
-
-IValueObject <|.. ValueObject
-ValueObject <|-- "ConcreteValueObject1"
-ValueObject <|-- "ConcreteValueObject2"
-
-AggregateRoot1 *-- EntityId
-AggregateRoot1 *-- ValueObject
-AggregateRoot1 o-- ChildEntity
-
-AggregateRoot2 *-- EntityId
-AggregateRoot2 *-- ValueObject
-
-Entity ..> BusinessRuleValidationException : throws
-
-' Infrastructure
-IRepository <|.. Repository
-Repository <|-- ConcreteRepository1
-Repository <|-- ConcreteRepository2
-Repository <|-- ConcreteRepository3
-
-IUnitOfWork <|.. UnitOfWork
-
-Repository --> DbContext : uses
-UnitOfWork --> DbContext : uses
-
-DbContext ..> EntityTypeConfiguration : configures with
-EntityTypeConfiguration <|-- ConcreteEntityConfig1
-EntityTypeConfiguration <|-- ConcreteEntityConfig2
-
-' Cross-cutting
-AuthenticationMiddleware ..> Controller : secures
-LoggingService ..> Service : logs
-ValidationService ..> CreatingDto : validates
-Service ..> BusinessRuleValidationException : throws
-
-note bottom of "<<Domain Layer>>"
-  **Domain-Driven Design Principles:**
-
-  • Entities: Objects with identity and lifecycle
-  • Value Objects: Immutable, compared by value
-  • Aggregates: Consistency boundaries
-  • Repositories: Collection-like interfaces
-  • Domain Services: Stateless operations
-
-  **No dependencies on:**
-  • Infrastructure
-  • Frameworks
-  • UI concerns
-end note
-
-note bottom of "<<Infrastructure Layer>>"
-  **Implementation Details:**
-
-  • Entity Framework Core for ORM
-  • Repository pattern implementation
-  • External service adapters
-  • Database configurations
-  • Change tracking management
-
-  **Depends on:**
-  • Domain interfaces
-  • EF Core framework
-end note
 
 @enduml

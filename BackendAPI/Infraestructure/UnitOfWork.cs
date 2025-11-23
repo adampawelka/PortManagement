@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 
-namespace Backend.Infrastructure
+namespace DDDSample1.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {

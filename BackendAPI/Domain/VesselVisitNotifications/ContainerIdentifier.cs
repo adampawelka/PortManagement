@@ -1,7 +1,7 @@
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 using System.Text.RegularExpressions;
 
-namespace Backend.Domain.VesselVisitNotifications
+namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public class ContainerIdentifier : IValueObject
     {

@@ -1,4 +1,4 @@
-namespace Backend.Domain.VesselVisitNotifications
+namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public class CrewMemberDto
     {
