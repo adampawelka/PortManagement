@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 // NAMESPACE ESTANDARIZADO A DDDSample1
-namespace DDDSample1.Domain.VesselVisitNotifications
+namespace Backend.Domain.VesselVisitNotifications
 {
     public class VesselVisitNotificationDto
     {

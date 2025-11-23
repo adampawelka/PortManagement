@@ -1,34 +1,33 @@
-using DDDSample1.Domain.Qualifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Backend.Domain.Qualifications;
 
-namespace DDDSample1.Infrastructure.Qualifications
+namespace Backend.Infrastructure.Qualifications
 {
-    internal class QualificationEntityTypeConfiguration : IEntityTypeConfiguration<Qualification>
+    public class QualificationEntityTypeConfiguration : IEntityTypeConfiguration<Qualification>
     {
         public void Configure(EntityTypeBuilder<Qualification> builder)
         {
-            builder.HasKey(x => x.Id);
+            builder.HasKey(q => q.Id);
 
-            builder.OwnsOne(x => x.Code, code =>
-             {
-                 code.Property(p => p.Value)
-                     .IsRequired()
-                     .HasMaxLength(50)
-                     .HasColumnName("Code");
+            builder.Property(q => q.Id)
+                .HasConversion(
+                    id => id.AsString(), 
+                    value => new QualificationId(value) 
+                )
+                .HasColumnType("text"); 
 
+            builder.Property(q => q.Code)
+                .HasConversion(
+                    code => code.Value, 
+                    value => new QualificationCode(value)
+                );
 
-                 code.HasIndex(p => p.Value)
-                     .IsUnique();
-             });
-
-            builder.OwnsOne(x => x.Name, name =>
-            {
-                name.Property(p => p.Value)
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .HasColumnName("Name");
-            });
+            builder.Property(q => q.Name)
+                .HasConversion(
+                    name => name.Value, 
+                    value => new QualificationName(value)
+                );
         }
     }
 }

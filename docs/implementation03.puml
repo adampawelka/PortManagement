@@ -1,0 +1,239 @@
+@startuml implementation03
+skinparam packageStyle rectangle
+skinparam monochrome true
+
+title Implementation View - Level 3\nPort Management System
+
+package "Port Operations Management" {
+    package "Dock Management" <<Rectangle>> {
+        class DocksController {
+        }
+
+        class DockService {
+        }
+
+        interface IDockRepository {
+        }
+
+        class DockRepository {
+        }
+
+        class Dock <<Aggregate Root>> {
+        }
+
+        DocksController --> DockService
+        DockService --> IDockRepository
+        DockRepository ..|> IDockRepository
+        DockRepository --> Dock
+        DockService ..> Dock
+    }
+
+    package "Storage Area Management" <<Rectangle>> {
+        class StorageAreasController {
+        }
+
+        class StorageAreaService {
+          }
+
+        class StorageArea <<Aggregate Root>> {
+        }
+
+        StorageAreasController --> StorageAreaService
+        StorageAreaService --> StorageArea
+    }
+
+    package "Vessel Visit Notification" <<Rectangle>> {
+        class VesselVisitNotificationsController {
+        }
+
+        class VesselVisitNotificationService {
+        }
+
+        class VesselVisitNotification <<Aggregate Root>> {
+        }
+
+        VesselVisitNotificationsController --> VesselVisitNotificationService
+        VesselVisitNotificationService --> VesselVisitNotification
+        VesselVisitNotificationService ..> DockService
+    }
+}
+
+package "Vessel & Agent Management" {
+    package "Vessel Registry" <<Rectangle>> {
+        class VesselsController {
+        }
+
+        class VesselService {
+        }
+
+        class Vessel <<Aggregate Root>> {
+        }
+
+        VesselsController --> VesselService
+        VesselService --> Vessel
+    }
+
+    package "Vessel Type Catalog" <<Rectangle>> {
+        class VesselTypesController {
+        }
+
+        class VesselTypeService {
+        }
+
+        class VesselType <<Aggregate Root>> {
+        }
+
+        VesselTypesController --> VesselTypeService
+        VesselTypeService --> VesselType
+    }
+
+    package "Shipping Agent Organization" <<Rectangle>> {
+        class ShippingAgentsController {
+        }
+
+        class ShippingAgentOrganization <<Aggregate Root>> {
+        }
+
+
+
+        ShippingAgentsController --> ShippingAgentOrganization
+    }
+
+    package "Shipping Agent Representative" <<Rectangle>> {
+        class ShippingAgentRepresentative <<Aggregate Root>> {
+        }
+    }
+
+    Vessel --> VesselType : references
+    ShippingAgentOrganization --> ShippingAgentRepresentative : manages
+}
+
+package "Resource & Staff Management" {
+    package "Physical Resource Management" <<Rectangle>> {
+        class ResourceController {
+        }
+
+        class ResourceService {
+        }
+
+        class Resource <<Aggregate Root>> {
+        }
+
+        ResourceController --> ResourceService
+        ResourceService --> Resource
+    }
+
+    package "Staff Member Management" <<Rectangle>> {
+        class StaffMemberController {
+       }
+
+        class StaffMemberService {
+        }
+
+        class StaffMember <<Aggregate Root>> {
+        }
+
+        StaffMemberController --> StaffMemberService
+        StaffMemberService --> StaffMember
+    }
+
+    package "Qualification Registry" <<Rectangle>> {
+        class QualificationController {
+        }
+
+        class QualificationService {
+        }
+
+        class Qualification <<Aggregate Root>> {
+        }
+
+        QualificationController --> QualificationService
+        QualificationService --> Qualification
+    }
+
+    package "User & Authorization Management" <<Rectangle>> {
+        class UserController {
+        }
+
+        class UserService {
+        }
+
+        class User <<Aggregate Root>> {
+
+        }
+
+        UserController --> UserService
+        UserService --> User
+    }
+
+    Resource --> Qualification : requires
+    StaffMember --> Qualification : holds
+}
+
+package "Planning & Scheduling Engine" {
+    package "Schedule Computation" <<Rectangle>> {
+        class SchedulingController {
+        }
+
+        class OptimalScheduler {
+        }
+
+        class HeuristicScheduler {
+        }
+
+        SchedulingController --> OptimalScheduler
+        SchedulingController --> HeuristicScheduler
+    }
+
+    package "Dock Assignment Algorithm" <<Rectangle>> {
+        class DockAssignmentAlgorithm {
+        }
+    }
+
+    package "Resource Allocation Algorithm" <<Rectangle>> {
+        class ResourceAllocationAlgorithm {
+
+        }
+    }
+}
+
+package "3D Visualization Module" {
+    package "Scene Renderer" <<Rectangle>> {
+        class SceneRenderer {
+        }
+    }
+
+    package "Camera Controller" <<Rectangle>> {
+        class CameraController {
+        }
+    }
+
+    package "Model Loader" <<Rectangle>> {
+        class ModelLoader {
+        }
+    }
+
+    SceneRenderer --> ModelLoader : uses
+    CameraController --> SceneRenderer : controls
+}
+
+' Cross-package relationships
+VesselVisitNotification --> Vessel : references
+VesselVisitNotification --> ShippingAgentRepresentative : submitted by
+VesselVisitNotification --> Dock : assigned to
+VesselVisitNotificationService ..> VesselService : uses
+
+OptimalScheduler ..> VesselVisitNotificationService : consumes visit data
+OptimalScheduler ..> ResourceService : consumes resources
+OptimalScheduler ..> StaffMemberService : consumes staff
+OptimalScheduler ..> DockService : consumes dock info
+
+SceneRenderer ..> DockService : fetches docks
+SceneRenderer ..> StorageAreaService : fetches storage areas
+SceneRenderer ..> VesselVisitNotificationService : fetches vessels
+SceneRenderer ..> ResourceService : fetches resources
+
+User --> ShippingAgentRepresentative : associates with
+
+
+@enduml

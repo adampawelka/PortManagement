@@ -1,6 +1,6 @@
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.Resources
+namespace Backend.Domain.Resources
 {
     public interface IResourceRepository : IRepository<Resource, ResourceId>
     {

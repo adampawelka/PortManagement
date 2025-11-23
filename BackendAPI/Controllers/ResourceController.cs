@@ -66,7 +66,8 @@ namespace DDDSample1.Controllers
                     dto.SetupTime
                 );
 
-                return CreatedAtAction(nameof(GetById), new { id = resource.Id.AsGuid() }, resource);
+                return CreatedAtAction(nameof(GetById), new { id = resource.Id }, resource);
+
             }
             catch (Exception ex)
             {
@@ -121,7 +122,7 @@ namespace DDDSample1.Controllers
             {
                 var resource = await _service.AssignQualificationAsync(
                     new ResourceId(id),
-                    new QualificationId(qualificationId)
+                    new QualificationId(qualificationId.ToString())
                 );
                 if (resource == null)
                     return NotFound();
@@ -141,7 +142,7 @@ namespace DDDSample1.Controllers
             {
                 var resource = await _service.RemoveQualificationAsync(
                     new ResourceId(id),
-                    new QualificationId(qualificationId)
+                    new QualificationId(qualificationId.ToString())
                 );
                 if (resource == null)
                     return NotFound();

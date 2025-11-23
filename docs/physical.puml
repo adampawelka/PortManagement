@@ -2,65 +2,31 @@
 !define NODE node
 !define COMPONENT component
 !define DATABASE database
+!include <C4/C4_Container>
 
 skinparam monochrome true
 
-NODE "Client Tier" {
-    COMPONENT "Web Browser\n(Chrome/Firefox/Edge)" as Browser
+NODE "localhost:5173" {
+        COMPONENT "Browser" {
+            COMPONENT "Single Page Application"
+            COMPONENT "3D Visualization Service"
+        }
 }
 
-NODE "Application Tier\n(Docker Container)" {
-    COMPONENT "ASP.NET Core 8.0" {
-        COMPONENT "Kestrel Web Server" as Kestrel
-        COMPONENT "MVC Framework" as MVC
-        COMPONENT "Dependency Injection" as DI
-    }
-
-    COMPONENT "Application Code" {
-        COMPONENT "Controllers\n(*.dll)" as Controllers
-        COMPONENT "Domain Logic\n(*.dll)" as Domain
-        COMPONENT "Infrastructure\n(*.dll)" as Infra
-    }
-
-    DATABASE "In-Memory Database\nEF Core Provider" as DB
+NODE "localhost:5000" {
+        COMPONENT "API Module"
+        COMPONENT "Scheduling Module"
 }
 
-NODE "External Services Tier" {
-    cloud "Identity Provider\n(OAuth 2.0)" as IDP
-    cloud "Email Service\n(SMTP)" as SMTP
-    cloud "Document Storage\n(optional)" as Storage
+NODE "vs216.dei.isep.ipp.pt" {
+        DATABASE "Relational Database"
 }
 
-Browser -down-> Kestrel : HTTPS\nPort 5001
-Kestrel -down-> MVC
-MVC -down-> Controllers
-Controllers -down-> Domain
-Domain -down-> Infra
-Infra -down-> DB
+NODE "Auth0" {
+}
 
-Controllers -right-> IDP : OAuth 2.0
-Domain -right-> SMTP : Email Notifications
-Infra -right-> Storage : File Storage
-
-note right of "Application Tier\n(Docker Container)"
-  **Deployment Options:**
-  - Docker Container
-  - Azure App Service
-  - On-premises IIS
-
-  **Environment Variables:**
-  - ASPNETCORE_ENVIRONMENT
-  - ConnectionStrings
-  - OAuth Settings
-end note
-
-note right of DB
-  **Development:** In-Memory
-  **Production:** SQL Server
-
-  **Scalability:**
-  Stateless API allows
-  horizontal scaling
-end note
+"localhost:5173" --> "localhost:5000"
+"localhost:5173" --> "Auth0"
+"localhost:5000" -down-> "vs216.dei.isep.ipp.pt"
 
 @enduml

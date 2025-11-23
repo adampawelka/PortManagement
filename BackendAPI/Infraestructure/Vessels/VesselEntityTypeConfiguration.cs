@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DDDSample1.Domain.Vessels;
+using Backend.Domain.Vessels;
 
-namespace DDDSample1.Infrastructure.Vessels
+namespace Backend.Infrastructure.Vessels
 {
     internal class VesselEntityTypeConfiguration : IEntityTypeConfiguration<Vessel>
     {
@@ -11,6 +11,12 @@ namespace DDDSample1.Infrastructure.Vessels
             builder.ToTable("Vessels", SchemaNames.DDDSample1);
             builder.HasKey(b => b.Id);
 
+            builder.Property(v => v.Id)
+            .HasConversion(
+            id => id.AsGuid(),          // to database
+            value => new VesselId(value) // from database
+            );
+            
             builder.OwnsOne(v => v.IMO, imo =>
             {
                 imo.Property(i => i.Value)

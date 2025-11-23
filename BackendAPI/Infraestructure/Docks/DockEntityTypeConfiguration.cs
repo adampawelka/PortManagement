@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using DDDSample1.Domain.Docks;
-using DDDSample1.Domain.VesselTypes;
+using Backend.Domain.Docks;
+using Backend.Domain.VesselTypes;
 using System.Collections.Generic;
 
-namespace DDDSample1.Infrastructure.Docks
+namespace Backend.Infrastructure.Docks
 {
     internal class DockEntityTypeConfiguration : IEntityTypeConfiguration<Dock>
     {
@@ -13,8 +13,13 @@ namespace DDDSample1.Infrastructure.Docks
             builder.ToTable("Docks", SchemaNames.DDDSample1);
             builder.HasKey(b => b.Id);
             builder.Property(b => b.Id)
-                .HasConversion(id => id.Value, value => new DockId(value));
-
+            .HasConversion(
+            id => id.AsGuid(), 
+            value => new DockId(value) 
+            )
+            .HasColumnType("uuid")  
+            .IsRequired();
+            
             builder.OwnsOne(x => x.DockName, n =>
             {
                 n.Property(v => v.Value)

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DDDSample1.Domain.StorageAreas
+namespace Backend.Domain.StorageAreas
 {
     public class StorageAreaDto
     {

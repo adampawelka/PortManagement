@@ -1,9 +1,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.ShippingAgents
+namespace Backend.Domain.ShippingAgents
 {
     public class ShippingAgentOrganization : Entity<ShippingAgentOrganizationId>, IAggregateRoot
     {

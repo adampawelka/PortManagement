@@ -1,8 +1,8 @@
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 using System;
 using System.Linq;
 
-namespace DDDSample1.Domain.Resources
+namespace Backend.Domain.Resources
 {
     public class AvailabilityStatus : IValueObject
     {

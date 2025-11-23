@@ -1,71 +1,55 @@
-@startuml
-skinparam monochrome true
+@startuml sequence01
+autonumber
 
-participant "Web UI" as UI
-participant "ShippingAgents\nController" as Controller
-participant "ShippingAgentO\nService" as Service
-participant "ShippingAgent\nOrganization\n(Entity)" as Entity
-participant "ShippingAgentO\nRepository" as Repo
-participant "DbContext" as DB
-participant "UnitOfWork" as UOW
+title Sequence View - Level 1\nSubmit Vessel Visit Notification (High-Level Flow)
 
-== US06: Register Shipping Agent Organization ==
+actor "Shipping Agent\nRepresentative" as SAR
+participant "Frontend" as SPA
+participant "IAM Provider" as IAM
+participant "Backend API" as API
+participant "Database" as DB
 
-UI -> Controller : POST /api/ShippingAgents\n{dto}
-activate Controller
+== Authentication ==
+SAR -> SPA: Access system
+SPA -> IAM: Authenticate user
+IAM -> IAM: Verify credentials
+IAM --> SPA: Return access token
+SPA -> API: Validate token & get role
+API --> SPA: Return user role & permissions
+SPA -> SPA: Render appropriate UI
 
-Controller -> Service : RegisterOrganizationAsync(dto)
-activate Service
+== Submit Vessel Visit Notification ==
+SAR -> SPA: Fill visit notification form\n(vessel, ETA/ETD, cargo manifest)
+SPA -> SPA: Validate form data\n(ISO 6346 container IDs)
 
-Service -> Service : Validate DTO
-Service -> Service : Generate unique ID
+SAR -> SPA: Submit notification
+SPA -> API: POST /api/vesselvisitnotifications\n(Authorization: Bearer token)
+API -> API: Validate user authorization
+API -> API: Validate business rules
+API -> DB: Check vessel exists
+DB --> API: Vessel data
+API -> DB: Check agent authorized for vessel
+DB --> API: Authorization confirmed
+API -> DB: Save notification (status: "submitted")
+DB --> API: Notification created
+API --> SPA: 201 Created (notification DTO)
+SPA --> SAR: Display success message
 
-Service -> Repo : GetByIdAsync(id)
-activate Repo
-Repo -> DB : Find by ID
-activate DB
-DB --> Repo : null (not found)
-deactivate DB
-Repo --> Service : null
-deactivate Repo
+== View Notification Status ==
+SAR -> SPA: View my notifications
+SPA -> API: GET /api/vesselvisitnotifications\n?representativeId=xxx
+API -> DB: Query notifications
+DB --> API: Notification list
+API --> SPA: Return notification DTOs
+SPA --> SAR: Display notifications with status
 
-Service -> Entity : new ShippingAgentOrganization(...)
-activate Entity
-Entity -> Entity : Validate business rules
-Entity --> Service : organization instance
-deactivate Entity
-
-Service -> Repo : AddAsync(organization)
-activate Repo
-Repo -> DB : Add to ChangeTracker
-DB --> Repo : tracked entity
-deactivate Repo
-
-Service -> UOW : CommitAsync()
-activate UOW
-UOW -> DB : SaveChangesAsync()
-activate DB
-DB -> DB : Generate SQL INSERT
-DB -> DB : Execute transaction
-DB --> UOW : rows affected
-deactivate DB
-UOW --> Service : success
-deactivate UOW
-
-Service -> Service : MapToDto(organization)
-Service --> Controller : OrganizationDto
-deactivate Service
-
-Controller --> UI : 201 Created\n{organizationDto}
-deactivate Controller
-
-note over UI, UOW
-  Standard DDD flow:
-  Controller → Service → Entity → Repository → DbContext
-
-  Entity enforces business rules
-  Repository abstracts data access
-  UnitOfWork manages transactions
+note right of API
+  Status can be:
+  - In Progress
+  - Submitted
+  - Pending Approval
+  - Approved
+  - Rejected
 end note
 
 @enduml

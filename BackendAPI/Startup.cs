@@ -53,9 +53,7 @@ namespace DDDSample1
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DDDSample1DbContext>(opt =>
-                opt.UseInMemoryDatabase("DDDSample1DB")
-                   .ReplaceService<IValueConverterSelector, StronglyEntityIdValueConverterSelector>());
+            services.AddDbContext<DDDSample1DbContext>(options =>options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
             ConfigureMyServices(services);
 
@@ -149,15 +147,6 @@ namespace DDDSample1
         public void ConfigureMyServices(IServiceCollection services)
         {
             services.AddTransient<IUnitOfWork, UnitOfWork>();
-
-            services.AddTransient<ICategoryRepository, CategoryRepository>();
-            services.AddTransient<CategoryService>();
-
-            services.AddTransient<IProductRepository, ProductRepository>();
-            services.AddTransient<ProductService>();
-
-            services.AddTransient<IFamilyRepository, FamilyRepository>();
-            services.AddTransient<FamilyService>();
 
             services.AddTransient<IShippingAgentORepository, ShippingAgentORepository>();
             services.AddTransient<IShippingAgentRRepository, ShippingAgentRRepository>();

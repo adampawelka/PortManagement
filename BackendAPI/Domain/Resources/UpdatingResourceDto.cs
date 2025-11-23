@@ -1,4 +1,4 @@
-namespace DDDSample1.Domain.Resources
+namespace Backend.Domain.Resources
 {
     public class UpdatingResourceDto
     {

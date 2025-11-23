@@ -1,11 +1,36 @@
 @startuml
-'https://plantuml.com/sequence-diagram
+!include <C4/C4_Container>
 
-autonumber
+title Implementation View - Level 2
+Container_Boundary(pm, "Port Management System") {
+    Container_Boundary(frontend, "Frontend Layer") {
+        Container(spa, "Single Page Application", "React")
+        Container(viz, "3D Visualization Service", "Three.js")
+    }
 
-Alice -> Bob: Authentication Request
-Bob --> Alice: Authentication Response
+    Container_Boundary(backend, "Backend Layer") {
+        Container(api, "Backend API Module", ".NET Core")
+        Container(scheduling, "Scheduling API Module", ".NET Core + Prolog")
+    }
 
-Alice -> Bob: Another authentication Request
-Alice <-- Bob: another authentication Response
+    Container_Boundary(data, "Data Layer") {
+        ContainerDb(db, "Relational Database", "PostgreSQL")
+    }
+
+    Container_Boundary(external, "External Services") {
+        Container(iam, "Identity Provider", "Google/Microsoft", "Auth0 authentication")
+    }
+}
+
+Rel(spa, api, "Consumes", "HTTPS/REST")
+Rel(spa, scheduling, "Requests schedules", "HTTPS/REST")
+Rel(spa, viz, "Loads 3D scene", "HTTPS/WebGL")
+Rel(spa, iam, "Authenticates", "Auth0")
+
+Rel(api, db, "Reads/Writes", "EF Core/ADO.NET")
+Rel(scheduling, api, "Consumes data", "HTTPS/REST")
+Rel(viz, api, "Fetches layout data", "HTTPS/REST")
+
+
+
 @enduml

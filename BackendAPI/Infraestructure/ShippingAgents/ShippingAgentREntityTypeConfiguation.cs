@@ -1,9 +1,9 @@
-using DDDSample1.Domain.ShippingAgents;
-using DDDSample1.Infrastructure;
+using Backend.Domain.ShippingAgents;
+using Backend.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DDDSample1.Infrastructure.ShippingAgents
+namespace Backend.Infrastructure.ShippingAgents
 {
     public class ShippingAgentREntityTypeConfiguration : IEntityTypeConfiguration<ShippingAgentRepresentative>
     {
@@ -14,8 +14,11 @@ namespace DDDSample1.Infrastructure.ShippingAgents
             builder.HasKey(b => b.Id);
             builder.Property(b => b.Id)
                 .HasConversion(
-                    id => id.AsString(),
-                    value => new ShippingAgentRepresentativeId(value));
+                    id => id.AsGuid(),  // To DB: Guid/uuid
+                    value => new ShippingAgentRepresentativeId(value.ToString())  // From DB
+                )
+                .HasColumnType("uuid")
+                .IsRequired();
 
             // Value Objects as Owned Types
             builder.OwnsOne(b => b.Name, name =>

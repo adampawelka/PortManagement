@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.Qualifications
+namespace Backend.Domain.Qualifications
 {
     public class QualificationService
     {
@@ -19,13 +19,13 @@ namespace DDDSample1.Domain.Qualifications
         public async Task<List<QualificationDto>> GetAllAsync()
         {
             var qualifications = await _repo.GetAllAsync();
-            return qualifications.Select(ToDto).ToList();
+            return qualifications.Select(MapToDto).ToList();
         }
 
         public async Task<QualificationDto> GetByIdAsync(QualificationId id)
         {
             var qualification = await _repo.GetByIdAsync(id);
-            return qualification == null ? null : ToDto(qualification);
+            return qualification == null ? null : MapToDto(qualification);
         }
 
         public async Task<QualificationDto> AddAsync(string code, string name)
@@ -42,7 +42,7 @@ namespace DDDSample1.Domain.Qualifications
             await _repo.AddAsync(qualification);
             await _unitOfWork.CommitAsync();
 
-            return ToDto(qualification);
+            return MapToDto(qualification);
         }
 
         public async Task<QualificationDto> UpdateAsync(QualificationId id, string code, string name)
@@ -60,16 +60,16 @@ namespace DDDSample1.Domain.Qualifications
             qualification.Update(qualificationCode, qualificationName);
             await _unitOfWork.CommitAsync();
 
-            return ToDto(qualification);
+            return MapToDto(qualification);
         }
 
-        private QualificationDto ToDto(Qualification qualification)
+        private QualificationDto MapToDto(Qualification qualification)
         {
-            return new QualificationDto(
-                qualification.Id.AsGuid(),
-                qualification.Code.Value,
-                qualification.Name.Value
-            );
+            return new QualificationDto {
+                Id = qualification.Id.AsString(),
+                Code = qualification.Code.Value,
+                Name = qualification.Name.Value
+            };
         }
     }
 }

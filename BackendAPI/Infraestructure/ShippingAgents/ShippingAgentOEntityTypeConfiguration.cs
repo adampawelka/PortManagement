@@ -1,8 +1,8 @@
-using DDDSample1.Domain.ShippingAgents;
+using Backend.Domain.ShippingAgents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DDDSample1.Infrastructure.ShippingAgents
+namespace Backend.Infrastructure.ShippingAgents
 {
     public class ShippingAgentOEntityTypeConfiguration : IEntityTypeConfiguration<ShippingAgentOrganization>
     {

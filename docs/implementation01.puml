@@ -1,30 +1,37 @@
-@startuml
+@startuml implementation01
 skinparam componentStyle rectangle
 skinparam monochrome true
 
-node "Client Browser" {
-    [Web SPA] as SPA
+title Implementation View - Level 1
+
+
+rectangle "Port Management System" as PMS {
+  [Web Application\n(SPA)] as SPA
+  [Backend Services\n(.NET Core)] as Backend
+  [Database\n(PostgreSQL/SQL Server)] as DB
+
+  SPA -down-> Backend : REST/HTTPS
+  Backend -down-> DB : SQL
 }
 
-node "Application Server" {
-    [ASP.NET Core API] as API
-    database "In-Memory Database" as DB
-}
+rectangle "Identity Provider\n(Google/Microsoft/Facebook)" as IDP
+rectangle "Email Service" as Email
 
-cloud "External Services" {
-    [Identity Provider] as IDP
-    [Email Service] as Email
-}
 
-SPA --> API : HTTPS/REST
-API --> DB : EF Core ORM
-API --> IDP : OAuth 2.0
-API --> Email : SMTP
+Backend --> IDP : Auth0
+Backend --> Email : SMTP
 
-note right of API
-  Single deployment unit
-  containing all business logic,
-  API endpoints, and data access
+note right of PMS
+  Technology Stack:
+  - Frontend: React + Three.js
+  - Backend: .NET Core 8.0 + Prolog
+  - Database: PostgreSQL/SQL Server
+  - Deployment: Docker containers
+end note
+
+note left of IDP
+  External authentication
+  supports multiple providers
 end note
 
 @enduml

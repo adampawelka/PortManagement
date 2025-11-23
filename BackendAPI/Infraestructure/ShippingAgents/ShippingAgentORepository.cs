@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DDDSample1.Domain.ShippingAgents;
-using DDDSample1.Infrastructure.Shared;
+using Backend.Domain.ShippingAgents;
+using Backend.Infrastructure.Shared;
 using Microsoft.EntityFrameworkCore;
 
-namespace DDDSample1.Infrastructure.ShippingAgents
+namespace Backend.Infrastructure.ShippingAgents
 {
     public class ShippingAgentORepository : BaseRepository<ShippingAgentOrganization, ShippingAgentOrganizationId>, IShippingAgentORepository
     {

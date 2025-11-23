@@ -1,8 +1,8 @@
-using DDDSample1.Domain.Shared;
+using Backend.Domain.Shared;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace DDDSample1.Domain.VesselTypes
+namespace Backend.Domain.VesselTypes
 {
     public interface IVesselTypeRepository : IRepository<VesselType, VesselTypeId>
     {

@@ -1,6 +1,7 @@
-using DDDSample1.Domain.Shared;
+using System;
+using Backend.Domain.Shared;
 
-namespace DDDSample1.Domain.ShippingAgents
+namespace Backend.Domain.ShippingAgents
 {
     public class ShippingAgentRepresentativeId : EntityId
     {
@@ -11,6 +12,10 @@ namespace DDDSample1.Domain.ShippingAgents
         }
 
         public override string AsString() => Value.ToString();
+        public Guid AsGuid()
+        {
+            return (Guid)ObjValue;
+        }
 
         protected override object createFromString(string text)
         {
