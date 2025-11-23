@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 
-namespace Backend.Domain.StaffMembers
+namespace DDDSample1.Domain.StaffMembers
 {
     public interface IStaffMemberRepository : IRepository<StaffMember, StaffMemberId>
     {

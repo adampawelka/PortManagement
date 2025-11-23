@@ -1,7 +1,7 @@
 using System;
 
 // Asegúrate de que el namespace coincide con tu carpeta Shared
-namespace Backend.Domain.Shared
+namespace DDDSample1.Domain.Shared
 {
     public class EntityNotFoundException : Exception
     {

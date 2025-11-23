@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Backend.Domain.Vessels;
+using DDDSample1.Domain.Vessels;
+using Microsoft.AspNetCore.Authorization;
 
-namespace Backend.Controllers
+namespace DDDSample1.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class VesselsController : ControllerBase

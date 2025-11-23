@@ -1,0 +1,27 @@
+/* src/styles/variables.css */
+
+:root {
+  /* Colors */
+  --color-primary: #200963;
+  --color-primary-light: #3c18a3;
+  --color-background: #f5f5f5;
+  --color-text-light: #ffffff;
+  --color-text-dark: #222222;
+
+  /* Font */
+  --font-family-base: "Roboto", "Segoe UI", sans-serif;
+  --font-size-small: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-large: 1.25rem;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+}

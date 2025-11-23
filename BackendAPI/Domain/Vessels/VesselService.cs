@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Domain.Shared;
-using Backend.Domain.VesselTypes;
-using Backend.Domain.ShippingAgents;
+using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.VesselTypes;
+using DDDSample1.Domain.ShippingAgents;
 
-namespace Backend.Domain.Vessels
+namespace DDDSample1.Domain.Vessels
 {
     public class VesselService
     {

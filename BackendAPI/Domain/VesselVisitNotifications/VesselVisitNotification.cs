@@ -1,13 +1,13 @@
 // NAMESPACE ESTANDARIZADO A DDDSample1
 using System;
 using System.Collections.Generic;
-using Backend.Domain.Shared;
-using Backend.Domain.Vessels;
-using Backend.Domain.ShippingAgents;
+using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.Vessels;
+using DDDSample1.Domain.ShippingAgents;
 using System.Linq;
-using Backend.Domain.Docks; // <--- AÑADIDO DE 2.2.8   
+using DDDSample1.Domain.Docks; // <--- AÑADIDO DE 2.2.8   
 
-namespace Backend.Domain.VesselVisitNotifications
+namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public class VesselVisitNotification : Entity<VesselVisitNotificationId>, IAggregateRoot
     {

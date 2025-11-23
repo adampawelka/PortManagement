@@ -1,9 +1,9 @@
-using Backend.Domain.Shared;
-using Backend.Domain.Qualifications;
+using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.Qualifications;
 using System;
 using System.Collections.Generic;
 
-namespace Backend.Domain.Resources
+namespace DDDSample1.Domain.Resources
 {
     public class Resource : Entity<ResourceId>, IAggregateRoot
     {

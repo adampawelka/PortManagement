@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 
-using Backend.Domain.Shared;
-using Backend.Domain.Docks;
+using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.Docks;
+using Microsoft.AspNetCore.Authorization;
 
-namespace Backend.Controllers
+namespace DDDSample1.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class DocksController : ControllerBase

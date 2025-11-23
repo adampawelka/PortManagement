@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 
-using Backend.Domain.Shared;
-using Backend.Domain.VesselVisitNotifications;
+using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.VesselVisitNotifications;
 // Asegúrate de que este 'using' también existe para los DTOs de Dock
-using Backend.Domain.Docks; 
-
-namespace Backend.Controllers
+using DDDSample1.Domain.Docks; 
+using Microsoft.AspNetCore.Authorization;
+namespace DDDSample1.Controllers
 {
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class VesselVisitNotificationsController : ControllerBase

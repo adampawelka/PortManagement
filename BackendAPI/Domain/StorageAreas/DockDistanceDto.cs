@@ -1,6 +1,6 @@
 using System;
 
-namespace Backend.Domain.StorageAreas
+namespace DDDSample1.Domain.StorageAreas
 {
     public class DockDistanceDto
     {

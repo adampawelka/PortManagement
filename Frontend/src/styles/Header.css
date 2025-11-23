@@ -1,0 +1,30 @@
+@import "./variables.css";
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: var(--spacing-md) auto;
+  padding: clamp(var(--spacing-sm), 1vw, var(--spacing-lg)) clamp(var(--spacing-md), 2vw, var(--spacing-xl));
+  background-color: var(--color-background);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+  font-family: var(--font-family-base);
+}
+
+.header-logo {
+  height: clamp(40px, 5vw, 60px); /* scales with screen */
+  margin-right: clamp(var(--spacing-sm), 2vw, var(--spacing-md));
+}
+
+.header-title {
+  font-size: clamp(var(--font-size-large), 2vw, 2rem); /* responsive font size */
+  margin: 0;
+  color: var(--color-text-dark);
+}

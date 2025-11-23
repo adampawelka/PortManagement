@@ -1,7 +1,7 @@
 using System;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 
-namespace Backend.Domain.VesselTypes {
+namespace DDDSample1.Domain.VesselTypes {
     public class OperationalConstraints : IValueObject {
         public int MaxRows { get; private set; }
         public int MaxBays { get; private set; }

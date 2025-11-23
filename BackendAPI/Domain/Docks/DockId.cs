@@ -1,8 +1,8 @@
 using System;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 using Newtonsoft.Json;
 
-namespace Backend.Domain.Docks
+namespace DDDSample1.Domain.Docks
 {
     public class DockId : EntityId
     {

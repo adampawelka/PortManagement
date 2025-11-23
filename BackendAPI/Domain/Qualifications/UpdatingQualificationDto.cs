@@ -1,4 +1,4 @@
-namespace Backend.Domain.Qualifications
+namespace DDDSample1.Domain.Qualifications
 {
     public class UpdatingQualificationDto
     {

@@ -1,10 +1,10 @@
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 
-namespace Backend.Domain.VesselVisitNotifications
+namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public interface IVesselVisitNotificationRepository : IRepository<VesselVisitNotification, VesselVisitNotificationId>
     {

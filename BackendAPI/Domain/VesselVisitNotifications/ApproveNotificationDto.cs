@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Backend.Domain.VesselVisitNotifications
+namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public class ApproveNotificationDto
     {

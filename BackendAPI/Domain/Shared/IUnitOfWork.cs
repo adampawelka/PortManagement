@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Backend.Domain.Shared
+namespace DDDSample1.Domain.Shared
 {
     public interface IUnitOfWork
     {

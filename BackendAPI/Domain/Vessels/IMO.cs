@@ -1,7 +1,7 @@
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 using System.Text.RegularExpressions;
 
-namespace Backend.Domain.Vessels
+namespace DDDSample1.Domain.Vessels
 {
     public class IMO : IValueObject
     {

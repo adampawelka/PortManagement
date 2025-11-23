@@ -1,4 +1,4 @@
-namespace Backend.Infrastructure
+namespace DDDSample1.Infrastructure
 {
     internal class SchemaNames
     {
