@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Domain.Shared;
-using Backend.Domain.Qualifications;
+using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.Qualifications;
 
-namespace Backend.Domain.Resources
+namespace DDDSample1.Domain.Resources
 {
     public class ResourceService
     {

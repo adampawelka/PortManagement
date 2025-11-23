@@ -1,4 +1,4 @@
-namespace Backend.Domain.StaffMembers
+namespace DDDSample1.Domain.StaffMembers
 {
     public enum StaffStatus
     {

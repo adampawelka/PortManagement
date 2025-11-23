@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Backend.Domain.Qualifications;
-using Backend.Infrastructure.Shared;
+using DDDSample1.Domain.Qualifications;
+using DDDSample1.Infrastructure.Shared;
 
-namespace Backend.Infrastructure.Qualifications
+namespace DDDSample1.Infrastructure.Qualifications
 {
     public class QualificationRepository : BaseRepository<Qualification, QualificationId>, IQualificationRepository
     {

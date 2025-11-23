@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 
-namespace Backend.Domain.ShippingAgents
+namespace DDDSample1.Domain.ShippingAgents
 {
     public interface IShippingAgentRRepository : IRepository<ShippingAgentRepresentative, ShippingAgentRepresentativeId>
     {

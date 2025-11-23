@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Backend.Domain.StorageAreas
+namespace DDDSample1.Domain.StorageAreas
 {
     public class DockDistanceInput
     {

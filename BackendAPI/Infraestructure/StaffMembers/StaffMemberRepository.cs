@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Backend.Domain.StaffMembers;
-using Backend.Infrastructure.Shared;
+using DDDSample1.Domain.StaffMembers;
+using DDDSample1.Infrastructure.Shared;
 using System.Threading.Tasks;
 using System;
 
-namespace Backend.Infrastructure.StaffMembers
+namespace DDDSample1.Infrastructure.StaffMembers
 {
     public class StaffMemberRepository : BaseRepository<StaffMember, StaffMemberId>, IStaffMemberRepository
     {

@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Backend.Domain.Qualifications;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Qualifications;
+using DDDSample1.Domain.Shared;
 
-namespace Backend.Domain.StaffMembers
+namespace DDDSample1.Domain.StaffMembers
 {
     public class StaffMemberService
     {

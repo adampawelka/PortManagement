@@ -6,7 +6,6 @@ using DDDSample1.Domain.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims; 
-using Microsoft.AspNetCore.Authorization;
 
 // endpoints used by Administrator pass 'Guid id' and endpoints used by SPA while authentication pass 'string id' to the service
 namespace DDDSample1.Controllers

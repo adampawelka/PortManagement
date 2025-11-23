@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Backend.Domain.StaffMembers;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.StaffMembers;
+using DDDSample1.Domain.Shared;
 using System.Threading.Tasks;
 using System;
 
-namespace Backend.Controllers
+namespace DDDSample1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

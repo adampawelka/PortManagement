@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Backend.Domain.VesselTypes;
+using DDDSample1.Domain.VesselTypes;
 
-namespace Backend.Domain.Docks
+namespace DDDSample1.Domain.Docks
 {
     public class DockDto
     {

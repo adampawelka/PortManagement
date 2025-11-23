@@ -1,10 +1,10 @@
-using Backend.Domain.Shared;
-using Backend.Domain.Qualifications;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
+using DDDSample1.Domain.Qualifications;
+using DDDSample1.Domain.Shared;
 using System.Collections.Generic;
 using System;
 
-namespace Backend.Domain.StaffMembers
+namespace DDDSample1.Domain.StaffMembers
 {
     public class StaffMember : Entity<StaffMemberId>, IAggregateRoot
     {

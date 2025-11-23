@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Backend.Domain.ShippingAgents;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.ShippingAgents;
+using DDDSample1.Domain.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Backend.Controllers
+namespace DDDSample1.Controllers
 {
     [Authorize] 
     [Route("api/[controller]")]

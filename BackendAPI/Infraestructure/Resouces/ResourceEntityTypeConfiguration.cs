@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Backend.Domain.Resources;
+using DDDSample1.Domain.Resources;
 
-namespace Backend.Infrastructure.Resources
+namespace DDDSample1.Infrastructure.Resources
 {
     public class ResourceEntityTypeConfiguration : IEntityTypeConfiguration<Resource>
     {

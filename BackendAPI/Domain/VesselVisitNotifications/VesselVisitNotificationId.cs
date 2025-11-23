@@ -1,8 +1,8 @@
 using System;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 using Newtonsoft.Json;
 
-namespace Backend.Domain.VesselVisitNotifications
+namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public class VesselVisitNotificationId : EntityId
     {

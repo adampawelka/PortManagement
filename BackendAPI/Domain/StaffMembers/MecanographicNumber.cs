@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Backend.Domain.Shared;
+using DDDSample1.Domain.Shared;
 
-namespace Backend.Domain.StaffMembers
+namespace DDDSample1.Domain.StaffMembers
 {
     public class MecanographicNumber : IValueObject
     {
