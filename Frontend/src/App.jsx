@@ -194,7 +194,7 @@ const App = () => {
         <Route
           path="visualisation"
           element={
-            <ProtectedRoute requiredRoles={["admin", "user"]}>
+            <ProtectedRoute requiredRoles={["admin", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <Visualisation />
             </ProtectedRoute>
           }
@@ -203,7 +203,7 @@ const App = () => {
         <Route
           path="scheduling"
           element={
-            <ProtectedRoute requiredRoles={["LogisticsOperator"]}>
+            <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
               <Scheduling />
             </ProtectedRoute>
           }
@@ -212,7 +212,7 @@ const App = () => {
         <Route
           path="schedule"
           element={
-            <ProtectedRoute requiredRoles={["LogisticsOperator"]}>
+            <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
               <Schedule />
             </ProtectedRoute>
           }
@@ -221,7 +221,7 @@ const App = () => {
         <Route
           path="user-management"
           element={
-            <ProtectedRoute requiredRoles={["Administrator"]}>
+            <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
               <UserManagement />
             </ProtectedRoute>
           }
