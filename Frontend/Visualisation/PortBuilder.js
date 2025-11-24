@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { MaterialManager } from "./Port_Visualisation/materials.js";
+import { MaterialManager } from "./Basic_Thumb_Raiser/materials.js";
 
 export class PortBuilder {
   constructor(scene) {
