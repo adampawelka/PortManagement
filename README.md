@@ -24,7 +24,7 @@ The system is developed iteratively across three sprints (A, B, C), starting wit
     - Student 1: [Tiago Soares, 1231246, LAPR5;ARQSI;ASIST;GESTA;IARTI;SGRAI]
     - Student 2: [Julia Kardasz, 1250264, LAPR5;ASIST;IARTI;SGRAI]
     - Student 3: [Adam Pawełka, 1250184, LAPR5;ASIST;IARTI]
-    - Student 4: [Guillermo Navarro, 1250247, LAPR5;ARQSI;ASIST;SGRAI]
+    - Student 4: [Guillermo Navarro, 1250247, LAPR5;ARQSI;ASIST;SGRAI;IARTI]
     - Student 5: [Patricia Galán, 1250311, ASIST;SGRAI;ARQSI;IARTI]
 
 ## Technologies and Tools
