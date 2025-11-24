@@ -5,7 +5,7 @@ import { MaterialManager } from "./Basic_Thumb_Raiser/materials.js";
 export class PortBuilder {
   constructor(scene) {
     this.scene = scene;
-    this.loader = new GLTFLoader(); // To initialize models motor
+    this.loader = new GLTFLoader(); // Model loader
     this.materialManager = new MaterialManager();
     this.data = null;
     this.lights = {};
@@ -27,14 +27,14 @@ export class PortBuilder {
       });
 
       this.buildWater();
-      console.log("Puerto realista cargado.");
+      console.log("Realistic port loaded.");
     } catch (error) {
-      console.error("Error cargando port-layout.json:", error);
+      console.error("Error loading port-layout.json:", error);
     }
   }
 
   // ==========================
-  //  NUEVO: datos dinámicos
+  //  NEW: dynamic data
   // ==========================
 
   /**
@@ -48,21 +48,18 @@ export class PortBuilder {
     const { vesselVisitNotifications, resources, docks } = dynamicData || {};
 
     if (!vesselVisitNotifications || !resources) {
-      console.warn("applyDynamicData: faltan datos de VVN o Resources");
+      console.warn("applyDynamicData: missing VVN or Resources data");
       return;
     }
 
-    // --- 1) Construir un mapa dockId -> posición aproximada en el puerto ---
+    //Build a map dockId: approximate position in the port
     const dockPositionMap = this.buildDockPositionMap(docks);
 
-    // --- 2) Barcos de visitas aprobadas con muelle asignado ---
+    //Vessels with Approved status and assigned dock 
     const approvedVisits = vesselVisitNotifications.filter((v) => {
-      // ⚠️ AJUSTA ESTAS PROPIEDADES A TU DTO REAL:
-      // status: string, por ejemplo "Approved"
-      // assignedDockId: Guid del muelle asignado
       return (
-        v.status === "Approved" && // TODO: cambia si tu estado se llama distinto
-        v.assignedDockId &&        // TODO: ajusta al nombre real de la propiedad
+        v.status === "Approved" &&
+        v.assignedDockId &&
         dockPositionMap[v.assignedDockId]
       );
     });
@@ -72,10 +69,9 @@ export class PortBuilder {
       this.addVesselFromBackend(visit, dockPos, index);
     });
 
-    // --- 3) Recursos con área asignada ---
+    // Resources with assigned area 
     const resourcesWithArea = resources.filter((r) => {
-      // ⚠️ AJUSTA ESTAS PROPIEDADES A TU DTO REAL:
-      // assignedAreaCode / assignedAreaName / assignedAreaId...
+      // Adjust these to your DTO fields:
       return r.assignedAreaCode || r.assignedAreaName || r.assignedAreaId;
     });
 
@@ -85,7 +81,7 @@ export class PortBuilder {
     });
   }
 
-  // Mapea cada dockId a una posición base en el puerto.
+  // Maps each dockId to a base position in the port
   buildDockPositionMap(docks) {
     const map = {};
 
@@ -93,7 +89,7 @@ export class PortBuilder {
       return map;
     }
 
-    // Posiciones base que puedes ajustar para que coincidan con tus docks reales
+    // Base positions you can adapt to your real port layout
     const basePositions = [
       new THREE.Vector3(0, 0, 0),
       new THREE.Vector3(160, 0, 0),
@@ -101,12 +97,12 @@ export class PortBuilder {
     ];
 
     docks.forEach((dock, index) => {
-      // ⚠️ AJUSTA ESTE NOMBRE A TU DTO: asumo dock.id
+      // Adjust: assuming dock.id
       const id = dock.id || dock.Id;
       if (!id) return;
 
       const base = basePositions[index % basePositions.length];
-      // Una pequeña variación en Z para varios barcos por dock
+      // Slight Z variation to place multiple vessels in one dock
       map[id] = new THREE.Vector3(base.x, base.y, base.z + index * 10);
     });
 
@@ -114,7 +110,7 @@ export class PortBuilder {
   }
 
   getDefaultAreaPosition(index) {
-    // Posiciones donde colocar grúas / recursos; ajusta según tu escenario
+    // Default positions for cranes/resources
     const x = -80 + (index % 4) * 40;
     const z = -40 - Math.floor(index / 4) * 40;
     return new THREE.Vector3(x, 0, z);
@@ -123,8 +119,7 @@ export class PortBuilder {
   addVesselFromBackend(visit, position, index) {
     if (!position) return;
 
-    // Puedes elegir el modelo según el tipo de buque si tu DTO lo tiene
-    // Por defecto, usamos un container ship
+    // Select a model depending on vessel type (optional)
     const modelPath = "/models/container_ship.glb";
 
     this.loader.load(
@@ -135,7 +130,7 @@ export class PortBuilder {
         const scale = 40.0;
         ship.scale.set(scale, scale, scale);
         ship.position.copy(position);
-        ship.rotation.y = Math.PI; // que mire hacia el muelle
+        ship.rotation.y = Math.PI; // Facing the dock
 
         ship.traverse((node) => {
           if (node.isMesh) {
@@ -146,11 +141,11 @@ export class PortBuilder {
 
         this.scene.add(ship);
         this.dynamicObjects.vessels.push(ship);
-        console.log("Barco añadido para visita:", visit.id || visit.Id);
+        console.log("Vessel added for visit:", visit.id || visit.Id);
       },
       undefined,
       (error) => {
-        console.warn("No se pudo cargar container_ship.glb, usando cubo de fallback", error);
+        console.warn("Failed to load container_ship.glb, using fallback cube", error);
 
         const geometry = new THREE.BoxGeometry(30, 10, 80);
         const material = new THREE.MeshStandardMaterial({ color: 0xff6600 });
@@ -169,7 +164,7 @@ export class PortBuilder {
   addResourceFromBackend(resource, position) {
     if (!position) return;
 
-    // ⚠️ Ajusta el tipo según tu DTO: type, resourceType, etc.
+    // Adjust this to your DTO: type or resourceType
     const type = (resource.type || resource.resourceType || "").toLowerCase();
 
     let modelPath = "";
@@ -198,16 +193,15 @@ export class PortBuilder {
 
           this.scene.add(obj);
           this.dynamicObjects.resources.push(obj);
-          console.log("Recurso añadido:", resource.code || resource.id);
+          console.log("Resource added:", resource.code || resource.id);
         },
         undefined,
         (error) => {
-          console.warn("No se pudo cargar modelo para recurso, usando cubo de fallback", error);
+          console.warn("Failed to load model for resource, using fallback cube", error);
           this.addResourceFallbackCube(resource, position);
         }
       );
     } else {
-      // Si no hay modelo específico, cubo genérico
       this.addResourceFallbackCube(resource, position);
     }
   }
@@ -226,14 +220,17 @@ export class PortBuilder {
   }
 
   // ==========================
-  //  Código original
+  //  Original code
   // ==========================
 
-  //Brigther ligths
+  // Brighter lights
   setupLights() {
     const config = this.data.lighting;
 
-    const ambientLight = new THREE.AmbientLight(config.ambient.color, config.ambient.intensity);
+    const ambientLight = new THREE.AmbientLight(
+      config.ambient.color,
+      config.ambient.intensity
+    );
     this.lights.ambient = ambientLight;
     this.scene.add(ambientLight);
 
@@ -258,6 +255,7 @@ export class PortBuilder {
 
     this.lights.directional = sunLight;
     this.scene.add(sunLight);
+
     const hemisphereLight = new THREE.HemisphereLight(
       config.hemisphere.skyColor,
       config.hemisphere.groundColor,
@@ -266,7 +264,7 @@ export class PortBuilder {
     this.lights.hemisphere = hemisphereLight;
     this.scene.add(hemisphereLight);
 
-    // 4. Sky Background
+    // Sky background
     this.scene.background = new THREE.Color(config.hemisphere.skyColor);
 
     this.scene.fog = new THREE.Fog(0xa0d8ef, 40, 135);
@@ -274,7 +272,7 @@ export class PortBuilder {
   }
 
   buildFacility(facility) {
-    // 1. If it is an imported model
+    //Imported models
     if (
       facility.type === "vessel" ||
       facility.type === "container_stack" ||
@@ -284,28 +282,27 @@ export class PortBuilder {
       return;
     }
 
-    // 2. If it's a simple object
+    //Simple procedural objects
     this.buildProceduralBlock(facility);
   }
 
-  // For imported models
+  //For imported models
   loadModelForFacility(facility) {
-    // Some variables of each model
     let modelPath = "";
     let scale = 1;
     let rotationY = 0;
     let yOffset = 0;
 
-    // Models
+    //Models
     if (facility.id === "BIG_CARGO") {
       modelPath = "/models/container_ship.glb";
       scale = 40.0;
-      rotationY = Math.PI; // To look to opposite
+      rotationY = Math.PI;
       yOffset = 6.0;
     } else if (facility.id === "SMALL_BOAT") {
       modelPath = "/models/fishing_boat.glb";
       scale = 4.0;
-      rotationY = -Math.PI / 2; // Rotate 90 degrees
+      rotationY = -Math.PI / 2;
       yOffset = 3.0;
     } else if (facility.type === "container_stack") {
       modelPath = "/models/container_stack.glb";
@@ -315,27 +312,23 @@ export class PortBuilder {
       modelPath = "/models/crane.glb";
       scale = 1.2;
       yOffset = 0.0;
-      rotationY = Math.PI / 2; // Rotate it to look to the ship
+      rotationY = Math.PI / 2;
     }
 
-    // If it isn't an imported model get out
     if (!modelPath) return;
 
-    // LOAD
     this.loader.load(modelPath, (gltf) => {
       const model = gltf.scene;
 
-      // We apply the Offset logic
       model.position.set(
         facility.position.x,
-        facility.position.y + yOffset, // Sumamos la altura extra
+        facility.position.y + yOffset,
         facility.position.z
       );
 
       model.scale.set(scale, scale, scale);
       model.rotation.y = rotationY;
 
-      // Shadows
       model.traverse((node) => {
         if (node.isMesh) {
           node.castShadow = true;
@@ -344,11 +337,11 @@ export class PortBuilder {
       });
 
       this.scene.add(model);
-      console.log(`Cargado: ${facility.name}`);
+      console.log(`Loaded: ${facility.name}`);
     });
   }
 
-  // Simple objects (Dock)
+  //Simple objects (dock)
   buildProceduralBlock(facility) {
     const width = facility.dimensions.width;
     const height = facility.dimensions.depth;
@@ -359,7 +352,11 @@ export class PortBuilder {
     const repeatU = width / 2;
     const repeatV = length / 2;
     const materialConfig = this.data.materials.dock;
-    const material = this.materialManager.createMaterial(materialConfig, repeatU, repeatV);
+    const material = this.materialManager.createMaterial(
+      materialConfig,
+      repeatU,
+      repeatV
+    );
     const mesh = new THREE.Mesh(geometry, material);
 
     mesh.position.set(
@@ -374,12 +371,12 @@ export class PortBuilder {
     this.scene.add(mesh);
   }
 
-  // Make de sea
+  // Make the sea
   buildWater() {
     const geometry = new THREE.PlaneGeometry(10000, 10000);
 
-    const repeatU = 100; // Tile 100 times horizontally
-    const repeatV = 100; // Tile 100 times vertically
+    const repeatU = 100;
+    const repeatV = 100;
 
     const materialConfig = this.data.materials.water;
     const material = this.materialManager.createMaterial(materialConfig, repeatU, repeatV);
@@ -407,7 +404,6 @@ export class PortBuilder {
   }
 
   dispose() {
-    // Remove lights
     Object.values(this.lights).forEach((light) => this.scene.remove(light));
     this.lights = {};
   }
