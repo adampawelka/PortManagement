@@ -10,6 +10,9 @@ using System.Linq;
 
 using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Domain.Docks;
+using DDDSample1.Domain.StaffMembers;
+using DDDSample1.Domain.Resources;
+
 
 
 
