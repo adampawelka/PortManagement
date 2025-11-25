@@ -12,4 +12,10 @@
     <ProjectReference Include="..\..\BackendAPI\Backend.csproj" />
   </ItemGroup>
 
+  <Target Name="RemoveDuplicateAppSettingsFromBackend" BeforeTargets="Publish">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'appsettings.json' And '%(ResolvedFileToPublish.DefiningProjectFullName)' == '$(MSBuildThisFileDirectory)..\..\BackendAPI\Backend.csproj'" />
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(ResolvedFileToPublish.Filename)%(ResolvedFileToPublish.Extension)' == 'appsettings.Development.json' And '%(ResolvedFileToPublish.DefiningProjectFullName)' == '$(MSBuildThisFileDirectory)..\..\BackendAPI\Backend.csproj'" />
+    </ItemGroup>
+  </Target>
 </Project>
