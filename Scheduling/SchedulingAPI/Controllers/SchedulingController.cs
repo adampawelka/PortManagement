@@ -55,7 +55,7 @@ namespace SchedulingAPI.Controllers
                 Console.WriteLine($"Algorithm: {algorithm}");
                 Console.WriteLine($"Executing File: {scriptPath}");
                 Console.WriteLine($"Query: {query}");
-\
+
                 string result = RunPrologQuery(query, scriptPath);
 
                 return Ok(new 
