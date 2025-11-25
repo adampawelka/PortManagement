@@ -8,7 +8,7 @@ export default class CameraController {
         // State
         this.mousePosition = new THREE.Vector2();
         this.isRotating = false;
-        this.isZooming = false;
+        //this.isZooming = false;
 
         this.target = new THREE.Vector3(0, 0, 0);
         this.floorY = floorY; // floor level
@@ -43,7 +43,7 @@ export default class CameraController {
     }
 
     mouseDown(event) {
-        if (event.buttons === 1) this.isZooming = true;      // left button drag = zoom
+        //if (event.buttons === 1) this.isZooming = true;      // left button drag = zoom
         if (event.buttons === 2) this.isRotating = true;     // right button drag = rotate
         this.mousePosition.set(event.clientX, event.clientY);
     }
@@ -65,12 +65,12 @@ export default class CameraController {
             this.spherical.phi = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, this.spherical.phi));
         }
 
-        if (this.isZooming) {
-            const zoomSpeed = 0.05;
-            let newRadius = this.spherical.radius + delta.y * zoomSpeed;
-            newRadius = Math.max(this.minDistance, Math.min(this.maxDistance, newRadius));
-            this.spherical.radius = newRadius;
-        }
+        // if (this.isZooming) {
+        //     const zoomSpeed = 0.05;
+        //     let newRadius = this.spherical.radius + delta.y * zoomSpeed;
+        //     newRadius = Math.max(this.minDistance, Math.min(this.maxDistance, newRadius));
+        //     this.spherical.radius = newRadius;
+        // }
 
         // Convert spherical to Cartesian
         const offset = new THREE.Vector3().setFromSpherical(this.spherical);
@@ -90,7 +90,7 @@ export default class CameraController {
 
     mouseUp() {
         this.isRotating = false;
-        this.isZooming = false;
+        //this.isZooming = false;
     }
 
     mouseWheel(event) {
