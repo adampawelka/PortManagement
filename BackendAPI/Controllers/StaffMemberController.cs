@@ -3,6 +3,7 @@ using DDDSample1.Domain.StaffMembers;
 using DDDSample1.Domain.Shared;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 
 namespace DDDSample1.Controllers
 {
@@ -56,13 +57,21 @@ namespace DDDSample1.Controllers
                 return Conflict(new { message = ex.Message });
             }
         }
-        
+
         // (Aquí iría el endpoint GET para que funcione CreatedAtAction)
         [HttpGet("{id}")]
         public async Task<ActionResult<StaffMemberDto>> GetStaffMemberById(Guid id)
         {
             // (Esta lógica deberías implementarla en tu servicio)
             return Ok(new { Message = "Endpoint 'GetById' no implementado, pero necesario para CreatedAtAction." });
+        }
+
+        // GET: api/staffmembers
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<StaffMemberDto>>> GetAllStaffMembers()
+        {
+            var staffMembers = await _service.GetAllStaffMembersAsync();
+            return Ok(staffMembers);
         }
     }
 }
