@@ -14,7 +14,9 @@ const PrimaryNavigation = () => {
   
   // Filter menu items based on the user's role
   const filteredMenuItems = menuItems.filter(
-    (item) => !item.roles || item.roles.includes(currentUserRole)
+    (item) => 
+      (!item.roles || item.roles.includes(currentUserRole)) &&
+      !["visualisation", "scheduling"].includes(item.key)
   );
 
   // Recursive function to render submenus
