@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using DDDSample1.Domain.StaffMembers;
 using DDDSample1.Infrastructure.Shared;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System;
 
 namespace DDDSample1.Infrastructure.StaffMembers
@@ -15,7 +16,7 @@ namespace DDDSample1.Infrastructure.StaffMembers
         }
 
         // Cargamos las cualificaciones
-        public async Task<StaffMember> GetByIdAsync(StaffMemberId id)
+        public async Task<StaffMember> GetStaffByIdAsync(StaffMemberId id)
         {
             return await _context.StaffMembers
                 .Include(s => s.Qualifications)
@@ -27,5 +28,13 @@ namespace DDDSample1.Infrastructure.StaffMembers
             return await _context.StaffMembers
                 .FirstOrDefaultAsync(s => s.MecanographicNumber == mecNumber);
         }
+
+        public async Task<List<StaffMember>> GetAllStaffAsync()
+        {
+            return await _context.StaffMembers
+                .Include(s => s.Qualifications) // optional, if you want qualifications loaded
+                .ToListAsync();
+        }
+
     }
 }

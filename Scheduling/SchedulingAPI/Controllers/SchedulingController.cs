@@ -10,6 +10,9 @@ using System.Linq;
 
 using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Domain.Docks;
+using DDDSample1.Domain.StaffMembers;
+using DDDSample1.Domain.Resources;
+
 
 
 
@@ -223,8 +226,6 @@ namespace SchedulingAPI.Controllers
                 // if (allResources == null)
                 //     return BadRequest(new { message = "No resources received from the API." });
 
-
-
                 // Filter available cranes (type = Crane, status = Active, no assigned dock)
                 // var availableCranes = allResources
                 //     .Where(r => r.Type == "Crane" && r.Status == "Active")
@@ -334,11 +335,12 @@ namespace SchedulingAPI.Controllers
                     {
                         schedule = result,
                         dock = dock.DockName,
-                        crane = "to-add",
-                        staff = "todo",
-                        area = "to-add"
+                        crane = "to-add", // availableCranes.ResourceName;
+                        staff = "todo" // staff.MecanographicNumber
+                        //area = "to-add" // area.Name
                     };
                     //availableCranes.Remove(crane);
+                    //availableStaff.Remove(staff);
                 }
 
                 if (!dockSchedules.Any())
