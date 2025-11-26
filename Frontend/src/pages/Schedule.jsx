@@ -67,7 +67,7 @@ const Schedule = () => {
     return null;
   };
 
-  const parsePrologResult = (resultString, dockName, craneCode, areaID) => {
+  const parsePrologResult = (resultString, dockName, craneCode, allStaff, areaID) => {
     if (!resultString) return [];
     let cleaned = resultString.replace(/Brute Force Execution Time:.*?\n/i, "")
       .replace(/Execution Time:.*?\n/i, "").trim();
@@ -97,7 +97,7 @@ const Schedule = () => {
         endSlot: parseInt(endSlot),
         dock: dockName || "Unknown Dock",
         crane: craneCode || "Unassigned",
-        staff: assignedStaff ? assignedStaff.name : "Unassigned",
+        staff: assignedStaff ? assignedStaff.MecanographicNumber : "Unassigned",
         area: areaID || "Unassigned",
       };
     });

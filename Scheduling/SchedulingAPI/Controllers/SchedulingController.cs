@@ -12,6 +12,7 @@ using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Domain.Docks;
 using DDDSample1.Domain.StaffMembers;
 using DDDSample1.Domain.Resources;
+using DDDSample1.Domain.StorageAreas;
 
 
 
@@ -225,30 +226,46 @@ namespace SchedulingAPI.Controllers
                     .GroupBy(v => v.AssignedDockId)
                     .ToList();
 
+                //fetching resources
+                var resourceResponse = await client.GetAsync("http://localhost:5000/api/Resources");
+                resourceResponse.EnsureSuccessStatusCode();
+                var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
 
+                if (allResources == null)
+                    return BadRequest(new { message = "No resources received from the API." });
 
-                // fetching resources
-                // var resourceResponse = await client.GetAsync("http://localhost:5000/api/Resources");
-                // resourceResponse.EnsureSuccessStatusCode();
-                // var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
-
-                // if (allResources == null)
-                //     return BadRequest(new { message = "No resources received from the API." });
-
-                // Filter available cranes (type = Crane, status = Active, no assigned dock)
-                // var availableCranes = allResources
-                //     .Where(r => r.Type == "Crane" && r.Status == "Active")
-                //     .ToList();
+                //Filter available cranes (type = Crane, status = Active, no assigned dock)
+                var availableCranes = allResources
+                    .Where(r => r.Type == "Crane" && r.Status == "Active")
+                    .ToList();
 
                 // if (!availableCranes.Any())
                 //     return BadRequest(new { message = "No available active cranes." });
 
-                // Fetch all staff
-                //var staffResponse = await client.GetAsync("http://localhost:5000/api/Staff");
-                //staffResponse.EnsureSuccessStatusCode();
-                //var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffDto>>();
+               
+                //Fetch all staff
+                var staffResponse = await client.GetAsync("http://localhost:5000/api/StaffMembers");
+                staffResponse.EnsureSuccessStatusCode();
 
 
+                var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffMemberDto>>();
+                if (allStaff == null)
+                    return BadRequest(new { message = "No staff members received from the API." });
+
+                // if (!allStaff.Any())
+                //     return BadRequest(new { message = "No available staff." });
+
+                var areaResponse = await client.GetAsync("http://localhost:5000/api/StorageAreas");
+                areaResponse.EnsureSuccessStatusCode();
+                
+                var allAreas = await areaResponse.Content.ReadFromJsonAsync<List<StorageAreaDto>>();
+                if (allAreas == null)
+                    return BadRequest(new { message = "No storage areas received from the API." });
+                
+                // if (!allAreas.Any())
+                //     return BadRequest(new { message = "No available storage areas." });
+
+                 Console.WriteLine("❌ before");
 
                 var dockSchedules = new Dictionary<string, object>();
 
@@ -261,6 +278,7 @@ namespace SchedulingAPI.Controllers
                     dockResponse.EnsureSuccessStatusCode();
                     var dock = await dockResponse.Content.ReadFromJsonAsync<DockDto>();
 
+                    Console.WriteLine("❌❌❌ after");
                     if (dock == null)
                         return BadRequest(new { message = "No dock received from the API." });
 
@@ -337,7 +355,7 @@ namespace SchedulingAPI.Controllers
                     var craneRandom = new Random();
 
                     // Pick a random crane for this dock
-                    //var crane = availableCranes[craneRandom.Next(availableCranes.Count)];
+                    var crane = availableCranes.Any() ? availableCranes[craneRandom.Next(availableCranes.Count)] : null;
                     //var requiredQualifications = crane.Qualifications; // List<Guid>
 
                     //                 var qualifiedStaff = allStaff
@@ -352,12 +370,12 @@ namespace SchedulingAPI.Controllers
                     {
                         schedule = result,
                         dock = dock.DockName,
-                        crane = "to-add", // availableCranes.ResourceName;
-                        allstaff = "to-add", // staff.MecanographicNumber
+                        crane = "to-add", //crane.Code, 
+                        allstaff = "to-add",
                         area = "to-add" // area.Name
                     };
-                    //availableCranes.Remove(crane);
-
+                    availableCranes.Remove(crane);
+                    Console.WriteLine("FINISHED!!!");
                 }
 
                 if (!dockSchedules.Any())

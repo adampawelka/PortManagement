@@ -15,6 +15,7 @@ using DDDSample1.Domain.Vessels;
 using DDDSample1.Domain.Docks;
 using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Domain.Users;
+using DDDSample1.Domain.StaffMembers;
 using DDDSample1.Infrastructure.ShippingAgents;
 using DDDSample1.Infrastructure.VesselTypes;
 using DDDSample1.Infrastructure.Docks;
@@ -26,6 +27,7 @@ using DDDSample1.Infrastructure.Qualifications;
 using DDDSample1.Domain.Resources;
 using DDDSample1.Infrastructure.Resources;
 using DDDSample1.Infrastructure.Users;
+using DDDSample1.Infrastructure.StaffMembers;
 
 // JWT
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -154,6 +156,8 @@ namespace DDDSample1
             services.AddTransient<UserService>();
             services.AddTransient<IPendingUserRepository, PendingUserRepository>();
             services.AddTransient<PendingUserService>();
+            services.AddTransient<IStaffMemberRepository, StaffMemberRepository>();
+            services.AddTransient<StaffMemberService>();
         }
     }
 }
