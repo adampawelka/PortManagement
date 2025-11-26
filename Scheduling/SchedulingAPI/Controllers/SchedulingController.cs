@@ -217,7 +217,7 @@ namespace SchedulingAPI.Controllers
                     .ToList();
 
 
-                
+
                 // fetching resources
                 // var resourceResponse = await client.GetAsync("http://localhost:5000/api/Resources");
                 // resourceResponse.EnsureSuccessStatusCode();
@@ -268,7 +268,7 @@ namespace SchedulingAPI.Controllers
                     {
                         // Calculate load/unload time based on number of containers
                         int containerCount = v.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
-                        
+
                         // Formula: 2 hours base time + 2 hours per container
                         int loadTime = 2 + (containerCount * 2);
                         int unloadTime = 2 + (containerCount * 2);
@@ -329,6 +329,14 @@ namespace SchedulingAPI.Controllers
 
                     // Pick a random crane for this dock
                     //var crane = availableCranes[craneRandom.Next(availableCranes.Count)];
+                    //var requiredQualifications = crane.Qualifications; // List<Guid>
+
+                    //                 var qualifiedStaff = allStaff
+                    //                  .Where(staff => requiredQualifications
+                    //                  .All(req => staff.Qualifications.Any(sq => sq.Id == req)))
+                    //                  .ToList();
+
+
 
 
                     dockSchedules[dockId] = new
@@ -336,11 +344,11 @@ namespace SchedulingAPI.Controllers
                         schedule = result,
                         dock = dock.DockName,
                         crane = "to-add", // availableCranes.ResourceName;
-                        staff = "todo" // staff.MecanographicNumber
-                        //area = "to-add" // area.Name
+                        allstaff = "to-add", // staff.MecanographicNumber
+                        area = "to-add" // area.Name
                     };
                     //availableCranes.Remove(crane);
-                    //availableStaff.Remove(staff);
+
                 }
 
                 if (!dockSchedules.Any())
@@ -415,7 +423,7 @@ namespace SchedulingAPI.Controllers
                 Console.WriteLine($"Testing {algorithmNameForLog} algorithm with hardcoded data");
 
                 string query = $"{facts} {queryPredicate}, format('~w~n', [Solution]), format('TotalDelay:~w~n', [TotalDelay]), nl, halt.";
-                
+
                 // Execute Prolog query
                 string result = RunPrologQuery(query, scriptToUse);
 
@@ -425,7 +433,7 @@ namespace SchedulingAPI.Controllers
                 string executionTime = "N/A";
                 // Pattern to match numbers including scientific notation (e.g., 9.274482727050781e-5)
                 string scientificNotationPattern = @"([\d.]+(?:[eE][+-]?\d+)?)";
-                
+
                 if (result.Contains("Execution Time:"))
                 {
                     var timeMatch = System.Text.RegularExpressions.Regex.Match(result, @"Execution Time:\s*" + scientificNotationPattern);
@@ -550,6 +558,7 @@ namespace SchedulingAPI.Controllers
                 return output;
             }
         }
+
     }
 }
 

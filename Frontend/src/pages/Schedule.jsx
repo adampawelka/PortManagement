@@ -14,17 +14,17 @@ const Schedule = () => {
   const slotToTime = (slot) => {
     const slotNum = parseInt(slot);
     if (isNaN(slotNum)) return slot;
-    
+
     const hours = slotNum % 24;
     const days = Math.floor(slotNum / 24);
     const timeStr = `${hours.toString().padStart(2, '0')}:00`;
-    
+
     return days > 0 ? `${timeStr} (+${days}d)` : timeStr;
   };
 
   // --- Helper to get vessel notification by name ---
   const getVesselNotification = (vesselName) => {
-    return vesselNotifications.find(n => 
+    return vesselNotifications.find(n =>
       n.vesselName.toLowerCase().replace(/\s+/g, '_') === vesselName.toLowerCase()
     );
   };
@@ -33,10 +33,10 @@ const Schedule = () => {
   const calculateDelay = (endSlot, etd) => {
     const endSlotNum = parseInt(endSlot);
     if (isNaN(endSlotNum) || !etd) return "N/A";
-    
+
     const etdDate = new Date(etd);
     const etdHour = etdDate.getHours();
-    
+
     const delay = endSlotNum - etdHour;
     return delay > 0 ? `${delay}h` : "On time";
   };
@@ -48,17 +48,17 @@ const Schedule = () => {
       /Brute Force Execution Time:\s*([\d.e-]+)/i,
       /Execution Time:\s*([\d.e-]+)/i
     ];
-    
+
     for (const pattern of patterns) {
       const match = resultString.match(pattern);
       if (match) return parseFloat(match[1]);
     }
-    
+
     return null;
   };
 
   // --- Helper to parse Prolog output ---
-  const parsePrologResult = (resultString, dockName, craneCode, staffID, areaID) => {
+  const parsePrologResult = (resultString, dockName, craneCode, areaID) => {
     if (!resultString) return [];
 
     // Remove ALL execution time messages
@@ -66,16 +66,26 @@ const Schedule = () => {
       .replace(/Brute Force Execution Time:.*?\n/i, "")
       .replace(/Execution Time:.*?\n/i, "")
       .trim();
-    
+
     cleaned = cleaned.replace(/\[|\]/g, "").trim();
     if (!cleaned) return [];
 
     return cleaned.split(/\),/).map((item) => {
       const clean = item.replace(/\(|\)/g, "").trim();
       const parts = clean.split(",");
-      
+
       const startSlot = parts[1]?.trim() || "";
       const endSlot = parts[2]?.trim() || "";
+
+      const availableStaff = allStaff.filter(s => {
+        const [startOp, endOp] = s.operationalWindow.split("-").map(Number);
+        return startSlot >= startOp && endSlot <= endOp;
+      });
+
+      // Pick one randomly, or "Unassigned" if none available
+      const assignedStaff = availableStaff.length > 0
+        ? availableStaff[Math.floor(Math.random() * availableStaff.length)]
+        : null;
 
       return {
         vessel: parts[0]?.trim() || "",
@@ -85,7 +95,7 @@ const Schedule = () => {
         endSlot: parseInt(endSlot),      // Store raw slot number
         dock: dockName || "Unknown Dock",
         crane: craneCode || "Unassigned",
-        staff: staffID || "Unassigned",
+        staff: assignedStaff ? assignedStaff.name : "Unassigned",
         area: areaID || "Unassigned"
       };
     });
@@ -109,12 +119,12 @@ const Schedule = () => {
         const notificationsResponse = await fetch(
           `http://localhost:5000/api/VesselVisitNotifications`
         );
-        
+
         if (notificationsResponse.ok) {
           const allNotifications = await notificationsResponse.json();
           // Filter for approved vessels on the target date
-          const dateNotifications = allNotifications.filter(n => 
-            n.status === "Approved" && 
+          const dateNotifications = allNotifications.filter(n =>
+            n.status === "Approved" &&
             new Date(n.eta).toISOString().split('T')[0] === isoDate
           );
           setVesselNotifications(dateNotifications);
@@ -123,6 +133,7 @@ const Schedule = () => {
         console.warn("Could not fetch vessel notifications:", notifError);
         // Continue anyway - ETA/ETD columns will show "N/A"
       }
+
 
       // Fetch schedule (always use Brute Force for optimal solution)
       const response = await fetch(
@@ -208,10 +219,10 @@ const Schedule = () => {
               <tbody>
                 {scheduleResults.map((item, idx) => {
                   const notification = getVesselNotification(item.vessel);
-                  const eta = notification ? new Date(notification.eta).toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'}) : "N/A";
-                  const etd = notification ? new Date(notification.etd).toLocaleTimeString('en-GB', {hour: '2-digit', minute: '2-digit'}) : "N/A";
+                  const eta = notification ? new Date(notification.eta).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : "N/A";
+                  const etd = notification ? new Date(notification.etd).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : "N/A";
                   const delay = notification ? calculateDelay(item.endSlot, notification.etd) : "N/A";
-                  
+
                   return (
                     <tr key={idx}>
                       <td>{item.vessel}</td>
