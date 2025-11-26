@@ -371,7 +371,7 @@ namespace SchedulingAPI.Controllers
                         schedule = result,
                         dock = dock.DockName,
                         crane = "to-add", //crane.Code, 
-                        allstaff = "to-add",
+                        allstaff = allStaff,
                         area = "to-add" // area.Name
                     };
                     availableCranes.Remove(crane);

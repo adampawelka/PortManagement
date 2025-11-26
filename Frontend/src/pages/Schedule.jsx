@@ -80,10 +80,11 @@ const Schedule = () => {
       const startSlot = parts[1]?.trim() || "";
       const endSlot = parts[2]?.trim() || "";
 
-      const availableStaff = allStaff.filter((s) => {
+      const availableStaff = (allStaff || []).filter((s) => {
         const [startOp, endOp] = s.operationalWindow.split("-").map(Number);
         return startSlot >= startOp && endSlot <= endOp;
       });
+
 
       const assignedStaff = availableStaff.length > 0
         ? availableStaff[Math.floor(Math.random() * availableStaff.length)]
@@ -179,7 +180,8 @@ const Schedule = () => {
           dockInfo.schedule,
           dockInfo.dock || dockId,
           dockInfo.crane,
-          dockInfo.staff
+          dockInfo.staff,
+          dockInfo.area
         );
       });
 
@@ -204,7 +206,35 @@ const Schedule = () => {
       </div>
       {loading && <p>Generating schedule...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
-      {/* Render table here as before */}
+      {scheduleResults.length > 0 && (
+        <table style={{ margin: "0 auto", borderCollapse: "collapse", marginTop: "20px" }}>
+          <thead>
+            <tr>
+              <th style={{ border: "1px solid black", padding: "5px" }}>Vessel</th>
+              <th style={{ border: "1px solid black", padding: "5px" }}>Dock</th>
+              <th style={{ border: "1px solid black", padding: "5px" }}>Crane</th>
+              <th style={{ border: "1px solid black", padding: "5px" }}>Start</th>
+              <th style={{ border: "1px solid black", padding: "5px" }}>End</th>
+              <th style={{ border: "1px solid black", padding: "5px" }}>Staff</th>
+              <th style={{ border: "1px solid black", padding: "5px" }}>Area</th>
+            </tr>
+          </thead>
+          <tbody>
+            {scheduleResults.map((item, index) => (
+              <tr key={index}>
+                <td style={{ border: "1px solid black", padding: "5px" }}>{item.vessel}</td>
+                <td style={{ border: "1px solid black", padding: "5px" }}>{item.dock}</td>
+                <td style={{ border: "1px solid black", padding: "5px" }}>{item.crane}</td>
+                <td style={{ border: "1px solid black", padding: "5px" }}>{item.start}</td>
+                <td style={{ border: "1px solid black", padding: "5px" }}>{item.end}</td>
+                <td style={{ border: "1px solid black", padding: "5px" }}>{item.staff}</td>
+                <td style={{ border: "1px solid black", padding: "5px" }}>{item.area}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
     </div>
   );
 };
