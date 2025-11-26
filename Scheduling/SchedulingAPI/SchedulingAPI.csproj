@@ -7,18 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.20" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
-    <ProjectReference Include="..\..\BackendAPI\Backend.csproj" />
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.20" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+      
+      <ProjectReference Include="..\BackendAPI\BackendAPI.csproj">
+          <ExcludeAssets>contentFiles</ExcludeAssets>
+      </ProjectReference>
   </ItemGroup>
-  
-<Target Name="RemoveConflictingAppSettingsFromBackend" BeforeTargets="Publish">
-    <ItemGroup>
-        <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" 
-            Condition="'%(ResolvedFileToPublish.RelativePath)' Like 'appsettings.%.json' Or 
-                       '%(ResolvedFileToPublish.RelativePath)' == 'appsettings.json'"
-        />
-    </ItemGroup>
-</Target>
+
+  <Target Name="RemoveConflictingAppSettingsFromBackend" BeforeTargets="Publish">
+      <ItemGroup>
+          <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" 
+              Condition="'%(ResolvedFileToPublish.RelativePath)' Like 'appsettings.%.json' Or 
+                        '%(ResolvedFileToPublish.RelativePath)' == 'appsettings.json'"
+          />
+      </ItemGroup>
+  </Target>
 
 </Project>
