@@ -12,13 +12,13 @@
     <ProjectReference Include="..\..\BackendAPI\Backend.csproj" />
   </ItemGroup>
   
-  <Target Name="RemoveConflictingAppSettingsFromBackend" BeforeTargets="Publish">
-      <ItemGroup>
-          <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" 
-              Condition="'%(ResolvedFileToPublish.RelativePath)' Like 'appsettings.%.json' Or 
-                        '%(ResolvedFileToPublish.RelativePath)' == 'appsettings.json'"
-          />
-      </ItemGroup>
+  <!-- Remove BackendAPI appsettings files from being published -->
+  <Target Name="ExcludeBackendAppSettingsFromPublish" BeforeTargets="Publish">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" 
+        Condition=" '%(ResolvedFileToPublish.RelativePath)' == 'appsettings.json' 
+                 Or '%(ResolvedFileToPublish.RelativePath)' == 'appsettings.Development.json' " />
+    </ItemGroup>
   </Target>
 
 </Project>
