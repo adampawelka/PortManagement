@@ -11,10 +11,14 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
     <ProjectReference Include="..\..\BackendAPI\Backend.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-      <Content Remove="..\BackendAPI\appsettings.json" />
-      <Content Remove="..\BackendAPI\appsettings.*.json" />
-  </ItemGroup>
+  
+<Target Name="RemoveConflictingAppSettingsFromBackend" BeforeTargets="Publish">
+    <ItemGroup>
+        <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" 
+            Condition="'%(ResolvedFileToPublish.RelativePath)' Like 'appsettings.%.json' Or 
+                       '%(ResolvedFileToPublish.RelativePath)' == 'appsettings.json'"
+        />
+    </ItemGroup>
+</Target>
 
 </Project>
