@@ -193,12 +193,21 @@ namespace SchedulingAPI.Controllers
             }
             try
             {
+
+                var authHeader = Request.Headers["Authorization"].ToString();
+                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+                {
+                    return Unauthorized(new { message = "Missing or invalid token." });
+                }
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
                 // Fetch vessels from the VesselVisitNotifications API
                 var client = _httpClientFactory.CreateClient();
+                client.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
                 var response = await client.GetAsync("http://localhost:5000/api/VesselVisitNotifications");
                 response.EnsureSuccessStatusCode();
                 var vessels = await response.Content.ReadFromJsonAsync<List<VesselVisitNotificationDto>>();
-
                 if (vessels == null)
                     return BadRequest(new { message = "No vessels received from the API." });
 

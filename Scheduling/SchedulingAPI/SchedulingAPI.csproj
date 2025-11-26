@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\BackendAPI\Backend.csproj">
-      <Private>false</Private>
+      <Private>true</Private>
       <ExcludeAssets>contentFiles</ExcludeAssets>
     </ProjectReference>
   </ItemGroup>

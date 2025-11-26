@@ -4,18 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.OpenApi.Models;
 using DDDSample1.Infrastructure;
 using DDDSample1.Infrastructure.Shared;
 using DDDSample1.Infrastructure.VesselVisitNotifications;
-using DDDSample1.Domain.Shared; 
+using DDDSample1.Domain.Shared;
 using DDDSample1.Domain.ShippingAgents;
 using DDDSample1.Domain.VesselTypes;
 using DDDSample1.Domain.Vessels;
 using DDDSample1.Domain.Docks;
 using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Domain.Users;
-using Microsoft.OpenApi.Models;
 using DDDSample1.Infrastructure.ShippingAgents;
 using DDDSample1.Infrastructure.VesselTypes;
 using DDDSample1.Infrastructure.Docks;
@@ -31,7 +30,6 @@ using DDDSample1.Infrastructure.Users;
 // JWT
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using System;
 
 namespace DDDSample1
@@ -47,69 +45,54 @@ namespace DDDSample1
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DDDSample1DbContext>(options =>options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+            // Database
+            services.AddDbContext<DDDSample1DbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
             ConfigureMyServices(services);
 
             services.AddControllers().AddNewtonsoftJson();
 
-            // Configure Swagger
+            // Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Port Logistics API", Version = "v1" });
                 c.EnableAnnotations();
             });
 
+            // CORS
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend",
-                builder => builder
-                .WithOrigins(
-                    "http://localhost:5173",
-                    "http://localhost:3000",
-                    "https://localhost:5173"
-                )
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials());
+                    builder => builder
+                        .WithOrigins(
+                            "http://localhost:5173",
+                            "http://localhost:3000",
+                            "https://localhost:5173")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
             });
 
-            // --- JWT Authentication ---
-            var jwtKey = Configuration["Jwt:Key"];
-            var jwtIssuer = Configuration["Jwt:Issuer"];
-            var jwtAudience = Configuration["Jwt:Audience"];
+            // --- JWT Authentication with Auth0 ---
+            var auth0Domain = Configuration["Auth0:Domain"];
+            var auth0Audience = Configuration["Auth0:Audience"];
 
-            if (string.IsNullOrWhiteSpace(jwtKey) ||
-                string.IsNullOrWhiteSpace(jwtIssuer) ||
-                string.IsNullOrWhiteSpace(jwtAudience))
+            if (string.IsNullOrWhiteSpace(auth0Domain) || string.IsNullOrWhiteSpace(auth0Audience))
             {
-                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-                {
-                    // Generate a temporary key for development
-                    jwtKey = "DevSecretKey123456"; // Must be at least 16 chars
-                    jwtIssuer = "https://localhost:5000";
-                    jwtAudience = "api://default";
-                    Console.WriteLine("⚠️  JWT config missing. Using temporary development key.");
-                }
-                else
-                {
-                    throw new InvalidOperationException("JWT configuration is missing in appsettings.json or environment variables.");
-                }
+                throw new InvalidOperationException("Auth0 configuration missing in appsettings.json.");
             }
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    options.Authority = $"https://{auth0Domain}/";
+                    options.Audience = auth0Audience;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
                         ValidateAudience = true,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-
-                        ValidIssuer = jwtIssuer,
-                        ValidAudience = jwtAudience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+                        ValidateLifetime = true
                     };
                 });
 
@@ -123,25 +106,30 @@ namespace DDDSample1
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Port Logistics API v1"));
+                app.UseSwaggerUI(c =>
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Port Logistics API v1"));
             }
             else
             {
                 app.UseHsts();
             }
 
-            //app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
             app.UseCors("AllowFrontend");
 
-            app.UseAuthentication(); // <-- required for JWT
+            app.UseAuthentication(); // JWT
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); endpoints.MapRazorPages(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapRazorPages();
+            });
         }
 
-        public void ConfigureMyServices(IServiceCollection services)
+        private void ConfigureMyServices(IServiceCollection services)
         {
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
@@ -154,9 +142,9 @@ namespace DDDSample1
             services.AddTransient<DockService>();
             services.AddTransient<IVesselRepository, VesselRepository>();
             services.AddTransient<VesselService>();
-            services.AddTransient<IVesselVisitNotificationRepository,VesselVisitNotificationRepository>();
+            services.AddTransient<IVesselVisitNotificationRepository, VesselVisitNotificationRepository>();
             services.AddTransient<VesselVisitNotificationService>();
-            services.AddTransient<IStorageAreaRepository,StorageAreaRepository>();
+            services.AddTransient<IStorageAreaRepository, StorageAreaRepository>();
             services.AddTransient<StorageAreaService>();
             services.AddTransient<IQualificationRepository, QualificationRepository>();
             services.AddTransient<QualificationService>();
