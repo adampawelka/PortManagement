@@ -11,7 +11,7 @@ namespace DDDSample1.Infrastructure.VesselVisitNotifications
     {
         public void Configure(EntityTypeBuilder<VesselVisitNotification> builder)
         {
-            builder.ToTable("VesselVisitNotifications"); //, SchemaNames.Port);
+            builder.ToTable("VesselVisitNotifications", SchemaNames.DDDSample1); //, SchemaNames.Port);
            
             builder.HasKey(vvn => vvn.Id);
 

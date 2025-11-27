@@ -8,7 +8,7 @@ namespace DDDSample1.Infrastructure.StaffMembers
     {
         public void Configure(EntityTypeBuilder<StaffMember> builder)
         {
-
+            builder.ToTable("StaffMembers", SchemaNames.DDDSample1);
             builder.HasKey(s => s.Id);
             builder.Property(s => s.Id)
                 .HasConversion(id => id.Value, value => new StaffMemberId(value))

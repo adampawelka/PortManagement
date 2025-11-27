@@ -11,6 +11,7 @@ namespace DDDSample1.Infrastructure.StorageAreas
     {
         public void Configure(EntityTypeBuilder<StorageArea> builder)
         {
+            builder.ToTable("StorageAreas", SchemaNames.DDDSample1);
             builder.HasKey(s => s.Id);
 
             builder.Property(s => s.Id)

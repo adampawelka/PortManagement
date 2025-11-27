@@ -8,6 +8,7 @@ namespace DDDSample1.Infrastructure.Resources
     {
         public void Configure(EntityTypeBuilder<Resource> builder)
         {
+            builder.ToTable("Resources", SchemaNames.DDDSample1);
             builder.HasKey(r => r.Id);
 
             builder.Property(r => r.Id)

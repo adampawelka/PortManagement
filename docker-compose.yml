@@ -6,7 +6,7 @@ services:
     image: postgres:13-alpine
     container_name: portmanagement-db
     environment:
-      POSTGRES_DB: PortManagementDB
+      POSTGRES_DB: portmanagementdb
       POSTGRES_USER: portapp
       POSTGRES_PASSWORD: PortManagement123!
     ports:
@@ -26,7 +26,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=PortManagementDB;Username=portapp;Password=PortManagement123!
+      - ConnectionStrings__DefaultConnection=Host=10.9.20.216;Port=5432;Database=portmanagementdb;Username=portapp;Password=PortManagement123!
       - Auth0__Domain=3dl-e-04.eu.auth0.com
       - Auth0__Audience=http://3dl-e-04api
     ports:

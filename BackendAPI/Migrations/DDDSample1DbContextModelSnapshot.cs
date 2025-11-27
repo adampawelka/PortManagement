@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace DDDSample1.Migrations
+namespace Backend.Migrations
 {
     [DbContext(typeof(DDDSample1DbContext))]
     partial class DDDSample1DbContextModelSnapshot : ModelSnapshot
@@ -22,17 +22,17 @@ namespace DDDSample1.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Backend.Domain.Docks.Dock", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Docks.Dock", b =>
                 {
                     b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Docks", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Qualifications.Qualification", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Qualifications.Qualification", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -45,10 +45,10 @@ namespace DDDSample1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Qualifications");
+                    b.ToTable("Qualifications", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Resources.Resource", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Resources.Resource", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -73,10 +73,10 @@ namespace DDDSample1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Resources");
+                    b.ToTable("Resources", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.ShippingAgents.ShippingAgentOrganization", b =>
+            modelBuilder.Entity("DDDSample1.Domain.ShippingAgents.ShippingAgentOrganization", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text")
@@ -102,7 +102,7 @@ namespace DDDSample1.Migrations
                     b.ToTable("ShippingAgentOrganizations", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.ShippingAgents.ShippingAgentRepresentative", b =>
+            modelBuilder.Entity("DDDSample1.Domain.ShippingAgents.ShippingAgentRepresentative", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -117,7 +117,7 @@ namespace DDDSample1.Migrations
                     b.ToTable("ShippingAgentRepresentatives", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.StaffMembers.StaffMember", b =>
+            modelBuilder.Entity("DDDSample1.Domain.StaffMembers.StaffMember", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text")
@@ -157,10 +157,10 @@ namespace DDDSample1.Migrations
                     b.HasIndex("MecanographicNumber")
                         .IsUnique();
 
-                    b.ToTable("StaffMembers");
+                    b.ToTable("StaffMembers", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.StorageAreas.StorageArea", b =>
+            modelBuilder.Entity("DDDSample1.Domain.StorageAreas.StorageArea", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -182,10 +182,67 @@ namespace DDDSample1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StorageAreas");
+                    b.ToTable("StorageAreas", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.VesselTypes.VesselType", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Users.PendingUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AttemptedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IamUserId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IamUserId")
+                        .IsUnique();
+
+                    b.ToTable("PendingUsers", "ddd");
+                });
+
+            modelBuilder.Entity("DDDSample1.Domain.Users.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ActivatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ActivationToken")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime?>("ActivationTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IamUserId")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivationToken");
+
+                    b.HasIndex("IamUserId")
+                        .IsUnique();
+
+                    b.ToTable("Users", "ddd");
+                });
+
+            modelBuilder.Entity("DDDSample1.Domain.VesselTypes.VesselType", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -208,7 +265,7 @@ namespace DDDSample1.Migrations
                     b.ToTable("VesselTypes", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.VesselVisitNotifications.VesselVisitNotification", b =>
+            modelBuilder.Entity("DDDSample1.Domain.VesselVisitNotifications.VesselVisitNotification", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -247,10 +304,10 @@ namespace DDDSample1.Migrations
 
                     b.HasIndex("VesselId");
 
-                    b.ToTable("VesselVisitNotifications", (string)null);
+                    b.ToTable("VesselVisitNotifications", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Vessels.Vessel", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Vessels.Vessel", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -274,7 +331,7 @@ namespace DDDSample1.Migrations
             modelBuilder.Entity("DockAllowedVesselTypes", b =>
                 {
                     b.Property<Guid>("DockId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("VesselTypeId")
                         .HasColumnType("uuid");
@@ -298,15 +355,15 @@ namespace DDDSample1.Migrations
 
                     b.HasIndex("StaffMemberId");
 
-                    b.ToTable("QualificationStaffMember");
+                    b.ToTable("QualificationStaffMember", "ddd");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Docks.Dock", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Docks.Dock", b =>
                 {
-                    b.OwnsOne("Backend.Domain.Docks.Depth", "Depth", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.Docks.Depth", "Depth", b1 =>
                         {
                             b1.Property<Guid>("DockId")
-                                .HasColumnType("uuid");
+                                .HasColumnType("text");
 
                             b1.Property<double>("Value")
                                 .HasColumnType("float")
@@ -320,10 +377,10 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("DockId");
                         });
 
-                    b.OwnsOne("Backend.Domain.Docks.DockLocation", "DockLocation", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.Docks.DockLocation", "DockLocation", b1 =>
                         {
                             b1.Property<Guid>("DockId")
-                                .HasColumnType("uuid");
+                                .HasColumnType("text");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
@@ -338,10 +395,10 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("DockId");
                         });
 
-                    b.OwnsOne("Backend.Domain.Docks.DockName", "DockName", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.Docks.DockName", "DockName", b1 =>
                         {
                             b1.Property<Guid>("DockId")
-                                .HasColumnType("uuid");
+                                .HasColumnType("text");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
@@ -357,10 +414,10 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("DockId");
                         });
 
-                    b.OwnsOne("Backend.Domain.Docks.Length", "Length", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.Docks.Length", "Length", b1 =>
                         {
                             b1.Property<Guid>("DockId")
-                                .HasColumnType("uuid");
+                                .HasColumnType("text");
 
                             b1.Property<double>("Value")
                                 .HasColumnType("float")
@@ -374,10 +431,10 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("DockId");
                         });
 
-                    b.OwnsOne("Backend.Domain.Docks.MaxDraft", "MaxDraft", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.Docks.MaxDraft", "MaxDraft", b1 =>
                         {
                             b1.Property<Guid>("DockId")
-                                .HasColumnType("uuid");
+                                .HasColumnType("text");
 
                             b1.Property<double>("Value")
                                 .HasColumnType("float")
@@ -402,9 +459,9 @@ namespace DDDSample1.Migrations
                     b.Navigation("MaxDraft");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Resources.Resource", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Resources.Resource", b =>
                 {
-                    b.OwnsMany("Backend.Domain.Qualifications.QualificationId", "RequiredQualifications", b1 =>
+                    b.OwnsMany("DDDSample1.Domain.Qualifications.QualificationId", "RequiredQualifications", b1 =>
                         {
                             b1.Property<Guid>("ResourceId")
                                 .HasColumnType("uuid");
@@ -421,7 +478,7 @@ namespace DDDSample1.Migrations
 
                             b1.HasKey("ResourceId", "Id");
 
-                            b1.ToTable("QualificationId");
+                            b1.ToTable("QualificationId", "ddd");
 
                             b1.WithOwner()
                                 .HasForeignKey("ResourceId");
@@ -430,14 +487,14 @@ namespace DDDSample1.Migrations
                     b.Navigation("RequiredQualifications");
                 });
 
-            modelBuilder.Entity("Backend.Domain.ShippingAgents.ShippingAgentRepresentative", b =>
+            modelBuilder.Entity("DDDSample1.Domain.ShippingAgents.ShippingAgentRepresentative", b =>
                 {
-                    b.HasOne("Backend.Domain.ShippingAgents.ShippingAgentOrganization", null)
+                    b.HasOne("DDDSample1.Domain.ShippingAgents.ShippingAgentOrganization", null)
                         .WithMany("Representatives")
                         .HasForeignKey("ShippingAgentOrganizationId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.OwnsOne("Backend.Domain.ShippingAgents.CitizenId", "CitizenId", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.ShippingAgents.CitizenId", "CitizenId", b1 =>
                         {
                             b1.Property<Guid>("ShippingAgentRepresentativeId")
                                 .HasColumnType("uuid");
@@ -455,7 +512,7 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("ShippingAgentRepresentativeId");
                         });
 
-                    b.OwnsOne("Backend.Domain.ShippingAgents.Nationality", "Nationality", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.ShippingAgents.Nationality", "Nationality", b1 =>
                         {
                             b1.Property<Guid>("ShippingAgentRepresentativeId")
                                 .HasColumnType("uuid");
@@ -473,7 +530,7 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("ShippingAgentRepresentativeId");
                         });
 
-                    b.OwnsOne("Backend.Domain.ShippingAgents.RepEmail", "Email", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.ShippingAgents.RepEmail", "Email", b1 =>
                         {
                             b1.Property<Guid>("ShippingAgentRepresentativeId")
                                 .HasColumnType("uuid");
@@ -491,7 +548,7 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("ShippingAgentRepresentativeId");
                         });
 
-                    b.OwnsOne("Backend.Domain.ShippingAgents.RepName", "Name", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.ShippingAgents.RepName", "Name", b1 =>
                         {
                             b1.Property<Guid>("ShippingAgentRepresentativeId")
                                 .HasColumnType("uuid");
@@ -509,7 +566,7 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("ShippingAgentRepresentativeId");
                         });
 
-                    b.OwnsOne("Backend.Domain.ShippingAgents.RepPhone", "Phone", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.ShippingAgents.RepPhone", "Phone", b1 =>
                         {
                             b1.Property<Guid>("ShippingAgentRepresentativeId")
                                 .HasColumnType("uuid");
@@ -538,9 +595,147 @@ namespace DDDSample1.Migrations
                     b.Navigation("Phone");
                 });
 
-            modelBuilder.Entity("Backend.Domain.VesselTypes.VesselType", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Users.PendingUser", b =>
                 {
-                    b.OwnsOne("Backend.Domain.VesselTypes.OperationalConstraints", "Constraints", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.Users.UserEmail", "Email", b1 =>
+                        {
+                            b1.Property<Guid>("PendingUserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("character varying(255)")
+                                .HasColumnName("Email");
+
+                            b1.HasKey("PendingUserId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("PendingUsers", "ddd");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PendingUserId");
+                        });
+
+                    b.OwnsOne("DDDSample1.Domain.Users.UserName", "Name", b1 =>
+                        {
+                            b1.Property<Guid>("PendingUserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Name");
+
+                            b1.HasKey("PendingUserId");
+
+                            b1.ToTable("PendingUsers", "ddd");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PendingUserId");
+                        });
+
+                    b.Navigation("Email");
+
+                    b.Navigation("Name");
+                });
+
+            modelBuilder.Entity("DDDSample1.Domain.Users.User", b =>
+                {
+                    b.OwnsOne("DDDSample1.Domain.Users.UserEmail", "Email", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("character varying(255)")
+                                .HasColumnName("Email");
+
+                            b1.HasKey("UserId");
+
+                            b1.HasIndex("Value")
+                                .IsUnique();
+
+                            b1.ToTable("Users", "ddd");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.OwnsOne("DDDSample1.Domain.Users.UserName", "Name", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("Name");
+
+                            b1.HasKey("UserId");
+
+                            b1.ToTable("Users", "ddd");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.OwnsOne("DDDSample1.Domain.Users.UserRole", "Role", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("Role");
+
+                            b1.HasKey("UserId");
+
+                            b1.ToTable("Users", "ddd");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.OwnsOne("DDDSample1.Domain.Users.UserStatus", "Status", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("Status");
+
+                            b1.HasKey("UserId");
+
+                            b1.ToTable("Users", "ddd");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.Navigation("Email");
+
+                    b.Navigation("Name");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("DDDSample1.Domain.VesselTypes.VesselType", b =>
+                {
+                    b.OwnsOne("DDDSample1.Domain.VesselTypes.OperationalConstraints", "Constraints", b1 =>
                         {
                             b1.Property<Guid>("VesselTypeId")
                                 .HasColumnType("uuid");
@@ -568,21 +763,21 @@ namespace DDDSample1.Migrations
                     b.Navigation("Constraints");
                 });
 
-            modelBuilder.Entity("Backend.Domain.VesselVisitNotifications.VesselVisitNotification", b =>
+            modelBuilder.Entity("DDDSample1.Domain.VesselVisitNotifications.VesselVisitNotification", b =>
                 {
-                    b.HasOne("Backend.Domain.Docks.Dock", null)
+                    b.HasOne("DDDSample1.Domain.Docks.Dock", null)
                         .WithMany()
                         .HasForeignKey("AssignedDockId");
 
-                    b.HasOne("Backend.Domain.ShippingAgents.ShippingAgentRepresentative", "SubmittedBy")
+                    b.HasOne("DDDSample1.Domain.ShippingAgents.ShippingAgentRepresentative", "SubmittedBy")
                         .WithMany()
                         .HasForeignKey("SubmittedById");
 
-                    b.HasOne("Backend.Domain.Vessels.Vessel", "Vessel")
+                    b.HasOne("DDDSample1.Domain.Vessels.Vessel", "Vessel")
                         .WithMany()
                         .HasForeignKey("VesselId");
 
-                    b.OwnsMany("Backend.Domain.VesselVisitNotifications.CargoManifest", "CargoManifests", b1 =>
+                    b.OwnsMany("DDDSample1.Domain.VesselVisitNotifications.CargoManifest", "CargoManifests", b1 =>
                         {
                             b1.Property<Guid>("VesselVisitNotificationId")
                                 .HasColumnType("uuid");
@@ -598,12 +793,12 @@ namespace DDDSample1.Migrations
 
                             b1.HasKey("VesselVisitNotificationId", "Id");
 
-                            b1.ToTable("CargoManifest");
+                            b1.ToTable("CargoManifest", "ddd");
 
                             b1.WithOwner()
                                 .HasForeignKey("VesselVisitNotificationId");
 
-                            b1.OwnsMany("Backend.Domain.VesselVisitNotifications.ContainerIdentifier", "Containers", b2 =>
+                            b1.OwnsMany("DDDSample1.Domain.VesselVisitNotifications.ContainerIdentifier", "Containers", b2 =>
                                 {
                                     b2.Property<Guid>("CargoManifestVesselVisitNotificationId")
                                         .HasColumnType("uuid");
@@ -623,7 +818,7 @@ namespace DDDSample1.Migrations
 
                                     b2.HasKey("CargoManifestVesselVisitNotificationId", "CargoManifestId", "Id");
 
-                                    b2.ToTable("ContainerIdentifier");
+                                    b2.ToTable("ContainerIdentifier", "ddd");
 
                                     b2.WithOwner()
                                         .HasForeignKey("CargoManifestVesselVisitNotificationId", "CargoManifestId");
@@ -632,7 +827,7 @@ namespace DDDSample1.Migrations
                             b1.Navigation("Containers");
                         });
 
-                    b.OwnsMany("Backend.Domain.VesselVisitNotifications.CrewMember", "CrewMembers", b1 =>
+                    b.OwnsMany("DDDSample1.Domain.VesselVisitNotifications.CrewMember", "CrewMembers", b1 =>
                         {
                             b1.Property<Guid>("VesselVisitNotificationId")
                                 .HasColumnType("uuid");
@@ -654,13 +849,13 @@ namespace DDDSample1.Migrations
 
                             b1.HasKey("VesselVisitNotificationId", "Id");
 
-                            b1.ToTable("CrewMember");
+                            b1.ToTable("CrewMember", "ddd");
 
                             b1.WithOwner()
                                 .HasForeignKey("VesselVisitNotificationId");
                         });
 
-                    b.OwnsOne("Backend.Domain.VesselVisitNotifications.VisitStatus", "Status", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.VesselVisitNotifications.VisitStatus", "Status", b1 =>
                         {
                             b1.Property<Guid>("VesselVisitNotificationId")
                                 .HasColumnType("uuid");
@@ -672,7 +867,7 @@ namespace DDDSample1.Migrations
 
                             b1.HasKey("VesselVisitNotificationId");
 
-                            b1.ToTable("VesselVisitNotifications");
+                            b1.ToTable("VesselVisitNotifications", "ddd");
 
                             b1.WithOwner()
                                 .HasForeignKey("VesselVisitNotificationId");
@@ -689,21 +884,21 @@ namespace DDDSample1.Migrations
                     b.Navigation("Vessel");
                 });
 
-            modelBuilder.Entity("Backend.Domain.Vessels.Vessel", b =>
+            modelBuilder.Entity("DDDSample1.Domain.Vessels.Vessel", b =>
                 {
-                    b.HasOne("Backend.Domain.ShippingAgents.ShippingAgentOrganization", "Owner")
+                    b.HasOne("DDDSample1.Domain.ShippingAgents.ShippingAgentOrganization", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Backend.Domain.VesselTypes.VesselType", "VesselType")
+                    b.HasOne("DDDSample1.Domain.VesselTypes.VesselType", "VesselType")
                         .WithMany()
                         .HasForeignKey("VesselTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("Backend.Domain.Vessels.IMO", "IMO", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.Vessels.IMO", "IMO", b1 =>
                         {
                             b1.Property<Guid>("VesselId")
                                 .HasColumnType("uuid");
@@ -721,7 +916,7 @@ namespace DDDSample1.Migrations
                                 .HasForeignKey("VesselId");
                         });
 
-                    b.OwnsOne("Backend.Domain.Vessels.VesselName", "VesselName", b1 =>
+                    b.OwnsOne("DDDSample1.Domain.Vessels.VesselName", "VesselName", b1 =>
                         {
                             b1.Property<Guid>("VesselId")
                                 .HasColumnType("uuid");
@@ -750,13 +945,13 @@ namespace DDDSample1.Migrations
 
             modelBuilder.Entity("DockAllowedVesselTypes", b =>
                 {
-                    b.HasOne("Backend.Domain.Docks.Dock", null)
+                    b.HasOne("DDDSample1.Domain.Docks.Dock", null)
                         .WithMany()
                         .HasForeignKey("DockId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Domain.VesselTypes.VesselType", null)
+                    b.HasOne("DDDSample1.Domain.VesselTypes.VesselType", null)
                         .WithMany()
                         .HasForeignKey("VesselTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -765,20 +960,20 @@ namespace DDDSample1.Migrations
 
             modelBuilder.Entity("QualificationStaffMember", b =>
                 {
-                    b.HasOne("Backend.Domain.Qualifications.Qualification", null)
+                    b.HasOne("DDDSample1.Domain.Qualifications.Qualification", null)
                         .WithMany()
                         .HasForeignKey("QualificationsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Backend.Domain.StaffMembers.StaffMember", null)
+                    b.HasOne("DDDSample1.Domain.StaffMembers.StaffMember", null)
                         .WithMany()
                         .HasForeignKey("StaffMemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Backend.Domain.ShippingAgents.ShippingAgentOrganization", b =>
+            modelBuilder.Entity("DDDSample1.Domain.ShippingAgents.ShippingAgentOrganization", b =>
                 {
                     b.Navigation("Representatives");
                 });
