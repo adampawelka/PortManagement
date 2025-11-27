@@ -21,5 +21,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="8.0.10" />
   </ItemGroup>
-
 </Project>
