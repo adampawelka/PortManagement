@@ -33,7 +33,10 @@ jobs:
 
       - name: Publish Backend API
         run: dotnet publish BackendAPI/Backend.csproj --no-build --configuration Release --output ./publish/BackendAPI
-    
+
+      - name: Remove duplicate appsettings files
+        run: rm -f /src/BackendAPI/appsettings.json && \ rm -f /src/BackendAPI/appsettings.*.json
+
       - name: Publish Scheduling API
         run: dotnet publish Scheduling/SchedulingAPI/SchedulingAPI.csproj --no-build --configuration Release --output ./publish/SchedulingAPI
   

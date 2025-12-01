@@ -23,7 +23,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         authorizationParams={{
           redirect_uri: window.location.origin,
           // 'audience' is the identifier of the API of C#.
-          audience: "http://3dl-e-04api", 
+          audience: "http://3dl-e-04api",
         }}
         useRefreshTokens={true}
         cacheLocation="localstorage"

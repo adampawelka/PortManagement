@@ -36,6 +36,23 @@ services:
     networks:
       - portmanagement-network
     restart: unless-stopped
+  
+  scheduling:
+    build:
+      context: .
+      dockerfile: Scheduling/SchedulingAPI/Dockerfile
+    container_name: portmanagement-scheduling
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5107
+      - BackendAPI__BaseUrl=http://backend:5000
+    ports:
+      - "5107:5107"
+    depends_on:
+      - backend
+    networks:
+      - portmanagement-network
+    restart: unless-stopped
 
 volumes:
   postgres-data:
