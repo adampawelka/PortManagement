@@ -12,7 +12,10 @@ import Scheduling from "./pages/Scheduling.jsx";
 import Schedule from "./pages/Schedule.jsx";
 import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
+
 import UserManagement from "./pages/UserManagement.jsx";
+import ListPendingUsersPage from "./pages/ListPendingUsers.jsx";
+//import ManageUs from "./pages/ManageUserPage.jsx";
 
 import RejectVvnPage from "./pages/RejectVvnPage.jsx";
 import ApproveVvnPage from "./pages/ApproveVvnPage.jsx";
@@ -83,7 +86,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] , testUser = null}) => {
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
-        // const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        //const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
         // ----------------------------------------
 
         setUserData(data1);
@@ -433,14 +436,14 @@ const App = () => {
           }
         />
 
-        {/* <Route
+        <Route
           path="user-management"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
               <UserManagement />
             </ProtectedRoute>
           }
-        /> */}
+        /> 
 
         <Route
           path="user-management/users"
@@ -455,7 +458,7 @@ const App = () => {
           path="user-management/pending-users"
           element={
             <ProtectedRoute requiredRoles={["Administrator"]}>
-              <UserManagement />
+              <ListPendingUsersPage />
             </ProtectedRoute>
           }
         />
