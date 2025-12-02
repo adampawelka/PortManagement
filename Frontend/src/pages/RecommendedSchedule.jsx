@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import "../styles/Scheduling.css";
 
-const RecommendedAlgorithm = () => {
+const RecommendedSchedule = () => {
     const [targetDate, setTargetDate] = useState("");
     const [scheduleResults, setScheduleResults] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -9,13 +10,12 @@ const RecommendedAlgorithm = () => {
     const [executionTime, setExecutionTime] = useState(null);
     const [vesselNotifications, setVesselNotifications] = useState([]);
     const [token, setToken] = useState(null);
-    const [recommendedAlgorithm, setRecommendedAlgorithm] = useState("");
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState("");
     const [selectionReason, setSelectionReason] = useState("");
     const [userAlgorithm, setUserAlgorithm] = useState(""); // manual override
 
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
-    // Fetch token
     useEffect(() => {
         const fetchToken = async () => {
             if (isAuthenticated) {
@@ -33,19 +33,14 @@ const RecommendedAlgorithm = () => {
     const handleDateChange = (e) => setTargetDate(e.target.value);
     const handleAlgorithmChange = (e) => setUserAlgorithm(e.target.value);
 
-    // Algorithm selection policy
     const chooseAlgorithm = (vessels, ops, timeLimitSeconds = 30) => {
         if (ops < 150 && timeLimitSeconds > 120)
-            return {
-                algo: "optimal",
-                reason: "Small operation set (<150 ops) and long time budget.",
-            };
+            return { algo: "optimal", reason: "Small operation set (<150 ops) and long time budget." };
         if (ops < 400)
             return { algo: "heuristic", reason: "Medium-sized instance (<400 ops)." };
         return { algo: "genetic", reason: "Large or time-constrained instance." };
     };
 
-    // --- Helper to extract execution time for any algorithm ---
     const extractExecutionTime = (scheduleText) => {
         const patterns = [
             /Heuristic Execution Time:\s*([\d.e-]+)/i,
@@ -64,6 +59,15 @@ const RecommendedAlgorithm = () => {
         if (!targetDate) return alert("Please select a date");
         if (!token) return alert("Token not ready");
 
+        // Skip fetching for genetic algorithm
+        if (userAlgorithm === "genetic") {
+            setSelectedAlgorithm("genetic");
+            setSelectionReason("User-selected override");
+            setScheduleResults([]);
+            setExecutionTime(null);
+            return;
+        }
+
         const isoDate = new Date(targetDate).toISOString().split("T")[0];
 
         setLoading(true);
@@ -72,7 +76,6 @@ const RecommendedAlgorithm = () => {
         setExecutionTime(null);
 
         try {
-            // Fetch Vessel Visit Notifications
             const notificationsResponse = await fetch(
                 `http://localhost:5000/api/VesselVisitNotifications`,
                 {
@@ -94,24 +97,21 @@ const RecommendedAlgorithm = () => {
 
             setVesselNotifications(dateNotifications);
 
-            // Compute problem size
             const vesselCount = dateNotifications.length;
             const operations = dateNotifications.reduce(
                 (sum, v) => sum + (v.estimatedOperations || 30),
                 0
             );
 
-            // Default algorithm selection
             const { algo, reason } = chooseAlgorithm(vesselCount, operations);
 
-            // Allow user override
+            // Select algorithm based on user override or default choice
             const selectedAlgo = userAlgorithm || algo;
             const selectedReason = userAlgorithm ? "User-selected override" : reason;
 
-            setRecommendedAlgorithm(selectedAlgo);
+            setSelectedAlgorithm(selectedAlgo);
             setSelectionReason(selectedReason);
 
-            // Fetch schedule
             const scheduleRes = await fetch(
                 `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=${selectedAlgo}`,
                 {
@@ -128,40 +128,47 @@ const RecommendedAlgorithm = () => {
             const parsedJSON = JSON.parse(text);
             const results = [];
 
+            let isFirstRow = true;
+
             for (const dockId in parsedJSON) {
                 const dockInfo = parsedJSON[dockId];
                 let scheduleText = dockInfo.schedule.trim();
 
-                // Remove any leading/trailing brackets
                 scheduleText = scheduleText.replace(/^\s*\[|\]\s*$/g, "").trim();
                 scheduleText = scheduleText.replace(/\[|\]/g, "");
 
-                // Extract execution time for any algorithm
                 const execTime = extractExecutionTime(scheduleText);
                 if (execTime !== null) setExecutionTime(execTime);
 
-                // Remove execution time from schedule text
                 scheduleText = scheduleText.replace(/Execution Time:.*\n?/i, "")
-                                           .replace(/Heuristic Execution Time:.*\n?/i, "")
-                                           .replace(/Brute Force Execution Time:.*\n?/i, "")
-                                           .replace(/Genetic Execution Time:.*\n?/i, "")
-                                           .trim();
+                    .replace(/Heuristic Execution Time:.*\n?/i, "")
+                    .replace(/Brute Force Execution Time:.*\n?/i, "")
+                    .replace(/Genetic Execution Time:.*\n?/i, "")
+                    .trim();
 
                 const lines = scheduleText.split("),").filter((line) => line.trim() !== "");
 
                 lines.forEach((lineRaw) => {
                     const line = lineRaw.replace(/[\(\)]/g, "").trim();
                     const parts = line.split(",").map((p) => p.trim());
-                    if (parts.length >= 3) {
+
+                    let vesselName = parts[0]?.trim();
+                    if (isFirstRow && selectedAlgo === algo) {
+                        vesselName = vesselName.split(" ")[1];
+                    }
+
+                    isFirstRow = false;
+
+                    // Ensure that vesselName is added correctly
+                    if (vesselName && parts.length >= 3) {
                         results.push({
-                            vessel: parts[0],
+                            vessel: vesselName, // Only add the vessel name
                             dock: dockInfo.dock || dockId,
                             crane: dockInfo.crane,
                             start: parts[1],
                             end: parts[2],
                             staff: "Assigned Staff TBD",
                             area: dockInfo.area,
-                            algorithm: selectedAlgo, // per-row traceability
                         });
                     }
                 });
@@ -177,95 +184,80 @@ const RecommendedAlgorithm = () => {
     };
 
     return (
-        <div style={{ padding: 20, textAlign: "center" }}>
-            <h1>Recommended Algorithm</h1>
-            <p style={{ color: "#555" }}>
+        <div className="schedule-container">
+            <h1 className="schedule-header">Recommended Algorithm</h1>
+            <p className="schedule-subheader">
                 The system automatically selects the best algorithm based on the number of vessels, operations, and available time.
             </p>
 
-            <div style={{ marginBottom: 20 }}>
-                <label>
-                    Target Date:{" "}
-                    <input type="date" value={targetDate} onChange={handleDateChange} />
-                </label>
+            <div className="schedule-controls">
+                <div className="control-group">
+                    <label className="control-label">Target Date:</label>
+                    <input type="date" value={targetDate} onChange={handleDateChange} className="control-input" />
+                </div>
 
-                <label style={{ marginLeft: 20 }}>
-                    Algorithm Override:{" "}
-                    <select value={userAlgorithm} onChange={handleAlgorithmChange}>
+                <div className="control-group">
+                    <label className="control-label">Algorithm Override:</label>
+                    <select value={userAlgorithm} onChange={handleAlgorithmChange} className="control-input">
                         <option value="">Auto (recommended)</option>
                         <option value="optimal">Optimal</option>
                         <option value="heuristic">Heuristic</option>
                         <option value="genetic">Genetic</option>
                     </select>
-                </label>
+                </div>
 
-                <button onClick={handleGenerateSchedule} style={{ marginLeft: 10 }}>
+                <button onClick={handleGenerateSchedule} className="control-button">
                     Generate Schedule
                 </button>
             </div>
 
-            {recommendedAlgorithm && (
-                <div style={{ marginTop: 10, fontSize: 18 }}>
-                    <strong>Selected Algorithm: </strong>{recommendedAlgorithm}
+            {selectedAlgorithm && (
+                <div className="result-box">
+                    <strong>Selected Algorithm: </strong>{selectedAlgorithm}
                     <br />
-                    <em style={{ color: "#777" }}>{selectionReason}</em>
+                    <em style={{ color: "#555" }}>{selectionReason}</em>
                     {executionTime && <div>Execution Time: {executionTime}s</div>}
                 </div>
             )}
 
-            {loading && <p>Generating schedule...</p>}
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {loading && <p className="info-text">Generating schedule...</p>}
+            {error && <p className="error-text">{error}</p>}
+
 
             {scheduleResults.length > 0 && (
-                <div
-                    style={{
-                        width: "100%",
-                        marginTop: 20,
-                        paddingBottom: "1rem",
-                        border: "1px solid #ccc",
-                        boxSizing: "border-box",
-                        overflowX: "auto",
-                    }}
-                >
-                    <table
-                        style={{
-                            width: "100%",
-                            tableLayout: "auto",
-                            borderCollapse: "collapse",
-                        }}
-                    >
+                <div className="table-wrapper">
+                    <table className="schedule-table">
                         <thead>
                             <tr>
-                                <th style={th}>Vessel</th>
-                                <th style={th}>Dock</th>
-                                <th style={th}>Crane</th>
-                                <th style={th}>Start</th>
-                                <th style={th}>End</th>
-                                <th style={th}>Staff</th>
-                                <th style={th}>Area</th>
+                                <th>Vessel</th>
+                                <th>Dock</th>
+                                <th>Crane</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Staff</th>
+                                <th>Area</th>
                             </tr>
                         </thead>
                         <tbody>
                             {scheduleResults.map((row, i) => (
                                 <tr key={i}>
-                                    <td style={td}>{row.vessel}</td>
-                                    <td style={td}>{row.dock}</td>
-                                    <td style={td}>{row.crane}</td>
-                                    <td style={td}>{row.start}</td>
-                                    <td style={td}>{row.end}</td>
-                                    <td style={td}>{row.staff}</td>
-                                    <td style={td}>{row.area}</td>
+                                    <td>{row.vessel}</td>
+                                    <td>{row.dock}</td>
+                                    <td>{row.crane}</td>
+                                    <td>{row.start}</td>
+                                    <td>{row.end}</td>
+                                    <td>{row.staff}</td>
+                                    <td>{row.area}</td>
+
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
             )}
+
         </div>
     );
 };
 
-const th = { border: "1px solid black", padding: 5 };
-const td = { border: "1px solid black", padding: 5 };
-
-export default RecommendedAlgorithm;
+export default RecommendedSchedule;
