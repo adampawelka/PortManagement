@@ -4,7 +4,6 @@ As a System User, I want the system to automatically load my internal authorizat
 ## 1. Overview
 After login via the IAM (Auth0), the Single Page Application (SPA) must request the user’s internal role from the backend and render only the allowed menu items/features. If the role is missing or inactive, access must be denied with an appropriate message.
 
-
 ## 2. Tools
 
 - **Framework**: React
@@ -54,7 +53,7 @@ If the role is missing or inactive:
 - Ensure that users without a valid role cannot access protected pages or actions.
 - Verify that an appropriate message (“Access Denied”) is displayed.
 
-### Integration Testing 
+### Integration Testing - to be implemented
 
 **Component Interaction**
 - Test that the SPA and backend communicate correctly to fetch role information.

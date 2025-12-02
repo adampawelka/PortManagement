@@ -32,7 +32,7 @@ const fetchUserRole = async (iamUserId, name, email, apiFetch) => {
 // ---------------------------
 // PROTECTED ROUTE
 // ---------------------------
-const ProtectedRoute = ({ children, requiredRoles = [] }) => {
+const ProtectedRoute = ({ children, requiredRoles = [] , testUser = null}) => {
   const { isAuthenticated, isLoading, user } = useAuth0();
   const { apiFetch } = useApi();
 
@@ -58,7 +58,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
-        //const data1 = await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        // const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
         // ----------------------------------------
 
         setUserData(data1);
@@ -75,7 +75,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
     };
 
     loadUserData();
-  }, [isAuthenticated, user?.sub, requiredRoles, apiFetch]);
+  }, [isAuthenticated, user?.sub, requiredRoles, apiFetch, testUser]);
 
   if (isLoading || loadingUser)
     return <div>Loading...</div>;
@@ -276,4 +276,5 @@ const App = () => {
   );
 };
 
+export { ProtectedRoute }; // for testing
 export default App;

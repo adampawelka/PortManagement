@@ -31,7 +31,9 @@ The goal is to provide a consistent and unified layout across the entire SPA to 
 
 ## 4. Testing
 
-### Unit Testing
+Tests were conducted on the development version that's why the code for the tests won't run on the final version.
+
+### 4.1 Unit Testing
 
 **Header Component:**
 - Tested that the logo and app name were rendered correctly.
@@ -45,13 +47,13 @@ The goal is to provide a consistent and unified layout across the entire SPA to 
 - Verified that the language switcher button rendered correctly.
 - Ensured that clicking the language switcher button toggled between languages (EN/PT) and updated the UI components accordingly.
 
-### Integration Testing 
+### 4.2 Integration Testing 
 
 **Role-Based Navigation:**
 - Verified that different user roles (e.g., Admin, User) saw the correct navigation links.
 - Admin users had access to additional sections like Docks, while regular users only saw standard content.
 
-Disclaimer: Since the tests were implemented in the last stage, the authorization had been already implemented, that's why login was a part of the testing.
+Disclaimer: Since the tests were implemented in the last stages, the authorization had been already implemented, that's why login was a part of the testing.
 
 ## 5. Demonstration
 Run the Port Management application in web browser with `http://localhost:5173`

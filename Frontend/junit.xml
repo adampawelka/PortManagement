@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="5" failures="2" errors="0" time="2.333819085">
+    <testsuite name="src/__tests__/ProtectedRoute.test.jsx" timestamp="2025-12-02T14:22:51.187Z" hostname="P173" tests="5" failures="2" errors="0" skipped="0" time="2.333819085">
+        <testcase classname="src/__tests__/ProtectedRoute.test.jsx" name="ProtectedRoute &amp; PrimaryNavigation &gt; renders children when user has active role" time="0.169997683">
+        </testcase>
+        <testcase classname="src/__tests__/ProtectedRoute.test.jsx" name="ProtectedRoute &amp; PrimaryNavigation &gt; shows Access Denied for inactive role" time="0.050144116">
+        </testcase>
+        <testcase classname="src/__tests__/ProtectedRoute.test.jsx" name="ProtectedRoute &amp; PrimaryNavigation &gt; shows Access Denied for missing role" time="0.024091771">
+        </testcase>
+        <testcase classname="src/__tests__/ProtectedRoute.test.jsx" name="ProtectedRoute &amp; PrimaryNavigation &gt; renders only allowed menu items for LogisticsOperator" time="1.044434364">
+            <failure message="Unable to find an element with the text: Storage Areas. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m&lt;body&gt;[39m
+  [36m&lt;div&gt;[39m
+    [36m&lt;nav[39m
+      [33mclass[39m=[32m&quot;nav&quot;[39m
+    [36m&gt;[39m
+      [36m&lt;div[39m
+        [33mclass[39m=[32m&quot;nav-item&quot;[39m
+      [36m&gt;[39m
+        [36m&lt;a[39m
+          [33mclass[39m=[32m&quot;nav-link&quot;[39m
+          [33mdata-discover[39m=[32m&quot;true&quot;[39m
+          [33mhref[39m=[32m&quot;/&quot;[39m
+        [36m&gt;[39m
+          [0mHome[0m
+        [36m&lt;/a&gt;[39m
+      [36m&lt;/div&gt;[39m
+    [36m&lt;/nav&gt;[39m
+  [36m&lt;/div&gt;[39m
+[36m&lt;/body&gt;[39m
+
+Ignored nodes: comments, script, style
+[36m&lt;html&gt;[39m
+  [36m&lt;head /&gt;[39m
+  [36m&lt;body&gt;[39m
+    [36m&lt;div&gt;[39m
+      [36m&lt;nav[39m
+        [33mclass[39m=[32m&quot;nav&quot;[39m
+      [36m&gt;[39m
+        [36m&lt;div[39m
+          [33mclass[39m=[32m&quot;nav-item&quot;[39m
+        [36m&gt;[39m
+          [36m&lt;a[39m
+            [33mclass[39m=[32m&quot;nav-link&quot;[39m
+            [33mdata-discover[39m=[32m&quot;true&quot;[39m
+            [33mhref[39m=[32m&quot;/&quot;[39m
+          [36m&gt;[39m
+            [0mHome[0m
+          [36m&lt;/a&gt;[39m
+        [36m&lt;/div&gt;[39m
+      [36m&lt;/nav&gt;[39m
+    [36m&lt;/div&gt;[39m
+  [36m&lt;/body&gt;[39m
+[36m&lt;/html&gt;[39m" type="TestingLibraryElementError">
+TestingLibraryElementError: Unable to find an element with the text: Storage Areas. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+&lt;body&gt;
+  &lt;div&gt;
+    &lt;nav
+      class=&quot;nav&quot;
+    &gt;
+      &lt;div
+        class=&quot;nav-item&quot;
+      &gt;
+        &lt;a
+          class=&quot;nav-link&quot;
+          data-discover=&quot;true&quot;
+          href=&quot;/&quot;
+        &gt;
+          Home
+        &lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+
+Ignored nodes: comments, script, style
+&lt;html&gt;
+  &lt;head /&gt;
+  &lt;body&gt;
+    &lt;div&gt;
+      &lt;nav
+        class=&quot;nav&quot;
+      &gt;
+        &lt;div
+          class=&quot;nav-item&quot;
+        &gt;
+          &lt;a
+            class=&quot;nav-link&quot;
+            data-discover=&quot;true&quot;
+            href=&quot;/&quot;
+          &gt;
+            Home
+          &lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/nav&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+ ❯ Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/__tests__/ProtectedRoute.test.jsx:140:11
+            </failure>
+        </testcase>
+        <testcase classname="src/__tests__/ProtectedRoute.test.jsx" name="ProtectedRoute &amp; PrimaryNavigation &gt; submenus are filtered by role for PortAuthorityOfficer" time="1.023570918">
+            <failure message="Unable to find an element with the text: Vessel Visit Notifications. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m&lt;body&gt;[39m
+  [36m&lt;div&gt;[39m
+    [36m&lt;nav[39m
+      [33mclass[39m=[32m&quot;nav&quot;[39m
+    [36m&gt;[39m
+      [36m&lt;div[39m
+        [33mclass[39m=[32m&quot;nav-item&quot;[39m
+      [36m&gt;[39m
+        [36m&lt;a[39m
+          [33mclass[39m=[32m&quot;nav-link&quot;[39m
+          [33mdata-discover[39m=[32m&quot;true&quot;[39m
+          [33mhref[39m=[32m&quot;/&quot;[39m
+        [36m&gt;[39m
+          [0mHome[0m
+        [36m&lt;/a&gt;[39m
+      [36m&lt;/div&gt;[39m
+    [36m&lt;/nav&gt;[39m
+  [36m&lt;/div&gt;[39m
+[36m&lt;/body&gt;[39m
+
+Ignored nodes: comments, script, style
+[36m&lt;html&gt;[39m
+  [36m&lt;head /&gt;[39m
+  [36m&lt;body&gt;[39m
+    [36m&lt;div&gt;[39m
+      [36m&lt;nav[39m
+        [33mclass[39m=[32m&quot;nav&quot;[39m
+      [36m&gt;[39m
+        [36m&lt;div[39m
+          [33mclass[39m=[32m&quot;nav-item&quot;[39m
+        [36m&gt;[39m
+          [36m&lt;a[39m
+            [33mclass[39m=[32m&quot;nav-link&quot;[39m
+            [33mdata-discover[39m=[32m&quot;true&quot;[39m
+            [33mhref[39m=[32m&quot;/&quot;[39m
+          [36m&gt;[39m
+            [0mHome[0m
+          [36m&lt;/a&gt;[39m
+        [36m&lt;/div&gt;[39m
+      [36m&lt;/nav&gt;[39m
+    [36m&lt;/div&gt;[39m
+  [36m&lt;/body&gt;[39m
+[36m&lt;/html&gt;[39m" type="TestingLibraryElementError">
+TestingLibraryElementError: Unable to find an element with the text: Vessel Visit Notifications. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+&lt;body&gt;
+  &lt;div&gt;
+    &lt;nav
+      class=&quot;nav&quot;
+    &gt;
+      &lt;div
+        class=&quot;nav-item&quot;
+      &gt;
+        &lt;a
+          class=&quot;nav-link&quot;
+          data-discover=&quot;true&quot;
+          href=&quot;/&quot;
+        &gt;
+          Home
+        &lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+
+Ignored nodes: comments, script, style
+&lt;html&gt;
+  &lt;head /&gt;
+  &lt;body&gt;
+    &lt;div&gt;
+      &lt;nav
+        class=&quot;nav&quot;
+      &gt;
+        &lt;div
+          class=&quot;nav-item&quot;
+        &gt;
+          &lt;a
+            class=&quot;nav-link&quot;
+            data-discover=&quot;true&quot;
+            href=&quot;/&quot;
+          &gt;
+            Home
+          &lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/nav&gt;
+    &lt;/div&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+ ❯ Proxy.waitForWrapper node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ src/__tests__/ProtectedRoute.test.jsx:155:11
+            </failure>
+        </testcase>
+    </testsuite>
+</testsuites>

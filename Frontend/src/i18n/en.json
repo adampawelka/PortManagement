@@ -34,5 +34,7 @@
   "scheduling": "Scheduling",
   "schedule": "Schedule",
   "alternative_schedule": "Alternative Schedule",
-  "user_management": "User Management"
+  "user_management": "User Management",
+  "users": "Users",
+  "pending_users": "Pending Users"
 }
