@@ -51,14 +51,14 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
         // ----------------------------------------
         // TEMPORARY DEVELOPMENT USER
         // ----------------------------------------
-        // const data1 = {
-        //   role: "LogisticsOperator",   // CHANGE HERE THE ROLE 
-        //   status: "Active"
-        // }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
+        const data1 = {
+          role: "Administrator",   // CHANGE HERE THE ROLE 
+          status: "Active"
+        }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
-        const data1 = await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        //const data1 = await fetchUserRole(user.sub, user.name, user.email, apiFetch);
         // ----------------------------------------
 
         setUserData(data1);
@@ -233,7 +233,6 @@ const App = () => {
         
         />
 
-
         <Route
           path="schedule"
           element={
@@ -243,10 +242,28 @@ const App = () => {
           }
         />
 
-        <Route
+        {/* <Route
           path="user-management"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
+              <UserManagement />
+            </ProtectedRoute>
+          }
+        /> */}
+
+        <Route
+          path="user-management/users"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator"]}>
+              <UserManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="user-management/pending-users"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator"]}>
               <UserManagement />
             </ProtectedRoute>
           }

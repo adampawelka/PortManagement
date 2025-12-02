@@ -194,5 +194,20 @@ export const menuItems = [
   key: "user_management",
   path: "/user-management",
   roles: ["Administrator", "LogisticsOperator"],
+  subMenu: 
+    [
+      {
+        name: "Users",
+        key: "users",
+        path: "/user-management/users",
+        roles: ["Administrator"],
+      },
+      {
+        name: "Pending Users",
+        key: "pending_users",
+        path: "/user-management/pending-users",
+        roles: ["Administrator"],
+      }
+    ]
   },
 ];
