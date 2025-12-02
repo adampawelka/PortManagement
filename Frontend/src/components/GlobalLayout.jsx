@@ -26,7 +26,8 @@ const GlobalLayout = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              padding: "5px 20px",
+              padding: "15px",
+              borderBottom: '1px solid #eee' // Separador visual
             }}
           >
             <Breadcrumbs />
@@ -40,11 +41,12 @@ const GlobalLayout = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "flex-start",
-              padding: "20px",
+              padding: "0px 20px 65px 20px",
               textAlign: "center",
+              
             }}
           >
-            <div style={{ maxWidth: "600px", width: "100%" }}><Outlet /></div>
+            <div style={{ display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'auto'}}><Outlet /></div>
           </main>
         </div>
       </div>
