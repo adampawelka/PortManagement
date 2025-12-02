@@ -22,14 +22,21 @@ import SubmitVvnPage from "./pages/SubmitVVNPage.jsx";
 
 import DocksListPage from "./pages/DocksListPage.jsx";
 import AvailableResourcesPage from "./pages/AvailableResourcesList.jsx";
+import AddResourcePage from "./pages/AddResourcesPage.jsx";
 import StorageAreasPage from "./pages/StorageAreasPage.jsx";
+import AddStorageAreaPage from "./pages/AddStorageArea.jsx";
 
 import VesselsListPage from "./pages/VesselsListPage.jsx";
 import AddVesselPage from "./pages/AddVesselPage.jsx";
+import SearchVesselPage from "./pages/SearchVesselPage.jsx";
 
 
 import VesselTypePage from "./pages/VesselTypesListPage.jsx";
 import AddVesselTypePage from "./pages/AddVesselTypePage.jsx";
+import SearchVesselTypePage from "./pages/SearchVesselType.jsx";
+
+import AddDockPage from "./pages/AddDockPage.jsx";
+import SearchDockPage from "./pages/SearchDockPage.jsx";
 
 
 import { useApi } from "./services/api.js";
@@ -231,10 +238,28 @@ const App = () => {
         />
 
         <Route
+          path="storage-areas/add"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddStorageAreaPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="resources/list"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AvailableResourcesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="resources/allocate"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddResourcePage />
             </ProtectedRoute>
           }
         />
@@ -249,10 +274,38 @@ const App = () => {
         />
 
         <Route
+          path="docks/new"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddDockPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="docks/search"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <SearchDockPage />
+            </ProtectedRoute>
+          }
+        />
+
+
+
+        <Route
           path="/vessels/list"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <VesselsListPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vessels/search"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <SearchVesselPage />
             </ProtectedRoute>
           }
         />
@@ -280,6 +333,15 @@ const App = () => {
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AddVesselTypePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vessels/types/search"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <SearchVesselTypePage />
             </ProtectedRoute>
           }
         />
