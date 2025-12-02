@@ -7,7 +7,6 @@ using System.IO;
 using System.Globalization;
 using System.Linq;
 
-
 using DDDSample1.Domain.VesselVisitNotifications;
 using DDDSample1.Domain.Docks;
 using DDDSample1.Domain.StaffMembers;
@@ -30,7 +29,6 @@ namespace SchedulingAPI.Controllers
         private readonly string _hillClimbingScriptPath;
         private readonly string _swiplPath;
         private readonly IHttpClientFactory _httpClientFactory;
-
 
         public SchedulingController(IHttpClientFactory httpClientFactory)
         {
@@ -141,13 +139,9 @@ namespace SchedulingAPI.Controllers
             }
         }
 
-
         [HttpGet("test-api-call")]
         public async Task<IActionResult> TestApiCall()
         {
-            // 1. Asume que tu BackendAPI está en el puerto 5000. 
-            //    ¡CAMBIA ESTE NÚMERO si tu BackendAPI usa otro puerto!
-            //    También asegúrate de que /api/Docks exista.
             string backendApiUrl = "http://localhost:5000/api/Docks";
 
             try
@@ -274,7 +268,7 @@ namespace SchedulingAPI.Controllers
                     // Convert nullable GUID to string or "unknown"
                     var dockId = dockGroup.Key.HasValue ? dockGroup.Key.Value.ToString() : "unknown";
 
-                    var dockResponse = await client.GetAsync("http://localhost:5000/api/Docks/" + dockId);
+                    var dockResponse = await client.GetAsync($"http://localhost:5000/api/Docks/{dockId}");
                     dockResponse.EnsureSuccessStatusCode();
                     var dock = await dockResponse.Content.ReadFromJsonAsync<DockDto>();
 
