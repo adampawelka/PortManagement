@@ -11,9 +11,11 @@ const RecommendedAlgorithm = () => {
     const [token, setToken] = useState(null);
     const [recommendedAlgorithm, setRecommendedAlgorithm] = useState("");
     const [selectionReason, setSelectionReason] = useState("");
+    const [userAlgorithm, setUserAlgorithm] = useState(""); // manual override
 
     const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
+    // Fetch token
     useEffect(() => {
         const fetchToken = async () => {
             if (isAuthenticated) {
@@ -29,7 +31,9 @@ const RecommendedAlgorithm = () => {
     }, [isAuthenticated, getAccessTokenSilently]);
 
     const handleDateChange = (e) => setTargetDate(e.target.value);
+    const handleAlgorithmChange = (e) => setUserAlgorithm(e.target.value);
 
+    // Algorithm selection policy
     const chooseAlgorithm = (vessels, ops, timeLimitSeconds = 30) => {
         if (ops < 150 && timeLimitSeconds > 120)
             return {
@@ -39,6 +43,21 @@ const RecommendedAlgorithm = () => {
         if (ops < 400)
             return { algo: "heuristic", reason: "Medium-sized instance (<400 ops)." };
         return { algo: "genetic", reason: "Large or time-constrained instance." };
+    };
+
+    // --- Helper to extract execution time for any algorithm ---
+    const extractExecutionTime = (scheduleText) => {
+        const patterns = [
+            /Heuristic Execution Time:\s*([\d.e-]+)/i,
+            /Brute Force Execution Time:\s*([\d.e-]+)/i,
+            /Genetic Execution Time:\s*([\d.e-]+)/i,
+            /Execution Time:\s*([\d.e-]+)/i
+        ];
+        for (const pattern of patterns) {
+            const match = scheduleText.match(pattern);
+            if (match) return parseFloat(match[1]);
+        }
+        return null;
     };
 
     const handleGenerateSchedule = async () => {
@@ -53,6 +72,7 @@ const RecommendedAlgorithm = () => {
         setExecutionTime(null);
 
         try {
+            // Fetch Vessel Visit Notifications
             const notificationsResponse = await fetch(
                 `http://localhost:5000/api/VesselVisitNotifications`,
                 {
@@ -62,6 +82,7 @@ const RecommendedAlgorithm = () => {
                     },
                 }
             );
+
             if (!notificationsResponse.ok) throw new Error("Failed to load VVNs");
 
             const allNotifications = await notificationsResponse.json();
@@ -73,18 +94,26 @@ const RecommendedAlgorithm = () => {
 
             setVesselNotifications(dateNotifications);
 
+            // Compute problem size
             const vesselCount = dateNotifications.length;
             const operations = dateNotifications.reduce(
                 (sum, v) => sum + (v.estimatedOperations || 30),
                 0
             );
 
+            // Default algorithm selection
             const { algo, reason } = chooseAlgorithm(vesselCount, operations);
-            setRecommendedAlgorithm(algo);
-            setSelectionReason(reason);
 
+            // Allow user override
+            const selectedAlgo = userAlgorithm || algo;
+            const selectedReason = userAlgorithm ? "User-selected override" : reason;
+
+            setRecommendedAlgorithm(selectedAlgo);
+            setSelectionReason(selectedReason);
+
+            // Fetch schedule
             const scheduleRes = await fetch(
-                `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=${algo}`,
+                `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=${selectedAlgo}`,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -103,23 +132,20 @@ const RecommendedAlgorithm = () => {
                 const dockInfo = parsedJSON[dockId];
                 let scheduleText = dockInfo.schedule.trim();
 
-                // Remove leading [ and trailing ] even if there is whitespace
+                // Remove any leading/trailing brackets
                 scheduleText = scheduleText.replace(/^\s*\[|\]\s*$/g, "").trim();
+                scheduleText = scheduleText.replace(/\[|\]/g, "");
 
-                // Optional: remove any remaining [ or ] inside the text
-                scheduleText = scheduleText.replace(/\[|\]/g, "")
-                // Extract execution time if heuristic
-                if (algo === "heuristic") {
-                    const execMatch = scheduleText.match(
-                        /Heuristic Execution Time:\s*([\d.e-]+)/i
-                    );
-                    if (execMatch) {
-                        setExecutionTime(parseFloat(execMatch[1]));
-                        scheduleText = scheduleText.replace(execMatch[0], "").trim();
-                    }
-                } else {
-                    setExecutionTime(null);
-                }
+                // Extract execution time for any algorithm
+                const execTime = extractExecutionTime(scheduleText);
+                if (execTime !== null) setExecutionTime(execTime);
+
+                // Remove execution time from schedule text
+                scheduleText = scheduleText.replace(/Execution Time:.*\n?/i, "")
+                                           .replace(/Heuristic Execution Time:.*\n?/i, "")
+                                           .replace(/Brute Force Execution Time:.*\n?/i, "")
+                                           .replace(/Genetic Execution Time:.*\n?/i, "")
+                                           .trim();
 
                 const lines = scheduleText.split("),").filter((line) => line.trim() !== "");
 
@@ -135,6 +161,7 @@ const RecommendedAlgorithm = () => {
                             end: parts[2],
                             staff: "Assigned Staff TBD",
                             area: dockInfo.area,
+                            algorithm: selectedAlgo, // per-row traceability
                         });
                     }
                 });
@@ -153,8 +180,7 @@ const RecommendedAlgorithm = () => {
         <div style={{ padding: 20, textAlign: "center" }}>
             <h1>Recommended Algorithm</h1>
             <p style={{ color: "#555" }}>
-                The system automatically selects the best algorithm based on the number of
-                vessels, operations, and available time.
+                The system automatically selects the best algorithm based on the number of vessels, operations, and available time.
             </p>
 
             <div style={{ marginBottom: 20 }}>
@@ -162,17 +188,28 @@ const RecommendedAlgorithm = () => {
                     Target Date:{" "}
                     <input type="date" value={targetDate} onChange={handleDateChange} />
                 </label>
+
+                <label style={{ marginLeft: 20 }}>
+                    Algorithm Override:{" "}
+                    <select value={userAlgorithm} onChange={handleAlgorithmChange}>
+                        <option value="">Auto (recommended)</option>
+                        <option value="optimal">Optimal</option>
+                        <option value="heuristic">Heuristic</option>
+                        <option value="genetic">Genetic</option>
+                    </select>
+                </label>
+
                 <button onClick={handleGenerateSchedule} style={{ marginLeft: 10 }}>
-                    Generate Recommended Schedule
+                    Generate Schedule
                 </button>
             </div>
 
             {recommendedAlgorithm && (
                 <div style={{ marginTop: 10, fontSize: 18 }}>
-                    <strong>Selected Algorithm: </strong>
-                    {recommendedAlgorithm}
+                    <strong>Selected Algorithm: </strong>{recommendedAlgorithm}
                     <br />
                     <em style={{ color: "#777" }}>{selectionReason}</em>
+                    {executionTime && <div>Execution Time: {executionTime}s</div>}
                 </div>
             )}
 
@@ -187,12 +224,13 @@ const RecommendedAlgorithm = () => {
                         paddingBottom: "1rem",
                         border: "1px solid #ccc",
                         boxSizing: "border-box",
+                        overflowX: "auto",
                     }}
                 >
                     <table
                         style={{
                             width: "100%",
-                            tableLayout: "auto",  // auto sizing according to text
+                            tableLayout: "auto",
                             borderCollapse: "collapse",
                         }}
                     >
@@ -223,7 +261,6 @@ const RecommendedAlgorithm = () => {
                     </table>
                 </div>
             )}
-
         </div>
     );
 };
