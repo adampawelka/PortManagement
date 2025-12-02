@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useApi } from '../services/api';
 import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 
-const API_URL = 'http://localhost:5000/api/VesselVisitNotifications';
-
 const ApproveVvnPage = () => {
+  const { apiFetch } = useApi();
   const [notificationId, setNotificationId] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null); 
   const [dockID, setDock] = useState('');
-  const { getAccessTokenSilently } = useAuth0();
 
   const handleApprove = async (e) => {
     e.preventDefault();
@@ -29,11 +27,9 @@ const ApproveVvnPage = () => {
     };
     
     try {
-        const token = await getAccessTokenSilently();
-        const response = await fetch(`${API_URL}/${notificationId}/approve`, { 
+        const response = await apiFetch(`/api/VesselVisitNotifications/${notificationId}/approve`, { 
             method: 'POST',
             headers: { 
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json' 
             },
             body: JSON.stringify(updateDto)
@@ -77,7 +73,7 @@ const ApproveVvnPage = () => {
           margin="normal"
         />
 
-        <Button type="Approve" variant="contained" disabled={loading} sx={{ mt: 3, py: 1.5 }} fullWidth>
+        <Button type="submit" variant="contained" disabled={loading} sx={{ mt: 3, py: 1.5 }} fullWidth>
           {loading ? <CircularProgress size={24} color="inherit" /> : 'Approve'}
         </Button>
       </form>

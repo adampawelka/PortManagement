@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
-
-const API_URL = 'http://localhost:5000/api'; 
+import { useApi } from '../services/api';
 
 const VesselTypePage = () => {
-  const { getAccessTokenSilently } = useAuth0();
+  const { apiFetch } = useApi();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [apiFetch]);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const token = await getAccessTokenSilently();
       
-      // Llama a la API sin filtro: /VesselTypes
-      const response = await fetch(`${API_URL}/VesselTypes`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiFetch('/api/VesselTypes');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch vessel types');
+      }
       
       const data = await response.json();
       setData(data);

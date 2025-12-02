@@ -1,7 +1,9 @@
 // src/pages/Alternative_Schedule.jsx
 import React, { useState } from "react";
+import { useApi } from "../services/api";
 
 const AlternativeSchedule = () => {
+  const { apiFetch, schedulingApiFetch } = useApi();
   const [targetDate, setTargetDate] = useState("");
   const [scheduleResults, setScheduleResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -114,9 +116,7 @@ const AlternativeSchedule = () => {
     try {
       // Try to fetch vessel notifications (non-critical)
       try {
-        const notificationsResponse = await fetch(
-          `http://localhost:5000/api/VesselVisitNotifications`
-        );
+        const notificationsResponse = await apiFetch('/api/VesselVisitNotifications');
         
         if (notificationsResponse.ok) {
           const allNotifications = await notificationsResponse.json();
@@ -132,9 +132,9 @@ const AlternativeSchedule = () => {
         // Continue anyway - ETA/ETD columns will show "N/A"
       }
 
-      // Fetch schedule
-      const response = await fetch(
-        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=${selectedAlgorithm}`
+      // Fetch schedule from SchedulingAPI
+      const response = await schedulingApiFetch(
+        `/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=${selectedAlgorithm}`
       );
 
       // Read the response body as text — even if not 200 OK

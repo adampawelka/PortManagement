@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useApi } from '../services/api';
 import "../styles/App.css";
 import { Container, TextField, Button, Typography, CircularProgress, Alert } from '@mui/material';
 
@@ -18,10 +18,8 @@ const AddVesselTypePage = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null); 
   
-  const { getAccessTokenSilently } = useAuth0();
-  
-  // Endpoint específico para Vessel Types
-  const API_ENDPOINT = 'http://localhost:5000/api/VesselTypes';
+  const { apiFetch } = useApi();
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,12 +56,9 @@ const AddVesselTypePage = () => {
     };
     
     try {
-        const token = await getAccessTokenSilently();
-        
-        const response = await fetch(API_ENDPOINT, {
+        const response = await apiFetch('/api/VesselTypes', {
             method: 'POST',
             headers: { 
-                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json' 
             },
             body: JSON.stringify(vesselTypeDto)
@@ -73,7 +68,7 @@ const AddVesselTypePage = () => {
             setMessage({ type: 'success', text: 'Vessel Type created successfully!' });
             setFormData(initialFormState);
         } else {
-            const errorData = await response.status === 400 ? await response.json() : { Message: response.statusText };
+            const errorData = response.status === 400 ? await response.json() : { Message: response.statusText };
             setMessage({ type: 'error', text: `Submission failed: ${errorData.Message || response.statusText}` });
         }
     } catch (err) {

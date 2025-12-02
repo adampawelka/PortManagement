@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useApi } from '../services/api';
 import { Container, TextField, Button, Typography, CircularProgress, Alert, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 
 const initialFormState = {
@@ -9,28 +9,21 @@ const initialFormState = {
   operatorOwner: '', 
 };
 
-const API_URL = 'http://localhost:5000/api'; 
-
 const AddVesselPage = () => {
+  const { apiFetch } = useApi();
   const [formData, setFormData] = useState(initialFormState);
   const [vesselTypes, setVesselTypes] = useState([]); 
   const [shippingAgents, setShippingAgents] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null); 
-  const { getAccessTokenSilently } = useAuth0();
 
- 
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        const token = await getAccessTokenSilently();
-        const headers = { Authorization: `Bearer ${token}` };
-
-        
         const [typesRes, agentsRes] = await Promise.all([
-            fetch(`${API_URL}/VesselTypes`, { headers }),
-            fetch(`${API_URL}/ShippingAgents`, { headers }), // <-- Fetch de Organizaciones
+            apiFetch('/api/VesselTypes'),
+            apiFetch('/api/ShippingAgents'),
         ]);
 
         if (!typesRes.ok || !agentsRes.ok) {
@@ -52,7 +45,7 @@ const AddVesselPage = () => {
       }
     };
     loadInitialData();
-  }, [getAccessTokenSilently]);
+  }, [apiFetch]);
 
 
   const handleChange = (e) => {
@@ -81,10 +74,9 @@ const AddVesselPage = () => {
     };
     
     try {
-        const token = await getAccessTokenSilently();
-        const response = await fetch(`${API_URL}/Vessels`, {
+        const response = await apiFetch('/api/Vessels', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(vesselDto)
         });
 

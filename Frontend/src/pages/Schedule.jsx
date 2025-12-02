@@ -1,32 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
+import React, { useState } from "react";
+import { useApi } from "../services/api";
 
 const Schedule = () => {
+  const { apiFetch, schedulingApiFetch } = useApi();
   const [targetDate, setTargetDate] = useState("");
   const [scheduleResults, setScheduleResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [executionTime, setExecutionTime] = useState(null);
   const [vesselNotifications, setVesselNotifications] = useState([]);
-  const [token, setToken] = useState(null); // <-- store token here
-
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
-
-  // --- Fetch token when user is authenticated ---
-  useEffect(() => {
-    const fetchToken = async () => {
-      if (isAuthenticated) {
-        try {
-          const t = await getAccessTokenSilently();
-          setToken(t);
-          console.log("token:" + t);
-        } catch (err) {
-          console.error("Failed to get access token:", err);
-        }
-      }
-    };
-    fetchToken();
-  }, [isAuthenticated, getAccessTokenSilently]);
 
   const handleDateChange = (e) => setTargetDate(e.target.value);
 
@@ -107,8 +89,6 @@ const Schedule = () => {
   // --- Fetch schedule ---
   const handleGenerateSchedule = async () => {
     if (!targetDate) return alert("Please select a date");
-    if (!token) return alert("Token not ready yet, please wait a moment");
-
 
     const isoDate = new Date(targetDate).toISOString().split("T")[0];
     setLoading(true);
@@ -119,20 +99,8 @@ const Schedule = () => {
 
     try {
       // Fetch vessel notifications
-      console.log("Before1:", token);
-
       try {
-        const notificationsResponse = await fetch(
-          `http://localhost:5000/api/VesselVisitNotifications`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log("after:", token);
-
+        const notificationsResponse = await apiFetch('/api/VesselVisitNotifications');
 
         if (notificationsResponse.ok) {
           const allNotifications = await notificationsResponse.json();
@@ -147,16 +115,9 @@ const Schedule = () => {
         console.warn("Could not fetch vessel notifications:", notifError);
       }
 
-      // Fetch schedule
-      const response = await fetch(
-        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=bruteforce`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+      // Fetch schedule from SchedulingAPI
+      const response = await schedulingApiFetch(
+        `/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=bruteforce`
       );
 
       const text = await response.text();

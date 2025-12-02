@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import React, { useState, useEffect } from 'react';
+import { useApi } from '../services/api';
 import { Container, TextField, Button, Typography, CircularProgress, Alert, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 
 // --- CONSTANTES Y ESTADO ---
-const API_URL = 'http://localhost:5000/api';
 // Nuevo endpoint para obtener representantes de una ORG específica:
 //const REPS_BY_ORG_API = (id) => `${API_URL}//representatives/${id}`; 
 //const ORGS_API = `${API_URL}/ShippingAgents`;
-const VESSELS_API = `${API_URL}/Vessels`;
+const VESSELS_API = `/api/Vessels`;
 
 const initialFormState = {
   vesselId: '', // Ahora será seleccionado
@@ -33,26 +32,19 @@ const AddVVNPage = () => {
   const [vessels, setVessels] = useState([]); 
   //const [selectedOrgId, setSelectedOrgId] = useState(''); // ID de la Organización seleccionada
   
-  const { getAccessTokenSilently, user } = useAuth0(); 
+  const { apiFetch } = useApi();
 
-// --- FUNCIÓN DE FETCH REUTILIZABLE CON TOKEN ---
-const fetchProtected = useCallback(async (url) => {
-    const token = await getAccessTokenSilently();
-    const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    if (!response.ok) throw new Error(response.statusText);
-    return response.json();
-}, [getAccessTokenSilently]);
-
-
-// 1. EFECTO INICIAL: Carga SOLO Buques
+  // 1. EFECTO INICIAL: Carga SOLO Buques
 useEffect(() => {
   const loadInitialData = async () => {
     try {
-      // Simplificamos Promise.all para que solo haga una llamada a VESSELS_API
-      const [vesselsData] = await Promise.all([
-          fetchProtected(VESSELS_API),
-      ]);
-
+      const response = await apiFetch(VESSELS_API);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch vessels');
+      }
+      
+      const vesselsData = await response.json();
       setVessels(vesselsData);
       
     } catch (error) {
@@ -63,7 +55,7 @@ useEffect(() => {
     }
   };
   loadInitialData();
-}, [fetchProtected]);
+}, [apiFetch]);
 
 
   // 2. EFECTO DE CASCADA: Carga Representantes solo cuando cambia selectedOrgId
@@ -132,10 +124,9 @@ useEffect(() => {
     };
     
     try {
-        const token = await getAccessTokenSilently();
-        const response = await fetch(`${API_URL}/VesselVisitNotifications`, {
+        const response = await apiFetch('/api/VesselVisitNotifications', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(vvnDto)
         });
 

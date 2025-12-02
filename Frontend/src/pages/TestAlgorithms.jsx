@@ -21,6 +21,9 @@ const TestAlgorithms = () => {
     setError("");
   };
 
+  // SchedulingAPI URL - TODO: Move to environment variable
+  const SCHEDULING_API_URL = import.meta.env.VITE_SCHEDULING_API_BASE_URL || "http://localhost:5107";
+
   const handleTest = async () => {
     setLoading(true);
     setError("");
@@ -28,7 +31,7 @@ const TestAlgorithms = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5107/api/Scheduling/test-algorithms?algorithm=${selectedAlgorithm}`
+        `${SCHEDULING_API_URL}/api/Scheduling/test-algorithms?algorithm=${selectedAlgorithm}`
       );
 
       if (!response.ok) {

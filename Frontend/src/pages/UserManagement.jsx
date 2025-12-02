@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { useApi } from '../services/api';
 
 const UserManagement = () => {
-  const { getAccessTokenSilently } = useAuth0();
+  const { apiFetch } = useApi();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
-
-  const API_URL = 'http://localhost:5000/api';
 
   const roles = [
     'Administrator',
@@ -20,15 +18,17 @@ const UserManagement = () => {
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [apiFetch]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const token = await getAccessTokenSilently();
-      const response = await fetch(`${API_URL}/users`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await apiFetch('/api/users');
+      
+      if (!response.ok) {
+        throw new Error('Failed to load users');
+      }
+      
       const data = await response.json();
       setUsers(data);
     } catch (error) {
@@ -42,15 +42,17 @@ const UserManagement = () => {
     if (!selectedUser || !selectedRole) return;
 
     try {
-      const token = await getAccessTokenSilently();
-      await fetch(`${API_URL}/users/${selectedUser.id}/role`, {
+      const response = await apiFetch(`/api/users/${selectedUser.id}/role`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(selectedRole)
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to assign role');
+      }
       
       alert('Role assigned successfully!');
       setShowRoleModal(false);
@@ -67,11 +69,14 @@ const UserManagement = () => {
     if (!window.confirm('Generate activation token and send email?')) return;
 
     try {
-      const token = await getAccessTokenSilently();
-      await fetch(`${API_URL}/users/${userId}/activation-token`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await apiFetch(`/api/users/${userId}/activation-token`, {
+        method: 'POST'
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send activation email');
+      }
+      
       alert('Activation email sent!');
     } catch (error) {
       console.error('Error:', error);
@@ -83,11 +88,14 @@ const UserManagement = () => {
     if (!window.confirm('Deactivate this user?')) return;
 
     try {
-      const token = await getAccessTokenSilently();
-      await fetch(`${API_URL}/users/${userId}/deactivate`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await apiFetch(`/api/users/${userId}/deactivate`, {
+        method: 'PUT'
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to deactivate user');
+      }
+      
       alert('User deactivated!');
       loadUsers();
     } catch (error) {
@@ -100,11 +108,14 @@ const UserManagement = () => {
     if (!window.confirm('Reactivate this user?')) return;
 
     try {
-      const token = await getAccessTokenSilently();
-      await fetch(`${API_URL}/users/${userId}/reactivate`, {
-        method: 'PUT',
-        headers: { Authorization: `Bearer ${token}` }
+      const response = await apiFetch(`/api/users/${userId}/reactivate`, {
+        method: 'PUT'
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to reactivate user');
+      }
+      
       alert('User reactivated!');
       loadUsers();
     } catch (error) {
