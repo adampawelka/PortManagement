@@ -22,8 +22,9 @@ export const useUser = () => useContext(UserContext);
 // ---------------------------
 // REAL API CALL (will be re-enabled later)
 // ---------------------------
-const fetchUserRole = async (iamUserId, apiFetch) => {
-  const res = await apiFetch(`/api/users/${iamUserId}/role-status`);
+const fetchUserRole = async (iamUserId, name, email, apiFetch) => {
+  const url = `/api/users/iam/${iamUserId}/role-status?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+  const res = await apiFetch(url);
   if (!res.ok) return null;
   return res.json(); // { role, status }
 };
@@ -50,14 +51,14 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
         // ----------------------------------------
         // TEMPORARY DEVELOPMENT USER
         // ----------------------------------------
-        const data1 = {
-          role: "LogisticsOperator",   // CHANGE HERE THE ROLE 
-          status: "Active"
-        }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
+        // const data1 = {
+        //   role: "LogisticsOperator",   // CHANGE HERE THE ROLE 
+        //   status: "Active"
+        // }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
-        // const data1 = await fetchUserRole(user.sub, apiFetch);
+        const data1 = await fetchUserRole(user.sub, user.name, user.email, apiFetch);
         // ----------------------------------------
 
         setUserData(data1);

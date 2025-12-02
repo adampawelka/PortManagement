@@ -57,7 +57,7 @@ namespace DDDSample1.Controllers
        // needed for SPA permissions
 // GET: api/Users/iam/{iam}/role-status
         [HttpGet("iam/{iam}/role-status")]
-        public async Task<ActionResult<UserRoleStatusDto>> GetRoleStatus(string iam)
+        public async Task<ActionResult<UserRoleStatusDto>> GetRoleStatus(string iam, string email, string name)
         {
             var user = await _userService.GetUserByIamIdAsync(iam);
 
@@ -66,13 +66,13 @@ namespace DDDSample1.Controllers
                 var pending = await _pendingUserService.GetPendingUserByIamIdAsync(iam);
                 if (pending == null)
                 {
-                    var email = User?.FindFirst("email")?.Value ?? "unknown@unknown.com";
-                    var name = User?.FindFirst("name")?.Value ?? "Unknown User";
+                    var pendEmail = email ?? "unknown@unknown.com";
+                    var pendName = name ?? "Unknown User";
 
                     await _pendingUserService.AddPendingUserAsync(new CreatingPendingUserDto
                     {
-                        Email = email,
-                        Name = name,
+                        Email = pendEmail,
+                        Name = pendName,
                         IamUserId = iam,
                     });
                 }
