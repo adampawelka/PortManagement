@@ -2,7 +2,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import React, { useCallback } from 'react';
 
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 export const useApi = () => {
     // we obtein auth0 functions
