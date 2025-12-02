@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
+import "../styles/Scheduling.css";
 
 const OptimalSchedule = () => {
   const [targetDate, setTargetDate] = useState("");
@@ -194,49 +195,64 @@ const OptimalSchedule = () => {
   };
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
-      <h1>Optimal Scheduling (Brute Force)</h1>
-      <div style={{ marginBottom: "20px" }}>
-        <label>
-          Target Date: <input type="date" value={targetDate} onChange={handleDateChange} />
-        </label>
-        <button onClick={handleGenerateSchedule} style={{ marginLeft: "10px" }}>
-          Generate Optimal Schedule
-        </button>
+  <div className="schedule-container">
+    <h1 className="schedule-header">Optimal Scheduling</h1>
+    <p className="schedule-subheader">
+      Generate optimal schedule using the brute force algorithm.
+    </p>
+
+    <div className="schedule-controls">
+      <div className="control-group">
+        <label className="control-label">Target Date:</label>
+        <input
+          type="date"
+          value={targetDate}
+          onChange={handleDateChange}
+          className="control-input"
+        />
       </div>
-      {loading && <p>Generating schedule...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {scheduleResults.length > 0 && (
-        <table style={{ margin: "0 auto", borderCollapse: "collapse", marginTop: "20px" }}>
+
+      <button onClick={handleGenerateSchedule} className="control-button">
+        Generate Schedule
+      </button>
+    </div>
+
+    {loading && <p className="info-text">Generating schedule...</p>}
+    {error && <p className="error-text">{error}</p>}
+
+    {scheduleResults.length > 0 && (
+      <div className="table-wrapper">
+        <table className="schedule-table">
           <thead>
             <tr>
-              <th style={{ border: "1px solid black", padding: "5px" }}>Vessel</th>
-              <th style={{ border: "1px solid black", padding: "5px" }}>Dock</th>
-              <th style={{ border: "1px solid black", padding: "5px" }}>Crane</th>
-              <th style={{ border: "1px solid black", padding: "5px" }}>Start</th>
-              <th style={{ border: "1px solid black", padding: "5px" }}>End</th>
-              <th style={{ border: "1px solid black", padding: "5px" }}>Staff</th>
-              <th style={{ border: "1px solid black", padding: "5px" }}>Area</th>
+              <th>Vessel</th>
+              <th>Dock</th>
+              <th>Crane</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Staff</th>
+              <th>Area</th>
             </tr>
           </thead>
           <tbody>
-            {scheduleResults.map((item, index) => (
+            {scheduleResults.map((row, index) => (
               <tr key={index}>
-                <td style={{ border: "1px solid black", padding: "5px" }}>{item.vessel}</td>
-                <td style={{ border: "1px solid black", padding: "5px" }}>{item.dock}</td>
-                <td style={{ border: "1px solid black", padding: "5px" }}>{item.crane}</td>
-                <td style={{ border: "1px solid black", padding: "5px" }}>{item.start}</td>
-                <td style={{ border: "1px solid black", padding: "5px" }}>{item.end}</td>
-                <td style={{ border: "1px solid black", padding: "5px" }}>{item.staff}</td>
-                <td style={{ border: "1px solid black", padding: "5px" }}>{item.area}</td>
+                <td>{row.vessel}</td>
+                <td>{row.dock}</td>
+                <td>{row.crane}</td>
+                <td>{row.start}</td>
+                <td>{row.end}</td>
+                <td>{row.staff}</td>
+                <td>{row.area}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
+      </div>
+    )}
+  </div>
+);
 
-    </div>
-  );
 };
 
 export default OptimalSchedule;
