@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
-const Schedule = () => {
+const OptimalSchedule = () => {
   const [targetDate, setTargetDate] = useState("");
   const [scheduleResults, setScheduleResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -239,4 +239,4 @@ const Schedule = () => {
   );
 };
 
-export default Schedule;
+export default OptimalSchedule;

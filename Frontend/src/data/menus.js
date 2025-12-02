@@ -169,9 +169,15 @@ export const menuItems = [
     roles: ["LogisticsOperator"],
     subMenu: [
           {
-            name: "Schedule",
-            key: "schedule",
-            path: "/schedule",
+            name: "Recommended Schedule",
+            key: "recommended_schedule",
+            path: "/recommended-schedule",
+            roles: ["LogisticsOperator"],
+          },
+          {
+            name: "Optimal Schedule",
+            key: "optimal_schedule",
+            path: "/optimal-schedule",
             roles: ["LogisticsOperator"],
           },
           {
