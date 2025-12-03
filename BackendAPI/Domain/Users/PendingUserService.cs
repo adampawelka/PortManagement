@@ -67,7 +67,7 @@ namespace DDDSample1.Domain.Users
             var user = await _repo.GetPendingUserByIdAsync(new PendingUserId(id));
             if (user == null) return false;
 
-            _repo.RemovePendingUser(user);
+            await _repo.RemovePendingUser(user);
             await _unitOfWork.CommitAsync();
             return true;
         }

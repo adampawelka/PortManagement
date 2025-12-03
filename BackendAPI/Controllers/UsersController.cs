@@ -42,7 +42,7 @@ namespace DDDSample1.Controllers
         // GET: api/Users/5
         [HttpGet("{id}")]
         // [Authorize]
-        public async Task<ActionResult<UserDto>> GetById(Guid id)
+        public async Task<ActionResult<UserDto>> GetUserById(Guid id)
         {
             var user = await _userService.GetUserByIdAsync(id);
 
@@ -216,6 +216,11 @@ namespace DDDSample1.Controllers
             }
         }
        
+        public async Task<ActionResult<UserDto>> CreateUserAsync(CreatingUserDto dto)
+        {
+            var user = await _userService.AddUserAsync(dto);
 
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+        }
     }
 }
