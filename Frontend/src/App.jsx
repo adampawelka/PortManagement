@@ -81,14 +81,14 @@ const ProtectedRoute = ({ children, requiredRoles = [] , testUser = null}) => {
         // ----------------------------------------
         // TEMPORARY DEVELOPMENT USER
         // ----------------------------------------
-        /*const data1 = {
+        const data1 = {
           role: "LogisticsOperator",   // CHANGE HERE THE ROLE 
           status: "Active"
-        };*/ //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
+        }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
-        const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        //const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
         // ----------------------------------------
 
         setUserData(data1);

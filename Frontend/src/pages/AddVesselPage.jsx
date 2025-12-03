@@ -111,7 +111,7 @@ const AddVesselPage = () => {
       {message && <Alert severity={message.type} sx={{ mb: 2 }}>{message.text}</Alert>}
 
       <form onSubmit={handleSubmit}>
-        <TextField label="IMO Number" name="imoNumber" value={formData.imoNumber} onChange={handleChange} required fullWidth margin="normal" />
+        <TextField label="IMO Number" name="imoNumber" value={formData.imoNumber} onChange={handleChange} required fullWidth margin="normal" helperText="Exactly 7 digits" />
         <TextField label="Vessel Name" name="vesselName" value={formData.vesselName} onChange={handleChange} required fullWidth margin="normal" />
         
         {/* --- DROPDOWN PARA SELECCIÓN DE TIPO --- */}

@@ -150,19 +150,19 @@ const ListNotificationsPage = () => {
                                         <Typography variant="body2" 
                                             sx={{ 
                                                 fontWeight: 'bold', 
-                                                color: n.status === 'Pending' ? 'orange' : 
+                                                color: n.status === 'Submitted' ? 'orange' : 
                                                        n.status === 'Approved' ? 'green' : 
                                                        n.status === 'Rejected' ? 'red' : 'gray' 
                                             }}
                                         >
-                                            {n.Status || 'State'}
+                                            {n.status || 'State'}
                                         </Typography>
                                     </TableCell>
                                     <TableCell>{n.submittedByName || 'N/A'}</TableCell>
                                     <TableCell>{formatDate(n.eta)}</TableCell>
                                     <TableCell>{formatDate(n.etd)}</TableCell>
                                     <TableCell>{n.id}</TableCell>
-                                    <TableCell>{n.rejectionReason || 'Notification Approved'}</TableCell>   
+                                    <TableCell>{n.rejectionReason || 'Notification not Rejected'}</TableCell>   
                                     <TableCell>{n.assignedDockId || 'No dock'}</TableCell>
                                     <TableCell sx={listCellStyle}>
                                         <Box sx={{ overflowY: 'auto', maxHeight: '100%' }}>

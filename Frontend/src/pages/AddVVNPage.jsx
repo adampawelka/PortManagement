@@ -158,7 +158,7 @@ useEffect(() => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Submit New Vessel Visit Notification</Typography>
+      <Typography variant="h4" gutterBottom>Add a New Vessel Visit Notification</Typography>
       {message && <Alert severity={message.type} sx={{ mb: 2 }}>{message.text}</Alert>}
 
       <form onSubmit={handleSubmit}>
@@ -213,7 +213,7 @@ useEffect(() => {
             required 
             fullWidth 
             margin="normal" 
-            helperText="Enter the Agent Representative's GUID/ID manually."
+            helperText="Enter the Agent Representative's GUID/ID manually (99d3d3a0-fdc2-47b2-8ee5-32aecc525efe)."
         />
         
         {/* --- SELECT: Vessel ID --- */}
@@ -269,7 +269,7 @@ useEffect(() => {
         
         
         <Button type="submit" variant="contained" disabled={submitting} sx={{ mt: 3, py: 1.5 }} fullWidth>
-          {submitting ? <CircularProgress size={24} color="inherit" /> : 'Submit VVN'}
+          {submitting ? <CircularProgress size={24} color="inherit" /> : 'Add VVN'}
         </Button>
       </form>
     </Container>

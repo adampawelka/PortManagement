@@ -136,7 +136,7 @@ export const menuItems = [
       {
         name: "Vessel Types",
         key: "vessel_types",
-        path: "/vessels/types",
+        //path: "/vessels/types",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
         subMenu: [
           {

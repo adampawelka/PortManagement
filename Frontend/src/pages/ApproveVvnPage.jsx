@@ -55,7 +55,7 @@ const ApproveVvnPage = () => {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Approve Notification (US 2.2.7)</Typography>
+      <Typography variant="h4" gutterBottom>Approve Notification </Typography>
       {message && <Alert severity={message.type} sx={{ mb: 2 }}>{message.text}</Alert>}
 
       <form onSubmit={handleApprove}>
@@ -75,6 +75,7 @@ const ApproveVvnPage = () => {
           required 
           fullWidth 
           margin="normal"
+          helperText="Dock Alpha Example. (230e6a8a-bc83-4f6d-b69e-2f9e1fcab771)"
         />
 
         <Button type="Approve" variant="contained" disabled={loading} sx={{ mt: 3, py: 1.5 }} fullWidth>

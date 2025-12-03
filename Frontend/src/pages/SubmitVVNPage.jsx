@@ -53,7 +53,7 @@ const SubmitVvnPage = () => {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Submit Notification (US 2.2.7)</Typography>
+      <Typography variant="h4" gutterBottom>Submit Notification </Typography>
       {message && <Alert severity={message.type} sx={{ mb: 2 }}>{message.text}</Alert>}
 
       <form onSubmit={handleApprove}>
