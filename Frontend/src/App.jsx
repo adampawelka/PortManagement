@@ -16,6 +16,31 @@ import TestAlgorithms from "./pages/TestAlgorithms.jsx";
 
 import UserManagement from "./pages/UserManagement.jsx";
 
+import RejectVvnPage from "./pages/RejectVvnPage.jsx";
+import ApproveVvnPage from "./pages/ApproveVvnPage.jsx";
+import ListNotificationsPage from "./pages/ListNotificationsPage.jsx";
+import AddVNNPage from "./pages/AddVVNPage.jsx";
+import SubmitVvnPage from "./pages/SubmitVVNPage.jsx";
+
+import DocksListPage from "./pages/DocksListPage.jsx";
+import AvailableResourcesPage from "./pages/AvailableResourcesList.jsx";
+import AddResourcePage from "./pages/AddResourcesPage.jsx";
+import StorageAreasPage from "./pages/StorageAreasPage.jsx";
+import AddStorageAreaPage from "./pages/AddStorageArea.jsx";
+
+import VesselsListPage from "./pages/VesselsListPage.jsx";
+import AddVesselPage from "./pages/AddVesselPage.jsx";
+import SearchVesselPage from "./pages/SearchVesselPage.jsx";
+
+
+import VesselTypePage from "./pages/VesselTypesListPage.jsx";
+import AddVesselTypePage from "./pages/AddVesselTypePage.jsx";
+import SearchVesselTypePage from "./pages/SearchVesselType.jsx";
+
+import AddDockPage from "./pages/AddDockPage.jsx";
+import SearchDockPage from "./pages/SearchDockPage.jsx";
+
+
 import { useApi } from "./services/api.js";
 
 export const UserContext = createContext(null);
@@ -205,6 +230,172 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="storage-areas/list"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <StorageAreasPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="storage-areas/add"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddStorageAreaPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="resources/list"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AvailableResourcesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="resources/allocate"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddResourcePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="docks/list"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <DocksListPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="docks/new"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddDockPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="docks/search"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <SearchDockPage />
+            </ProtectedRoute>
+          }
+        />
+
+
+
+        <Route
+          path="/vessels/list"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <VesselsListPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vessels/search"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <SearchVesselPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vessels/types/list"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <VesselTypePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vessels/new"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddVesselPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vessels/types/new"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddVesselTypePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vessels/types/search"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <SearchVesselTypePage />
+            </ProtectedRoute>
+          }
+        />
+        
+
+        <Route
+          path="/vvn/approve"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <ApproveVvnPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vvn/list"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <ListNotificationsPage/>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vvn/reject"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <RejectVvnPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vvn/submit"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <SubmitVvnPage />
+            </ProtectedRoute>
+          }
+        />
+        
+
+        <Route
+          path="/vvn/add"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <AddVNNPage />
+            </ProtectedRoute>
+          }
+        />
+        
 
         <Route
           path="scheduling"
