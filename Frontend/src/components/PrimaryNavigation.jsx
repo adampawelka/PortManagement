@@ -47,19 +47,34 @@ const PrimaryNavigation = () => {
 
   return (
     <nav className="nav">
-      {filteredMenuItems.map((item) => (
-        <div key={item.key} className="nav-item">
+  {filteredMenuItems.map((item) => {
+    const hasSubMenu = item.subMenu && item.subMenu.length > 0;
+
+    return (
+      <div key={item.key} className="nav-item">
+
+        {/* Jeśli ma submenu – nie robimy Link */}
+        {hasSubMenu ? (
+          <div className="nav-link no-link">
+            {t(item.key)}
+          </div>
+        ) : (
           <Link to={item.path} className="nav-link">
             {t(item.key)}
           </Link>
+        )}
 
-          {/* Render submenu if it exists */}
-          {item.subMenu && item.subMenu.length > 0 && (
-            <div className="submenu-wrapper">{renderSubMenu(item.subMenu)}</div>
-          )}
-        </div>
-      ))}
-    </nav>
+        {/* Render submenu jeśli istnieje */}
+        {hasSubMenu && (
+          <div className="submenu-wrapper">
+            {renderSubMenu(item.subMenu)}
+          </div>
+        )}
+      </div>
+    );
+  })}
+</nav>
+
   );
 };
 
