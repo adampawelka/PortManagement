@@ -34,9 +34,9 @@ const RecommendedSchedule = () => {
     const handleAlgorithmChange = (e) => setUserAlgorithm(e.target.value);
 
     const chooseAlgorithm = (vessels, ops, timeLimitSeconds = 30) => {
-        if (ops < 150 && timeLimitSeconds > 120)
+        if (ops < 10 && timeLimitSeconds > 120)
             return { algo: "optimal", reason: "Small operation set (<150 ops) and long time budget." };
-        if (ops < 400)
+        if (ops > 10 && ops < 20)
             return { algo: "heuristic", reason: "Medium-sized instance (<400 ops)." };
         return { algo: "genetic", reason: "Large or time-constrained instance." };
     };
