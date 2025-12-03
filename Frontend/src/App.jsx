@@ -15,6 +15,8 @@ import RecommendedSchedule from "./pages/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
 
 import UserManagement from "./pages/UserManagement.jsx";
+import PendingUserManagementPage from "./pages/PendingUserManagementPage.jsx";
+import ActivateUserPage from "./pages/ActivateUserPage.jsx";
 
 import RejectVvnPage from "./pages/RejectVvnPage.jsx";
 import ApproveVvnPage from "./pages/ApproveVvnPage.jsx";
@@ -31,6 +33,7 @@ import AddStorageAreaPage from "./pages/AddStorageArea.jsx";
 import VesselsListPage from "./pages/VesselsListPage.jsx";
 import AddVesselPage from "./pages/AddVesselPage.jsx";
 import SearchVesselPage from "./pages/SearchVesselPage.jsx";
+
 
 
 import VesselTypePage from "./pages/VesselTypesListPage.jsx";
@@ -78,14 +81,14 @@ const ProtectedRoute = ({ children, requiredRoles = [] , testUser = null}) => {
         // ----------------------------------------
         // TEMPORARY DEVELOPMENT USER
         // ----------------------------------------
-        const data1 = {
+        /*const data1 = {
           role: "LogisticsOperator",   // CHANGE HERE THE ROLE 
           status: "Active"
-        }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
+        };*/ //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
-        // const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
         // ----------------------------------------
 
         setUserData(data1);
@@ -442,19 +445,19 @@ const App = () => {
           }
         />
 
-        {/* <Route
+         <Route
           path="user-management"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
-              <UserManagement />
+              <ActivateUserPage />
             </ProtectedRoute>
           }
-        /> */}
+        /> 
 
         <Route
           path="user-management/users"
           element={
-            <ProtectedRoute requiredRoles={["Administrator"]}>
+            <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
               <UserManagement />
             </ProtectedRoute>
           }
@@ -463,8 +466,8 @@ const App = () => {
         <Route
           path="user-management/pending-users"
           element={
-            <ProtectedRoute requiredRoles={["Administrator"]}>
-              <UserManagement />
+            <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
+              <PendingUserManagementPage />
             </ProtectedRoute>
           }
         />

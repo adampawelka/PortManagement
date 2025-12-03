@@ -173,7 +173,7 @@ const UserManagement = () => {
                     borderRadius: '4px'
                   }}
                 >
-                  Assign Role
+                  Change Role
                 </button>
                 
                 {user.status === 'Deactivated' && (
@@ -190,7 +190,7 @@ const UserManagement = () => {
                         borderRadius: '4px'
                       }}
                     >
-                      Send Activation
+                      Activate
                     </button>
                     <button
                       onClick={() => handleReactivate(user.id)}

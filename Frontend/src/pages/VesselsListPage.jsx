@@ -10,15 +10,21 @@ import {
     TableHead, 
     TableRow, 
     TableCell, 
-    TableBody
+    TableBody,
+    Box, 
 } from '@mui/material';
 import { useAuth0 } from '@auth0/auth0-react';
 
+// Ajusta esta URL si tu API corre en un puerto diferente
 const API_URL = 'http://localhost:5000/api'; 
 const VESSELS_API = `${API_URL}/Vessels`;
 
+
 const VesselsListPage = () => {
-    const { getAccessTokenSilently } = useAuth0();
+    // Determinar si usar el hook real de Auth0 o la simulación
+    
+    const { getAccessTokenSilently, user } = useAuth0();
+    
     const [vessels, setVessels] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -33,7 +39,7 @@ const VesselsListPage = () => {
             setError(null);
             const token = await getAccessTokenSilently();
             
-            // Endpoint para listar vessels (se asume que es una lista GET sin parámetros)
+            // Endpoint para listar buques
             const response = await fetch(VESSELS_API, {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${token}` }
@@ -46,12 +52,13 @@ const VesselsListPage = () => {
             
             const data = await response.json();
             
+            // Asegurarse de que la data es un array
             const dataArray = Array.isArray(data) ? data : (data ? [data] : []);
             
             setVessels(dataArray);
 
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('Error fetching vessels:', error);
             setError(`Failed to load vessels: ${error.message}`);
             setVessels([]);
         } finally {
@@ -86,26 +93,27 @@ const VesselsListPage = () => {
                 <Alert severity="info">No vessels found.</Alert>
             )}
 
-            {/* --- TABLA CON DETALLES DEL DTO VESSEL --- */}
+            {/* --- TABLA DE BUQUES --- */}
             {vessels.length > 0 && (
                 <TableContainer component={Paper} sx={{ mt: 3 }}>
                     <Table size="small">
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#f0f0f0' }}>
-                                {/* Columnas basadas en el DTO Vessel */}
-                                <TableCell sx={{ fontWeight: 'bold' }}>Vessel Name</TableCell>
+                                {/* Columnas basadas en el DTO de Vessel */}
+                                <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
                                 <TableCell sx={{ fontWeight: 'bold' }}>IMO</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Vessel ID</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Owner ID</TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Vessel Type ID</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Owner</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {vessels.map((vessel) => (
+                                // Asumiendo que 'id' es la clave única (Id o algún otro campo)
                                 <TableRow key={vessel.id}> 
+                                    <TableCell>{vessel.id || 'N/A'}</TableCell>
                                     <TableCell>{vessel.vesselName || 'N/A'}</TableCell>
                                     <TableCell>{vessel.imo || 'N/A'}</TableCell>
-                                    <TableCell>{vessel.id || 'N/A'}</TableCell>
                                     <TableCell>{vessel.ownerId || 'N/A'}</TableCell>
                                     <TableCell>{vessel.vesselTypeId || 'N/A'}</TableCell>
                                 </TableRow>
@@ -114,7 +122,7 @@ const VesselsListPage = () => {
                     </Table>
                 </TableContainer>
             )}
-            {/* ---------------------------------- */}
+            {/* --------------------------- */}
         </Container>
     );
 };

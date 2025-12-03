@@ -21,16 +21,32 @@ const GlobalLayout = () => {
         {/* Reszta kontentu po prawej stronie */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {/* Pasek breadcrumb + język */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 20px" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "15px",
+              borderBottom: '1px solid #eee' // Separador visual
+            }}
+          >
             <Breadcrumbs />
             <LanguageSwitcher />
           </div>
 
           {/* Główna treść */}
-          <main style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "20px", textAlign: "center" }}>
-            <div style={{ maxWidth: "1200px", width: "100%" }}>
-              <Outlet />
-            </div>
+          <main
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              padding: "0px 20px 65px 20px",
+              textAlign: "center",
+              
+            }}
+          >
+            <div style={{ display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'auto'}}><Outlet /></div>
           </main>
         </div>
       </div>

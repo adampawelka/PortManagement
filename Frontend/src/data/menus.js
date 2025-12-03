@@ -212,13 +212,13 @@ export const menuItems = [
         name: "Users",
         key: "users",
         path: "/user-management/users",
-        roles: ["Administrator"],
+        roles: ["Administrator", "LogisticsOperator"],
       },
       {
         name: "Pending Users",
         key: "pending_users",
         path: "/user-management/pending-users",
-        roles: ["Administrator"],
+        roles: ["Administrator", "LogisticsOperator"],
       }
     ]
   },
