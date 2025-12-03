@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DDDSample1.Domain.Shared;
+using Microsoft.Extensions.Configuration; // <-- NUEVO: Para obtener la URL de activación
+using DDDSample1.Infrastructure.Shared;
 
 namespace DDDSample1.Domain.Users
 {
@@ -11,10 +13,23 @@ namespace DDDSample1.Domain.Users
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserRepository _repo;
 
-        public UserService(IUnitOfWork unitOfWork, IUserRepository repo)
+        // ==========================================================
+        // [CORRECCIÓN] DEBES DECLARAR LAS VARIABLES AQUÍ
+        // ==========================================================
+        private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _configuration;
+        // ==========================================================
+
+        public UserService(IUnitOfWork unitOfWork, IUserRepository repo, IEmailSender emailSender, IConfiguration configuration)
         {
             this._unitOfWork = unitOfWork;
             this._repo = repo;
+            // ==========================================================
+            // [CORRECCIÓN] AHORA ASIGNAMOS LAS VARIABLES DECLARADAS
+            // ==========================================================
+            this._emailSender = emailSender;
+            this._configuration = configuration;
+            // ==========================================================
         }
 
         public async Task<List<UserDto>> GetAllUsersAsync()
@@ -86,8 +101,17 @@ namespace DDDSample1.Domain.Users
             await this._repo.AddAsync(user);
             await this._unitOfWork.CommitAsync();
 
-            // TODO: Send activation email with token
-            // await _emailService.SendActivationEmail(user.Email, token);
+            // ==========================================================
+            // [NUEVO] Envío de email de activación
+            // ==========================================================
+            var activationUrlBase = this._configuration["ActivationLinkBaseUrl"];
+            var activationLink = $"{activationUrlBase}?token={token}&iamId={dto.IamUserId}";
+
+            var subject = "Activación de Cuenta de Usuario - Port Logistics";
+            var message = $"Hola {dto.Name},<br><br>Tu cuenta ha sido aprobada. Haz clic en el siguiente enlace para completar la activación:<br><br><a href='{activationLink}'>{activationLink}</a><br><br>Gracias.";
+
+            await _emailSender.SendEmailAsync(user.Email.Value, subject, message);
+            // ==========================================================
 
             return ToDto(user);
         }
@@ -148,8 +172,16 @@ namespace DDDSample1.Domain.Users
 
             await this._unitOfWork.CommitAsync();
 
-            // TODO: Send activation email
-            // await _emailService.SendActivationEmail(user.Email, token);
+            // ==========================================================
+            // [NUEVO] Envío de email de activación
+            // ==========================================================
+            var activationUrlBase = this._configuration["ActivationLinkBaseUrl"];
+            var activationLink = $"{activationUrlBase}?token={token}&iamId={user.IamUserId}";
+
+            var subject = "Activación de Cuenta de Usuario - Port Logistics (Solicitud de Admin)";
+            var message = $"Hola {user.Name.Value},<br><br>Tu cuenta ha sido aprobada. Haz clic en el siguiente enlace para completar la activación:<br><br><a href='{activationLink}'>{activationLink}</a><br><br>Gracias.";
+
+            await _emailSender.SendEmailAsync(user.Email.Value, subject, message);
 
             return token;
         }
