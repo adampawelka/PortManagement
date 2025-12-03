@@ -9,9 +9,11 @@ import LoginButton from "./components/LoginButton.jsx";
 import Home from "./pages/Home.jsx";
 import Visualisation from "./pages/Visualisation.jsx";
 import Scheduling from "./pages/Scheduling.jsx";
-import Schedule from "./pages/Schedule.jsx";
+import OptimalSchedule from "./pages/OptimalSchedule.jsx";
 import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
+import RecommendedSchedule from "./pages/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
+
 import UserManagement from "./pages/UserManagement.jsx";
 
 import RejectVvnPage from "./pages/RejectVvnPage.jsx";
@@ -402,7 +404,6 @@ const App = () => {
               <Scheduling />
             </ProtectedRoute>
           }
-            
         />
 
         <Route
@@ -412,8 +413,8 @@ const App = () => {
               <AlternativeSchedule />
             </ProtectedRoute>
            }
-        
         />
+
         <Route
           path="/test-algorithms"
           element={
@@ -421,14 +422,22 @@ const App = () => {
             <TestAlgorithms />
           </ProtectedRoute>
           } 
-        
         />
 
         <Route
-          path="schedule"
+          path="/optimal-schedule"
           element={
             <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
-              <Schedule />
+              <OptimalSchedule />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/recommended-schedule"
+          element={
+            <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
+              <RecommendedSchedule />
             </ProtectedRoute>
           }
         />

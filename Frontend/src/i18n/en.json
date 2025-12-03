@@ -34,8 +34,10 @@
   "vvn": "Vessel Visit Notifications",
   "visualisation": "Visualisation",
   "scheduling": "Scheduling",
-  "schedule": "Schedule",
+  "optimal_schedule": "Optimal Schedule",
   "alternative_schedule": "Alternative Schedule",
+  "recommended_schedule": "Recommended Schedule",
+  "test_algorithms": "Test Algorithms",
   "user_management": "User Management",
   "users": "Users",
   "pending_users": "Pending Users"
