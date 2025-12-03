@@ -179,7 +179,7 @@ namespace DDDSample1.Controllers
         
         // POST: api/Users/activate
         [HttpPost("activate")]
-        [Authorize] // ¡ATTENTION! User must be logged with Auth0
+        //[Authorize] // ¡ATTENTION! User must be logged with Auth0
         public async Task<ActionResult<UserDto>> ActivateUser([FromBody] ActivateUserDto dto)
         {
             // --- Aditional security 3.2.6 ---
@@ -215,7 +215,8 @@ namespace DDDSample1.Controllers
                 return StatusCode(500, new { Message = $"Error interno: {ex.Message}" });
             }
         }
-       
+
+       [HttpPost("create")]
         public async Task<ActionResult<UserDto>> CreateUserAsync(CreatingUserDto dto)
         {
             var user = await _userService.AddUserAsync(dto);
