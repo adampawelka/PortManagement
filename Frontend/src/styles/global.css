@@ -6,14 +6,14 @@ html, body, #root {
   overflow-x: hidden;
 }
 
-/* Global body styling */
+/* Global body styling */ 
 body {
   font-family: var(--font-family-base);       /* Base font from variables */
   background-color: var(--color-background);  /* Background color */
   color: var(--color-text-dark);              /* Default text color */
   font-size: clamp(0.875rem, 1.2vw, 1rem);    /* Responsive font size that scales with viewport */
   line-height: 1.5;                           /* Better readability */
-  padding: 0 20px;                            /* Add some padding to the body */
+  padding: 0;                            /* Add some padding to the body */
 }
 
 /* Global container for content */
