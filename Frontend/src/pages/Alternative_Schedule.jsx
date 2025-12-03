@@ -1,5 +1,7 @@
 // src/pages/Alternative_Schedule.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+
 
 const AlternativeSchedule = () => {
   const [targetDate, setTargetDate] = useState("");
@@ -9,6 +11,23 @@ const AlternativeSchedule = () => {
   const [executionTime, setExecutionTime] = useState(null);
   const [vesselNotifications, setVesselNotifications] = useState([]);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState("heuristic");
+  const [token, setToken] = useState(null); // <-- store token here
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+
+  useEffect(() => {
+      const fetchToken = async () => {
+        if (isAuthenticated) {
+          try {
+            const t = await getAccessTokenSilently();
+            setToken(t);
+            console.log("token:" + t);
+          } catch (err) {
+            console.error("Failed to get access token:", err);
+          }
+        }
+      };
+      fetchToken();
+    }, [isAuthenticated, getAccessTokenSilently]);
 
   const handleDateChange = (e) => setTargetDate(e.target.value);
   const handleAlgorithmChange = (e) => setSelectedAlgorithm(e.target.value);
@@ -102,6 +121,8 @@ const AlternativeSchedule = () => {
   // --- Fetch and process schedule from backend using EDT Heuristic ---
   const handleGenerateSchedule = async () => {
     if (!targetDate) return alert("Please select a date");
+    if (!token) return alert("Token not ready yet, please wait a moment");
+
 
     const isoDate = new Date(targetDate).toISOString().split('T')[0];
 
@@ -115,8 +136,15 @@ const AlternativeSchedule = () => {
       // Try to fetch vessel notifications (non-critical)
       try {
         const notificationsResponse = await fetch(
-          `http://localhost:5000/api/VesselVisitNotifications`
+          `http://localhost:5000/api/VesselVisitNotifications`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
         );
+        console.log("after:", token);
         
         if (notificationsResponse.ok) {
           const allNotifications = await notificationsResponse.json();
@@ -133,8 +161,17 @@ const AlternativeSchedule = () => {
       }
 
       // Fetch schedule
+
+
       const response = await fetch(
-        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=${selectedAlgorithm}`
+        `http://localhost:5107/api/Scheduling/calculate-schedule?date=${isoDate}&algorithm=${selectedAlgorithm}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
 
       // Read the response body as text — even if not 200 OK
