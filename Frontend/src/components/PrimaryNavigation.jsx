@@ -53,7 +53,6 @@ const PrimaryNavigation = () => {
     return (
       <div key={item.key} className="nav-item">
 
-        {/* Jeśli ma submenu – nie robimy Link */}
         {hasSubMenu ? (
           <div className="nav-link no-link">
             {t(item.key)}
@@ -64,7 +63,6 @@ const PrimaryNavigation = () => {
           </Link>
         )}
 
-        {/* Render submenu jeśli istnieje */}
         {hasSubMenu && (
           <div className="submenu-wrapper">
             {renderSubMenu(item.subMenu)}
