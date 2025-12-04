@@ -13,6 +13,15 @@ export default class CameraController {
         this.mousePosition = new THREE.Vector2();
         this.isRotating = false;
 
+        this.isTransitioning = false;
+        this.transitionStart = null;
+        this.transitionDuration = 0.8; // seconds
+        this.startPosition = new THREE.Vector3();
+        this.startTarget = new THREE.Vector3();
+        this.endPosition = new THREE.Vector3();
+        this.endTarget = new THREE.Vector3();
+
+
         this.target = new THREE.Vector3(0, 0, 0);
         this.floorY = floorY; // floor level
 
@@ -164,18 +173,54 @@ export default class CameraController {
 
 
     focusOnObject(object) {
-        const box = new THREE.Box3().setFromObject(object);
-        const center = box.getCenter(new THREE.Vector3());
+    const box = new THREE.Box3().setFromObject(object);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
 
-        this.target.copy(center);
+    const maxDim = Math.max(size.x, size.y, size.z);
 
-        // Recompute spherical coords
-        this.updateSpherical();
+    // Bazowy distanceFactor
+    let distanceFactor = 1.5;
 
-        // Smooth camera reposition (optional)
-        const offset = new THREE.Vector3().setFromSpherical(this.spherical);
-        this.camera.position.copy(this.target.clone().add(offset));
+    // Jeśli to containers, zwiększamy odległość
+    if (object.userData.type === "container_stack") {
+        distanceFactor = 2.5; // dalsze odsunięcie
     }
+
+    let offsetDistance = maxDim * distanceFactor;
+
+    // Ograniczamy minimalną i maksymalną odległość
+    offsetDistance = Math.max(offsetDistance, 10); // min
+    offsetDistance = Math.min(offsetDistance, 50); // max
+
+    const direction = new THREE.Vector3().subVectors(this.camera.position, this.target).normalize();
+    const newCameraPos = center.clone().add(direction.multiplyScalar(offsetDistance));
+
+    this.startPosition.copy(this.camera.position);
+    this.startTarget.copy(this.target);
+    this.endPosition.copy(newCameraPos);
+    this.endTarget.copy(center);
+
+    this.transitionStart = performance.now() / 1000;
+    this.isTransitioning = true;
+}
+
+
+    update(deltaTime) {
+    if (this.isTransitioning) {
+        const t = (performance.now() / 1000 - this.transitionStart) / this.transitionDuration;
+        const easedT = t < 1 ? t*t*(3 - 2*t) : 1; // smoothstep easing
+
+        this.camera.position.lerpVectors(this.startPosition, this.endPosition, easedT);
+        this.target.lerpVectors(this.startTarget, this.endTarget, easedT);
+        this.camera.lookAt(this.target);
+
+        if (t >= 1) {
+            this.isTransitioning = false;
+        }
+    }
+}
+
 
 
     dispose() {

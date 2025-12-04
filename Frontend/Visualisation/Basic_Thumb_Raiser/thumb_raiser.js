@@ -46,8 +46,6 @@ export default class ThumbRaiser {
     this.scene3D = new THREE.Scene();
 
 
-
-
     // Create the lights
     this.lights = new Lights(this.lightsParameters);
 
@@ -106,6 +104,9 @@ export default class ThumbRaiser {
     this.renderer.domElement.addEventListener("contextmenu", (event) => this.contextMenu(event));
 
     this.activeElement = document.activeElement;
+
+    this.clock = new THREE.Clock();
+
   }
 
   // *** NUEVO: método público para cargar barcos y recursos desde React
@@ -175,14 +176,16 @@ export default class ThumbRaiser {
       this.clock = new THREE.Clock();
       this.gameRunning = true;
 
-      // Esperamos a que cargue el laberinto antes de renderizar
       return;
     }
+
 
     // Render
     this.renderer.clear();
     this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     this.renderer.render(this.scene3D, this.camera.object);
     this.renderer.render(this.scene2D, this.camera2D);
+    const deltaTime = this.clock.getDelta(); // seconds since last call
+    this.cameraController.update(deltaTime);
   }
 }
