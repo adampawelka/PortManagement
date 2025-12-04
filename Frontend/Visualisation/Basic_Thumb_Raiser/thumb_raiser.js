@@ -16,7 +16,7 @@ import { merge } from "./merge.js";
 import Lights from "./lights.js";
 import Camera from "./camera.js";
 import { PortBuilder } from "../PortBuilder.js";
-import CameraController from "./mouse.js";
+import CameraController from "./cameraController.js";
 
 export default class ThumbRaiser {
   constructor(generalParameters, lightsParameters, thirdPersonViewCameraParameters) {
@@ -109,7 +109,6 @@ export default class ThumbRaiser {
 
   }
 
-  // *** NUEVO: método público para cargar barcos y recursos desde React
   loadDynamicObjects(dynamicData) {
     if (!this.portBuilder || !dynamicData) return;
 
@@ -130,29 +129,6 @@ export default class ThumbRaiser {
     }
   }
 
-  mouseDown(event) {
-    if (event.buttons === 1 || event.buttons === 2) {
-      // Store mouse position (origin top-left to bottom-left)
-      this.mousePosition = new THREE.Vector2(event.clientX, window.innerHeight - event.clientY - 1);
-    }
-  }
-
-  mouseMove(event) {
-    // Optional: keep only if you want mouse-based camera interaction
-  }
-
-  mouseUp(event) {
-    // Reset any mouse-based actions
-    this.changeCameraDistance = false;
-    this.changeCameraOrientation = false;
-  }
-
-  mouseWheel(event) {
-    // Prevent page scrolling
-    event.preventDefault();
-    // Store mouse position (if needed for zoom logic)
-    this.mousePosition = new THREE.Vector2(event.clientX, window.innerHeight - event.clientY - 1);
-  }
 
   contextMenu(event) {
     event.preventDefault(); // Disable right-click menu
@@ -173,12 +149,11 @@ export default class ThumbRaiser {
       this.scene3D.add(this.lights.object);
       this.thirdPersonViewCamera.object.position.set(0, 30, 54);
       this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
+      this.cameraController.setInitialView();
       this.clock = new THREE.Clock();
       this.gameRunning = true;
-
       return;
     }
-
 
     // Render
     this.renderer.clear();
