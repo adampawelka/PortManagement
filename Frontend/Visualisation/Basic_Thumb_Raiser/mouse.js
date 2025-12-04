@@ -5,10 +5,13 @@ export default class CameraController {
         this.camera = camera;
         this.renderer = renderer;
 
+        this.raycaster = new THREE.Raycaster();
+        this.pickables = [];        // objects that can be selected
+        this.selectedObject = null; // last selected
+
         // State
         this.mousePosition = new THREE.Vector2();
         this.isRotating = false;
-        //this.isZooming = false;
 
         this.target = new THREE.Vector3(0, 0, 0);
         this.floorY = floorY; // floor level
@@ -18,8 +21,8 @@ export default class CameraController {
         this.maxDistance = 80;
 
         // Vertical rotation limits
-        this.minPolarAngle = 0.1;           
-        this.maxPolarAngle = Math.PI - 0.1;   
+        this.minPolarAngle = 0.1;
+        this.maxPolarAngle = Math.PI - 0.1;
 
         // Bound event handlers
         this.boundMouseDown = e => this.mouseDown(e);
@@ -43,7 +46,7 @@ export default class CameraController {
     }
 
     mouseDown(event) {
-        //if (event.buttons === 1) this.isZooming = true;      // left button drag = zoom
+        if (event.buttons === 1) this.isPicking = true;
         if (event.buttons === 2) this.isRotating = true;     // right button drag = rotate
         this.mousePosition.set(event.clientX, event.clientY);
     }
@@ -65,20 +68,13 @@ export default class CameraController {
             this.spherical.phi = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, this.spherical.phi));
         }
 
-        // if (this.isZooming) {
-        //     const zoomSpeed = 0.05;
-        //     let newRadius = this.spherical.radius + delta.y * zoomSpeed;
-        //     newRadius = Math.max(this.minDistance, Math.min(this.maxDistance, newRadius));
-        //     this.spherical.radius = newRadius;
-        // }
-
         // Convert spherical to Cartesian
         const offset = new THREE.Vector3().setFromSpherical(this.spherical);
         const proposedPos = this.target.clone().add(offset);
 
         // Enforce floor boundary
         if (proposedPos.y < this.floorY + 0.1) {
-            proposedPos.y = this.floorY + 0.1;  
+            proposedPos.y = this.floorY + 0.1;
             offset.y = proposedPos.y - this.target.y;
             this.spherical.setFromVector3(offset);
         }
@@ -88,9 +84,15 @@ export default class CameraController {
         this.camera.lookAt(this.target);
     }
 
-    mouseUp() {
-        this.isRotating = false;
-        //this.isZooming = false;
+    mouseUp(event) {
+        if(this.isRotating) {
+            this.isRotating = false;
+        }
+        if (this.isPicking) {
+            this.pickObject(event);
+        }
+        
+        this.isPicking = false;
     }
 
     mouseWheel(event) {
@@ -112,6 +114,52 @@ export default class CameraController {
         this.camera.position.copy(proposedPos);
         this.camera.lookAt(this.target);
     }
+
+    pickObject(event) {
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2(
+            ((event.clientX - rect.left) / rect.width) * 2 - 1,
+            -((event.clientY - rect.top) / rect.height) * 2 + 1
+        );
+
+        this.raycaster.setFromCamera(mouse, this.camera);
+
+        const intersections = this.raycaster.intersectObjects(this.pickables, true);
+        if (intersections.length === 0) return;
+
+        const object = intersections[0].object;
+        console.log("Picked:", object);
+
+        this.highlight(object);
+        this.focusOnObject(object);
+    }
+
+    highlight(object) {
+        if (this.selectedObject) {
+            this.selectedObject.material.emissive.set(0x000000); // remove previous highlight
+        }
+
+        if (object.material && object.material.emissive) {
+            object.material.emissive.set(0x4444ff);
+        }
+
+        this.selectedObject = object;
+    }
+
+    focusOnObject(object) {
+        const box = new THREE.Box3().setFromObject(object);
+        const center = box.getCenter(new THREE.Vector3());
+
+        this.target.copy(center);
+
+        // Recompute spherical coords
+        this.updateSpherical();
+
+        // Smooth camera reposition (optional)
+        const offset = new THREE.Vector3().setFromSpherical(this.spherical);
+        this.camera.position.copy(this.target.clone().add(offset));
+    }
+
 
     dispose() {
         const dom = this.renderer.domElement;

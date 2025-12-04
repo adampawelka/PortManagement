@@ -1,8 +1,6 @@
-// Frontend/src/pages/Visualisation.jsx
-
 import React from "react";
 // Assuming you have imported the corrected ThumbRaiserComponent from the previous step
-import ThumbRaiserComponent from "../components/Thumb_Raiser"; // <-- Use the correct component name
+import ThumbRaiserComponent from "../components/Thumb_Raiser"; 
 
 const Visualisation = () => {
   return (
@@ -12,19 +10,18 @@ const Visualisation = () => {
       <h1>Visualisation</h1>
       <p>This is the visualisation page.</p>
 
-      {/* Contenedor que centra el canvas 3D y le da un ancho máximo */}
       <div 
           style={{ 
               display: 'flex', 
-              justifyContent: 'center', // <--- CENTRADO CRÍTICO
+              justifyContent: 'center', 
               width: '150%', 
-              maxWidth: '1600px', // Limita el ancho del renderizado
+              maxWidth: '1600px', 
               margin: '0px auto',
-              marginBottom: '80px' // <-- AÑADE ESTA PROPIEDAD
+              marginBottom: '80px' 
           }}
       >
           <div className="VisualizationCanvasWrapper"> 
-              <ThumbRaiserComponent /> {/* Aquí se renderiza el canvas */}
+              <ThumbRaiserComponent /> 
           </div>
       </div>
       

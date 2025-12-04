@@ -12,7 +12,6 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
     // 1. Crear la instancia del motor 3D
     const thumbRaiser = new ThumbRaiser(
       {}, // General Parameters
-      { scale: new THREE.Vector3(1.0, 0.5, 1.0) }, // Maze parameters
       {
         ambientLight: { intensity: 0.1 },
         pointLight1: {

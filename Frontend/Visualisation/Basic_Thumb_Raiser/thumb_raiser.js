@@ -11,18 +11,16 @@
 
 import * as THREE from "three";
 import Orientation from "./orientation.js";
-import { generalData, mazeData, lightsData, cameraData } from "./default_data.js";
+import { generalData, lightsData, cameraData } from "./default_data.js";
 import { merge } from "./merge.js";
-import Maze from "./maze.js";
 import Lights from "./lights.js";
 import Camera from "./camera.js";
 import { PortBuilder } from "../PortBuilder.js";
 import CameraController from "./mouse.js";
 
 export default class ThumbRaiser {
-  constructor(generalParameters, mazeParameters, lightsParameters, thirdPersonViewCameraParameters) {
+  constructor(generalParameters, lightsParameters, thirdPersonViewCameraParameters) {
     this.generalParameters = merge({}, generalData, generalParameters);
-    this.mazeParameters = merge({}, mazeData, mazeParameters);
     this.lightsParameters = merge({}, lightsData, lightsParameters);
     this.thirdPersonViewCameraParameters = merge({}, cameraData, thirdPersonViewCameraParameters);
 
@@ -49,10 +47,13 @@ export default class ThumbRaiser {
 
     // *** Crear el puerto (PortBuilder) y guardarlo en this para usarlo después
     this.portBuilder = new PortBuilder(this.scene3D);
-    this.portBuilder.loadPortData();
-
-    // Create the maze
-    this.maze = new Maze(this.mazeParameters);
+    this.portBuilder.loadPortData().then(() => {
+      this.cameraController.pickables = [
+        ...this.portBuilder.dynamicObjects.vessels,
+        ...this.portBuilder.dynamicObjects.resources,
+        ...this.scene3D.children.filter(obj => obj.userData.pickable)
+      ];  
+    });
 
     // Create the lights
     this.lights = new Lights(this.lightsParameters);
@@ -161,14 +162,13 @@ export default class ThumbRaiser {
 
   update() {
     if (!this.gameRunning) {
-      if (this.maze.loaded) {
-        this.scene3D.add(this.maze.object, this.lights.object);
-        this.maze.object.visible = false; // Hide the maze to show the Port
+      
+        this.scene3D.add(this.lights.object);
         this.thirdPersonViewCamera.object.position.set(0, 30, 54);
         this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
         this.clock = new THREE.Clock();
         this.gameRunning = true;
-      }
+      
       // Esperamos a que cargue el laberinto antes de renderizar
       return;
     }
