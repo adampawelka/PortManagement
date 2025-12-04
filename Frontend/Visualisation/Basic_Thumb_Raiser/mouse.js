@@ -123,21 +123,20 @@ export default class CameraController {
         );
 
         this.raycaster.setFromCamera(mouse, this.camera);
-
         const intersections = this.raycaster.intersectObjects(this.pickables, true);
-
         if (!intersections.length) return;
 
         let object = intersections[0].object;
-        while (object.parent && !object.userData.pickable) object = object.parent;
 
-        // Skip docks only if you want
-       // if (object.userData.type === "dock") return;
+        // Walk up until the top-level object that is in pickables
+        while (object.parent && !this.pickables.includes(object)) {
+            object = object.parent;
+        }
 
         this.highlight(object);
         this.focusOnObject(object);
-        
     }
+
 
 
 
