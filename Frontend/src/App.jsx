@@ -13,7 +13,7 @@ import OptimalSchedule from "./pages/OptimalSchedule.jsx";
 import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
 import RecommendedSchedule from "./pages/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
-
+import ScheduleMultiCrane from "./pages/ScheduleMultiCrane.jsx";
 import UserManagement from "./pages/UserManagement.jsx";
 import PendingUserManagementPage from "./pages/PendingUserManagementPage.jsx";
 import ActivateUserPage from "./pages/ActivateUserPage.jsx";
@@ -33,7 +33,6 @@ import AddStorageAreaPage from "./pages/AddStorageArea.jsx";
 import VesselsListPage from "./pages/VesselsListPage.jsx";
 import AddVesselPage from "./pages/AddVesselPage.jsx";
 import SearchVesselPage from "./pages/SearchVesselPage.jsx";
-
 
 
 import VesselTypePage from "./pages/VesselTypesListPage.jsx";
@@ -82,13 +81,13 @@ const ProtectedRoute = ({ children, requiredRoles = [] , testUser = null}) => {
         // TEMPORARY DEVELOPMENT USER
         // ----------------------------------------
         const data1 = {
-          role: "LogisticsOperator",   // CHANGE HERE THE ROLE 
+          role: "LogisticsOperator",   // CHANGE HERE THE ROLE
           status: "Active"
         }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
-        //const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        // const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
         // ----------------------------------------
 
         setUserData(data1);
@@ -407,6 +406,7 @@ const App = () => {
               <Scheduling />
             </ProtectedRoute>
           }
+            
         />
 
         <Route
@@ -416,8 +416,8 @@ const App = () => {
               <AlternativeSchedule />
             </ProtectedRoute>
            }
+        
         />
-
         <Route
           path="/test-algorithms"
           element={
@@ -425,6 +425,7 @@ const App = () => {
             <TestAlgorithms />
           </ProtectedRoute>
           } 
+        
         />
 
         <Route
@@ -433,6 +434,15 @@ const App = () => {
             <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
               <OptimalSchedule />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+            path="/schedule-multi-crane"
+            element={
+              <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
+                <ScheduleMultiCrane />
+              </ProtectedRoute>
           }
         />
 
@@ -452,7 +462,7 @@ const App = () => {
               <ActivateUserPage />
             </ProtectedRoute>
           }
-        /> 
+        />
 
         <Route
           path="user-management/users"

@@ -193,6 +193,12 @@ export const menuItems = [
             roles: ["LogisticsOperator"],
           },
           {
+            name: "Schedule Multi Crane",
+            key: "schedule_multi_crane",
+            path: "/schedule-multi-crane",
+            roles: ["LogisticsOperator"],
+          },
+          {
             name: "Test Algorithms",
             key: "test_algorithms",
             path: "/test-algorithms",
