@@ -45,15 +45,8 @@ export default class ThumbRaiser {
     // Create a 3D scene (the game itself)
     this.scene3D = new THREE.Scene();
 
-    // *** Crear el puerto (PortBuilder) y guardarlo en this para usarlo después
-    this.portBuilder = new PortBuilder(this.scene3D);
-    this.portBuilder.loadPortData().then(() => {
-      this.cameraController.pickables = [
-        ...this.portBuilder.dynamicObjects.vessels,
-        ...this.portBuilder.dynamicObjects.resources,
-        ...this.scene3D.children.filter(obj => obj.userData.pickable)
-      ];  
-    });
+
+
 
     // Create the lights
     this.lights = new Lights(this.lightsParameters);
@@ -79,6 +72,19 @@ export default class ThumbRaiser {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     this.cameraController = new CameraController(this.camera.object, this.renderer);
+
+
+    // *** Crear el puerto (PortBuilder) y guardarlo en this para usarlo después
+    this.portBuilder = new PortBuilder(this.scene3D);
+    this.portBuilder.cameraController = this.cameraController;
+    this.portBuilder.loadPortData().then(() => {
+      const pickables = [];
+      this.portBuilder.scene.traverse(obj => {
+        if (obj.userData?.pickable) pickables.push(obj);
+      });
+
+      this.cameraController.pickables = pickables;
+    });
 
     // Set the mouse move action (none)
     this.changeCameraDistance = false;
@@ -162,13 +168,13 @@ export default class ThumbRaiser {
 
   update() {
     if (!this.gameRunning) {
-      
-        this.scene3D.add(this.lights.object);
-        this.thirdPersonViewCamera.object.position.set(0, 30, 54);
-        this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
-        this.clock = new THREE.Clock();
-        this.gameRunning = true;
-      
+
+      this.scene3D.add(this.lights.object);
+      this.thirdPersonViewCamera.object.position.set(0, 30, 54);
+      this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
+      this.clock = new THREE.Clock();
+      this.gameRunning = true;
+
       // Esperamos a que cargue el laberinto antes de renderizar
       return;
     }

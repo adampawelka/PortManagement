@@ -85,13 +85,13 @@ export default class CameraController {
     }
 
     mouseUp(event) {
-        if(this.isRotating) {
+        if (this.isRotating) {
             this.isRotating = false;
         }
         if (this.isPicking) {
             this.pickObject(event);
         }
-        
+
         this.isPicking = false;
     }
 
@@ -125,26 +125,44 @@ export default class CameraController {
         this.raycaster.setFromCamera(mouse, this.camera);
 
         const intersections = this.raycaster.intersectObjects(this.pickables, true);
-        if (intersections.length === 0) return;
 
-        const object = intersections[0].object;
-        console.log("Picked:", object);
+        if (!intersections.length) return;
+
+        let object = intersections[0].object;
+        while (object.parent && !object.userData.pickable) object = object.parent;
+
+        // Skip docks only if you want
+       // if (object.userData.type === "dock") return;
 
         this.highlight(object);
         this.focusOnObject(object);
+        
     }
+
+
 
     highlight(object) {
+        // Remove previous highlight
         if (this.selectedObject) {
-            this.selectedObject.material.emissive.set(0x000000); // remove previous highlight
+            this.selectedObject.traverse((node) => {
+                if (node.isMesh && node.material && node.material.emissive) {
+                    node.material.emissive.set(0x000000);
+                }
+            });
         }
 
-        if (object.material && object.material.emissive) {
-            object.material.emissive.set(0x4444ff);
-        }
+        // Apply highlight to all meshes in the new object
+        if (object) {
+            object.traverse((node) => {
+                if (node.isMesh && node.material && node.material.emissive) {
+                    node.material.emissive.set(0x4444ff);
+                }
+            });
 
-        this.selectedObject = object;
+            this.selectedObject = object;
+        }
     }
+
 
     focusOnObject(object) {
         const box = new THREE.Box3().setFromObject(object);

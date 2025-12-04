@@ -116,108 +116,109 @@ export class PortBuilder {
     return new THREE.Vector3(x, 0, z);
   }
 
-  addVesselFromBackend(visit, position, index) {
-    if (!position) return;
+  // addVesselFromBackend(visit, position, index) {
+  //   if (!position) return;
 
-    // Select a model depending on vessel type (optional)
-    const modelPath = "/models/container_ship.glb";
+  //   // Select a model depending on vessel type (optional)
+  //   const modelPath = "/models/container_ship.glb";
 
-    this.loader.load(
-      modelPath,
-      (gltf) => {
-        const ship = gltf.scene;
+  //   this.loader.load(
+  //     modelPath,
+  //     (gltf) => {
+  //       const ship = gltf.scene;
+  //       ship.scale.set(scale, scale, scale);
+  //       ship.position.copy(position);
+  //       ship.rotation.y = Math.PI;
 
-        const scale = 40.0;
-        ship.scale.set(scale, scale, scale);
-        ship.position.copy(position);
-        ship.rotation.y = Math.PI; // Facing the dock
+  //       this.setPickable(ship, { type: "vessel", visitId: visit.id, assignedDockId: visit.assignedDockId });
+  //       this.scene.add(ship);
 
-        ship.traverse((node) => {
-          if (node.isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
+  //       // ✅ Add to dynamicObjects
+  //       this.dynamicObjects.vessels.push(ship);
 
-        this.scene.add(ship);
-        this.dynamicObjects.vessels.push(ship);
-        console.log("Vessel added for visit:", visit.id || visit.Id);
-      },
-      undefined,
-      (error) => {
-        console.warn("Failed to load container_ship.glb, using fallback cube", error);
+  //       // ✅ Add to cameraController pickables here
+  //       if (this.cameraController) {
+  //         this.cameraController.pickables.push(ship);
+  //       }
 
-        const geometry = new THREE.BoxGeometry(30, 10, 80);
-        const material = new THREE.MeshStandardMaterial({ color: 0xff6600 });
-        const cubeShip = new THREE.Mesh(geometry, material);
+  //       console.log("Vessel added for visit:", visit.id);
+  //     }
+  //   );
 
-        cubeShip.position.copy(position);
-        cubeShip.castShadow = true;
-        cubeShip.receiveShadow = true;
+  // }
 
-        this.scene.add(cubeShip);
-        this.dynamicObjects.vessels.push(cubeShip);
-      }
-    );
-  }
+  // addResourceFromBackend(resource, position) {
+  //   if (!position) return;
 
-  addResourceFromBackend(resource, position) {
-    if (!position) return;
+  //   // Adjust this to your DTO: type or resourceType
+  //   const type = (resource.type || resource.resourceType || "").toLowerCase();
 
-    // Adjust this to your DTO: type or resourceType
-    const type = (resource.type || resource.resourceType || "").toLowerCase();
+  //   let modelPath = "";
+  //   if (type.includes("crane")) {
+  //     modelPath = "/models/crane.glb";
+  //   } else if (type.includes("truck")) {
+  //     modelPath = "/models/truck.glb";
+  //   }
 
-    let modelPath = "";
-    if (type.includes("crane")) {
-      modelPath = "/models/crane.glb";
-    } else if (type.includes("truck")) {
-      modelPath = "/models/truck.glb";
-    }
+  //   if (modelPath) {
+  //     this.loader.load(
+  //       modelPath,
+  //       (gltf) => {
+  //         const obj = gltf.scene;
+  //         const scale = type.includes("crane") ? 1.2 : 2.5;
+  //         obj.scale.set(scale, scale, scale);
+  //         obj.position.copy(position);
 
-    if (modelPath) {
-      this.loader.load(
-        modelPath,
-        (gltf) => {
-          const obj = gltf.scene;
-          const scale = type.includes("crane") ? 1.2 : 2.5;
+  //         obj.traverse((node) => {
+  //           if (node.isMesh) {
+  //             node.castShadow = true;
+  //             node.receiveShadow = true;
+  //           }
+  //         });
 
-          obj.scale.set(scale, scale, scale);
-          obj.position.copy(position);
+  //         obj.userData = {
+  //           pickable: true,
+  //           type: "resource",
+  //           resourceId: resource.id || resource.code,
+  //           resourceType: type,
+  //         };
 
-          obj.traverse((node) => {
-            if (node.isMesh) {
-              node.castShadow = true;
-              node.receiveShadow = true;
-            }
-          });
+  //         this.scene.add(obj);
 
-          this.scene.add(obj);
-          this.dynamicObjects.resources.push(obj);
-          console.log("Resource added:", resource.code || resource.id);
-        },
-        undefined,
-        (error) => {
-          console.warn("Failed to load model for resource, using fallback cube", error);
-          this.addResourceFallbackCube(resource, position);
-        }
-      );
-    } else {
-      this.addResourceFallbackCube(resource, position);
-    }
-  }
+  //         // ✅ Add to dynamicObjects
+  //         this.dynamicObjects.resources.push(obj);
 
-  addResourceFallbackCube(resource, position) {
-    const geometry = new THREE.BoxGeometry(10, 20, 10);
-    const material = new THREE.MeshStandardMaterial({ color: 0x00aaee });
-    const cube = new THREE.Mesh(geometry, material);
+  //         // ✅ Add to cameraController pickables here
+  //         if (this.cameraController) {
+  //           this.cameraController.pickables.push(obj);
+  //         }
 
-    cube.position.copy(position);
-    cube.castShadow = true;
-    cube.receiveShadow = true;
+  //         console.log("Resource added:", resource.code || resource.id);
+  //       }
+  //     );
 
-    this.scene.add(cube);
-    this.dynamicObjects.resources.push(cube);
-  }
+  //   } else {
+  //     this.addResourceFallbackCube(resource, position);
+  //   }
+  // }
+
+  // addResourceFallbackCube(resource, position) {
+  //   const geometry = new THREE.BoxGeometry(10, 20, 10);
+  //   const material = new THREE.MeshStandardMaterial({ color: 0x00aaee });
+  //   const cube = new THREE.Mesh(geometry, material);
+
+  //   cube.position.copy(position);
+  //   cube.castShadow = true;
+  //   cube.receiveShadow = true;
+
+  //   cube.userData = {
+  //     pickable: true,
+  //     type: "resource",
+  //     resourceId: resource.id || resource.code,
+  //   };
+  //   this.scene.add(cube);
+  //   this.dynamicObjects.resources.push(cube);
+  // }
 
   // ==========================
   //  Original code
@@ -293,7 +294,7 @@ export class PortBuilder {
     let rotationY = 0;
     let yOffset = 0;
 
-    //Models
+    // Models
     if (facility.id === "BIG_CARGO") {
       modelPath = "/models/container_ship.glb";
       scale = 40.0;
@@ -325,21 +326,17 @@ export class PortBuilder {
         facility.position.y + yOffset,
         facility.position.z
       );
-
       model.scale.set(scale, scale, scale);
       model.rotation.y = rotationY;
 
-      model.traverse((node) => {
-        if (node.isMesh) {
-          node.castShadow = true;
-          node.receiveShadow = true;
-        }
-      });
+      this.setPickable(model, { type: facility.type, id: facility.id, name: facility.name });
+      this.addToPickables(model);
 
       this.scene.add(model);
       console.log(`Loaded: ${facility.name}`);
     });
   }
+
 
   //Simple objects (dock)
   buildProceduralBlock(facility) {
@@ -368,7 +365,30 @@ export class PortBuilder {
     mesh.castShadow = true;
     mesh.receiveShadow = true;
 
+    this.setPickable(mesh, { type: facility.type || "facility", id: facility.id, name: facility.name });
+    this.addToPickables(mesh);
+
     this.scene.add(mesh);
+  }
+
+
+  setPickable(object3D, userData) {
+    // Assign userData to the top-level object
+    object3D.userData = { pickable: true, ...userData };
+
+    object3D.traverse(node => {
+      if (node.isMesh) {
+        node.userData = { pickable: true, ...userData };
+        if (Array.isArray(node.material)) node.material.forEach(m => m.emissive ??= new THREE.Color(0x000000));
+        else node.material.emissive ??= new THREE.Color(0x000000);
+      }
+    });
+  }
+
+
+  addToPickables(object3D) {
+    if (!this.cameraController || !object3D.userData?.pickable) return;
+    this.cameraController.pickables.push(object3D);
   }
 
   // Make the sea
