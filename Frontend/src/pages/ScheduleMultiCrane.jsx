@@ -220,13 +220,6 @@ const createDefaultSchedules = (vessels, dockInfo, defaultCranes) => {
 
       {scheduleResults && scheduleResults.map((dockResult, idx) => (
         <div key={idx} className="dock-schedule-section">
-          <h2 className="dock-header">Dock: {dockResult.dockName}</h2>
-          <div className="dock-info">
-            <span><strong>Crane:</strong> {dockResult.craneCode} </span>
-            <span><strong>Area:</strong> {dockResult.area} </span>
-            <span><strong>Available Staff:</strong> {dockResult.staff.length} </span>
-          </div>
-
           {/* Improvement Summary Card */}
           <div className={`improvement-summary ${dockResult.improvement.delayReduction > 0 ? 'positive' : 'neutral'}`}>
             <h3>Comparison Summary</h3>
