@@ -14,7 +14,6 @@
 % ------------------------------------------------------------------------------
 solve_multi_crane(SingleSeq, SingleDelay, SingleCraneHours, 
                   MultiSeq, MultiDelay, MultiCraneHours):-
-    get_time(Ti),
     write('=== MULTI-CRANE SCHEDULING ==='), nl,
     
     % Phase 1: Single-Crane Schedule
@@ -43,9 +42,54 @@ solve_multi_crane(SingleSeq, SingleDelay, SingleCraneHours,
         MultiCraneHours = SingleCraneHours
     ),
     
-    get_time(Tf),
-    T is Tf - Ti,
-    write('Total Execution Time: '), write(T), write(' seconds'), nl.
+    % Output complete schedules in proper format
+    write('COMPLETE_SCHEDULES:'), nl,
+    
+    % Single crane schedule
+    write('SINGLE_SCHEDULE:'), nl,
+    format_schedule(SingleSeq, 1),
+    
+    % Multi crane schedule
+    write('MULTI_SCHEDULE:'), nl,
+    format_schedule(MultiSeq, multi),
+    
+    % Summary output for parsing
+    format('SINGLE_SEQ:~w~n', [SingleSeq]),
+    format('SINGLE_DELAY:~w~n', [SingleDelay]),
+    format('SINGLE_CRANE_HOURS:~w~n', [SingleCraneHours]),
+    format('MULTI_SEQ:~w~n', [MultiSeq]),
+    format('MULTI_DELAY:~w~n', [MultiDelay]),
+    format('MULTI_CRANE_HOURS:~w~n', [MultiCraneHours]).
+
+% Helper to format schedule for output
+format_schedule(Seq, CraneMode):-
+    sequence_to_triplets(Seq, 0, Triplets),
+    format_schedule_triplets(Triplets, CraneMode).
+
+format_schedule_triplets([], _).
+format_schedule_triplets([(Vessel, Start, End, Cranes)|Rest], CraneMode):-
+    write('  '), write(Vessel), write(': '),
+    write('Start='), write(Start), write(' ('),
+    slot_to_time_string(Start, StartTime),
+    write(StartTime), write('), '),
+    write('End='), write(End), write(' ('),
+    slot_to_time_string(End, EndTime),
+    write(EndTime), write('), '),
+    (   CraneMode == multi
+    ->  write('Cranes='), write(Cranes), nl
+    ;   nl
+    ),
+    format_schedule_triplets(Rest, CraneMode).
+
+% Convert slot to time string (HH:MM)
+slot_to_time_string(Slot, TimeString):-
+    Hours is Slot mod 24,
+    Days is Slot // 24,
+    format(atom(HoursStr), '~|~`0t~d~2+', [Hours]),
+    (   Days > 0
+    ->  format(atom(TimeString), '~s:00 (+~dd)', [HoursStr, Days])
+    ;   format(atom(TimeString), '~s:00', [HoursStr])
+    ).
 
 % ------------------------------------------------------------------------------
 % PHASE 1: Single-Crane Optimal Schedule
@@ -72,7 +116,7 @@ phase1_single_crane(BestSeq, BestDelay):-
     ),
     
     retract(best_schedule(BestSeq, BestDelay)),
-    write('  Best single-crane sequence found!'), nl,
+    write('  Best single-crane sequence found with delay: '), write(BestDelay), write(' hours'), nl,
     !.
 
 evaluate_sequence(Seq, TotalDelay):-
