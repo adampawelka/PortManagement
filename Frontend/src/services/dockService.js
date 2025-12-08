@@ -19,7 +19,7 @@ export const addDock = async (apiFetch, DockDto) => {
   return res.json();
 };
 
-export const searchDocks = async (apiFetch, { imo, name, ownerId } = {}) => {
+export const searchDocks = async (apiFetch, { name, location, vesselTypeId} = {}) => {
   const params = new URLSearchParams();
   if (name) params.append('name', name);
   if (location) params.append('location', location);

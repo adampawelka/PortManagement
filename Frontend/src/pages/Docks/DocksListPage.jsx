@@ -3,10 +3,12 @@ import {
   Container, Typography, CircularProgress, Alert, 
   Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody 
 } from '@mui/material';
-import { useDocksVM } from '../viewmodels/useDocksListVM';
+import { useApi } from '../../services/api';
+import { useDocksVM } from '../../viewmodels/useDocksListVM';
 
 const DocksListPage = () => {
-  const { docks, loading, error, renderAllowedVesselTypes } = useDocksVM();
+  const { apiFetch } = useApi();
+  const { docks, loading, error, renderAllowedVesselTypes } = useDocksVM(apiFetch);
 
   return (
     <Container 

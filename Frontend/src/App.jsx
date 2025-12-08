@@ -24,7 +24,6 @@ import ListNotificationsPage from "./pages/ListNotificationsPage.jsx";
 import AddVNNPage from "./pages/AddVVNPage.jsx";
 import SubmitVvnPage from "./pages/SubmitVVNPage.jsx";
 
-import DocksListPage from "./pages/DocksListPage.jsx";
 import AvailableResourcesPage from "./pages/AvailableResourcesList.jsx";
 import AddResourcePage from "./pages/AddResourcesPage.jsx";
 import StorageAreasPage from "./pages/StorageAreasPage.jsx";
@@ -34,13 +33,13 @@ import VesselsListPage from "./pages/Vessels/VesselsListPage.jsx";
 import AddVesselPage from "./pages/Vessels/AddVesselPage.jsx";
 import SearchVesselPage from "./pages/Vessels/SearchVesselPage.jsx";
 
-
 import VesselTypePage from "./pages/Vessels/VesselTypesListPage.jsx";
 import AddVesselTypePage from "./pages/Vessels/AddVesselTypePage.jsx";
 import SearchVesselTypePage from "./pages/Vessels/SearchVesselTypePage.jsx";
 
+import DocksListPage from "./pages/Docks/DocksListPage.jsx";
 import AddDockPage from "./pages/AddDockPage.jsx";
-import SearchDockPage from "./pages/SearchDockPage.jsx";
+import SearchDockPage from "./pages/Docks/SearchDockPage.jsx";
 
 
 import { useApi } from "./services/api.js";
