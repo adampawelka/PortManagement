@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../services/api';
 import { addVessel } from '../services/vesselService';
+import { getVesselTypes } from '../services/vesselTypeService';
+import { getShippingAgents } from '../services/shippingAgentService';
 
 const initialFormState = {
   imoNumber: '',
@@ -22,32 +24,27 @@ export const useAddVesselVM = () => {
   const [partialError, setPartialError] = useState(false);
 
   useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        const [typesRes, agentsRes] = await Promise.all([
-          apiFetch('/api/VesselTypes'),
-          apiFetch('/api/ShippingAgents'),
-        ]);
+  const loadInitialData = async () => {
+    try {
+      const [typesData, agentsData] = await Promise.all([
+        getVesselTypes(apiFetch),
+        getShippingAgents(apiFetch),
+      ]);
 
-        if (!typesRes.ok || !agentsRes.ok) {
-          setMessage({ type: 'warning', text: 'Failed to load types or shipping agents. Some fields may be disabled.' });
-          setPartialError(true);
-        } else {
-          const [typesData, agentsData] = await Promise.all([typesRes.json(), agentsRes.json()]);
-          setVesselTypes(typesData);
-          setShippingAgents(agentsData);
-        }
-      } catch (err) {
-        console.error(err);
-        setMessage({ type: 'error', text: 'Cannot fetch critical data. Form disabled.' });
-        setCriticalError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setVesselTypes(typesData);
+      setShippingAgents(agentsData);
+    } catch (err) {
+      console.error(err);
+      setMessage({ type: 'error', text: 'Cannot fetch critical data. Form disabled.' });
+      setCriticalError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    loadInitialData();
-  }, [apiFetch]);
+  loadInitialData();
+}, [apiFetch]);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
