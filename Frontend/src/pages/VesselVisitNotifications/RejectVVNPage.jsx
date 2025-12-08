@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import { useRejectVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useRejectVesselVisitNotificationVM'; 
 
-const RejectVvnPage = () => {
+const RejectVVNPage = () => {
   const {
     notificationId,
     reason,
@@ -95,4 +95,4 @@ const RejectVvnPage = () => {
   );
 };
 
-export default RejectVvnPage;
+export default RejectVVNPage;

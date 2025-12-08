@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import { useSubmitVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useSubmitVesselVisitNotificationVM'; 
 
-const SubmitVvnPage = () => {
+const SubmitVVNPage = () => {
   const {
     notificationId,
     loading,
@@ -82,4 +82,4 @@ const SubmitVvnPage = () => {
   );
 };
 
-export default SubmitVvnPage;
+export default SubmitVVNPage;

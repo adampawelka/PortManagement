@@ -3,7 +3,7 @@ import React from 'react';
 import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import { useApproveVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useApproveVesselVisitNotificationVM';
 
-const ApproveVvnPage = () => {
+const ApproveVVNPage = () => {
   const {
     notificationId,
     dockID,
@@ -102,4 +102,4 @@ const ApproveVvnPage = () => {
   );
 };
 
-export default ApproveVvnPage;
+export default ApproveVVNPage;

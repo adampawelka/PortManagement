@@ -21,11 +21,11 @@ import UserManagement from "./pages/UserManagement.jsx";
 import PendingUserManagementPage from "./pages/PendingUserManagementPage.jsx";
 import ActivateUserPage from "./pages/ActivateUserPage.jsx";
 
-import RejectVvnPage from "./pages/VesselVisitNotifications/RejectVVNPage.jsx";
-import ApproveVvnPage from "./pages/VesselVisitNotifications/ApproveVVNPage.jsx";
+import RejectVVNPage from "./pages/VesselVisitNotifications/RejectVVNPage.jsx";
+import ApproveVVNPage from "./pages/VesselVisitNotifications/ApproveVVNPage.jsx";
 import ListNotificationsPage from "./pages/VesselVisitNotifications/ListNotificationsPage.jsx";
 import AddVNNPage from "./pages/VesselVisitNotifications/AddVVNPage.jsx";
-import SubmitVvnPage from "./pages/VesselVisitNotifications/SubmitVVNPage.jsx";
+import SubmitVVNPage from "./pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 
 import AvailableResourcesPage from "./pages/AvailableResourcesList.jsx";
 import AddResourcePage from "./pages/AddResourcesPage.jsx";
@@ -359,7 +359,7 @@ const App = () => {
           path="/vvn/approve"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
-              <ApproveVvnPage />
+              <ApproveVVNPage />
             </ProtectedRoute>
           }
         />
@@ -377,7 +377,7 @@ const App = () => {
           path="/vvn/reject"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
-              <RejectVvnPage />
+              <RejectVVNPage />
             </ProtectedRoute>
           }
         />
@@ -386,7 +386,7 @@ const App = () => {
           path="/vvn/submit"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
-              <SubmitVvnPage />
+              <SubmitVVNPage />
             </ProtectedRoute>
           }
         />
