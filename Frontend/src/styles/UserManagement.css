@@ -1,0 +1,140 @@
+/* Wrapper */
+.um-wrapper {
+  padding: 20px;
+}
+
+/* Table */
+.um-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.um-table thead tr {
+  border-bottom: 2px solid #ddd;
+  background-color: #f5f5f5;
+}
+
+.um-table th,
+.um-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.um-actions-header {
+  text-align: right !important;
+}
+
+.um-table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+/* Chips */
+.um-chip {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  display: inline-block;
+}
+
+.chip-admin {
+  background-color: #e3f2fd;
+}
+
+.chip-default {
+  background-color: #f5f5f5;
+}
+
+.chip-active {
+  background-color: #c8e6c9;
+}
+
+.chip-inactive {
+  background-color: #ffcdd2;
+}
+
+/* Action buttons */
+.um-actions {
+  text-align: right;
+}
+
+.um-btn {
+  padding: 6px 12px;
+  margin-left: 8px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.um-btn.primary {
+  background-color: #2196f3;
+}
+
+.um-btn.success {
+  background-color: #4caf50;
+}
+
+.um-btn.danger {
+  background-color: #f44336;
+}
+
+.um-btn.secondary {
+  background-color: #757575;
+}
+
+.um-btn.disabled {
+  background-color: #ccc !important;
+  cursor: not-allowed !important;
+}
+
+.um-btn.full {
+  width: 100%;
+}
+
+/* Modal */
+.um-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.um-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  min-width: 400px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Modal inputs */
+.um-modal-input {
+  margin: 20px 0;
+}
+
+.um-modal-input label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.um-modal-input select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* Modal buttons layout */
+.um-modal-buttons {
+  display: flex;
+  gap: 10px;
+}

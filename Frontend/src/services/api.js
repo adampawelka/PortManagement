@@ -1,11 +1,10 @@
-// src/services/api.js
 import { useAuth0 } from "@auth0/auth0-react";
 import React, { useCallback } from 'react';
 
 const API_BASE_URL = "http://localhost:5000";
 
 export const useApi = () => {
-    // we obtein auth0 functions
+    // we obtain auth0 functions
     const { getAccessTokenSilently, logout } = useAuth0();
 
     // To reduce the fetch effect we use callBack
