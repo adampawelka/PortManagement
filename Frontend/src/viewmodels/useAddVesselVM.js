@@ -1,6 +1,6 @@
-// src/viewmodels/useAddVesselVM.js
 import { useState, useEffect } from 'react';
 import { useApi } from '../services/api';
+import { addVessel } from '../services/vesselService';
 
 const initialFormState = {
   imoNumber: '',
@@ -18,14 +18,12 @@ export const useAddVesselVM = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
-  const [criticalError, setCriticalError] = useState(false); // blocks form completely
-  const [partialError, setPartialError] = useState(false);   // dropdowns failed
+  const [criticalError, setCriticalError] = useState(false);
+  const [partialError, setPartialError] = useState(false);
 
-  // Load initial data
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        // Fetch dropdowns
         const [typesRes, agentsRes] = await Promise.all([
           apiFetch('/api/VesselTypes'),
           apiFetch('/api/ShippingAgents'),
@@ -39,13 +37,8 @@ export const useAddVesselVM = () => {
           setVesselTypes(typesData);
           setShippingAgents(agentsData);
         }
-
-        // Check critical endpoint
-        const vesselsRes = await apiFetch('/api/Vessels', { method: 'GET' });
-        if (!vesselsRes.ok) throw new Error('Cannot reach vessels endpoint');
-
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
         setMessage({ type: 'error', text: 'Cannot fetch critical data. Form disabled.' });
         setCriticalError(true);
       } finally {
@@ -63,7 +56,7 @@ export const useAddVesselVM = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (criticalError) return; // prevent submission if API is unreachable
+    if (criticalError) return;
 
     setSubmitting(true);
     setMessage(null);
@@ -82,20 +75,11 @@ export const useAddVesselVM = () => {
     };
 
     try {
-      const response = await apiFetch('/Vessels', {
-        method: 'POST',
-        body: JSON.stringify(vesselDto),
-      });
-
-      if (response.ok) {
-        setMessage({ type: 'success', text: 'Vessel added successfully!' });
-        setFormData(initialFormState);
-      } else {
-        const errorData = response.status === 400 ? await response.json() : { Message: response.statusText };
-        setMessage({ type: 'error', text: `Submission failed: ${errorData.Message || response.statusText}` });
-      }
+      await addVessel(apiFetch, vesselDto);
+      setMessage({ type: 'success', text: 'Vessel added successfully!' });
+      setFormData(initialFormState);
     } catch (err) {
-      setMessage({ type: 'error', text: 'Network error or token failure.' });
+      setMessage({ type: 'error', text: err.message || 'Failed to add vessel' });
     } finally {
       setSubmitting(false);
     }
