@@ -1,6 +1,6 @@
 // src/viewmodels/useRejectVvnPageVM.js
 import { useState } from 'react';
-import { rejectVesselVisitNotification } from '../services/vesselVisitNotificationService'; // Importujemy serwis
+import { rejectVesselVisitNotification } from '../../services/vesselVisitNotificationService'; // Importujemy serwis
 
 export const useRejectVesselVisitNotificationVM = () => {
   const [notificationId, setNotificationId] = useState('');

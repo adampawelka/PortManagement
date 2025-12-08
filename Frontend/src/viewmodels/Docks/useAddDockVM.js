@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useApi } from "../services/api";
-import { addDock } from "../services/dockService";
-import { getVesselTypes } from "../services/vesselTypeService";
+import { useApi } from "../../services/api";
+import { addDock } from "../../services/dockService";
+import { getVesselTypes } from "../../services/vesselTypeService";
 
 const initialFormState = {
   dockName: "",

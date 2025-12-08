@@ -1,7 +1,7 @@
 // src/pages/ApproveVvnPage.js
 import React from 'react';
 import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
-import { useApproveVesselVisitNotificationVM } from '../../viewmodels/useApproveVesselVisitNotificationVM';
+import { useApproveVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useApproveVesselVisitNotificationVM';
 
 const ApproveVvnPage = () => {
   const {

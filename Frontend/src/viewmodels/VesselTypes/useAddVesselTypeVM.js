@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useApi } from '../services/api';
-import { addVesselType } from '../services/vesselTypeService';
+import { useApi } from '../../services/api';
+import { addVesselType } from '../../services/vesselTypeService';
 
 const initialFormState = {
   name: '',

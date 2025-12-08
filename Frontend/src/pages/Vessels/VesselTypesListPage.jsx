@@ -4,7 +4,7 @@ import {
   Table, TableHead, TableBody, TableRow, TableCell,
   TableContainer, Paper, Box
 } from '@mui/material';
-import { useVesselTypesListVM } from '../../viewmodels/useVesselTypesListVM';
+import { useVesselTypesListVM } from '../../viewmodels/Vessels/useVesselTypesListVM';
 
 const renderConstraints = (constraints) => {
   if (!constraints) return 'N/A';

@@ -7,13 +7,16 @@ import GlobalLayout from "./components/GlobalLayout.jsx";
 import LoginButton from "./components/LoginButton.jsx";
 
 import Home from "./pages/Home.jsx";
+
 import Visualisation from "./pages/Visualisation.jsx";
+
 import Scheduling from "./pages/Scheduling.jsx";
 import OptimalSchedule from "./pages/OptimalSchedule.jsx";
 import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
 import RecommendedSchedule from "./pages/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
 import ScheduleMultiCrane from "./pages/ScheduleMultiCrane.jsx";
+
 import UserManagement from "./pages/UserManagement.jsx";
 import PendingUserManagementPage from "./pages/PendingUserManagementPage.jsx";
 import ActivateUserPage from "./pages/ActivateUserPage.jsx";
@@ -26,7 +29,8 @@ import SubmitVvnPage from "./pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 
 import AvailableResourcesPage from "./pages/AvailableResourcesList.jsx";
 import AddResourcePage from "./pages/AddResourcesPage.jsx";
-import StorageAreasPage from "./pages/StorageAreasPage.jsx";
+
+import StorageAreasPage from "./pages/StorageAreas/StorageAreasPage.jsx";
 import AddStorageAreaPage from "./pages/AddStorageArea.jsx";
 
 import VesselsListPage from "./pages/Vessels/VesselsListPage.jsx";

@@ -14,7 +14,7 @@ import {
   Box,
   Chip,
 } from "@mui/material";
-import { useAddDockVM } from "../../viewmodels/useAddDockVM";
+import { useAddDockVM } from "../../viewmodels/Docks/useAddDockVM";
 
 const AddDockPage = () => {
   const vm = useAddDockVM();

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { searchDocks } from '../services/dockService';
-import { getVesselTypes } from '../services/vesselTypeService';
+import { searchDocks } from '../../services/dockService';
+import { getVesselTypes } from '../../services/vesselTypeService';
 
 export const useSearchDocksVM = (apiFetch) => {
   const [results, setResults] = useState([]);

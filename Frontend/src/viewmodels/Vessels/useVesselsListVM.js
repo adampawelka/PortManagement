@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useApi } from '../services/api';
-import { getVessels } from '../services/vesselService';
+import { useApi } from '../../services/api';
+import { getVessels } from '../../services/vesselService';
 
 export const useVesselsListVM = () => {
   const { apiFetch } = useApi();

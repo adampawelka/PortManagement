@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { submitVesselVisitNotification } from '../services/vesselVisitNotificationService'; 
+import { submitVesselVisitNotification } from '../../services/vesselVisitNotificationService'; 
 
 export const useSubmitVesselVisitNotificationVM = () => {
   const [notificationId, setNotificationId] = useState('');

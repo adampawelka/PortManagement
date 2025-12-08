@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
-import { useRejectVesselVisitNotificationVM } from '../../viewmodels/useRejectVesselVisitNotificationVM'; 
+import { useRejectVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useRejectVesselVisitNotificationVM'; 
 
 const RejectVvnPage = () => {
   const {

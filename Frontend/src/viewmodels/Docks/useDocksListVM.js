@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useApi } from '../services/api';
-import { getDocks } from '../services/dockService';
+import { useApi } from '../../services/api';
+import { getDocks } from '../../services/dockService';
 
 export const useDocksVM = () => {
   const { apiFetch } = useApi();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, TextField, Button, Typography, CircularProgress, Alert, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
-import { useAddVesselVisitNotificationVM } from '../../viewmodels/useAddVesselVisitNotificationVM';
+import { useAddVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useAddVesselVisitNotificationVM';
 
 const AddVVNPage = () => {
   const { formData, vessels, loading, submitting, message, handleChange, handleSubmit } = useAddVesselVisitNotificationVM();

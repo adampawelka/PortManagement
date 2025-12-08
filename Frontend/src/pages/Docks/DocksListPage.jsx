@@ -4,7 +4,7 @@ import {
   Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody 
 } from '@mui/material';
 import { useApi } from '../../services/api';
-import { useDocksVM } from '../../viewmodels/useDocksListVM';
+import { useDocksVM } from '../../viewmodels/Docks/useDocksListVM';
 
 const DocksListPage = () => {
   const { apiFetch } = useApi();

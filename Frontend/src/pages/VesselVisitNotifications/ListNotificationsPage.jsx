@@ -3,7 +3,7 @@ import {
   Container, Typography, CircularProgress, Alert, 
   Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody 
 } from '@mui/material';
-import { useVesselVisitNotificationsVM } from '../../viewmodels/useVesselVisitNotificationsListVM';
+import { useVesselVisitNotificationsVM } from '../../viewmodels/VesselVisitNotifications/useVesselVisitNotificationsListVM';
 
 const ListNotificationsPage = () => {
   const { notifications, loading, error } = useVesselVisitNotificationsVM();
@@ -36,7 +36,7 @@ const ListNotificationsPage = () => {
           color: 'var(--color-primary-light)', 
           fontWeight: 600, 
           mb: 3,
-          fontSize: 'var(--font-size-heading)', // Heading font size from variables
+          fontSize: 'var(--font-size-heading)', 
         }}
       >
         Vessel Visit Notifications List ({notifications.length})

@@ -4,7 +4,7 @@ import {
   Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Box
 } from '@mui/material';
 import { useApi } from '../../services/api';
-import { useSearchDocksVM } from '../../viewmodels/useDockSearchVM';
+import { useSearchDocksVM } from '../../viewmodels/Docks/useDockSearchVM';
 
 const SearchDockPage = () => {
   const { apiFetch } = useApi();

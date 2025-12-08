@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Typography, TextField, Button, CircularProgress, Alert } from '@mui/material';
-import { useAddVesselTypeVM } from '../../viewmodels/useAddVesselTypeVM';
+import { useAddVesselTypeVM } from '../../viewmodels/Vessels/useAddVesselTypeVM';
 
 const AddVesselTypePage = () => {
   const { formData, loading, message, handleChange, handleSubmit } = useAddVesselTypeVM();

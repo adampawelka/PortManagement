@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useApi } from '../services/api';
-import { addVessel } from '../services/vesselService';
-import { getVesselTypes } from '../services/vesselTypeService';
-import { getShippingAgents } from '../services/shippingAgentService';
+import { useApi } from '../../services/api';
+import { addVessel } from '../../services/vesselService';
+import { getVesselTypes } from '../../services/vesselTypeService';
+import { getShippingAgents } from '../../services/shippingAgentService';
 
 const initialFormState = {
   imoNumber: '',

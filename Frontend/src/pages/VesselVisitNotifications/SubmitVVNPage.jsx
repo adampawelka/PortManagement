@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
-import { useSubmitVesselVisitNotificationVM } from '../../viewmodels/useSubmitVesselVisitNotificationVM'; 
+import { useSubmitVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useSubmitVesselVisitNotificationVM'; 
 
 const SubmitVvnPage = () => {
   const {
