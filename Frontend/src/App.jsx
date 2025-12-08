@@ -31,7 +31,7 @@ import AvailableResourcesPage from "./pages/AvailableResourcesList.jsx";
 import AddResourcePage from "./pages/AddResourcesPage.jsx";
 
 import StorageAreasPage from "./pages/StorageAreas/StorageAreasPage.jsx";
-import AddStorageAreaPage from "./pages/AddStorageArea.jsx";
+import AddStorageAreaPage from "./pages/StorageAreas/AddStorageArea.jsx";
 
 import VesselsListPage from "./pages/Vessels/VesselsListPage.jsx";
 import AddVesselPage from "./pages/Vessels/AddVesselPage.jsx";
