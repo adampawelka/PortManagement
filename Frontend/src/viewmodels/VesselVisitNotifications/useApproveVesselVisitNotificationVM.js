@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useApi } from '../services/api';
+import { useApi } from '../../services/api';
 import { approveVesselVisitNotification } from '../../services/vesselVisitNotificationService';
 
 export const useApproveVesselVisitNotificationVM = () => {
