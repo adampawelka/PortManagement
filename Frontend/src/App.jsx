@@ -22,7 +22,7 @@ import RejectVvnPage from "./pages/VesselVisitNotifications/RejectVVNPage.jsx";
 import ApproveVvnPage from "./pages/VesselVisitNotifications/ApproveVVNPage.jsx";
 import ListNotificationsPage from "./pages/VesselVisitNotifications/ListNotificationsPage.jsx";
 import AddVNNPage from "./pages/VesselVisitNotifications/AddVVNPage.jsx";
-import SubmitVvnPage from "./pages/SubmitVVNPage.jsx";
+import SubmitVvnPage from "./pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 
 import AvailableResourcesPage from "./pages/AvailableResourcesList.jsx";
 import AddResourcePage from "./pages/AddResourcesPage.jsx";
