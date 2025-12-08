@@ -20,7 +20,7 @@ import ActivateUserPage from "./pages/ActivateUserPage.jsx";
 
 import RejectVvnPage from "./pages/RejectVvnPage.jsx";
 import ApproveVvnPage from "./pages/ApproveVvnPage.jsx";
-import ListNotificationsPage from "./pages/ListNotificationsPage.jsx";
+import ListNotificationsPage from "./pages/VesselVisitNotifications/ListNotificationsPage.jsx";
 import AddVNNPage from "./pages/AddVVNPage.jsx";
 import SubmitVvnPage from "./pages/SubmitVVNPage.jsx";
 
