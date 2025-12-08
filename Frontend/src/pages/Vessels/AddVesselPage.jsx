@@ -3,7 +3,7 @@ import {
   Container, Typography, Alert, TextField, Button, 
   FormControl, InputLabel, Select, MenuItem, CircularProgress 
 } from '@mui/material';
-import { useAddVesselVM } from '../viewmodels/useAddVesselVM';
+import { useAddVesselVM } from '../../viewmodels/useAddVesselVM';
 
 const AddVesselPage = () => {
   const vm = useAddVesselVM();

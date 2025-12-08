@@ -3,7 +3,7 @@ import {
   Container, Typography, CircularProgress, Alert, 
   Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody 
 } from '@mui/material';
-import { useVesselsListVM } from '../viewmodels/useVesselsListVM';
+import { useVesselsListVM } from '../../viewmodels/useVesselsListVM';
 
 const VesselsListPage = () => {
   const { vessels, loading, error } = useVesselsListVM();

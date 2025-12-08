@@ -30,14 +30,14 @@ import AddResourcePage from "./pages/AddResourcesPage.jsx";
 import StorageAreasPage from "./pages/StorageAreasPage.jsx";
 import AddStorageAreaPage from "./pages/AddStorageArea.jsx";
 
-import VesselsListPage from "./pages/VesselsListPage.jsx";
-import AddVesselPage from "./pages/AddVesselPage.jsx";
-import SearchVesselPage from "./pages/SearchVesselPage.jsx";
+import VesselsListPage from "./pages/Vessels/VesselsListPage.jsx";
+import AddVesselPage from "./pages/Vessels/AddVesselPage.jsx";
+import SearchVesselPage from "./pages/Vessels/SearchVesselPage.jsx";
 
 
-import VesselTypePage from "./pages/VesselTypesListPage.jsx";
-import AddVesselTypePage from "./pages/AddVesselTypePage.jsx";
-import SearchVesselTypePage from "./pages/SearchVesselTypePage.jsx";
+import VesselTypePage from "./pages/Vessels/VesselTypesListPage.jsx";
+import AddVesselTypePage from "./pages/Vessels/AddVesselTypePage.jsx";
+import SearchVesselTypePage from "./pages/Vessels/SearchVesselTypePage.jsx";
 
 import AddDockPage from "./pages/AddDockPage.jsx";
 import SearchDockPage from "./pages/SearchDockPage.jsx";

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Typography, CircularProgress, Alert, Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Box } from '@mui/material';
-import { useVesselsSearchVM } from '../viewmodels/useVesselSearchVM';
+import { useVesselsSearchVM } from '../../viewmodels/useVesselSearchVM';
 
 const SearchVesselPage = () => {
   const { results, loading, message, handleSearch } = useVesselsSearchVM();

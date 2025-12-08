@@ -15,7 +15,7 @@ import {
   TableBody,
   Box,
 } from '@mui/material';
-import { useVesselTypeSearchVM } from '../viewmodels/useVesselTypeSearchVM';
+import { useVesselTypeSearchVM } from '../../viewmodels/useVesselTypeSearchVM';
 
 const SearchVesselTypePage = () => {
   const { results, loading, message, handleSearch } = useVesselTypeSearchVM();
