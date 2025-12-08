@@ -9,7 +9,7 @@ import {
   reactivateUser
 } from "../../services/userService"; 
 
-export const useUserManagementVM = () => {
+export const useUsersManagementVM = () => {
   const { apiFetch } = useApi();
 
   const [users, setUsers] = useState([]);

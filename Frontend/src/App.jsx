@@ -17,8 +17,8 @@ import RecommendedSchedule from "./pages/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
 import ScheduleMultiCrane from "./pages/ScheduleMultiCrane.jsx";
 
-import UserManagement from "./pages/Users/UserManagement.jsx";
-import PendingUserManagementPage from "./pages/PendingUserManagementPage.jsx";
+import UsersManagementPage from "./pages/Users/UsersManagement.jsx";
+import PendingUsersManagementPage from "./pages/Users/PendingUsersManagementPage.jsx";
 
 import RejectVVNPage from "./pages/VesselVisitNotifications/RejectVVNPage.jsx";
 import ApproveVVNPage from "./pages/VesselVisitNotifications/ApproveVVNPage.jsx";
@@ -461,7 +461,7 @@ const App = () => {
           path="user-management/users"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
-              <UserManagement />
+              <UsersManagementPage />
             </ProtectedRoute>
           }
         />
@@ -470,7 +470,7 @@ const App = () => {
           path="user-management/pending-users"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
-              <PendingUserManagementPage />
+              <PendingUsersManagementPage />
             </ProtectedRoute>
           }
         />
