@@ -8,7 +8,7 @@ export const useApi = () => {
     // we obtein auth0 functions
     const { getAccessTokenSilently, logout } = useAuth0();
 
-    // To reduce the fecth effect we use callBack
+    // To reduce the fetch effect we use callBack
     const apiFetch = useCallback(async (path, options = {}) => {
         try {
             const token = await getAccessTokenSilently();
