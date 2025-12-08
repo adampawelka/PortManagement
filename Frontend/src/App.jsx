@@ -38,7 +38,7 @@ import AddVesselTypePage from "./pages/Vessels/AddVesselTypePage.jsx";
 import SearchVesselTypePage from "./pages/Vessels/SearchVesselTypePage.jsx";
 
 import DocksListPage from "./pages/Docks/DocksListPage.jsx";
-import AddDockPage from "./pages/AddDockPage.jsx";
+import AddDockPage from "./pages/Docks/AddDockPage.jsx";
 import SearchDockPage from "./pages/Docks/SearchDockPage.jsx";
 
 
