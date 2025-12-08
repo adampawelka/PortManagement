@@ -23,7 +23,6 @@ export const useAddDockVM = () => {
   const [criticalError, setCriticalError] = useState(false);
   const [partialError, setPartialError] = useState(false);
 
-  // Load initial data
   useEffect(() => {
     const loadInitialData = async () => {
       try {
@@ -41,7 +40,6 @@ export const useAddDockVM = () => {
     loadInitialData();
   }, [apiFetch]);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "selectedVesselTypeIds") {
@@ -54,7 +52,6 @@ export const useAddDockVM = () => {
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (criticalError) return;

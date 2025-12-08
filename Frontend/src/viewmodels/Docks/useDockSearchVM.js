@@ -7,7 +7,6 @@ export const useSearchDocksVM = (apiFetch) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
-  // mapuje allowedVesselTypes z ID na obiekty { id, name }
  const mapVesselTypeObjects = async (docks) => {
   try {
     const vesselTypes = await getVesselTypes(apiFetch);
@@ -20,10 +19,8 @@ export const useSearchDocksVM = (apiFetch) => {
       ...dock,
       allowedVesselTypes: (dock.allowedVesselTypes || []).map(item => {
         if (typeof item === 'object' && item.name) {
-          // Already has name, use it
           return item;
         } else {
-          // Assume it's an ID and map it
           const key = item.toString();
           return vesselTypeMap[key] || { id: item, name: 'Unknown' };
         }
@@ -31,12 +28,11 @@ export const useSearchDocksVM = (apiFetch) => {
     }));
   } catch (err) {
     console.error('Failed to fetch vessel types:', err);
-    return docks; // fallback
+    return docks; 
   }
 };
 
 
-  // helper do renderowania nazw
   const renderAllowedVesselTypes = (types) => {
     if (!types || types.length === 0) return 'No restrictions';
     return types.map(t => t.name || 'Unknown Type').join(', ');

@@ -1,10 +1,9 @@
-// src/viewmodels/StorageAreas/useStorageAreasListVM.jsx
 import { useState, useEffect } from 'react';
-import { useApi } from '../../services/api'; // Get the apiFetch function
-import { getStorageAreas } from '../../services/storageAreaService'; // Get storage area service
+import { useApi } from '../../services/api'; 
+import { getStorageAreas } from '../../services/storageAreaService'; 
 
 export const useStorageAreasListVM = () => {
-  const { apiFetch } = useApi(); // Hook to fetch API
+  const { apiFetch } = useApi(); 
 
   const [storageAreas, setStorageAreas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,8 +14,8 @@ export const useStorageAreasListVM = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await getStorageAreas(apiFetch); // Fetch storage areas data
-        setStorageAreas(Array.isArray(data) ? data : []); // Ensure data is an array
+        const data = await getStorageAreas(apiFetch); 
+        setStorageAreas(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Failed to fetch storage areas:', err);
         setError(`Failed to load storage areas: ${err.message}`);
@@ -29,7 +28,6 @@ export const useStorageAreasListVM = () => {
     loadStorageAreas();
   }, [apiFetch]);
 
-  // You can add additional transformations if needed, like formatting dock distances, etc.
 
   return { storageAreas, loading, error };
 };

@@ -21,7 +21,6 @@ export const useAddVesselVisitNotificationVM = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
 
-  // Fetch vessels
   useEffect(() => {
     const loadVessels = async () => {
       try {

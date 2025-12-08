@@ -1,7 +1,5 @@
-// src/viewmodels/useRejectVvnPageVM.js
 import { useState } from 'react';
-import { rejectVesselVisitNotification } from '../../services/vesselVisitNotificationService'; // Importujemy serwis
-
+import { rejectVesselVisitNotification } from '../../services/vesselVisitNotificationService'; 
 export const useRejectVesselVisitNotificationVM = () => {
   const [notificationId, setNotificationId] = useState('');
   const [reason, setReason] = useState('');
@@ -20,7 +18,7 @@ export const useRejectVesselVisitNotificationVM = () => {
     setMessage(null);
 
     try {
-      const response = await rejectVesselVisitNotification(notificationId, reason); // Wywołanie serwisu
+      const response = await rejectVesselVisitNotification(notificationId, reason); 
 
       if (response) {
         setMessage({ type: 'success', text: `Notification ${notificationId} rejected successfully!` });

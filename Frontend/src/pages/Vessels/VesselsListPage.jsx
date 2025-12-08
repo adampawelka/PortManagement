@@ -27,7 +27,7 @@ const VesselsListPage = () => {
           color: 'var(--color-primary-light)', 
           fontWeight: 600, 
           mb: 3,
-          fontSize: 'var(--font-size-heading)', // zastosowanie zmiennej dla nagłówka
+          fontSize: 'var(--font-size-heading)', 
         }}
       >
         Vessels List ({vessels.length})

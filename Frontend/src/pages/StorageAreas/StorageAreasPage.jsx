@@ -1,4 +1,3 @@
-// src/pages/StorageAreasPage.jsx
 import React from 'react';
 import { 
   Container, Typography, CircularProgress, Alert, 
@@ -22,7 +21,7 @@ const StorageAreasPage = () => {
             <ListItem key={dock.dockId || index} sx={{ py: 0, px: 0.5 }}>
               <ListItemText
                 primary={`${dock.dockName || 'N/A'}: ${dock.distance || 0} meters`}
-                primaryTypographyProps={{ style: { fontSize: 'var(--font-size-small)' } }} // Using CSS variable for font size
+                primaryTypographyProps={{ style: { fontSize: 'var(--font-size-small)' } }} 
               />
             </ListItem>
           ))}
@@ -40,7 +39,7 @@ const StorageAreasPage = () => {
         p: 4, 
         borderRadius: 'var(--radius-md)', 
         boxShadow: 3,
-        fontFamily: 'var(--font-family-base)', // Font from CSS variables
+        fontFamily: 'var(--font-family-base)', 
       }}
     >
       <Typography 
@@ -50,25 +49,23 @@ const StorageAreasPage = () => {
           color: 'var(--color-primary-light)', 
           fontWeight: 600, 
           mb: 3,
-          fontSize: 'var(--font-size-heading)', // Heading font size from CSS variables
+          fontSize: 'var(--font-size-heading)', 
         }}
       >
         Storage Areas List ({storageAreas.length})
       </Typography>
 
-      {/* Loading Spinner */}
       {loading && (
         <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />
       )}
 
-      {/* Error Message */}
       {error && (
         <Alert 
           severity="error" 
           sx={{ 
             mb: 2, 
             color: 'var(--color-text-light)',
-            backgroundColor: 'var(--color-error)', // Background from CSS variable
+            backgroundColor: 'var(--color-error)', 
           }} 
           aria-live="assertive"
         >
@@ -76,14 +73,14 @@ const StorageAreasPage = () => {
         </Alert>
       )}
 
-      {/* Info Message */}
+
       {!loading && storageAreas.length === 0 && !error && (
         <Alert 
           severity="info" 
           sx={{ 
             mb: 2,
             backgroundColor: 'var(--color-info)',
-            color: 'var(--color-text-dark)' // Text color from CSS variable
+            color: 'var(--color-text-dark)' 
           }} 
           aria-live="polite"
         >
@@ -91,7 +88,6 @@ const StorageAreasPage = () => {
         </Alert>
       )}
 
-      {/* Table of Storage Areas */}
       {storageAreas.length > 0 && (
         <TableContainer component={Paper} sx={{ mt: 3 }}>
           <Table size="small" aria-label="storage areas table">
@@ -114,7 +110,7 @@ const StorageAreasPage = () => {
                   <TableCell>{area.maxCapacity || 0}</TableCell>
                   <TableCell>{area.currentOccupancy || 0}</TableCell>
                   <TableCell sx={{ maxHeight: 120, overflowY: 'auto', p: 0.5, fontSize: 'var(--font-size-small)' }}>
-                    {renderDockDistances(area.dockDistances)} {/* Render Dock Distances */}
+                    {renderDockDistances(area.dockDistances)} 
                   </TableCell>
                 </TableRow>
               ))}
