@@ -7,7 +7,7 @@ export const getResources = async (apiFetch) => {
   return res.json();
 };
 
-export const addDock = async (apiFetch, ResourceDto) => {
+export const addResource = async (apiFetch, ResourceDto) => {
   const res = await apiFetch("/api/Resources", {
     method: "POST",
     body: JSON.stringify(ResourceDto),

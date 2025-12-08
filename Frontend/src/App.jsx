@@ -28,7 +28,7 @@ import AddVNNPage from "./pages/VesselVisitNotifications/AddVVNPage.jsx";
 import SubmitVVNPage from "./pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 
 import AvailableResourcesPage from "./pages/Resources/AvailableResourcesList.jsx";
-import AddResourcePage from "./pages/AddResourcesPage.jsx";
+import AddResourcePage from "./pages/Resources/AddResourcesPage.jsx";
 
 import StorageAreasPage from "./pages/StorageAreas/StorageAreasPage.jsx";
 import AddStorageAreaPage from "./pages/StorageAreas/AddStorageArea.jsx";
