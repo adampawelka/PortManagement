@@ -1,12 +1,16 @@
 import React from 'react';
-import { Container, TextField, Button, Typography, CircularProgress, Alert, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { 
+  Container, Typography, Alert, TextField, Button, 
+  FormControl, InputLabel, Select, MenuItem, CircularProgress 
+} from '@mui/material';
 import { useAddVesselVM } from '../viewmodels/useAddVesselVM';
 
 const AddVesselPage = () => {
   const vm = useAddVesselVM();
 
   // While initial data is loading
-  if (vm.loading) return <Container sx={{ mt: 4 }}>Loading initial data...</Container>;
+  if (vm.loading) 
+    return <Container sx={{ mt: 4, color: 'var(--color-text-dark)' }}>Loading initial data...</Container>;
 
   // If critical API error occurred, block form completely
   if (vm.criticalError) {
@@ -18,10 +22,32 @@ const AddVesselPage = () => {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Add New Vessel</Typography>
+    <Container 
+      maxWidth="sm" 
+      sx={{ 
+        mt: 4, 
+        backgroundColor: 'var(--color-surface)', 
+        p: 4, 
+        borderRadius: 'var(--radius-md)', 
+        boxShadow: 3 
+      }}
+    >
+      <Typography 
+        variant="h4" 
+        gutterBottom
+        sx={{ color: 'var(--color-primary-light)', fontWeight: 600, mb: 3 }}
+      >
+        Add New Vessel
+      </Typography>
 
-      {vm.message && <Alert severity={vm.message.type} sx={{ mb: 2 }}>{vm.message.text}</Alert>}
+      {vm.message && (
+        <Alert 
+          severity={vm.message.type} 
+          sx={{ mb: 2 }}
+        >
+          {vm.message.text}
+        </Alert>
+      )}
 
       <form onSubmit={vm.handleSubmit}>
         <TextField
@@ -67,7 +93,9 @@ const AddVesselPage = () => {
             onChange={vm.handleChange}
           >
             {vm.shippingAgents.map(agent => (
-              <MenuItem key={agent.id} value={agent.id}>{agent.legalName} ({agent.taxNumber})</MenuItem>
+              <MenuItem key={agent.id} value={agent.id}>
+                {agent.legalName} ({agent.taxNumber})
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -75,9 +103,15 @@ const AddVesselPage = () => {
         <Button
           type="submit"
           variant="contained"
-          disabled={vm.submitting || vm.criticalError}  // prevent submit if critical error
-          sx={{ mt: 3, py: 1.5 }}
+          disabled={vm.submitting || vm.criticalError}  
           fullWidth
+          sx={{ 
+            mt: 3, 
+            py: 1.5, 
+            backgroundColor: 'var(--color-primary)',
+            color: 'var(--color-text-light)',
+            '&:hover': { backgroundColor: 'var(--color-primary-light)' }
+          }}
         >
           {vm.submitting ? <CircularProgress size={24} color="inherit" /> : 'Create Vessel'}
         </Button>
