@@ -37,7 +37,7 @@ import SearchVesselPage from "./pages/SearchVesselPage.jsx";
 
 import VesselTypePage from "./pages/VesselTypesListPage.jsx";
 import AddVesselTypePage from "./pages/AddVesselTypePage.jsx";
-import SearchVesselTypePage from "./pages/SearchVesselType.jsx";
+import SearchVesselTypePage from "./pages/SearchVesselTypePage.jsx";
 
 import AddDockPage from "./pages/AddDockPage.jsx";
 import SearchDockPage from "./pages/SearchDockPage.jsx";
@@ -279,7 +279,7 @@ const App = () => {
         />
 
         <Route
-          path="docks/new"
+          path="docks/add"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AddDockPage />
@@ -325,7 +325,7 @@ const App = () => {
         />
 
         <Route
-          path="/vessels/new"
+          path="/vessels/add"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AddVesselPage />
@@ -334,7 +334,7 @@ const App = () => {
         />
 
         <Route
-          path="/vessels/types/new"
+          path="/vessels/types/add"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AddVesselTypePage />

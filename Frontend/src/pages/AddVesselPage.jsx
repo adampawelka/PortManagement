@@ -10,12 +10,12 @@ const AddVesselPage = () => {
 
   // While initial data is loading
   if (vm.loading) 
-    return <Container sx={{ mt: 4, color: 'var(--color-text-dark)' }}>Loading initial data...</Container>;
+    return <Container sx={{ mt: 4, color: 'var(--color-text-dark)', fontFamily: 'var(--font-family-base)' }}>Loading initial data...</Container>;
 
   // If critical API error occurred, block form completely
   if (vm.criticalError) {
     return (
-      <Container sx={{ mt: 4 }}>
+      <Container sx={{ mt: 4, fontFamily: 'var(--font-family-base)' }}>
         <Alert severity="error">Cannot reach the server. Form is disabled. Try again later.</Alert>
       </Container>
     );
@@ -29,13 +29,14 @@ const AddVesselPage = () => {
         backgroundColor: 'var(--color-surface)', 
         p: 4, 
         borderRadius: 'var(--radius-md)', 
-        boxShadow: 3 
+        boxShadow: 3,
+        fontFamily: 'var(--font-family-base)',
       }}
     >
       <Typography 
         variant="h4" 
         gutterBottom
-        sx={{ color: 'var(--color-primary-light)', fontWeight: 600, mb: 3 }}
+        sx={{ color: 'var(--color-primary-light)', fontWeight: 600, mb: 3, fontSize: 'var(--font-size-large)' }}
       >
         Add New Vessel
       </Typography>

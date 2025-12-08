@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Typography, CircularProgress, Alert, Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Box } from '@mui/material';
-import { useVesselsSearchVM } from '../viewmodels/useVesselsSearchVM';
+import { useVesselsSearchVM } from '../viewmodels/useVesselSearchVM';
 
 const SearchVesselPage = () => {
   const { results, loading, message, handleSearch } = useVesselsSearchVM();
@@ -28,12 +28,27 @@ const SearchVesselPage = () => {
   const getCellValue = (value) => value || <span style={{ color: 'var(--color-not-found)' }}>N/A</span>;
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, backgroundColor: 'var(--color-surface)', p: 4, borderRadius: 'var(--radius-md)', boxShadow: 3 }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: 4,
+        backgroundColor: 'var(--color-surface)',
+        p: 4,
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 3,
+        fontFamily: 'var(--font-family-base)',
+      }}
+    >
       <Typography
         variant="h4"
         gutterBottom
         align="center"
-        sx={{ color: 'var(--color-primary-light)', fontWeight: 600, mb: 3 }}
+        sx={{
+          color: 'var(--color-primary-light)',
+          fontWeight: 600,
+          mb: 3,
+          fontSize: 'var(--font-size-heading)', // zastosowanie zmiennej dla nagłówka strony
+        }}
       >
         Search Vessels
       </Typography>
@@ -86,17 +101,17 @@ const SearchVesselPage = () => {
         <TableContainer component={Paper} sx={{ mt: 3, backgroundColor: 'var(--color-surface)' }}>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ backgroundColor: '#f0f0f0' }}>
-                <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>IMO</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Vessel Name</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Owner ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Vessel Type ID</TableCell>
+              <TableRow sx={{ backgroundColor: 'var(--color-background)' }}>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>ID</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>IMO</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Vessel Name</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Owner ID</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Vessel Type ID</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {results.map((vessel) => (
-                <TableRow key={vessel.id}>
+                <TableRow key={vessel.id} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
                   <TableCell>{getCellValue(vessel.id)}</TableCell>
                   <TableCell>{getCellValue(vessel.imo)}</TableCell>
                   <TableCell>{getCellValue(vessel.vesselName)}</TableCell>

@@ -98,7 +98,7 @@ export const menuItems = [
       {
         name: "Add New Dock",
         key: "add_new_dock",
-        path: "/docks/new",
+        path: "/docks/add",
         roles: ["PortAuthorityOfficer", "LogisticsOperator"],
       },
       {
@@ -124,7 +124,7 @@ export const menuItems = [
       {
         name: "Add New Vessel",
         key: "add_new_vessel",
-        path: "/vessels/new",
+        path: "/vessels/add",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
@@ -148,7 +148,7 @@ export const menuItems = [
           {
             name: "Add New Type",
             key: "add_new_type",
-            path: "/vessels/types/new",
+            path: "/vessels/types/add",
             roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
           },
           {

@@ -16,7 +16,8 @@ const VesselsListPage = () => {
         backgroundColor: 'var(--color-surface)', 
         p: 4, 
         borderRadius: 'var(--radius-md)', 
-        boxShadow: 3 
+        boxShadow: 3,
+        fontFamily: 'var(--font-family-base)',
       }}
     >
       <Typography 
@@ -25,7 +26,8 @@ const VesselsListPage = () => {
         sx={{ 
           color: 'var(--color-primary-light)', 
           fontWeight: 600, 
-          mb: 3 
+          mb: 3,
+          fontSize: 'var(--font-size-heading)', // zastosowanie zmiennej dla nagłówka
         }}
       >
         Vessels List ({vessels.length})
@@ -36,13 +38,29 @@ const VesselsListPage = () => {
       )}
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }} aria-live="assertive">
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mb: 2, 
+            color: 'var(--color-text-light)',
+            backgroundColor: 'var(--color-error)',
+          }} 
+          aria-live="assertive"
+        >
           {error}
         </Alert>
       )}
 
       {!loading && vessels.length === 0 && !error && (
-        <Alert severity="info" sx={{ mb: 2 }} aria-live="polite">
+        <Alert 
+          severity="info" 
+          sx={{ 
+            mb: 2,
+            backgroundColor: 'var(--color-info)',
+            color: 'var(--color-text-dark)'
+          }} 
+          aria-live="polite"
+        >
           No vessels found.
         </Alert>
       )}
@@ -51,17 +69,17 @@ const VesselsListPage = () => {
         <TableContainer component={Paper} sx={{ mt: 3 }}>
           <Table size="small" aria-label="vessels table">
             <TableHead>
-              <TableRow sx={{ backgroundColor: '#f0f0f0' }}>
-                <TableCell sx={{ fontWeight: 'bold' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>IMO</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Owner</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Type</TableCell>
+              <TableRow sx={{ backgroundColor: 'var(--color-background)' }}>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>ID</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>IMO</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Owner</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Type</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {vessels.map((vessel) => (
-                <TableRow key={vessel.id}>
+                <TableRow key={vessel.id} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
                   <TableCell>{vessel.id || 'N/A'}</TableCell>
                   <TableCell>{vessel.vesselName || 'N/A'}</TableCell>
                   <TableCell>{vessel.imo || 'N/A'}</TableCell>

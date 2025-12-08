@@ -1,4 +1,3 @@
-// pages/VesselTypePage.js
 import React from 'react';
 import {
   Container, Typography, CircularProgress, Alert,
@@ -17,7 +16,7 @@ const renderConstraints = (constraints) => {
   ];
 
   return (
-    <Box component="ul" sx={{ m: 0, pl: 2, lineHeight: 1.5, fontSize: '0.8rem' }}>
+    <Box component="ul" sx={{ m: 0, pl: 2, lineHeight: 1.5, fontSize: 'var(--font-size-small)' }}>
       {items.map((text, idx) => (
         <li key={idx} style={{ marginBottom: idx < items.length - 1 ? 6 : 0 }}>
           {text}
@@ -40,13 +39,19 @@ const VesselTypePage = () => {
         borderRadius: 'var(--radius-md)',
         boxShadow: 3,
         maxWidth: '90vw',
-        overflowX: 'auto'
+        overflowX: 'auto',
+        fontFamily: 'var(--font-family-base)',
       }}
     >
       <Typography
         variant="h4"
         gutterBottom
-        sx={{ color: 'var(--color-primary-light)', fontWeight: 600, mb: 3 }}
+        sx={{
+          color: 'var(--color-primary-light)',
+          fontWeight: 600,
+          mb: 3,
+          fontSize: 'var(--font-size-heading)',
+        }}
       >
         Vessel Types List ({vesselTypes.length})
       </Typography>
@@ -70,13 +75,14 @@ const VesselTypePage = () => {
           <Table
             size="small"
             aria-label="vessel types table"
-            sx={{ tableLayout: 'fixed', width: '100%' }} // stały layout tabeli
+            sx={{ tableLayout: 'fixed', width: '100%' }}
           >
             <TableHead>
               <TableRow sx={{ backgroundColor: 'var(--color-background)' }}>
                 <TableCell
                   sx={{
                     fontWeight: 'bold',
+                    fontSize: 'var(--font-size-table-header)',
                     width: 180,
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
@@ -85,10 +91,13 @@ const VesselTypePage = () => {
                 >
                   ID
                 </TableCell>
-                <TableCell sx={{ fontWeight: 'bold', width: '20%' }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)', width: '20%' }}>
+                  Name
+                </TableCell>
                 <TableCell
                   sx={{
                     fontWeight: 'bold',
+                    fontSize: 'var(--font-size-table-header)',
                     width: '40%',
                     whiteSpace: 'normal',
                     wordBreak: 'break-word',
@@ -99,6 +108,7 @@ const VesselTypePage = () => {
                 <TableCell
                   sx={{
                     fontWeight: 'bold',
+                    fontSize: 'var(--font-size-table-header)',
                     width: 80,
                     textAlign: 'center',
                     whiteSpace: 'nowrap'
@@ -109,6 +119,7 @@ const VesselTypePage = () => {
                 <TableCell
                   sx={{
                     fontWeight: 'bold',
+                    fontSize: 'var(--font-size-table-header)',
                     width: '20%',
                     whiteSpace: 'normal',
                     wordBreak: 'break-word',
@@ -120,7 +131,7 @@ const VesselTypePage = () => {
             </TableHead>
             <TableBody>
               {vesselTypes.map((type, idx) => (
-                <TableRow key={type.id || idx}>
+                <TableRow key={type.id || idx} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
                   <TableCell
                     sx={{
                       width: 180,
@@ -128,7 +139,7 @@ const VesselTypePage = () => {
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                     }}
-                    title={type.id} // tooltip z pełnym ID
+                    title={type.id}
                   >
                     {type.id}
                   </TableCell>
@@ -155,7 +166,7 @@ const VesselTypePage = () => {
                     sx={{
                       width: '20%',
                       p: 0.5,
-                      fontSize: '0.8rem',
+                      fontSize: 'var(--font-size-small)',
                       whiteSpace: 'normal',
                       wordBreak: 'break-word',
                     }}
@@ -173,4 +184,3 @@ const VesselTypePage = () => {
 };
 
 export default VesselTypePage;
-  
