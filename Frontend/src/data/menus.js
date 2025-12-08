@@ -19,19 +19,19 @@ export const menuItems = [
       },
       {
         name: "Approve Notifications",
-        key: "approved_notifications",
+        key: "approve_notifications",
         path: "/vvn/approve",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
         name: "Reject Notifications",
-        key: "rejected_notifications",
+        key: "reject_notifications",
         path: "/vvn/reject",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
         name: "Submit Notifications",
-        key: "submitted_notifications",
+        key: "submit_notifications",
         path: "/vvn/submit",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },

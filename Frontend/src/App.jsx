@@ -18,8 +18,8 @@ import UserManagement from "./pages/UserManagement.jsx";
 import PendingUserManagementPage from "./pages/PendingUserManagementPage.jsx";
 import ActivateUserPage from "./pages/ActivateUserPage.jsx";
 
-import RejectVvnPage from "./pages/RejectVvnPage.jsx";
-import ApproveVvnPage from "./pages/ApproveVvnPage.jsx";
+import RejectVvnPage from "./pages/VesselVisitNotifications/RejectVVNPage.jsx";
+import ApproveVvnPage from "./pages/VesselVisitNotifications/ApproveVVNPage.jsx";
 import ListNotificationsPage from "./pages/VesselVisitNotifications/ListNotificationsPage.jsx";
 import AddVNNPage from "./pages/VesselVisitNotifications/AddVVNPage.jsx";
 import SubmitVvnPage from "./pages/SubmitVVNPage.jsx";

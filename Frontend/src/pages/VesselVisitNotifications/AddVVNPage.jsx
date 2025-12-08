@@ -12,21 +12,21 @@ const AddVVNPage = () => {
       maxWidth="md"
       sx={{
         mt: 4,
-        backgroundColor: 'var(--color-surface)', // Use CSS variable for background
+        backgroundColor: 'var(--color-surface)', 
         p: 4,
-        borderRadius: 'var(--radius-md)', // Border radius from variables
+        borderRadius: 'var(--radius-md)', 
         boxShadow: 3,
-        fontFamily: 'var(--font-family-base)', // Font family from CSS variables
+        fontFamily: 'var(--font-family-base)', 
       }}
     >
       <Typography
         variant="h4"
         gutterBottom
         sx={{
-          color: 'var(--color-primary-light)', // Primary color from CSS
+          color: 'var(--color-primary-light)',
           fontWeight: 600,
           mb: 3,
-          fontSize: 'var(--font-size-heading)', // Font size from variables
+          fontSize: 'var(--font-size-heading)', 
         }}
       >
         Add a New Vessel Visit Notification
@@ -39,8 +39,8 @@ const AddVVNPage = () => {
           variant="h6"
           sx={{
             mt: 2,
-            color: 'var(--color-text-dark)', // Text color from CSS variables
-            fontSize: 'var(--font-size-subheading)', // Font size for subheadings
+            color: 'var(--color-text-dark)', 
+            fontSize: 'var(--font-size-subheading)', 
           }}
         >
           Agent & Vessel Details:
@@ -60,10 +60,10 @@ const AddVVNPage = () => {
               color: 'var(--color-text-dark)',
             },
             '& .MuiOutlinedInput-root': {
-              borderColor: 'var(--color-border)', // Border color from CSS variables
+              borderColor: 'var(--color-border)', 
             },
             '& .MuiInputBase-input': {
-              color: 'var(--color-text-dark)', // Text color for input field
+              color: 'var(--color-text-dark)', 
             },
           }}
         />
@@ -78,10 +78,10 @@ const AddVVNPage = () => {
             onChange={handleChange}
             sx={{
               '& .MuiInputBase-input': {
-                color: 'var(--color-text-dark)', // Text color for input field
+                color: 'var(--color-text-dark)', 
               },
               '& .MuiOutlinedInput-root': {
-                borderColor: 'var(--color-border)', // Border color from CSS variables
+                borderColor: 'var(--color-border)', 
               },
             }}
           >
@@ -242,10 +242,10 @@ const AddVVNPage = () => {
           sx={{
             mt: 3,
             py: 1.5,
-            backgroundColor: 'var(--color-primary)', // Button background color
-            color: 'var(--color-text-light)', // Button text color
+            backgroundColor: 'var(--color-primary)', 
+            color: 'var(--color-text-light)', 
             '&:hover': {
-              backgroundColor: 'var(--color-primary-dark)', // Darken button on hover
+              backgroundColor: 'var(--color-primary-dark)', 
             },
           }}
           fullWidth
