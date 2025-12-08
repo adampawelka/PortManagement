@@ -18,23 +18,25 @@ export const useApi = () => {
                 headers: {
                     "Content-Type": "application/json",
                     ...(options.headers || {}),
-                    // Put here the token
-                    Authorization: `Bearer ${token}`, 
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
+            // Only consider 401/403 as logout-worthy
             if (response.status === 401 || response.status === 403) {
-                console.error("Unauthorized or forbidden request");
+                console.error("Unauthorized or forbidden request. Logging out.");
+                logout({ returnTo: window.location.origin });
             }
 
             return response;
+
         } catch (err) {
-            // if Token obtain function fails, we force the logout
-            console.error("Token error:", err);
-            logout({ returnTo: window.location.origin });
-            throw err;
+            // Network or backend errors should NOT log out the user
+            console.error("API error (not auth related):", err);
+            throw err; // propagate the error to the caller
         }
-    }, [getAccessTokenSilently, logout]); 
-    
+    }, [getAccessTokenSilently, logout]);
+
+
     return { apiFetch };
 };
