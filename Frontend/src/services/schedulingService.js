@@ -46,7 +46,6 @@ export const useSchedulingService = () => {
     const parsePrologResult = (raw, vessels, dockName, craneCode, staff, areas) => {
         if (!raw) return [];
 
-        // 🔥 blokada "samych słów" bez faktycznego harmonogramu
         if (!raw.includes("(") || !raw.includes(",")) {
             return [];
         }
@@ -58,7 +57,6 @@ export const useSchedulingService = () => {
             .replace(/\[|\]/g, "")
             .trim();
 
-        // 🔥 jeśli zostało tylko "Heuristic"
         if (/^Heuristic\b/i.test(cleaned)) {
             return [];
         }
