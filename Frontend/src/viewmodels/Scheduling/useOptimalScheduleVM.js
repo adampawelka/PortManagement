@@ -4,18 +4,17 @@ import { useApi } from "../../services/api";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 
 export const useOptimalScheduleVM = () => {
-    const { calculateSchedule } = useSchedulingService();   // backend 5107
-    const { apiFetch } = useApi();                          // backend 5000
+    const { calculateSchedule } = useSchedulingService();
+    const { apiFetch } = useApi();
 
     const [targetDate, setTargetDate] = useState("");
-    const [scheduleResults, setScheduleResults] = useState([]);
+       const [scheduleResults, setScheduleResults] = useState([]);
     const [vesselNotifications, setVesselNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [executionTime, setExecutionTime] = useState(null);
 
-    // --- Helpers ---
-    const slotToTime = (slot) => {
+     const slotToTime = (slot) => {
         const n = parseInt(slot);
         if (isNaN(n)) return slot;
         const hours = n % 24;
@@ -37,7 +36,7 @@ export const useOptimalScheduleVM = () => {
         return null;
     };
 
-    const parsePrologResult = (raw) => {
+    const parsePrologResult = (raw, vessels, dockName, craneCode, staff, areas) => {
         if (!raw) return [];
 
         let cleaned = raw
@@ -48,25 +47,32 @@ export const useOptimalScheduleVM = () => {
 
         if (!cleaned) return [];
 
-        return cleaned.split(/\),/).map((item) => {
-            const p = item.replace(/[()]/g, "").split(",");
+        return cleaned.split(/\),/).map((token) => {
+            const parts = token.replace(/[()]/g, "").split(",");
 
-            const startSlot = p[1]?.trim();
-            const endSlot = p[2]?.trim();
+            const vesselName = parts[0]?.trim();
+            const startSlot = parts[1]?.trim();
+            const endSlot = parts[2]?.trim();
+
+            const v = vessels.find(
+                x => x.vesselName?.toLowerCase() === vesselName?.toLowerCase()
+            );
 
             return {
-                vessel: p[0]?.trim() || "",
+                vessel: vesselName,
+                vesselId: v?.vesselId || null,
+
                 start: slotToTime(startSlot),
                 end: slotToTime(endSlot),
-                dock: p[3]?.trim() || "Unknown",
-                crane: p[4]?.trim() || "Unassigned",
-                staff: "Auto",
-                area: p[5]?.trim() || "Unassigned",
+
+                dock: dockName,
+                crane: craneCode,
+                staff: staff,
+                areas: areas,
             };
         });
     };
 
-    // --- Generate Schedule ---
     const generateSchedule = async () => {
         setError("");
 
@@ -82,7 +88,6 @@ export const useOptimalScheduleVM = () => {
         setExecutionTime(null);
 
         try {
-            // --- 1. fetch VVN using useApi + pure service function ---
             const allNotifs = await getVesselVisitNotifications(apiFetch);
 
             const filtered = allNotifs.filter(
@@ -93,7 +98,6 @@ export const useOptimalScheduleVM = () => {
 
             setVesselNotifications(filtered);
 
-            // --- 2. fetch schedule via SchedulingService ---
             const raw = await calculateSchedule(isoDate, "bruteforce");
 
             const exec = extractExecutionTime(raw);
@@ -102,7 +106,14 @@ export const useOptimalScheduleVM = () => {
             const json = JSON.parse(raw);
 
             const parsed = Object.values(json).flatMap((dockInfo) =>
-                parsePrologResult(dockInfo.schedule)
+                parsePrologResult(
+                    dockInfo.schedule,              
+                    dockInfo.vessels ?? [],         
+                    dockInfo.dock,                  
+                    dockInfo.crane,                 
+                    dockInfo.staff ?? [],           
+                    dockInfo.areas ?? []            
+                )
             );
 
             setScheduleResults(parsed);
