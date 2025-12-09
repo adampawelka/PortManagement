@@ -16,18 +16,12 @@ export const useOperationalPlansVM = () => {
     const [mode, setMode] = useState("single");
     const [algorithm, setAlgorithm] = useState("");
 
-    // ---------------------------------------------------------
-    // Normalization helpers (critical for VVN matching)
-    // ---------------------------------------------------------
-
-    // Normalize schedule names like: "iarti_container_3"
     const normalizeScheduleName = (str = "") =>
         str
-            .replace(/_/g, " ") // underscore → space
+            .replace(/_/g, " ")
             .trim()
-            .toLowerCase(); // lower for matching
+            .toLowerCase();
 
-    // Normalize actual VVN names: "IARTI Container 3"
     const normalizeVVNName = (str = "") =>
         str
             .replace(/\s+/g, " ")
@@ -49,16 +43,13 @@ export const useOperationalPlansVM = () => {
         return null;
     };
 
-    
-
     const parsePlans = (json, allVVN) => {
         if (!json) return [];
 
-        // Backend may return object or string
         const parsed =
             typeof json === "string" ? JSON.parse(json) : json;
 
-        const rows = [];
+        const aggregated = {}; 
 
         for (const key in parsed) {
             const info = parsed[key];
@@ -69,21 +60,18 @@ export const useOperationalPlansVM = () => {
                 .replace(/\[|\]/g, "")
                 .trim();
 
-            // Extract execution time
             const exec = extractExecutionTime(scheduleText);
             if (exec) setExecutionTime(exec);
 
-            // Remove the execution time line
             scheduleText = scheduleText.replace(/Execution Time:.*\n?/i, "");
 
-            // Example: (iarti_container_3,7,14),(iarti_container_2,15,26)
             const operations = scheduleText
                 .split("),")
                 .map(line => line.replace(/[\(\)]/g, "").trim())
                 .map(clean => clean.split(",").map(x => x.trim()))
                 .filter(parts => parts.length >= 3)
                 .map(parts => {
-                    const rawName = parts[0];       // iarti_container_3
+                    const rawName = parts[0];
                     const start = parts[1];
                     const end = parts[2];
 
@@ -102,31 +90,30 @@ export const useOperationalPlansVM = () => {
                     };
                 });
 
-            // Convert into grid-friendly rows
             for (const op of operations) {
-                rows.push({
-                    vvnId: op.vvnId,
-                    vesselId: op.vesselId,
-                    vesselName: op.vesselName,
-                    dock: info.dock,
-                    crane: info.crane,
-                    area: info.area,
-                    operations: [
-                        {
-                            start: op.start,
-                            end: op.end,
-                        },
-                    ],
+                if (!op.vvnId) continue; 
+                if (!aggregated[op.vvnId]) {
+                    aggregated[op.vvnId] = {
+                        vvnId: op.vvnId,
+                        vesselId: op.vesselId,
+                        vesselName: op.vesselName,
+                        dock: info.dock,
+                        crane: info.crane,
+                        area: info.area,
+                        operations: [],
+                    };
+                }
+
+                aggregated[op.vvnId].operations.push({
+                    start: op.start,
+                    end: op.end,
                 });
             }
         }
 
-        return rows;
+        return Object.values(aggregated);
     };
 
-    // ---------------------------------------------------------
-    // MAIN GENERATE FUNCTION
-    // ---------------------------------------------------------
 
     const generate = async () => {
         setLoading(true);
@@ -139,10 +126,8 @@ export const useOperationalPlansVM = () => {
             if (mode === "single" && !algorithm)
                 throw new Error("Please select an algorithm.");
 
-            // Fetch VVNs
             const allVVN = await getVesselVisitNotifications(apiFetch);
 
-            // Filter only for selected date & approved
             const vvnForDate = allVVN.filter(v =>
                 v.status === "Approved" &&
                 v.eta?.split("T")[0] === date
@@ -153,7 +138,6 @@ export const useOperationalPlansVM = () => {
                     "No approved Vessel Visit Notifications found for this date."
                 );
 
-            // Call scheduler
             const scheduleResponse =
                 mode === "single"
                     ? await calculateSchedule(date, algorithm)
@@ -162,7 +146,6 @@ export const useOperationalPlansVM = () => {
             console.log("allVVN:", allVVN);
             console.log("scheduleResponse:", scheduleResponse);
 
-            // Parse & map
             const parsed = parsePlans(scheduleResponse, allVVN);
 
             setPlans(parsed);
@@ -172,10 +155,6 @@ export const useOperationalPlansVM = () => {
             setLoading(false);
         }
     };
-
-    // ---------------------------------------------------------
-    // EXPORTED API
-    // ---------------------------------------------------------
 
     return {
         loading,

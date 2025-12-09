@@ -5,7 +5,6 @@ import {
     CircularProgress,
     Alert,
     Paper,
-    TableContainer,
     Table,
     TableHead,
     TableRow,
@@ -16,7 +15,8 @@ import {
     Button,
     Select,
     MenuItem,
-    InputLabel
+    InputLabel,
+    Box
 } from "@mui/material";
 
 import { useOperationalPlansVM } from "../../viewmodels/Scheduling/useOperationalPlansVM";
@@ -39,15 +39,8 @@ const OperationalPlans = () => {
     const [hasGenerated, setHasGenerated] = useState(false);
 
     const handleGenerate = () => {
-        if (!date) {
-            alert("Please select a date");
-            return;
-        }
-
-        if (mode === "single" && !algorithm) {
-            alert("Please select an algorithm");
-            return;
-        }
+        if (!date) return alert("Please select a date");
+        if (mode === "single" && !algorithm) return alert("Please select an algorithm");
 
         setHasGenerated(true);
         generate();
@@ -56,29 +49,14 @@ const OperationalPlans = () => {
     const handleModeChange = (e) => {
         const newMode = e.target.value;
         setMode(newMode);
-
-        if (newMode === "multi") {
-            setAlgorithm("multi_crane");
-        } else {
-            setAlgorithm("");
-        }
+        setAlgorithm(newMode === "multi" ? "multi_crane" : "");
     };
 
     const singleCraneAlgorithms = [
-        <MenuItem key="optimal" value="optimal">Optimal</MenuItem>,
-        <MenuItem key="heuristic_edt" value="heuristic_edt">
-            EDT – Early Departure Time (heuristic)
-        </MenuItem>,
-        <MenuItem key="heuristic_spt" value="heuristic_spt">
-            SPT – Shortest Processing Time
-        </MenuItem>,
-        <MenuItem key="heuristic_dynamic_mst" value="heuristic_dynamic_mst">
-            Dynamic MST – Minimum Slack Time
-        </MenuItem>
-    ];
-
-    const multiCraneAlgorithms = [
-        <MenuItem key="multi_crane" value="multi_crane">Multi-Crane Scheduler</MenuItem>
+        { value: "optimal", label: "Optimal" },
+        { value: "heuristic_edt", label: "EDT – Early Departure Time" },
+        { value: "heuristic_spt", label: "SPT – Shortest Processing Time" },
+        { value: "heuristic_dynamic_mst", label: "Dynamic MST – Minimum Slack Time" },
     ];
 
     return (
@@ -86,17 +64,16 @@ const OperationalPlans = () => {
             maxWidth="xl"
             sx={{
                 mt: 4,
-                backgroundColor: "var(--color-surface)",
                 p: 4,
-                borderRadius: "var(--radius-md)",
-                boxShadow: 3,
+                borderRadius: "var(--radius-lg)",
                 fontFamily: "var(--font-family-base)",
+                background: "linear-gradient(135deg, #f4f0ff 0%, #ffffff 60%)",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
             }}
         >
-            {/* Header */}
+            {/* ========================= HEADER ========================= */}
             <Typography
                 variant="h4"
-                gutterBottom
                 sx={{
                     color: "var(--color-primary-light)",
                     fontWeight: 600,
@@ -107,18 +84,19 @@ const OperationalPlans = () => {
                 Operational Plans ({plans.length})
             </Typography>
 
-            {/* Control Bar */}
+            {/* ========================= CONTROL BAR ========================= */}
             <Paper
                 sx={{
                     p: 2,
-                    mb: 3,
-                    backgroundColor: "var(--color-background)",
-                    borderRadius: "var(--radius-sm)",
+                    mb: 4,
+                    borderRadius: "var(--radius-md)",
+                    background: "linear-gradient(180deg, #ffffff 0%, #f7f4ff 100%)",
+                    border: "1px solid rgba(46,13,122,0.08)",
+                    boxShadow: "0 3px 14px rgba(46,13,122,0.08)",
                     display: "flex",
                     gap: 2,
-                    alignItems: "center",
+                    flexWrap: "wrap",
                     justifyContent: "center",
-                    flexWrap: "wrap"
                 }}
             >
                 {/* Date */}
@@ -130,16 +108,7 @@ const OperationalPlans = () => {
                         InputLabelProps={{ shrink: true }}
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        sx={{
-                            backgroundColor: "var(--color-surface)",
-                            "& .MuiInputBase-input": {
-                                padding: "6px 10px",
-                                fontSize: "0.85rem",
-                            },
-                            "& .MuiInputLabel-root": {
-                                fontSize: "0.85rem",
-                            },
-                        }}
+                        sx={{ backgroundColor: "white" }}
                     />
                 </FormControl>
 
@@ -151,9 +120,7 @@ const OperationalPlans = () => {
                         label="Mode"
                         value={mode}
                         onChange={handleModeChange}
-                        sx={{
-                            backgroundColor: "var(--color-surface)",
-                        }}
+                        sx={{ backgroundColor: "white" }}
                     >
                         <MenuItem value="single">Single-Crane</MenuItem>
                         <MenuItem value="multi">Multi-Crane</MenuItem>
@@ -168,11 +135,16 @@ const OperationalPlans = () => {
                         label="Algorithm"
                         value={algorithm}
                         onChange={(e) => setAlgorithm(e.target.value)}
-                        sx={{
-                            backgroundColor: "var(--color-surface)",
-                        }}
+                        sx={{ backgroundColor: "white" }}
                     >
-                        {mode === "single" ? singleCraneAlgorithms : multiCraneAlgorithms}
+                        {mode === "single"
+                            ? singleCraneAlgorithms.map(a => (
+                                <MenuItem key={a.value} value={a.value}>
+                                    {a.label}
+                                </MenuItem>
+                            ))
+                            : <MenuItem value="multi_crane">Multi-Crane Scheduler</MenuItem>
+                        }
                     </Select>
                 </FormControl>
 
@@ -181,12 +153,10 @@ const OperationalPlans = () => {
                     variant="contained"
                     onClick={handleGenerate}
                     sx={{
-                        py: 1,
                         px: 3,
-                        fontSize: "0.85rem",
-                        backgroundColor: "var(--color-primary)",
                         height: 40,
                         whiteSpace: "nowrap",
+                        backgroundColor: "var(--color-primary)",
                         ":hover": { backgroundColor: "var(--color-primary-dark)" },
                     }}
                 >
@@ -194,95 +164,159 @@ const OperationalPlans = () => {
                 </Button>
             </Paper>
 
-            {/* Execution time */}
+            {/* ========================= EXECUTION TIME ========================= */}
             {executionTime && (
-                <Alert
-                    severity="info"
-                    sx={{
-                        mb: 3,
-                        backgroundColor: "var(--color-info)",
-                        color: "var(--color-text-dark)",
-                    }}
-                >
+                <Alert severity="info" sx={{ mb: 3 }}>
                     Execution Time: {executionTime}s
                 </Alert>
             )}
 
-            {/* Loading */}
-            {loading && (
-                <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
-            )}
+            {loading && <CircularProgress sx={{ display: "block", mx: "auto", my: 2 }} />}
 
-            {/* Error */}
             {error && (
-                <Alert
-                    severity="error"
-                    sx={{
-                        mb: 2,
-                        backgroundColor: "var(--color-error)",
-                        color: "var(--color-text-light)",
-                    }}
-                >
+                <Alert severity="error" sx={{ mb: 3 }}>
                     {error}
                 </Alert>
             )}
 
-            {/* Empty */}
             {hasGenerated && !loading && plans.length === 0 && !error && (
-                <Alert
-                    severity="info"
-                    sx={{
-                        mb: 2,
-                        backgroundColor: "var(--color-info)",
-                        color: "var(--color-text-dark)",
-                    }}
-                >
+                <Alert severity="info" sx={{ mb: 3 }}>
                     No operation plans found.
                 </Alert>
             )}
 
-            {/* Results */}
+            {/* ========================= RESULTS ========================= */}
             {plans.length > 0 && (
-                <TableContainer component={Paper} sx={{ mt: 3 }}>
-                    <Table size="small">
-                        <TableHead>
-                            <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
-                                <TableCell sx={{ fontWeight: "bold" }}>VVN</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Operations</TableCell>
-                            </TableRow>
-                        </TableHead>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        width: "100%",
+                        mt: 4,
+                    }}
+                >
+                    {plans.map((plan, index) => (
+                        <Paper
+                            key={index}
+                            sx={{
+                                width: "100%",
+                                maxWidth: 760,
+                                p: 3,
+                                mb: 4,
+                                borderRadius: "var(--radius-lg)",
+                                background: "linear-gradient(180deg, #ffffff 0%, #f7f4ff 100%)",
+                                border: "1px solid rgba(46,13,122,0.08)",
+                                boxShadow: "0 6px 22px rgba(46,13,122,0.08)",
+                            }}
+                        >
+                            {/* -------- HEADER -------- */}
+                            <Typography
+                                sx={{
+                                    fontWeight: 600,
+                                    color: "var(--color-primary)",
+                                    fontSize: "1.15rem",
+                                    mb: 0.5,
+                                }}
+                            >
+                                {plan.vesselName}
+                            </Typography>
 
-                        <TableBody>
-                            {plans.map((row, i) => (
-                                <TableRow
-                                    key={i}
+                            <Typography
+                                sx={{
+                                    fontSize: "var(--font-size-small)",
+                                    opacity: 0.65,
+                                    mb: 2,
+                                }}
+                            >
+                                VVN {plan.vvnId}
+                            </Typography>
+
+                            {/* -------- RESOURCES -------- */}
+                            <Box sx={{ mb: 3 }}>
+                                <Typography
                                     sx={{
-                                        "&:hover": {
-                                            backgroundColor: "var(--color-background)",
-                                        }
+                                        fontWeight: 600,
+                                        mb: 1.5,
+                                        color: "var(--color-primary-light)",
+                                        fontSize: "var(--font-size-base)"
                                     }}
                                 >
-                                    <TableCell>{row.vvnId}</TableCell>
-                                    <TableCell>{row.vesselName}</TableCell>
-                                    <TableCell>{row.dock}</TableCell>
-                                    <TableCell>{row.crane}</TableCell>
-                                    <TableCell>{row.area}</TableCell>
-                                    <TableCell>
-                                        {row.operations.map((op, idx) => (
-                                            <div key={idx}>
-                                                {op.vessel}: {op.start} → {op.end}
-                                            </div>
+                                    Resources
+                                </Typography>
+
+                                <Box
+                                    sx={{
+                                        background: "var(--color-surface)",
+                                        borderRadius: "var(--radius-md)",
+                                        padding: "var(--spacing-md)",
+                                        border: "1px solid rgba(46,13,122,0.12)",
+                                        boxShadow: "0 2px 8px rgba(46,13,122,0.08)",
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: "grid",
+                                            gridTemplateColumns: "160px 1fr",
+                                            rowGap: "var(--spacing-sm)",
+                                            columnGap: "var(--spacing-md)",
+                                            fontSize: "var(--font-size-small)",
+                                            color: "var(--color-text-dark)",
+                                        }}
+                                    >
+                                        <Box sx={{ fontWeight: 600, opacity: 0.8 }}>Dock</Box>
+                                        <Box>{plan.dock}</Box>
+
+                                        <Box sx={{ fontWeight: 600, opacity: 0.8 }}>Crane</Box>
+                                        <Box>{plan.crane}</Box>
+
+                                        <Box sx={{ fontWeight: 600, opacity: 0.8 }}>Area</Box>
+                                        <Box>{plan.area}</Box>
+                                    </Box>
+                                </Box>
+                            </Box>
+
+
+                            {/* -------- OPERATIONS -------- */}
+                            <Box>
+                                <Typography
+                                    sx={{
+                                        fontWeight: 600,
+                                        mb: 1,
+                                        color: "var(--color-primary-light)",
+                                    }}
+                                >
+                                    Operations
+                                </Typography>
+
+                                <Table size="small">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell sx={{ fontWeight: 600 }}>Start</TableCell>
+                                            <TableCell sx={{ fontWeight: 600 }}>End</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {plan.operations.map((op, i) => (
+                                            <TableRow
+                                                key={i}
+                                                sx={{
+                                                    backgroundColor: "var(--color-background)",
+                                                    "& td": {
+                                                        borderBottom: "none"
+                                                    },
+                                                }}
+                                            >
+                                                <TableCell>{op.start}</TableCell>
+                                                <TableCell>{op.end}</TableCell>
+                                            </TableRow>
                                         ))}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                                    </TableBody>
+                                </Table>
+                            </Box>
+                        </Paper>
+                    ))}
+                </Box>
             )}
         </Container>
     );
