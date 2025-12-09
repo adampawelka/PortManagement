@@ -11,7 +11,7 @@ import Home from "./pages/Home.jsx";
 import Visualisation from "./pages/Visualisation.jsx";
 
 import OptimalSchedule from "./pages/Scheduling/OptimalSchedule.jsx";
-import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
+import AlternativeSchedule from "./pages/Scheduling/AlternativeSchedule.jsx";
 import RecommendedSchedule from "./pages/Scheduling/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
 import ScheduleMultiCrane from "./pages/ScheduleMultiCrane.jsx";
