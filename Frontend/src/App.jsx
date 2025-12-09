@@ -13,7 +13,7 @@ import Visualisation from "./pages/Visualisation.jsx";
 import Scheduling from "./pages/Scheduling.jsx";
 import OptimalSchedule from "./pages/OptimalSchedule.jsx";
 import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
-import RecommendedSchedule from "./pages/RecommendedSchedule.jsx";
+import RecommendedSchedule from "./pages/Scheduling/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
 import ScheduleMultiCrane from "./pages/ScheduleMultiCrane.jsx";
 
