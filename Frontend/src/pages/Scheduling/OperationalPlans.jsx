@@ -293,8 +293,6 @@ const OperationalPlans = () => {
                                         <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Crane</Box>
                                         <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.crane}</Box>
 
-                                        <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Area</Box>
-                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.area}</Box>
                                     </Box>
                                 </Box>
                             </Box>

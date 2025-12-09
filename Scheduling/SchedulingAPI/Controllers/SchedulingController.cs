@@ -134,6 +134,7 @@ namespace SchedulingAPI.Controllers
 
         }
 
+
         [HttpGet("test-prolog")]
         public IActionResult TestProlog()
         {
@@ -202,14 +203,15 @@ namespace SchedulingAPI.Controllers
 
         [HttpGet("calculate-schedule")]
         public async Task<IActionResult> CalculateSchedule(
-            [FromQuery] string date,
-            [FromQuery] string algorithm = "bruteforce")
+     [FromQuery] string date,
+     [FromQuery] string algorithm = "bruteforce")
         {
             if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
                 return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
 
             try
             {
+                // --- AUTH ---
                 var authHeader = Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                     return Unauthorized(new { message = "Missing or invalid token." });
@@ -220,6 +222,7 @@ namespace SchedulingAPI.Controllers
                 client.DefaultRequestHeaders.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
+                // --- VESSELS ---
                 var response = await client.GetAsync($"{_backendApiUrl}/api/VesselVisitNotifications");
                 response.EnsureSuccessStatusCode();
 
@@ -238,6 +241,7 @@ namespace SchedulingAPI.Controllers
                     .GroupBy(v => v.AssignedDockId)
                     .ToList();
 
+                // --- RESOURCES ---
                 var resourceResponse = await client.GetAsync($"{_backendApiUrl}/api/Resources");
                 resourceResponse.EnsureSuccessStatusCode();
 
@@ -246,23 +250,27 @@ namespace SchedulingAPI.Controllers
                     .Where(r => r.Type == "Crane" && r.Status == "active")
                     .ToList();
 
+                // --- STAFF ---
                 var staffResponse = await client.GetAsync($"{_backendApiUrl}/api/StaffMembers");
                 staffResponse.EnsureSuccessStatusCode();
 
                 var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffMemberDto>>();
 
+                // --- STORAGE AREAS ---
                 var areaResponse = await client.GetAsync($"{_backendApiUrl}/api/StorageAreas");
                 areaResponse.EnsureSuccessStatusCode();
 
                 var allAreas = await areaResponse.Content.ReadFromJsonAsync<List<StorageAreaDto>>();
 
+                // --- RESOURCE SELECTION ---
                 var selectedCrane = availableCranes.FirstOrDefault();
-                    if (selectedCrane != null) availableCranes.Remove(selectedCrane);
+                if (selectedCrane != null) availableCranes.Remove(selectedCrane);
 
                 var dockSchedules = new Dictionary<string, object>();
 
-                
-
+                // ============================================================
+                //                     MAIN LOOP PER DOCK
+                // ============================================================
                 foreach (var dockGroup in dockGroups)
                 {
                     string dockId = dockGroup.Key.Value.ToString();
@@ -278,6 +286,10 @@ namespace SchedulingAPI.Controllers
                     if (!vesselsForDate.Any())
                         continue;
 
+                    // --- FIND CLOSEST STORAGE AREA ---
+                    var closestArea = GetClosestArea(allAreas, dockGroup.Key.Value);
+
+                    // --- PROLOG FACTS ---
                     string facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
                     {
                         int containerCount = v.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
@@ -292,6 +304,7 @@ namespace SchedulingAPI.Controllers
                         return $"asserta(vessel({vesselKey}, {etaHour}, {etdHour}, {unloadTime}, {loadTime})),";
                     }));
 
+                    // --- CHOOSE SOLVER ---
                     string scriptToUse;
                     string query;
 
@@ -320,17 +333,20 @@ namespace SchedulingAPI.Controllers
                             break;
                     }
 
+                    // --- PROLOG EXECUTION ---
                     string result = RunPrologQuery(query, scriptToUse);
 
-
+                    // --- RESPONSE ENTRY ---
                     dockSchedules[dockId] = new
                     {
                         dock = dock.DockName,
-                        schedule = result,             // <-- RAW STRING ONLY
-                        vessels = vesselsForDate,      // <-- FULL VESSEL DTOs
+                        schedule = result,
+                        vessels = vesselsForDate,
                         crane = selectedCrane?.Code,
                         staff = allStaff,
-                        areas = allAreas
+
+                        // 🔥 only closest area returned
+                        area = closestArea
                     };
                 }
 
@@ -344,6 +360,7 @@ namespace SchedulingAPI.Controllers
                 return StatusCode(500, $"Error generating schedule: {ex.Message}");
             }
         }
+
 
 
         [HttpGet("calculate-schedule-multi-crane")]
@@ -537,6 +554,7 @@ namespace SchedulingAPI.Controllers
                 });
             }
         }
+
 
 
         private class MultiCraneParseResult
@@ -843,6 +861,24 @@ namespace SchedulingAPI.Controllers
             string timeStr = $"{hours:00}:00";
             return days > 0 ? $"{timeStr} (+{days}d)" : timeStr;
         }
+
+        private StorageAreaDto? GetClosestArea(List<StorageAreaDto> areas, Guid dockId)
+        {
+            return areas
+                .Select(area =>
+                {
+                    var match = area.DockDistances?
+                        .FirstOrDefault(d => d.DockId == dockId);
+
+                    double distance = match?.Distance ?? double.MaxValue;
+
+                    return (area, distance);
+                })
+                .OrderBy(x => x.distance)
+                .FirstOrDefault()
+                .area;
+        }
+
 
         [HttpGet("test-algorithms")]
         public IActionResult TestAlgorithms([FromQuery] string algorithm = "bruteforce")

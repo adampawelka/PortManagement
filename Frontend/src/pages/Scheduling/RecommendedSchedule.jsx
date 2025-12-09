@@ -212,7 +212,6 @@ const RecommendedSchedulePage = () => {
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Start</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>End</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Staff</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Area</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -229,7 +228,6 @@ const RecommendedSchedulePage = () => {
                                     <TableCell>{row.start}</TableCell>
                                     <TableCell>{row.end}</TableCell>
                                     <TableCell>{row.staff}</TableCell>
-                                    <TableCell>{row.area}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
