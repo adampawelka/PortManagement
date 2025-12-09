@@ -62,10 +62,11 @@ export const approveVesselVisitNotification = async (apiFetch, id, approveDto) =
   return res.json();
 };
 
-export const rejectVesselVisitNotification = async (apiFetch, id, rejectDto) => {
+export const rejectVesselVisitNotification = async (apiFetch, id, rejectBodyDto) => {
   const res = await apiFetch(`/api/VesselVisitNotifications/${id}/reject`, {
     method: "POST",
-    body: JSON.stringify(rejectDto),
+    body: JSON.stringify(rejectBodyDto),
+    
   });
 
   if (!res.ok) {

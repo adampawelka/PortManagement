@@ -5,7 +5,7 @@ import { useRejectVesselVisitNotificationVM } from '../../viewmodels/VesselVisit
 const RejectVVNPage = () => {
   const {
     notificationId,
-    reason,
+    rejectionReason,
     loading,
     message,
     setNotificationId,
@@ -65,7 +65,7 @@ const RejectVVNPage = () => {
         />
         <TextField
           label="Reason"
-          value={reason}
+          value={rejectionReason}
           onChange={(e) => setReason(e.target.value)}
           required
           fullWidth
