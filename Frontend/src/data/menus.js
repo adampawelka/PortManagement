@@ -194,8 +194,8 @@ export const menuItems = [
           },
           {
             name: "Schedule Multi Crane",
-            key: "schedule_multi_crane",
-            path: "/schedule-multi-crane",
+            key: "multi_crane_schedule",
+            path: "/multi-crane-schedule",
             roles: ["LogisticsOperator"],
           },
           {

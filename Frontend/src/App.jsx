@@ -13,8 +13,8 @@ import Visualisation from "./pages/Visualisation.jsx";
 import OptimalSchedule from "./pages/Scheduling/OptimalSchedule.jsx";
 import AlternativeSchedule from "./pages/Scheduling/AlternativeSchedule.jsx";
 import RecommendedSchedule from "./pages/Scheduling/RecommendedSchedule.jsx";
-import TestAlgorithms from "./pages/TestAlgorithms.jsx";
-import ScheduleMultiCrane from "./pages/ScheduleMultiCrane.jsx";
+import TestAlgorithms from "./pages/Scheduling/TestAlgorithms.jsx";
+import MultiCraneSchedule from "./pages/Scheduling/MultiCraneSchedule.jsx";
 
 import UsersManagementPage from "./pages/Users/UsersManagement.jsx";
 import PendingUsersManagementPage from "./pages/Users/PendingUsersManagementPage.jsx";
@@ -427,10 +427,10 @@ const App = () => {
         />
 
         <Route
-            path="/schedule-multi-crane"
+            path="/multi-crane-schedule"
             element={
               <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
-                <ScheduleMultiCrane />
+                <MultiCraneSchedule />
               </ProtectedRoute>
           }
         />

@@ -1,10 +1,8 @@
 import { useApi } from "../services/api";
 
-// base URL for scheduling - the other backend
 const SCHEDULING_API_URL = "http://localhost:5107";
 
 export const useSchedulingService = () => {
-    // API for scheduling (another port)
     const { apiFetch } = useApi(SCHEDULING_API_URL);
 
     const calculateSchedule = async (date, algorithm) => {
@@ -15,15 +13,29 @@ export const useSchedulingService = () => {
         });
 
         const text = await res.text();
+        if (!res.ok) throw new Error(text);
 
-        if (!res.ok) {
-            throw new Error(text);
-        }
-
-        return text; 
+        return text;
     };
 
+   const calculateMultiCraneSchedule = async (date) => {
+    const query = `?date=${encodeURIComponent(date)}`;
+
+    const res = await apiFetch(`/api/Scheduling/calculate-schedule-multi-crane${query}`, {
+        method: "GET",
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text);
+    }
+
+    return await res.json(); // ← TU JEST FIX
+};
+
+
     return {
-        calculateSchedule
+        calculateSchedule,
+        calculateMultiCraneSchedule,
     };
 };

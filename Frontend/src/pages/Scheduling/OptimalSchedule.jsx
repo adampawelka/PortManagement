@@ -65,7 +65,6 @@ const OptimalSchedule = () => {
                 Optimal Schedule ({scheduleResults.length})
             </Typography>
 
-            {/* Controls */}
             <Paper
                 sx={{
                     p: 2,
@@ -79,7 +78,6 @@ const OptimalSchedule = () => {
                     flexWrap: "wrap"
                 }}
             >
-                {/* Target date */}
                 <FormControl sx={{ width: 250 }}>
                     <TextField
                         type="date"
@@ -101,7 +99,6 @@ const OptimalSchedule = () => {
                     />
                 </FormControl>
 
-                {/* Generate button */}
                 <Button
                     variant="contained"
                     onClick={handleGenerate}
@@ -119,7 +116,6 @@ const OptimalSchedule = () => {
                 </Button>
             </Paper>
 
-            {/* Execution time */}
             {executionTime && (
                 <Alert
                     severity="info"
@@ -133,14 +129,12 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
-            {/* Loading */}
             {loading && (
                 <CircularProgress
                     sx={{ display: "block", margin: "20px auto" }}
                 />
             )}
 
-            {/* Error */}
             {error && (
                 <Alert
                     severity="error"
@@ -154,7 +148,6 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
-            {/* Empty results – only after clicking Generate */}
             {hasGenerated && !loading && scheduleResults.length === 0 && !error && (
                 <Alert
                     severity="info"
@@ -168,7 +161,6 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
-            {/* Results table */}
             {scheduleResults.length > 0 && (
                 <TableContainer component={Paper} sx={{ mt: 3 }}>
                     <Table size="small">

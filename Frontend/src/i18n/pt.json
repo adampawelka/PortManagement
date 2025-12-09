@@ -39,7 +39,7 @@
   "scheduling": "Agendamento",
   "optimal_schedule": "Agendamento Ótimo",
   "alternative_schedule": "Agendamento Alternativo" ,
-  "schedule_multi_crane": "Agendamento com Várias Gruas",
+  "multi_crane_schedule": "Agendamento com Várias Gruas",
   "recommended_schedule": "Agendamento Recomendado",
   "test_algorithms": "Testar Algoritmos",
   "user_management": "Gestão de Utilizadores",
