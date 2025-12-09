@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { rejectVesselVisitNotification } from '../../services/vesselVisitNotificationService'; 
+import { useApi } from '../../services/api';
 export const useRejectVesselVisitNotificationVM = () => {
+  const { apiFetch } = useApi();
   const [notificationId, setNotificationId] = useState('');
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +20,7 @@ export const useRejectVesselVisitNotificationVM = () => {
     setMessage(null);
 
     try {
-      const response = await rejectVesselVisitNotification(notificationId, reason); 
+      const response = await rejectVesselVisitNotification(apiFetch,notificationId, reason); 
 
       if (response) {
         setMessage({ type: 'success', text: `Notification ${notificationId} rejected successfully!` });
