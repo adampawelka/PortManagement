@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getVesselVisitNotifications, addVesselVisitNotification } from '../../services/vesselVisitNotificationService';
 import { useApi } from '../../services/api';
+import { getVessels } from '../../services/vesselService';
 
 export const useAddVesselVisitNotificationVM = () => {
   const { apiFetch } = useApi();
@@ -24,7 +25,7 @@ export const useAddVesselVisitNotificationVM = () => {
   useEffect(() => {
     const loadVessels = async () => {
       try {
-        const vesselsData = await getVesselVisitNotifications(apiFetch);
+        const vesselsData = await getVessels(apiFetch);
         setVessels(vesselsData);
       } catch (error) {
         setMessage({ type: 'error', text: 'Failed to load vessels.' });
