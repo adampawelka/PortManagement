@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Container,
     Typography,
@@ -23,14 +23,13 @@ const MultiCraneSchedule = () => {
     const {
         targetDate,
         setTargetDate,
-        scheduleResults = [],
+        scheduleResults,
         loading,
         error,
         generateSchedule
     } = useScheduleMultiCraneVM();
 
-    // ▶️ ważne: dopiero po kliknięciu Generate pokazujemy brak wyników
-    const [hasGenerated, setHasGenerated] = React.useState(false);
+    const [hasGenerated, setHasGenerated] = useState(false);
 
     const handleGenerate = () => {
         if (!targetDate) {
@@ -40,6 +39,8 @@ const MultiCraneSchedule = () => {
         setHasGenerated(true);
         generateSchedule();
     };
+
+    const safeResults = scheduleResults ?? [];
 
     return (
         <Container
@@ -53,7 +54,8 @@ const MultiCraneSchedule = () => {
                 fontFamily: "var(--font-family-base)"
             }}
         >
-            {/* HEADER */}
+
+            {/* HEADER — identical style to OptimalSchedule */}
             <Typography
                 variant="h4"
                 gutterBottom
@@ -61,10 +63,11 @@ const MultiCraneSchedule = () => {
                     color: "var(--color-primary-light)",
                     fontWeight: 600,
                     mb: 3,
-                    fontSize: "var(--font-size-heading)"
+                    letterSpacing: 0.3,
+                    fontSize: "var(--font-size-heading)",
                 }}
             >
-                Multi-Crane Scheduling ({scheduleResults?.length ?? 0})
+                Multi-Crane Scheduling ({safeResults.length})
             </Typography>
 
             {/* CONTROLS */}
@@ -119,12 +122,10 @@ const MultiCraneSchedule = () => {
                 </Button>
             </Paper>
 
-            {/* LOADING */}
             {loading && (
                 <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
             )}
 
-            {/* ERROR */}
             {error && (
                 <Alert
                     severity="error"
@@ -138,25 +139,21 @@ const MultiCraneSchedule = () => {
                 </Alert>
             )}
 
-            {/* EMPTY (pokazujemy dopiero po kliknięciu Generate) */}
-            {hasGenerated &&
-                !loading &&
-                !error &&
-                (scheduleResults?.length ?? 0) === 0 && (
-                    <Alert
-                        severity="info"
-                        sx={{
-                            mb: 2,
-                            backgroundColor: "var(--color-info)",
-                            color: "var(--color-text-dark)"
-                        }}
-                    >
-                        No results.
-                    </Alert>
-                )}
+            {hasGenerated && !loading && safeResults.length === 0 && !error && (
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: 2,
+                        backgroundColor: "var(--color-info)",
+                        color: "var(--color-text-dark)"
+                    }}
+                >
+                    No results.
+                </Alert>
+            )}
 
             {/* RESULTS */}
-            {scheduleResults?.map?.((dock, idx) => (
+            {safeResults.map((dock, idx) => (
                 <Paper
                     key={idx}
                     sx={{
@@ -166,7 +163,6 @@ const MultiCraneSchedule = () => {
                         borderRadius: "var(--radius-md)"
                     }}
                 >
-                    {/* DOCK TITLE */}
                     <Typography
                         variant="h6"
                         sx={{
@@ -213,39 +209,54 @@ const MultiCraneSchedule = () => {
                         </Grid>
                     </Paper>
 
-                    <Grid container spacing={3}>
-
+                    <Grid
+                        container
+                        spacing={3}
+                        justifyContent="center"
+                        alignItems="flex-start"
+                        sx={{ width: "100%", mt: 1 }}
+                    >
                         {/* SINGLE CRANE */}
-                        <Grid item xs={12} md={6}>
-                            <Typography
-                                variant="subtitle1"
-                                sx={{ fontWeight: 600, mb: 1 }}
-                            >
-                                Single-Crane Solution
-                            </Typography>
-
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center"
+                            }}
+                        >
                             <Paper
                                 sx={{
+                                    width: "100%",
+                                    maxWidth: 700,
                                     p: 2,
                                     mb: 2,
                                     backgroundColor: "var(--color-surface)",
                                     borderRadius: "var(--radius-sm)"
                                 }}
                             >
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                    Single-Crane Solution
+                                </Typography>
+
                                 <div><strong>Total Delay:</strong> {dock?.singleCrane?.delay ?? 0}h</div>
                                 <div><strong>Crane Hours:</strong> {dock?.singleCrane?.craneHours ?? 0}</div>
                                 <div><strong>Vessels:</strong> {dock?.singleCrane?.schedules?.length ?? 0}</div>
                             </Paper>
 
-                            <TableContainer component={Paper} sx={{
-                                borderRadius: "var(--radius-sm)",
-                                display: "flex",
-                                justifyContent: "center",
-                                p: 2
-                            }}>
-                                <Table size="small" sx={{ textAlign: "center" }}>
+                            <TableContainer
+                                component={Paper}
+                                sx={{
+                                    width: "100%",
+                                    maxWidth: 700,
+                                    borderRadius: "var(--radius-sm)",
+                                }}
+                            >
+                                <Table size="small">
                                     <TableHead>
-                                        <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
+                                        <TableRow>
                                             <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
@@ -255,7 +266,7 @@ const MultiCraneSchedule = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {dock?.singleCrane?.schedules?.map?.((row, i) => (
+                                        {(dock?.singleCrane?.schedules ?? []).map((row, i) => (
                                             <TableRow key={i}>
                                                 <TableCell>{row.vessel}</TableCell>
                                                 <TableCell>{row.start}</TableCell>
@@ -271,36 +282,46 @@ const MultiCraneSchedule = () => {
                         </Grid>
 
                         {/* MULTI-CRANE */}
-                        <Grid item xs={12} md={6}>
-                            <Typography
-                                variant="subtitle1"
-                                sx={{ fontWeight: 600, mb: 1 }}
-                            >
-                                Multi-Crane Solution
-                            </Typography>
-
+                        <Grid
+                            item
+                            xs={12}
+                            md={6}
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center"
+                            }}
+                        >
                             <Paper
                                 sx={{
+                                    width: "100%",
+                                    maxWidth: 700,
                                     p: 2,
                                     mb: 2,
                                     backgroundColor: "var(--color-surface)",
                                     borderRadius: "var(--radius-sm)"
                                 }}
                             >
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                    Multi-Crane Solution
+                                </Typography>
+
                                 <div><strong>Total Delay:</strong> {dock?.multiCrane?.delay ?? 0}h</div>
                                 <div><strong>Crane Hours:</strong> {dock?.multiCrane?.craneHours ?? 0}</div>
                                 <div><strong>Vessels:</strong> {dock?.multiCrane?.schedules?.length ?? 0}</div>
                             </Paper>
 
-                            <TableContainer component={Paper} sx={{
-                                borderRadius: "var(--radius-sm)",
-                                display: "flex",
-                                justifyContent: "center",
-                                p: 2
-                            }}>
-                                <Table size="small" sx={{ textAlign: "center" }}>
+                            <TableContainer
+                                component={Paper}
+                                sx={{
+                                    width: "100%",
+                                    maxWidth: 700,
+                                    borderRadius: "var(--radius-sm)",
+                                }}
+                            >
+                                <Table size="small">
                                     <TableHead>
-                                        <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
+                                        <TableRow>
                                             <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
@@ -310,7 +331,7 @@ const MultiCraneSchedule = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {dock?.multiCrane?.schedules?.map?.((row, i) => (
+                                        {(dock?.multiCrane?.schedules ?? []).map((row, i) => (
                                             <TableRow key={i}>
                                                 <TableCell>{row.vessel}</TableCell>
                                                 <TableCell>{row.start}</TableCell>
@@ -324,11 +345,10 @@ const MultiCraneSchedule = () => {
                                 </Table>
                             </TableContainer>
                         </Grid>
-
                     </Grid>
+
                 </Paper>
             ))}
-
         </Container>
     );
 };
