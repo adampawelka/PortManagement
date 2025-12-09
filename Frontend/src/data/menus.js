@@ -19,19 +19,19 @@ export const menuItems = [
       },
       {
         name: "Approve Notifications",
-        key: "approved_notifications",
+        key: "approve_notifications",
         path: "/vvn/approve",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
         name: "Reject Notifications",
-        key: "rejected_notifications",
+        key: "reject_notifications",
         path: "/vvn/reject",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
         name: "Submit Notifications",
-        key: "submitted_notifications",
+        key: "submit_notifications",
         path: "/vvn/submit",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
@@ -98,7 +98,7 @@ export const menuItems = [
       {
         name: "Add New Dock",
         key: "add_new_dock",
-        path: "/docks/new",
+        path: "/docks/add",
         roles: ["PortAuthorityOfficer", "LogisticsOperator"],
       },
       {
@@ -124,7 +124,7 @@ export const menuItems = [
       {
         name: "Add New Vessel",
         key: "add_new_vessel",
-        path: "/vessels/new",
+        path: "/vessels/add",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
@@ -148,7 +148,7 @@ export const menuItems = [
           {
             name: "Add New Type",
             key: "add_new_type",
-            path: "/vessels/types/new",
+            path: "/vessels/types/add",
             roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
           },
           {
@@ -194,8 +194,8 @@ export const menuItems = [
           },
           {
             name: "Schedule Multi Crane",
-            key: "schedule_multi_crane",
-            path: "/schedule-multi-crane",
+            key: "multi_crane_schedule",
+            path: "/multi-crane-schedule",
             roles: ["LogisticsOperator"],
           },
           {

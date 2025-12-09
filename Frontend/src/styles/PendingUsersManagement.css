@@ -1,0 +1,119 @@
+/* Wrapper */
+.um-wrapper {
+  padding: 20px;
+}
+
+/* Alerts */
+.um-alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.um-alert-info {
+  background: #e3f2fd;
+}
+
+.um-alert-success {
+  background: #c8e6c9;
+}
+
+.um-alert-error {
+  background: #ffcdd2;
+}
+
+/* Loading */
+.um-loading {
+  margin-top: 20px;
+  font-size: 1.1rem;
+}
+
+/* Table */
+.um-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.um-table thead tr {
+  border-bottom: 2px solid #ddd;
+  background-color: #f5f5f5;
+}
+
+.um-table th,
+.um-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.um-actions-header {
+  text-align: right;
+}
+
+.um-table tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+/* Select */
+.um-select {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* Actions */
+.um-actions {
+  text-align: right;
+}
+
+/* Buttons */
+.um-btn {
+  padding: 6px 12px;
+  margin-left: 8px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.um-btn.primary {
+  background-color: #2196f3;
+}
+
+.um-btn.success {
+  background-color: #4caf50;
+}
+
+.um-btn.danger {
+  background-color: #f44336;
+}
+
+.um-btn.secondary {
+  background-color: #757575;
+}
+
+/* Modal */
+.um-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.um-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  min-width: 400px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.um-modal-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
