@@ -30,7 +30,7 @@ export const useSchedulingService = () => {
         throw new Error(text);
     }
 
-    return await res.json(); // ← TU JEST FIX
+    return await res.json(); 
 };
 
 
@@ -39,3 +39,7 @@ export const useSchedulingService = () => {
         calculateMultiCraneSchedule,
     };
 };
+
+
+
+// add something for persisting the data

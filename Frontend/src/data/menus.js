@@ -175,6 +175,12 @@ export const menuItems = [
     roles: ["LogisticsOperator"],
     subMenu: [
           {
+            name: "Operational Plans",
+            key: "operational_plans",
+            path: "/operational-plans",
+            roles: ["LogisticsOperator"],
+          },
+          {
             name: "Recommended Schedule",
             key: "recommended_schedule",
             path: "/recommended-schedule",
