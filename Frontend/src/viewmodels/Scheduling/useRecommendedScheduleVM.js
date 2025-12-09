@@ -5,7 +5,7 @@ import { useApi } from "../../services/api";
 
 export const useRecommendedScheduleVM = () => {
     const { apiFetch } = useApi();
-    const { calculateSchedule } = useSchedulingService();
+    const { calculateSchedule, parsePrologResult } = useSchedulingService();
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -29,49 +29,12 @@ export const useRecommendedScheduleVM = () => {
             /Brute Force Execution Time:\s*([\d.e-]+)/i,
             /Genetic Execution Time:\s*([\d.e-]+)/i,
         ];
+
         for (const p of patterns) {
             const match = txt.match(p);
             if (match) return parseFloat(match[1]);
         }
         return null;
-    };
-
-    const parseSchedule = (jsonText) => {
-        const parsed = JSON.parse(jsonText);
-        const rows = [];
-
-        for (const dockId in parsed) {
-            const info = parsed[dockId];
-            let scheduleText = info.schedule
-                .replace(/^\s*\[|\]\s*$/g, "")
-                .replace(/\[|\]/g, "")
-                .trim();
-
-            const exec = extractExecutionTime(scheduleText);
-            if (exec) setExecutionTime(exec);
-
-            scheduleText = scheduleText.replace(/Execution Time:.*\n?/i, "");
-            const lines = scheduleText.split("),");
-
-            lines.forEach(line => {
-                const clean = line.replace(/[\(\)]/g, "").trim();
-                const parts = clean.split(",").map(x => x.trim());
-
-                if (parts.length >= 3) {
-                    rows.push({
-                        vessel: parts[0],
-                        dock: info.dock || dockId,
-                        crane: info.crane,
-                        start: parts[1],
-                        end: parts[2],
-                        staff: "Assigned Staff TBD",
-                        area: info.area
-                    });
-                }
-            });
-        }
-
-        return rows;
     };
 
     const generate = async (isoDate, overrideAlgorithm = "") => {
@@ -82,32 +45,55 @@ export const useRecommendedScheduleVM = () => {
 
         try {
             const all = await getVesselVisitNotifications(apiFetch);
+
             const filtered = all.filter(v =>
-                v.status === "Approved" &&
-                v.eta.split("T")[0] === isoDate
+                v.status === "Approved" && v.eta.split("T")[0] === isoDate
             );
 
             const vessels = filtered.length;
-            const ops = filtered.reduce((sum, v) => sum + (v.estimatedOperations || 30), 0);
+            const ops = filtered.reduce(
+                (sum, v) => sum + (v.estimatedOperations || 30),
+                0
+            );
 
             const { algo, reason: autoReason } = chooseAlgorithm(vessels, ops);
-
             const finalAlgo = overrideAlgorithm || algo;
             const finalReason = overrideAlgorithm ? "User override" : autoReason;
 
             setAlgorithm(finalAlgo);
             setReason(finalReason);
 
+            // blokujemy genetic przy wymuszeniu algorytmu
             if (finalAlgo === "genetic" && overrideAlgorithm) {
                 setResults([]);
                 return;
             }
 
             const txt = await calculateSchedule(isoDate, finalAlgo);
-            const parsed = parseSchedule(txt);
+
+            // parse JSON
+            const data = JSON.parse(txt);
+
+            const parsed = Object.values(data).flatMap(dockInfo =>
+                parsePrologResult(
+                    dockInfo.schedule,
+                    dockInfo.vessels ?? [],
+                    dockInfo.dock,
+                    dockInfo.crane,
+                    dockInfo.staff ?? [],
+                    dockInfo.areas ?? []
+                )
+            );
+
             setResults(parsed);
+
+            // czas wykonania
+            const exec = extractExecutionTime(txt);
+            if (exec) setExecutionTime(exec);
+
         } catch (err) {
-            setError(err.message);
+            console.error(err);
+            setError(err.message || "Unknown error");
         } finally {
             setLoading(false);
         }

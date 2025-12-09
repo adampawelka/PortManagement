@@ -46,11 +46,22 @@ export const useSchedulingService = () => {
     const parsePrologResult = (raw, vessels, dockName, craneCode, staff, areas) => {
         if (!raw) return [];
 
+        // 🔥 blokada "samych słów" bez faktycznego harmonogramu
+        if (!raw.includes("(") || !raw.includes(",")) {
+            return [];
+        }
+
         let cleaned = raw
+            .replace(/Heuristic Execution Time:.*?\n/i, "")
             .replace(/Execution Time:.*?\n/i, "")
             .replace(/Brute Force Execution Time:.*?\n/i, "")
             .replace(/\[|\]/g, "")
             .trim();
+
+        // 🔥 jeśli zostało tylko "Heuristic"
+        if (/^Heuristic\b/i.test(cleaned)) {
+            return [];
+        }
 
         if (!cleaned) return [];
 
@@ -79,6 +90,7 @@ export const useSchedulingService = () => {
             };
         });
     };
+
 
     return {
         calculateSchedule,
