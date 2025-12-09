@@ -64,42 +64,41 @@ const OperationalPlans = () => {
             maxWidth="xl"
             sx={{
                 mt: 4,
-                p: 4,
+                p: "var(--spacing-xl)",
                 borderRadius: "var(--radius-lg)",
                 fontFamily: "var(--font-family-base)",
-                background: "linear-gradient(135deg, #f4f0ff 0%, #ffffff 60%)",
+                background: "linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 60%)",
                 boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+                color: "var(--color-text-dark)"
             }}
         >
-            {/* ========================= HEADER ========================= */}
             <Typography
                 variant="h4"
                 sx={{
                     color: "var(--color-primary-light)",
                     fontWeight: 600,
-                    mb: 3,
-                    fontSize: "var(--font-size-heading)",
+                    mb: "var(--spacing-lg)",
+                    fontSize: "var(--font-size-heading)"
                 }}
             >
                 Operational Plans ({plans.length})
             </Typography>
 
-            {/* ========================= CONTROL BAR ========================= */}
+            {/* CONTROLS PANEL */}
             <Paper
                 sx={{
-                    p: 2,
-                    mb: 4,
+                    p: "var(--spacing-md)",
+                    mb: "var(--spacing-xl)",
                     borderRadius: "var(--radius-md)",
-                    background: "linear-gradient(180deg, #ffffff 0%, #f7f4ff 100%)",
+                    background: "linear-gradient(180deg, var(--color-surface) 0%, var(--color-background) 100%)",
                     border: "1px solid rgba(46,13,122,0.08)",
                     boxShadow: "0 3px 14px rgba(46,13,122,0.08)",
                     display: "flex",
-                    gap: 2,
+                    gap: "var(--spacing-md)",
                     flexWrap: "wrap",
-                    justifyContent: "center",
+                    justifyContent: "center"
                 }}
             >
-                {/* Date */}
                 <FormControl sx={{ width: 250 }}>
                     <TextField
                         type="date"
@@ -108,11 +107,12 @@ const OperationalPlans = () => {
                         InputLabelProps={{ shrink: true }}
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        sx={{ backgroundColor: "white" }}
+                        sx={{
+                            backgroundColor: "var(--color-surface)"
+                        }}
                     />
                 </FormControl>
 
-                {/* Mode */}
                 <FormControl sx={{ width: 250 }}>
                     <InputLabel size="small">Mode</InputLabel>
                     <Select
@@ -120,14 +120,13 @@ const OperationalPlans = () => {
                         label="Mode"
                         value={mode}
                         onChange={handleModeChange}
-                        sx={{ backgroundColor: "white" }}
+                        sx={{ backgroundColor: "var(--color-surface)" }}
                     >
                         <MenuItem value="single">Single-Crane</MenuItem>
                         <MenuItem value="multi">Multi-Crane</MenuItem>
                     </Select>
                 </FormControl>
 
-                {/* Algorithm */}
                 <FormControl sx={{ width: 260 }}>
                     <InputLabel size="small">Algorithm</InputLabel>
                     <Select
@@ -135,7 +134,7 @@ const OperationalPlans = () => {
                         label="Algorithm"
                         value={algorithm}
                         onChange={(e) => setAlgorithm(e.target.value)}
-                        sx={{ backgroundColor: "white" }}
+                        sx={{ backgroundColor: "var(--color-surface)" }}
                     >
                         {mode === "single"
                             ? singleCraneAlgorithms.map(a => (
@@ -148,25 +147,33 @@ const OperationalPlans = () => {
                     </Select>
                 </FormControl>
 
-                {/* Button */}
                 <Button
                     variant="contained"
                     onClick={handleGenerate}
                     sx={{
-                        px: 3,
+                        px: "var(--spacing-md)",
                         height: 40,
                         whiteSpace: "nowrap",
                         backgroundColor: "var(--color-primary)",
-                        ":hover": { backgroundColor: "var(--color-primary-dark)" },
+                        ":hover": { backgroundColor: "var(--color-primary-light)" },
+                        color: "var(--color-text-light)",
+                        fontWeight: 600
                     }}
                 >
                     Generate
                 </Button>
             </Paper>
 
-            {/* ========================= EXECUTION TIME ========================= */}
             {executionTime && (
-                <Alert severity="info" sx={{ mb: 3 }}>
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: "var(--spacing-lg)",
+                        backgroundColor: "var(--color-info-bg)",
+                        color: "var(--color-text-dark)",
+                        fontWeight: 500
+                    }}
+                >
                     Execution Time: {executionTime}s
                 </Alert>
             )}
@@ -174,18 +181,33 @@ const OperationalPlans = () => {
             {loading && <CircularProgress sx={{ display: "block", mx: "auto", my: 2 }} />}
 
             {error && (
-                <Alert severity="error" sx={{ mb: 3 }}>
+                <Alert
+                    severity="error"
+                    sx={{
+                        mb: "var(--spacing-lg)",
+                        backgroundColor: "var(--color-error-bg)",
+                        color: "var(--color-text-dark)",
+                        fontWeight: 500
+                    }}
+                >
                     {error}
                 </Alert>
             )}
 
             {hasGenerated && !loading && plans.length === 0 && !error && (
-                <Alert severity="info" sx={{ mb: 3 }}>
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: "var(--spacing-lg)",
+                        backgroundColor: "var(--color-info-bg)",
+                        color: "var(--color-text-dark)",
+                        fontWeight: 500
+                    }}
+                >
                     No operation plans found.
                 </Alert>
             )}
 
-            {/* ========================= RESULTS ========================= */}
             {plans.length > 0 && (
                 <Box
                     sx={{
@@ -193,7 +215,7 @@ const OperationalPlans = () => {
                         flexDirection: "column",
                         alignItems: "center",
                         width: "100%",
-                        mt: 4,
+                        mt: "var(--spacing-xl)"
                     }}
                 >
                     {plans.map((plan, index) => (
@@ -202,21 +224,20 @@ const OperationalPlans = () => {
                             sx={{
                                 width: "100%",
                                 maxWidth: 760,
-                                p: 3,
-                                mb: 4,
+                                p: "var(--spacing-lg)",
+                                mb: "var(--spacing-xl)",
                                 borderRadius: "var(--radius-lg)",
-                                background: "linear-gradient(180deg, #ffffff 0%, #f7f4ff 100%)",
+                                background: "linear-gradient(180deg, var(--color-surface) 0%, var(--color-background) 100%)",
                                 border: "1px solid rgba(46,13,122,0.08)",
-                                boxShadow: "0 6px 22px rgba(46,13,122,0.08)",
+                                boxShadow: "0 6px 22px rgba(46,13,122,0.08)"
                             }}
                         >
-                            {/* -------- HEADER -------- */}
                             <Typography
                                 sx={{
                                     fontWeight: 600,
                                     color: "var(--color-primary)",
-                                    fontSize: "1.15rem",
-                                    mb: 0.5,
+                                    fontSize: "var(--font-size-large)",
+                                    mb: "var(--spacing-xs)"
                                 }}
                             >
                                 {plan.vesselName}
@@ -226,18 +247,19 @@ const OperationalPlans = () => {
                                 sx={{
                                     fontSize: "var(--font-size-small)",
                                     opacity: 0.65,
-                                    mb: 2,
+                                    mb: "var(--spacing-md)"
                                 }}
                             >
                                 VVN {plan.vvnId}
                             </Typography>
 
                             {/* -------- RESOURCES -------- */}
-                            <Box sx={{ mb: 3 }}>
+                            <Box sx={{ mb: "var(--spacing-lg)" }}>
                                 <Typography
                                     sx={{
                                         fontWeight: 600,
-                                        mb: 1.5,
+                                        mb: "var(--spacing-sm)",
+                                        textAlign: "center",
                                         color: "var(--color-primary-light)",
                                         fontSize: "var(--font-size-base)"
                                     }}
@@ -251,39 +273,39 @@ const OperationalPlans = () => {
                                         borderRadius: "var(--radius-md)",
                                         padding: "var(--spacing-md)",
                                         border: "1px solid rgba(46,13,122,0.12)",
-                                        boxShadow: "0 2px 8px rgba(46,13,122,0.08)",
+                                        boxShadow: "0 2px 8px rgba(46,13,122,0.06)"
                                     }}
                                 >
                                     <Box
                                         sx={{
                                             display: "grid",
-                                            gridTemplateColumns: "160px 1fr",
-                                            rowGap: "var(--spacing-sm)",
-                                            columnGap: "var(--spacing-md)",
-                                            fontSize: "var(--font-size-small)",
-                                            color: "var(--color-text-dark)",
+                                            gridTemplateColumns: "1fr 1fr",
+                                            rowGap: "16px",
+                                            columnGap: "12px",
+                                            alignItems: "center",
+                                            textAlign: "center",
+                                            fontSize: "var(--font-size-base)"
                                         }}
                                     >
-                                        <Box sx={{ fontWeight: 600, opacity: 0.8 }}>Dock</Box>
-                                        <Box>{plan.dock}</Box>
+                                        <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Dock</Box>
+                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.dock}</Box>
 
-                                        <Box sx={{ fontWeight: 600, opacity: 0.8 }}>Crane</Box>
-                                        <Box>{plan.crane}</Box>
+                                        <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Crane</Box>
+                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.crane}</Box>
 
-                                        <Box sx={{ fontWeight: 600, opacity: 0.8 }}>Area</Box>
-                                        <Box>{plan.area}</Box>
+                                        <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Area</Box>
+                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.area}</Box>
                                     </Box>
                                 </Box>
                             </Box>
-
 
                             {/* -------- OPERATIONS -------- */}
                             <Box>
                                 <Typography
                                     sx={{
                                         fontWeight: 600,
-                                        mb: 1,
-                                        color: "var(--color-primary-light)",
+                                        mb: "var(--spacing-sm)",
+                                        color: "var(--color-primary-light)"
                                     }}
                                 >
                                     Operations
@@ -291,20 +313,27 @@ const OperationalPlans = () => {
 
                                 <Table size="small">
                                     <TableHead>
-                                        <TableRow>
-                                            <TableCell sx={{ fontWeight: 600 }}>Start</TableCell>
-                                            <TableCell sx={{ fontWeight: 600 }}>End</TableCell>
+                                        <TableRow
+                                            sx={{
+                                                backgroundColor: "var(--color-background)"
+                                            }}
+                                        >
+                                            <TableCell sx={{ fontWeight: 600, textAlign: "center" }}>Start</TableCell>
+                                            <TableCell sx={{ fontWeight: 600, textAlign: "center" }}>End</TableCell>
                                         </TableRow>
                                     </TableHead>
+
                                     <TableBody>
                                         {plan.operations.map((op, i) => (
                                             <TableRow
                                                 key={i}
                                                 sx={{
-                                                    backgroundColor: "var(--color-background)",
+                                                    backgroundColor: "var(--color-surface)",
                                                     "& td": {
-                                                        borderBottom: "none"
-                                                    },
+                                                        borderBottom: "none",
+                                                        textAlign: "center",
+                                                        padding: "10px 0"
+                                                    }
                                                 }}
                                             >
                                                 <TableCell>{op.start}</TableCell>

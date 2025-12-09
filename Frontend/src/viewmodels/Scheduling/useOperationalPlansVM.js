@@ -17,16 +17,10 @@ export const useOperationalPlansVM = () => {
     const [algorithm, setAlgorithm] = useState("");
 
     const normalizeScheduleName = (str = "") =>
-        str
-            .replace(/_/g, " ")
-            .trim()
-            .toLowerCase();
+        str.replace(/_/g, " ").trim().toLowerCase();
 
     const normalizeVVNName = (str = "") =>
-        str
-            .replace(/\s+/g, " ")
-            .trim()
-            .toLowerCase();
+        str.replace(/\s+/g, " ").trim().toLowerCase();
 
     const extractExecutionTime = (txt = "") => {
         const patterns = [
@@ -35,7 +29,6 @@ export const useOperationalPlansVM = () => {
             /Brute Force Execution Time:\s*([\d.e-]+)/i,
             /Genetic Execution Time:\s*([\d.e-]+)/i,
         ];
-
         for (const p of patterns) {
             const match = txt.match(p);
             if (match) return parseFloat(match[1]);
@@ -43,13 +36,35 @@ export const useOperationalPlansVM = () => {
         return null;
     };
 
+    const convertHourToDateObj = (dayStr, hourInt) => {
+        const base = new Date(`${dayStr}T00:00:00`);
+        const addDays = Math.floor(hourInt / 24);
+        const hourOfDay = hourInt % 24;
+
+        base.setDate(base.getDate() + addDays);
+        base.setHours(hourOfDay, 0, 0, 0);
+
+        return base;
+    };
+
+    const formatDateTimeReadable = (dateObj) => {
+        const d = new Date(dateObj);
+
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = d.getFullFullYear?.() ?? d.getFullYear(); 
+
+        const hours = String(d.getHours()).padStart(2, "0");
+        const minutes = String(d.getMinutes()).padStart(2, "0");
+
+        return `${day}.${month}.${year} ${hours}:${minutes}`;
+    };
+
     const parsePlans = (json, allVVN) => {
         if (!json) return [];
 
-        const parsed =
-            typeof json === "string" ? JSON.parse(json) : json;
-
-        const aggregated = {}; 
+        const parsed = typeof json === "string" ? JSON.parse(json) : json;
+        const aggregated = {};
 
         for (const key in parsed) {
             const info = parsed[key];
@@ -72,8 +87,8 @@ export const useOperationalPlansVM = () => {
                 .filter(parts => parts.length >= 3)
                 .map(parts => {
                     const rawName = parts[0];
-                    const start = parts[1];
-                    const end = parts[2];
+                    const startHour = parseInt(parts[1], 10);
+                    const endHour = parseInt(parts[2], 10);
 
                     const scheduleNorm = normalizeScheduleName(rawName);
 
@@ -81,17 +96,22 @@ export const useOperationalPlansVM = () => {
                         normalizeVVNName(v.vesselName) === scheduleNorm
                     );
 
+                    const startObj = convertHourToDateObj(date, startHour);
+                    const endObj = convertHourToDateObj(date, endHour);
+
                     return {
                         vesselName: matchVVN?.vesselName || rawName,
                         vesselId: matchVVN?.vesselId || null,
                         vvnId: matchVVN?.id || null,
-                        start,
-                        end,
+
+                        start: formatDateTimeReadable(startObj),
+                        end: formatDateTimeReadable(endObj),
                     };
                 });
 
             for (const op of operations) {
-                if (!op.vvnId) continue; 
+                if (!op.vvnId) continue;
+
                 if (!aggregated[op.vvnId]) {
                     aggregated[op.vvnId] = {
                         vvnId: op.vvnId,
@@ -114,7 +134,6 @@ export const useOperationalPlansVM = () => {
         return Object.values(aggregated);
     };
 
-
     const generate = async () => {
         setLoading(true);
         setError("");
@@ -134,20 +153,14 @@ export const useOperationalPlansVM = () => {
             );
 
             if (vvnForDate.length === 0)
-                throw new Error(
-                    "No approved Vessel Visit Notifications found for this date."
-                );
+                throw new Error("No approved Vessel Visit Notifications found for this date.");
 
             const scheduleResponse =
                 mode === "single"
                     ? await calculateSchedule(date, algorithm)
                     : await calculateMultiCraneSchedule(date);
 
-            console.log("allVVN:", allVVN);
-            console.log("scheduleResponse:", scheduleResponse);
-
             const parsed = parsePlans(scheduleResponse, allVVN);
-
             setPlans(parsed);
         } catch (err) {
             setError(err?.message || "Failed to generate schedule.");
