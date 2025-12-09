@@ -636,18 +636,18 @@ public async Task<IActionResult> CalculateScheduleMultiCrane([FromQuery] string 
                 MultiDelay = 0,
                 SingleCraneHours = 0,
                 MultiCraneHours = 0
-            };
+            }; 
 
             try
             {
                 // Parse single and multi crane schedules using the consolidated helper
                 parsed.SingleSchedules = ParseAndCleanSchedules("SINGLE", 1, result, vesselsForDate);
-                parsed.MultiSchedules = ParseAndCleanSchedules("MULTI", -1, result, vesselsForDate);
+                parsed.MultiSchedules = ParseAndCleanSchedules("MULTI", -1, result, vesselsForDate);   
 
                 // Parse delay values
                 var singleDelayMatch = System.Text.RegularExpressions.Regex.Match(result, @"SINGLE_DELAY:(\d+)");
                 if (singleDelayMatch.Success)
-                    parsed.SingleDelay = int.Parse(singleDelayMatch.Groups[1].Value);
+                    parsed.SingleDelay = int.Parse(singleDelayMatch.Groups[1].Value);  
 
                 var multiDelayMatch = System.Text.RegularExpressions.Regex.Match(result, @"MULTI_DELAY:(\d+)");
                 if (multiDelayMatch.Success)
@@ -668,18 +668,18 @@ public async Task<IActionResult> CalculateScheduleMultiCrane([FromQuery] string 
                 // Create fallback schedules
                 parsed.SingleSchedules = CreateSimpleFallbackSchedules(vesselsForDate, 1);
                 parsed.MultiSchedules = CreateSimpleFallbackSchedules(vesselsForDate, 2);
-            }
+            }  
 
             return parsed;
-        }
+        }  
 
-        // Consolidated helper method that replaces all previous parsing helpers
+
         private List<VesselSchedule> ParseAndCleanSchedules(string prefix, int defaultCranes, string result, List<VesselVisitNotificationDto> vesselsForDate)
         {
             var allSchedules = new List<VesselSchedule>();
             var uniqueVessels = new HashSet<string>();
 
-            // Method 1: Parse from detailed schedule format (e.g., "SINGLE_SCHEDULE:")
+
             if (result.Contains($"{prefix}_SCHEDULE:"))
             {
                 var scheduleStart = result.IndexOf($"{prefix}_SCHEDULE:");
@@ -709,10 +709,36 @@ public async Task<IActionResult> CalculateScheduleMultiCrane([FromQuery] string 
                                 int startSlot = int.Parse(startMatch.Groups[1].Value);
                                 int endSlot = int.Parse(endMatch.Groups[1].Value);
                                 int cranes = cranesMatch.Success ? int.Parse(cranesMatch.Groups[1].Value) : defaultCranes;
+                                var vessel = vesselsForDate.FirstOrDefault(v => 
+                                    v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselName);
+
+                                if (vessel != null)
+                                {
+                                    int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
+                                    int loadTime = 2 + (containerCount * 2);
+                                    int unloadTime = 2 + (containerCount * 2);
+                                    int totalProcessing = loadTime + unloadTime;
+
+                                    if (defaultCranes == -1) // Dynamic for multi-crane
+                                    {
+                                        cranes = cranesMatch.Success ? int.Parse(cranesMatch.Groups[1].Value) : 
+                                                (containerCount > 100 ? 4 : (containerCount > 50 ? 3 : 2));
+                                    }
+
+                                    // Recalculate end slot based on processing time and cranes
+                                    if (prefix == "SINGLE" || !cranesMatch.Success)
+                                    {
+                                        // For single crane or when cranes not specified, use calculated value
+                                        int actualUnload = (int)Math.Ceiling((double)unloadTime / cranes);
+                                        int actualLoad = (int)Math.Ceiling((double)loadTime / cranes);
+                                        int actualProcessing = actualUnload + actualLoad;
+                                        endSlot = startSlot + actualProcessing - 1;
+                                    }
+                                }
 
                                 allSchedules.Add(new VesselSchedule
                                 {
-                                    VesselName = vesselName, // Keep original format
+                                    VesselName = vesselName,
                                     StartSlot = startSlot,
                                     EndSlot = endSlot,
                                     StartTime = SlotToTime(startSlot),
@@ -727,135 +753,219 @@ public async Task<IActionResult> CalculateScheduleMultiCrane([FromQuery] string 
                 }
             }
 
-            // Method 2: Parse from sequence format (e.g., "SINGLE_SEQ:[v1,v2,v3]")
+            // Method 2: Parse from sequence format
             if (allSchedules.Count == 0)
             {
-                string seqPattern = $@"{prefix}_SEQ:\[([^\]]+)\]";
-                var seqMatch = System.Text.RegularExpressions.Regex.Match(result, seqPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
-                if (seqMatch.Success)
-                {
-                    var vesselNames = seqMatch.Groups[1].Value.Split(',').Select(v => v.Trim()).ToList();
-                    int currentTime = 0;
-
-                    foreach (var vesselName in vesselNames)
-                    {
-                        if (!uniqueVessels.Contains(vesselName))
-                        {
-                            // Find the vessel in our list to get its data
-                            var vessel = vesselsForDate.FirstOrDefault(v =>
-                                v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselName);
-
-                            if (vessel != null)
-                            {
-                                int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
-                                int loadTime = 2 + (containerCount * 2);
-                                int unloadTime = 2 + (containerCount * 2);
-                                int totalProcessing = loadTime + unloadTime;
-                                int arrivalHour = vessel.ETA.Minute >= 30 ? vessel.ETA.Hour + 1 : vessel.ETA.Hour;
-
-                                int startSlot = Math.Max(arrivalHour, currentTime);
-                                int endSlot = startSlot + totalProcessing - 1;
-                                int cranes = defaultCranes > 0 ? defaultCranes :
-                                            (containerCount > 100 ? 4 : (containerCount > 50 ? 3 : 2));
-
-                                allSchedules.Add(new VesselSchedule
-                                {
-                                    VesselName = vesselName, // Keep original format
-                                    StartSlot = startSlot,
-                                    EndSlot = endSlot,
-                                    StartTime = SlotToTime(startSlot),
-                                    EndTime = SlotToTime(endSlot),
-                                    CranesUsed = cranes
-                                });
-
-                                currentTime = endSlot + 1;
-                                uniqueVessels.Add(vesselName);
-                            }
-                        }
-                    }
-                }
+                allSchedules = ParseFromSequenceFormat(prefix, defaultCranes, result, vesselsForDate, uniqueVessels);
             }
 
-            // Method 3: Parse from triplet patterns in the result
+            // Method 3: Parse from triplet patterns
             if (allSchedules.Count == 0)
             {
-                string tripletPattern = @"\(([^,]+),(\d+),(\d+)(?:,(\d+))?\)";
-                var matches = System.Text.RegularExpressions.Regex.Matches(result, tripletPattern);
+                allSchedules = ParseFromTripletPatterns(prefix, defaultCranes, result, vesselsForDate, uniqueVessels);
+            }
 
-                foreach (System.Text.RegularExpressions.Match match in matches)
+            // Method 4: Fallback - create schedules from all vessels
+            if (allSchedules.Count == 0 && vesselsForDate.Any())
+            {
+                allSchedules = CreateSchedulesFromVessels(vesselsForDate, defaultCranes, uniqueVessels);
+            }
+
+            // Sort by start time for consistent display
+            return allSchedules.OrderBy(s => s.StartSlot).ToList();
+        }  
+
+        // Helper method for sequence format parsing
+        private List<VesselSchedule> ParseFromSequenceFormat(string prefix, int defaultCranes, string result, 
+            List<VesselVisitNotificationDto> vesselsForDate, HashSet<string> uniqueVessels)
+        {
+            var schedules = new List<VesselSchedule>();
+
+            string seqPattern = $@"{prefix}_SEQ:\[([^\]]+)\]";
+            var seqMatch = System.Text.RegularExpressions.Regex.Match(result, seqPattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            if (seqMatch.Success)
+            {
+                var vesselNames = seqMatch.Groups[1].Value.Split(',').Select(v => v.Trim()).ToList();
+                int currentTime = 0;
+
+                foreach (var vesselName in vesselNames)
                 {
-                    if (match.Groups.Count >= 4)
+                    if (!uniqueVessels.Contains(vesselName))
                     {
-                        var vesselName = match.Groups[1].Value.Trim();
+                        var vessel = vesselsForDate.FirstOrDefault(v => 
+                            v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselName);
 
-                        if (!uniqueVessels.Contains(vesselName))
+                        if (vessel != null)
                         {
-                            int startSlot = int.Parse(match.Groups[2].Value);
-                            int endSlot = int.Parse(match.Groups[3].Value);
-                            int cranes = match.Groups.Count >= 5 && !string.IsNullOrEmpty(match.Groups[4].Value)
-                                        ? int.Parse(match.Groups[4].Value)
-                                        : defaultCranes;
+                            int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
+                            int loadTime = 2 + (containerCount * 2);
+                            int unloadTime = 2 + (containerCount * 2);
+                            int totalProcessing = loadTime + unloadTime;
+                            int arrivalHour = vessel.ETA.Minute >= 30 ? vessel.ETA.Hour + 1 : vessel.ETA.Hour;
 
-                            allSchedules.Add(new VesselSchedule
+                            // For multi-crane, adjust processing time based on cranes
+                            int cranes = defaultCranes;
+                            if (prefix == "MULTI" && defaultCranes == -1)
                             {
-                                VesselName = vesselName, // Keep original format
+                                cranes = containerCount > 100 ? 4 : (containerCount > 50 ? 3 : 2);
+                                int actualUnload = (int)Math.Ceiling((double)unloadTime / cranes);
+                                int actualLoad = (int)Math.Ceiling((double)loadTime / cranes);
+                                totalProcessing = actualUnload + actualLoad;
+                            }
+
+                            int startSlot = Math.Max(arrivalHour, currentTime);
+                            int endSlot = startSlot + totalProcessing - 1;
+
+                            schedules.Add(new VesselSchedule
+                            {
+                                VesselName = vesselName,
                                 StartSlot = startSlot,
                                 EndSlot = endSlot,
                                 StartTime = SlotToTime(startSlot),
                                 EndTime = SlotToTime(endSlot),
-                                CranesUsed = cranes
+                                CranesUsed = cranes > 0 ? cranes : 1
                             });
 
+                            currentTime = endSlot + 1;
                             uniqueVessels.Add(vesselName);
                         }
                     }
                 }
             }
 
-            // Method 4: Fallback - create schedules from all vessels
-            if (allSchedules.Count == 0 && vesselsForDate.Any())
-            {
-                int currentTime = 0;
+            return schedules;
+        }  
 
-                foreach (var vessel in vesselsForDate.OrderBy(v => v.ETA))
+        private List<VesselSchedule> ParseFromTripletPatterns(string prefix, int defaultCranes, string result, 
+            List<VesselVisitNotificationDto> vesselsForDate, HashSet<string> uniqueVessels)
+        {
+            var schedules = new List<VesselSchedule>();
+
+            string tripletPattern = @"\(([^,]+),(\d+),(\d+)(?:,(\d+))?\)";
+            var matches = System.Text.RegularExpressions.Regex.Matches(result, tripletPattern);
+
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                if (match.Groups.Count >= 4)
                 {
-                    // Convert to the same format used in Prolog (lowercase, underscores)
-                    string vesselName = vessel.VesselName.ToLower().Replace(" ", "_").Replace("-", "_");
+                    var vesselName = match.Groups[1].Value.Trim();
 
                     if (!uniqueVessels.Contains(vesselName))
                     {
-                        int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
-                        int loadTime = 2 + (containerCount * 2);
-                        int unloadTime = 2 + (containerCount * 2);
-                        int totalProcessing = loadTime + unloadTime;
-                        int arrivalHour = vessel.ETA.Minute >= 30 ? vessel.ETA.Hour + 1 : vessel.ETA.Hour;
+                        int startSlot = int.Parse(match.Groups[2].Value);
+                        int endSlot = int.Parse(match.Groups[3].Value);
+                        int cranes = match.Groups.Count >= 5 && !string.IsNullOrEmpty(match.Groups[4].Value) 
+                                    ? int.Parse(match.Groups[4].Value) 
+                                    : defaultCranes;
 
-                        int startSlot = Math.Max(arrivalHour, currentTime);
-                        int endSlot = startSlot + totalProcessing - 1;
-                        int cranes = defaultCranes > 0 ? defaultCranes :
-                                    (containerCount > 100 ? 4 : (containerCount > 50 ? 3 : 2));
+                        // Validate the end time makes sense
+                        var vessel = vesselsForDate.FirstOrDefault(v => 
+                            v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselName);
 
-                        allSchedules.Add(new VesselSchedule
+                        if (vessel != null)
                         {
-                            VesselName = vesselName, // Keep original format
+                            int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
+                            int loadTime = 2 + (containerCount * 2);
+                            int unloadTime = 2 + (containerCount * 2);
+                            int totalProcessing = loadTime + unloadTime;
+
+                            // For single crane, ensure end time matches processing
+                            if (prefix == "SINGLE" && cranes <= 1)
+                            {
+                                int expectedEnd = startSlot + totalProcessing - 1;
+                                if (Math.Abs(endSlot - expectedEnd) > 2) // Allow small variance
+                                {
+                                    endSlot = expectedEnd;
+                                }
+                            }
+
+                            // For multi-crane, adjust if needed
+                            if (prefix == "MULTI" && cranes > 1)
+                            {
+                                int actualUnload = (int)Math.Ceiling((double)unloadTime / cranes);
+                                int actualLoad = (int)Math.Ceiling((double)loadTime / cranes);
+                                int expectedEnd = startSlot + actualUnload + actualLoad - 1;
+                                if (Math.Abs(endSlot - expectedEnd) > 2)
+                                {
+                                    endSlot = expectedEnd;
+                                }
+                            }
+                        }
+
+                        schedules.Add(new VesselSchedule
+                        {
+                            VesselName = vesselName,
                             StartSlot = startSlot,
                             EndSlot = endSlot,
                             StartTime = SlotToTime(startSlot),
                             EndTime = SlotToTime(endSlot),
-                            CranesUsed = cranes
+                            CranesUsed = cranes > 0 ? cranes : 1
                         });
 
-                        currentTime = endSlot + 1;
                         uniqueVessels.Add(vesselName);
                     }
                 }
             }
 
-            return allSchedules;
-        }
+            return schedules;
+        }  
 
-        // Simple fallback method (kept separate for clarity)
+        private List<VesselSchedule> CreateSchedulesFromVessels(List<VesselVisitNotificationDto> vesselsForDate, 
+            int defaultCranes, HashSet<string> uniqueVessels)
+        {
+            var schedules = new List<VesselSchedule>();
+            int currentTime = 0;
+
+            // Sort by ETA for logical scheduling
+            foreach (var vessel in vesselsForDate.OrderBy(v => v.ETA))
+            {
+                string vesselName = vessel.VesselName.ToLower().Replace(" ", "_").Replace("-", "_");
+
+                if (!uniqueVessels.Contains(vesselName))
+                {
+                    int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
+                    int loadTime = 2 + (containerCount * 2);
+                    int unloadTime = 2 + (containerCount * 2);
+                    int arrivalHour = vessel.ETA.Minute >= 30 ? vessel.ETA.Hour + 1 : vessel.ETA.Hour;
+
+                    int cranes = defaultCranes;
+                    int totalProcessing;
+
+                    if (defaultCranes == -1) // Multi-crane
+                    {
+                        cranes = containerCount > 100 ? 4 : (containerCount > 50 ? 3 : 2);
+                        int actualUnload = (int)Math.Ceiling((double)unloadTime / cranes);
+                        int actualLoad = (int)Math.Ceiling((double)loadTime / cranes);
+                        totalProcessing = actualUnload + actualLoad;
+                    }
+                    else // Single crane
+                    {
+                        totalProcessing = loadTime + unloadTime;
+                        cranes = 1;
+                    }
+
+                    int startSlot = Math.Max(arrivalHour, currentTime);
+                    int endSlot = startSlot + totalProcessing - 1;
+
+                    schedules.Add(new VesselSchedule
+                    {
+                        VesselName = vesselName,
+                        StartSlot = startSlot,
+                        EndSlot = endSlot,
+                        StartTime = SlotToTime(startSlot),
+                        EndTime = SlotToTime(endSlot),
+                        CranesUsed = cranes
+                    });
+
+                    currentTime = endSlot + 1;
+                    uniqueVessels.Add(vesselName);
+                }
+            }
+
+            return schedules;
+        }  
+
         private List<VesselSchedule> CreateSimpleFallbackSchedules(List<VesselVisitNotificationDto> vessels, int defaultCranes)
         {
             var schedules = new List<VesselSchedule>();
@@ -871,17 +981,30 @@ public async Task<IActionResult> CalculateScheduleMultiCrane([FromQuery] string 
                     int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
                     int loadTime = 2 + (containerCount * 2);
                     int unloadTime = 2 + (containerCount * 2);
-                    int totalProcessing = loadTime + unloadTime;
                     int arrivalHour = vessel.ETA.Minute >= 30 ? vessel.ETA.Hour + 1 : vessel.ETA.Hour;
+
+                    int cranes = defaultCranes;
+                    int totalProcessing;
+
+                    if (defaultCranes == -1) // Multi-crane
+                    {
+                        cranes = containerCount > 100 ? 4 : (containerCount > 50 ? 3 : 2);
+                        int actualUnload = (int)Math.Ceiling((double)unloadTime / cranes);
+                        int actualLoad = (int)Math.Ceiling((double)loadTime / cranes);
+                        totalProcessing = actualUnload + actualLoad;
+                    }
+                    else // Single crane
+                    {
+                        totalProcessing = loadTime + unloadTime;
+                        cranes = 1;
+                    }
 
                     int startSlot = Math.Max(arrivalHour, currentTime);
                     int endSlot = startSlot + totalProcessing - 1;
-                    int cranes = defaultCranes > 0 ? defaultCranes :
-                                (containerCount > 100 ? 4 : (containerCount > 50 ? 3 : 2));
 
                     schedules.Add(new VesselSchedule
                     {
-                        VesselName = vesselName, // Keep original format
+                        VesselName = vesselName,
                         StartSlot = startSlot,
                         EndSlot = endSlot,
                         StartTime = SlotToTime(startSlot),
@@ -894,10 +1017,8 @@ public async Task<IActionResult> CalculateScheduleMultiCrane([FromQuery] string 
                 }
             }
 
-            return schedules;
+            return schedules.OrderBy(s => s.StartSlot).ToList();
         }
-
-        // Keep SlotToTime as it's a simple utility
         private string SlotToTime(int slot)
         {
             int hours = slot % 24;
