@@ -66,38 +66,61 @@ const RecommendedSchedulePage = () => {
                     fontSize: "var(--font-size-heading)",
                 }}
             >
-                Recommended Schedule
+                Recommended Schedule ({results.length})
             </Typography>
 
             {/* Controls */}
             <Paper
                 sx={{
-                    p: 3,
+                    p: 2,
                     mb: 3,
                     backgroundColor: "var(--color-background)",
                     borderRadius: "var(--radius-sm)",
+                    display: "flex",
+                    gap: 2,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexWrap: "wrap"
                 }}
             >
-                <FormControl fullWidth sx={{ mb: 2 }}>
+                {/* Date */}
+                <FormControl sx={{ width: 250 }}>
                     <TextField
                         type="date"
+                        size="small"
                         label="Target Date"
                         InputLabelProps={{ shrink: true }}
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
                         sx={{
                             backgroundColor: "var(--color-surface)",
+                            "& .MuiInputBase-input": {
+                                padding: "6px 10px",
+                                fontSize: "0.85rem",
+                            },
+                            "& .MuiInputLabel-root": {
+                                fontSize: "0.85rem",
+                            },
                         }}
                     />
                 </FormControl>
 
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Algorithm Override</InputLabel>
+                {/* Algorithm selector */}
+                <FormControl size="small" sx={{ width: 250 }}>
+                    <InputLabel sx={{ fontSize: "0.85rem" }}>
+                        Algorithm Override
+                    </InputLabel>
                     <Select
                         value={overrideAlgo}
                         label="Algorithm Override"
                         onChange={(e) => setOverrideAlgo(e.target.value)}
-                        sx={{ backgroundColor: "var(--color-surface)" }}
+                        sx={{
+                            backgroundColor: "var(--color-surface)",
+                            "& .MuiSelect-select": {
+                                padding: "6px 10px",
+                                fontSize: "0.85rem",
+                            }
+                        }}
                     >
                         <MenuItem value="">Auto (Recommended)</MenuItem>
                         <MenuItem value="optimal">Optimal</MenuItem>
@@ -106,24 +129,29 @@ const RecommendedSchedulePage = () => {
                     </Select>
                 </FormControl>
 
+                {/* Button */}
                 <Button
                     variant="contained"
-                    fullWidth
                     onClick={handleGenerate}
                     sx={{
-                        mt: 2,
+                        py: 1,
+                        px: 3,
+                        fontSize: "0.85rem",
                         backgroundColor: "var(--color-primary)",
+                        height: 40,
+                        whiteSpace: "nowrap",
                         ":hover": { backgroundColor: "var(--color-primary-dark)" },
                     }}
                 >
-                    Generate Schedule
+                    Generate
                 </Button>
             </Paper>
 
-            {/* Algorithm Info */}
+            {/* Algorithm info */}
             {algorithm && (
                 <Alert
                     severity="info"
+                    aria-live="polite"
                     sx={{
                         mb: 3,
                         backgroundColor: "var(--color-info)",
@@ -138,22 +166,29 @@ const RecommendedSchedulePage = () => {
             )}
 
             {loading && (
-                <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
+                <CircularProgress
+                    sx={{ display: "block", margin: "20px auto" }}
+                />
             )}
 
             {error && (
                 <Alert
                     severity="error"
-                    sx={{ mb: 2, backgroundColor: "var(--color-error)" }}
+                    aria-live="assertive"
+                    sx={{
+                        mb: 2,
+                        backgroundColor: "var(--color-error)",
+                        color: "var(--color-text-light)",
+                    }}
                 >
                     {error}
                 </Alert>
             )}
 
-            {/* No results */}
             {!loading && results.length === 0 && !error && algorithm && (
                 <Alert
                     severity="info"
+                    aria-live="polite"
                     sx={{
                         mb: 2,
                         backgroundColor: "var(--color-info)",
@@ -164,26 +199,28 @@ const RecommendedSchedulePage = () => {
                 </Alert>
             )}
 
-            {/* Table */}
+            {/* Results table */}
             {results.length > 0 && (
                 <TableContainer component={Paper} sx={{ mt: 3 }}>
                     <Table size="small">
                         <TableHead>
                             <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
-                                <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Vessel</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Dock</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Crane</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Start</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>End</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Staff</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Area</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {results.map((row, i) => (
                                 <TableRow
                                     key={i}
-                                    sx={{ "&:hover": { backgroundColor: "var(--color-background)" } }}
+                                    sx={{
+                                        "&:hover": { backgroundColor: "var(--color-background)" }
+                                    }}
                                 >
                                     <TableCell>{row.vessel}</TableCell>
                                     <TableCell>{row.dock}</TableCell>
