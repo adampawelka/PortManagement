@@ -159,11 +159,12 @@ const RecommendedSchedulePage = () => {
                         fontSize: "var(--font-size-body)",
                     }}
                 >
-                    <strong>Selected Algorithm:</strong> {algorithm} <br />
-                    <em>{reason}</em>
                     {executionTime && <div>Execution Time: {executionTime}s</div>}
                 </Alert>
             )}
+
+            <strong>Selected Algorithm:</strong> {algorithm} <br />
+            <em>{reason}</em>
 
             {loading && (
                 <CircularProgress

@@ -14,10 +14,10 @@ export const useRecommendedScheduleVM = () => {
     const [algorithm, setAlgorithm] = useState("");
     const [reason, setReason] = useState("");
 
-    const chooseAlgorithm = (vesselCount, operations) => {
-        if (operations < 10)
-            return { algo: "optimal", reason: "Small operation set (<150 ops)" };
-        if (operations < 20)
+    const chooseAlgorithm = (vesselCount) => {
+        if (vesselCount < 10)
+            return { algo: "optimal", reason: "Small vessel set" };
+        if (vesselCount > 10 && vesselCount < 20)
             return { algo: "heuristic", reason: "Medium-sized instance" };
         return { algo: "genetic", reason: "Large or time-constrained instance" };
     };
@@ -51,12 +51,8 @@ export const useRecommendedScheduleVM = () => {
             );
 
             const vessels = filtered.length;
-            const ops = filtered.reduce(
-                (sum, v) => sum + (v.estimatedOperations || 30),
-                0
-            );
 
-            const { algo, reason: autoReason } = chooseAlgorithm(vessels, ops);
+            const { algo, reason: autoReason } = chooseAlgorithm(vessels);
             const finalAlgo = overrideAlgorithm || algo;
             const finalReason = overrideAlgorithm ? "User override" : autoReason;
 
