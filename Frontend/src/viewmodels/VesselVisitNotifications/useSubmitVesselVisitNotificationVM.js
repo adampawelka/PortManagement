@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { submitVesselVisitNotification } from '../../services/vesselVisitNotificationService'; 
+import { useApi } from '../../services/api';
 
 export const useSubmitVesselVisitNotificationVM = () => {
+  const { apiFetch } = useApi();
   const [notificationId, setNotificationId] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
@@ -18,7 +20,7 @@ export const useSubmitVesselVisitNotificationVM = () => {
     setMessage(null);
 
     try {
-      const response = await submitVesselVisitNotification(notificationId); 
+      const response = await submitVesselVisitNotification(apiFetch, notificationId); 
 
       if (response) {
         setMessage({ type: 'success', text: `Notification ${notificationId} submitted successfully!` });
