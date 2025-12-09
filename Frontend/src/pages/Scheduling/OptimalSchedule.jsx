@@ -1,0 +1,213 @@
+import React, { useState } from "react";
+import {
+    Container,
+    Typography,
+    CircularProgress,
+    Alert,
+    Paper,
+    TableContainer,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    FormControl,
+    TextField,
+    Button
+} from "@mui/material";
+
+import { useOptimalScheduleVM } from "../../viewmodels/Scheduling/useOptimalScheduleVM";
+
+const OptimalSchedule = () => {
+    const {
+        targetDate,
+        setTargetDate,
+        scheduleResults,
+        loading,
+        error,
+        executionTime,
+        generateSchedule
+    } = useOptimalScheduleVM();
+
+    const [hasGenerated, setHasGenerated] = useState(false);
+
+    const handleGenerate = () => {
+        if (!targetDate) {
+            alert("Please select a date");
+            return;
+        }
+        setHasGenerated(true);
+        generateSchedule();
+    };
+
+    return (
+        <Container
+            maxWidth="xl"
+            sx={{
+                mt: 4,
+                backgroundColor: "var(--color-surface)",
+                p: 4,
+                borderRadius: "var(--radius-md)",
+                boxShadow: 3,
+                fontFamily: "var(--font-family-base)",
+            }}
+        >
+            <Typography
+                variant="h4"
+                gutterBottom
+                sx={{
+                    color: "var(--color-primary-light)",
+                    fontWeight: 600,
+                    mb: 3,
+                    fontSize: "var(--font-size-heading)",
+                }}
+            >
+                Optimal Schedule ({scheduleResults.length})
+            </Typography>
+
+            {/* Controls */}
+            <Paper
+                sx={{
+                    p: 2,
+                    mb: 3,
+                    backgroundColor: "var(--color-background)",
+                    borderRadius: "var(--radius-sm)",
+                    display: "flex",
+                    gap: 2,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexWrap: "wrap"
+                }}
+            >
+                {/* Target date */}
+                <FormControl sx={{ width: 250 }}>
+                    <TextField
+                        type="date"
+                        size="small"
+                        label="Target Date"
+                        InputLabelProps={{ shrink: true }}
+                        value={targetDate}
+                        onChange={(e) => setTargetDate(e.target.value)}
+                        sx={{
+                            backgroundColor: "var(--color-surface)",
+                            "& .MuiInputBase-input": {
+                                padding: "6px 10px",
+                                fontSize: "0.85rem",
+                            },
+                            "& .MuiInputLabel-root": {
+                                fontSize: "0.85rem",
+                            },
+                        }}
+                    />
+                </FormControl>
+
+                {/* Generate button */}
+                <Button
+                    variant="contained"
+                    onClick={handleGenerate}
+                    sx={{
+                        py: 1,
+                        px: 3,
+                        fontSize: "0.85rem",
+                        backgroundColor: "var(--color-primary)",
+                        height: 40,
+                        whiteSpace: "nowrap",
+                        ":hover": { backgroundColor: "var(--color-primary-dark)" },
+                    }}
+                >
+                    Generate
+                </Button>
+            </Paper>
+
+            {/* Execution time */}
+            {executionTime && (
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: 3,
+                        backgroundColor: "var(--color-info)",
+                        color: "var(--color-text-dark)",
+                    }}
+                >
+                    Execution Time: {executionTime}s
+                </Alert>
+            )}
+
+            {/* Loading */}
+            {loading && (
+                <CircularProgress
+                    sx={{ display: "block", margin: "20px auto" }}
+                />
+            )}
+
+            {/* Error */}
+            {error && (
+                <Alert
+                    severity="error"
+                    sx={{
+                        mb: 2,
+                        backgroundColor: "var(--color-error)",
+                        color: "var(--color-text-light)",
+                    }}
+                >
+                    {error}
+                </Alert>
+            )}
+
+            {/* Empty results – only after clicking Generate */}
+            {hasGenerated && !loading && scheduleResults.length === 0 && !error && (
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: 2,
+                        backgroundColor: "var(--color-info)",
+                        color: "var(--color-text-dark)",
+                    }}
+                >
+                    No schedule results.
+                </Alert>
+            )}
+
+            {/* Results table */}
+            {scheduleResults.length > 0 && (
+                <TableContainer component={Paper} sx={{ mt: 3 }}>
+                    <Table size="small">
+                        <TableHead>
+                            <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
+                                <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {scheduleResults.map((row, i) => (
+                                <TableRow
+                                    key={i}
+                                    sx={{
+                                        "&:hover": {
+                                            backgroundColor: "var(--color-background)",
+                                        }
+                                    }}
+                                >
+                                    <TableCell>{row.vessel}</TableCell>
+                                    <TableCell>{row.dock}</TableCell>
+                                    <TableCell>{row.crane}</TableCell>
+                                    <TableCell>{row.start}</TableCell>
+                                    <TableCell>{row.end}</TableCell>
+                                    <TableCell>{row.staff}</TableCell>
+                                    <TableCell>{row.area}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
+        </Container>
+    );
+};
+
+export default OptimalSchedule;

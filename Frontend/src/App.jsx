@@ -10,8 +10,7 @@ import Home from "./pages/Home.jsx";
 
 import Visualisation from "./pages/Visualisation.jsx";
 
-import Scheduling from "./pages/Scheduling.jsx";
-import OptimalSchedule from "./pages/OptimalSchedule.jsx";
+import OptimalSchedule from "./pages/Scheduling/OptimalSchedule.jsx";
 import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
 import RecommendedSchedule from "./pages/Scheduling/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/TestAlgorithms.jsx";
@@ -297,8 +296,6 @@ const App = () => {
           }
         />
 
-
-
         <Route
           path="/vessels/list"
           element={
@@ -400,16 +397,6 @@ const App = () => {
           }
         />
         
-
-        <Route
-          path="scheduling"
-          element={
-            <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
-              <Scheduling />
-            </ProtectedRoute>
-          }
-            
-        />
 
         <Route
           path="/alternative-schedule"
