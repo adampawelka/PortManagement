@@ -70,15 +70,6 @@ export default class ThumbRaiser {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     this.cameraController = new CameraController(this.camera.object, this.renderer);
-    if (this.cameraController) {
-    // Intentamos establecer las propiedades comunes de controladores Three.js
-    this.cameraController.minDistance = 2.0;
-    this.cameraController.maxDistance = 200.0; // ¡Correa larga!
-    
-    // Si tu controlador usa nombres diferentes (a veces pasa en plantillas académicas):
-    this.cameraController.distanceMin = 2.0;
-    this.cameraController.distanceMax = 200.0;
-    }
 
 
     // *** Crear el puerto (PortBuilder) y guardarlo en this para usarlo después
@@ -154,25 +145,15 @@ export default class ThumbRaiser {
 
   update() {
     if (!this.gameRunning) {
-    this.scene3D.add(this.lights.object);
-    
-    // --- SOLUCIÓN: AUMENTAR EL 'FAR' (DISTANCIA DE VISIÓN) ---
-    // 1. Accedemos al objeto nativo de Three.js dentro de tu wrapper 'Camera'
-    const cam = this.thirdPersonViewCamera.object;
-    
-    // 2. Aumentamos la distancia de visión a 5000 unidades (antes sería 100 o 1000)
-    cam.far = 5000; 
-    
-    // 3. ¡IMPORTANTE! Hay que actualizar la matriz para que surta efecto
-    cam.updateProjectionMatrix();
-    // ---------------------------------------------------------
 
-    // Posicionar la cámara lejos para ver todo
-    this.thirdPersonViewCamera.object.position.set(0, 80, 160);
-    this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
-
-    this.gameRunning = true;
-  }
+      this.scene3D.add(this.lights.object);
+      this.thirdPersonViewCamera.object.position.set(0, 30, 54);
+      this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
+      this.cameraController.setInitialView();
+      this.clock = new THREE.Clock();
+      this.gameRunning = true;
+      return;
+    }
 
     // Render
     this.renderer.clear();

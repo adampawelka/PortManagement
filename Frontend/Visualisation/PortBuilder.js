@@ -5,325 +5,220 @@ import { MaterialManager } from "./Basic_Thumb_Raiser/materials.js";
 export class PortBuilder {
   constructor(scene) {
     this.scene = scene;
-    this.loader = new GLTFLoader(); 
+    this.loader = new GLTFLoader(); // Model loader
     this.materialManager = new MaterialManager();
     this.data = null;
     this.lights = {};
-    
-    // Almacén de objetos creados para poder limpiarlos si fuera necesario
     this.dynamicObjects = {
       vessels: [],
       resources: [],
-      buildings: [] // Nuevo array para Docks y Warehouses
     };
   }
 
-  // Carga el layout base (agua, luces, base de hormigón) desde el JSON estático
-  // 1. Añade este método nuevo a la clase
-  buildMainPlatform() {
-      // Dimensiones de la explanada del puerto (Suelo)
-      const width = 800;  // Muy ancho para que quepan recursos a la derecha
-      const depth = 400;  // Profundo para almacenes atrás
-      const height = 2;   // Grosor del hormigón
-
-      const geometry = new THREE.BoxGeometry(width, height, depth);
-      
-      // Configuración del material (usando tus texturas si existen, o gris por defecto)
-      const materialConfig = this.data.materials?.dock || { color: 0x555555 };
-      const material = this.materialManager.createMaterial(materialConfig, width/10, depth/10);
-
-      const ground = new THREE.Mesh(geometry, material);
-      
-      // POSICIÓN: 
-      // Y = 0 (o -1 para que el agua tape la base)
-      // Z = -200 (Para que el borde del muelle esté en Z=0 y el resto hacia atrás)
-      ground.position.set(100, 1, -200); 
-      
-      ground.receiveShadow = true;
-      this.scene.add(ground);
-  }
-
-  // 2. Llama a este método dentro de loadPortData()
   async loadPortData() {
-      try {
-        const response = await fetch("/port-layout.json");
-        this.data = await response.json();
-        this.setupLights();
-        
-        // --- CAMBIO: CONSTRUIR LA PLATAFORMA GIGANTE ---
-        this.buildMainPlatform(); 
-        // -----------------------------------------------
+    try {
+      const response = await fetch("/port-layout.json");
+      this.data = await response.json();
 
-        this.buildWater();
-      } catch (error) {
-        console.error("Error loading port data", error);
-      }
+      this.setupLights();
+
+      this.data.facilities.forEach((facility) => {
+        this.buildFacility(facility);
+      });
+
+      this.buildWater();
+      console.log("Realistic port loaded.");
+    } catch (error) {
+      console.error("Error loading port-layout.json:", error);
+    }
   }
 
   // ==========================
-  //  LÓGICA DINÁMICA (Backend)
+  //  NEW: dynamic data
   // ==========================
 
   /**
-   * Recibe todos los datos del backend y orquesta el renderizado.
+   * dynamicData = {
+   *   vesselVisitNotifications: [...],
+   *   resources: [...],
+   *   docks: [...]
+   * }
    */
   applyDynamicData(dynamicData) {
-    const { vesselVisitNotifications, resources, docks, storageAreas } = dynamicData || {};
+    const { vesselVisitNotifications, resources, docks } = dynamicData || {};
 
-    console.log("Applying Dynamic Data:", dynamicData);
-
-    // 1. Mapear posiciones de los Docks (NO MODIFICADO)
-    const dockPositions = {}; 
-    if (docks && Array.isArray(docks)) {
-      docks.forEach((dock, index) => {
-        // Tu fórmula original: -80 + (index * 110)
-        const position = new THREE.Vector3(-80 + (index * 110), 2.25, 0); 
-        dockPositions[dock.id] = position;
-        this.addBuildingFromBackend(dock, position, "Dock");
-      });
+    if (!vesselVisitNotifications || !resources) {
+      console.warn("applyDynamicData: missing VVN or Resources data");
+      return;
     }
 
-    // 2. Renderizar Warehouses (NO MODIFICADO)
-    if (storageAreas && Array.isArray(storageAreas)) {
-      storageAreas.forEach((area, index) => {
-        const position = new THREE.Vector3(-100 + (index * 70), 2, -170);
-        this.addBuildingFromBackend(area, position, "Warehouse");
-      });
-    }
+    //Build a map dockId: approximate position in the port
+    const dockPositionMap = this.buildDockPositionMap(docks);
 
-    // 3. Renderizar Barcos (NO MODIFICADO)
-    if (vesselVisitNotifications) {
-      const activeVisits = vesselVisitNotifications.filter(v => 
-         v.status === "Approved" || v.status === "Arrived"
+    //Vessels with Approved status and assigned dock 
+    const approvedVisits = vesselVisitNotifications.filter((v) => {
+      return (
+        v.status === "Approved" &&
+        v.assignedDockId &&
+        dockPositionMap[v.assignedDockId]
       );
-      const dockQueueCounter = {}; 
+    });
 
-      activeVisits.forEach((visit) => {
-        const rawDockId = visit.assignedDockId || visit.AssignedDockId;
-        if (!rawDockId) return;
+    approvedVisits.forEach((visit, index) => {
+      const dockPos = dockPositionMap[visit.assignedDockId];
+      this.addVesselFromBackend(visit, dockPos, index);
+    });
 
-        const visitDockId = String(rawDockId);
-        const assignedDockPos = dockPositions[visitDockId];
-        
-        if (assignedDockPos) {
-          const queueIndex = dockQueueCounter[visitDockId] || 0;
-          dockQueueCounter[visitDockId] = queueIndex + 1;
-          const zSeparation = 50 + (queueIndex * 50); 
-          const vesselPos = new THREE.Vector3(assignedDockPos.x, 5, assignedDockPos.z + zSeparation);
-          this.addVesselFromBackend(visit, vesselPos);
-        }
-      });
+    // Resources with assigned area 
+    const resourcesWithArea = resources.filter((r) => {
+      // Adjust these to your DTO fields:
+      return r.assignedAreaCode || r.assignedAreaName || r.assignedAreaId;
+    });
+
+    resourcesWithArea.forEach((resource, index) => {
+      const areaPos = this.getDefaultAreaPosition(index);
+      this.addResourceFromBackend(resource, areaPos);
+    });
+  }
+
+  // Maps each dockId to a base position in the port
+  buildDockPositionMap(docks) {
+    const map = {};
+
+    if (!docks || docks.length === 0) {
+      return map;
     }
 
-    // 4. Renderizar Recursos (REESCRITO SOLO ESTO)
-    if (resources && Array.isArray(resources)) {
-      
-      // Filtramos para tratarlos por separado
-      const cranes = resources.filter(r => (r.type || r.name || "").toLowerCase().includes("crane"));
-      const trucks = resources.filter(r => (r.type || r.name || "").toLowerCase().includes("truck"));
+    // Base positions you can adapt to your real port layout
+    const basePositions = [
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(160, 0, 0),
+      new THREE.Vector3(-160, 0, 0),
+    ];
 
-      // A) GRÚAS: Las ponemos ENTRE los Docks
-      // Si el Dock está en X, la Grúa va a X + 55 (mitad de 110)
-      cranes.forEach((crane, index) => {
-        // Usamos la misma lógica base que los Docks (-80 + index*110) pero sumamos 55
-        const xPos = -80 + (index * 110) + 55;
-        
-        // Misma altura y Z que los Docks para que estén en línea
-        const position = new THREE.Vector3(xPos, 2, -2); 
-        this.addResourceFromBackend(crane, position);
-      });
+    docks.forEach((dock, index) => {
+      // Adjust: assuming dock.id
+      const id = dock.id || dock.Id;
+      if (!id) return;
 
-      // B) CAMIONES: Detrás de las grúas
-      trucks.forEach((truck, index) => {
-        // Los ponemos más juntos (cada 40m) empezando alineados a la izquierda
-        const xPos = -80 + (index * 40);
-        
-        // Z = -55 (Detrás de Docks/Grúas que están en 0, pero delante de Warehouses que están en -110)
-        const position = new THREE.Vector3(xPos, 2, -55); 
-        this.addResourceFromBackend(truck, position);
-      });
-    }
+      const base = basePositions[index % basePositions.length];
+      // Slight Z variation to place multiple vessels in one dock
+      map[id] = new THREE.Vector3(base.x, base.y, base.z + index * 10);
+    });
 
-    // 5. CONSTRUIR CARRETERA (NUEVO BLOQUE)
-    // =========================================================
-    // La carretera va en Z = -55 (donde están los camiones)
-    const roadZ = -55;
-    
-    this.loader.load("/models/road.glb", (gltf) => {
-        const originalRoad = gltf.scene;
-        
-        // Ajusta la escala según tu modelo road.glb (prueba con 1, 2 o 5)
-        const scale = 25.0; 
-        originalRoad.scale.set(scale, scale, scale);
-
-        // Definimos de dónde a dónde va la carretera (cubriendo todo el puerto)
-        // Ejemplo: Desde X=-300 hasta X=300
-        const startX = -295;
-        const endX = 450;
-        const tileSize = 9; // Ajusta esto según el largo de tu bloque de carretera
-
-        for (let x = startX; x <= endX; x += tileSize) {
-            const roadTile = originalRoad.clone();
-            
-            // Posición: X variable, Y un poco sobre el suelo, Z fijo en -55
-            roadTile.position.set(x, 2, roadZ); 
-            
-            // Si la carretera sale girada 90 grados, descomenta esto:
-            // roadTile.rotation.y = Math.PI / 2; 
-
-            roadTile.traverse((node) => {
-                if (node.isMesh) node.receiveShadow = true;
-            });
-
-            this.scene.add(roadTile);
-            // (Opcional) Guardar en array para poder borrarlas luego si recargas
-            // this.dynamicObjects.buildings.push(roadTile); 
-        }
-    }, undefined, (error) => console.warn("Error cargando road.glb", error));
+    return map;
   }
 
-  // ---------------------------------------------------------
-  // MÉTODO NUEVO: Carga genérica de edificios (Docks/Warehouses)
-  // ---------------------------------------------------------
-  addBuildingFromBackend(entity, position, type) {
-    let modelPath = "";
-    let scale = 1.0;
-
-    if (type === "Dock") {
-      modelPath = "/models/dock.glb"; // Asegúrate que este archivo existe
-      scale = 15.0; // Ajusta según el tamaño de tu modelo
-    } else if (type === "Warehouse") {
-      modelPath = "/models/warehouse.glb";
-      scale = 0.7;
-    } else if (type === "Yard") {
-      modelPath = "/models/base.glb";
-      scale = 1.0;
-    }
-
-    this.loader.load(
-      modelPath,
-      (gltf) => {
-        const object = gltf.scene;
-        object.position.copy(position);
-        object.scale.set(scale, scale, scale);
-
-        // Sombras
-        object.traverse((node) => {
-          if (node.isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
-
-        this.scene.add(object);
-        this.dynamicObjects.buildings.push(object);
-        console.log(`Added building [${type}]: ${entity.name || entity.id}`);
-      },
-      undefined,
-      (error) => {
-        console.warn(`Failed to load ${modelPath}, adding fallback cube.`, error);
-        // Fallback visual si falla el modelo
-        this.addFallbackBox(position, type === "dock" ? 0x888888 : 0x552200);
-      }
-    );
+  getDefaultAreaPosition(index) {
+    // Default positions for cranes/resources
+    const x = -80 + (index % 4) * 40;
+    const z = -40 - Math.floor(index / 4) * 40;
+    return new THREE.Vector3(x, 0, z);
   }
 
-  // ---------------------------------------------------------
-  // Barcos
-  // ---------------------------------------------------------
-  addVesselFromBackend(visit, position) {
-    const modelPath = "/models/container_ship.glb"; // O 'vessel.glb'
+  // addVesselFromBackend(visit, position, index) {
+  //   if (!position) return;
 
-    this.loader.load(
-      modelPath,
-      (gltf) => {
-        const ship = gltf.scene;
-        const scale = 40.0; // Ajustar escala
-        ship.scale.set(scale, scale, scale);
-        ship.position.copy(position);
-        
-        // Rotar para que mire hacia el muelle (o paralelo)
-        ship.rotation.y = Math.PI; 
+  //   // Select a model depending on vessel type (optional)
+  //   const modelPath = "/models/container_ship.glb";
 
-        ship.traverse((node) => {
-          if (node.isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
+  //   this.loader.load(
+  //     modelPath,
+  //     (gltf) => {
+  //       const ship = gltf.scene;
+  //       ship.scale.set(scale, scale, scale);
+  //       ship.position.copy(position);
+  //       ship.rotation.y = Math.PI;
 
-        this.scene.add(ship);
-        this.dynamicObjects.vessels.push(ship);
-        console.log(`Vessel added for visit: ${visit.vesselName}`);
-      },
-      undefined,
-      (error) => {
-        console.warn("Failed to load vessel model", error);
-        this.addFallbackBox(position, 0xff0000, { x: 10, y: 5, z: 30 });
-      }
-    );
-  }
+  //       this.setPickable(ship, { type: "vessel", visitId: visit.id, assignedDockId: visit.assignedDockId });
+  //       this.scene.add(ship);
 
-  // ---------------------------------------------------------
-  // Recursos (Grúas / Camiones)
-  // ---------------------------------------------------------
-  addResourceFromBackend(resource, position) {
-    // Detectar tipo basado en el nombre o tipo que venga del backend
-    const typeStr = (resource.type).toLowerCase();
-    
-    let modelPath = "";
-    let scale = 1.0;
+  //       // ✅ Add to dynamicObjects
+  //       this.dynamicObjects.vessels.push(ship);
 
-    if (typeStr.includes("crane")) {
-      modelPath = "/models/crane.glb";
-      scale = 2.0;
-    } else if (typeStr.includes("truck")) {
-      modelPath = "/models/truck.glb";
-      scale = 0.25; // Los camiones suelen ser muy grandes en los modelos raw
-    } else {
-      // Default
-      modelPath = "/models/crane.glb";
-    }
+  //       // ✅ Add to cameraController pickables here
+  //       if (this.cameraController) {
+  //         this.cameraController.pickables.push(ship);
+  //       }
 
-    this.loader.load(
-      modelPath,
-      (gltf) => {
-        const obj = gltf.scene;
-        obj.position.copy(position);
-        obj.scale.set(scale, scale, scale);
+  //       console.log("Vessel added for visit:", visit.id);
+  //     }
+  //   );
 
-        obj.traverse((node) => {
-          if (node.isMesh) {
-            node.castShadow = true;
-            node.receiveShadow = true;
-          }
-        });
+  // }
 
-        this.scene.add(obj);
-        this.dynamicObjects.resources.push(obj);
-      },
-      undefined,
-      (error) => {
-        console.warn("Failed to load resource model", error);
-        this.addFallbackBox(position, 0xffff00, { x: 2, y: 4, z: 2 });
-      }
-    );
-  }
+  // addResourceFromBackend(resource, position) {
+  //   if (!position) return;
 
-  // Helper para cuando falla un modelo 3D
-  addFallbackBox(position, color, size = { x: 10, y: 10, z: 10 }) {
-    const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    const material = new THREE.MeshStandardMaterial({ color: color });
-    const cube = new THREE.Mesh(geometry, material);
-    
-    cube.position.copy(position);
-    cube.castShadow = true;
-    cube.receiveShadow = true;
-    
-    this.scene.add(cube);
-    // Lo guardamos en buildings por defecto para tener referencia
-    this.dynamicObjects.buildings.push(cube);
-  }
+  //   // Adjust this to your DTO: type or resourceType
+  //   const type = (resource.type || resource.resourceType || "").toLowerCase();
+
+  //   let modelPath = "";
+  //   if (type.includes("crane")) {
+  //     modelPath = "/models/crane.glb";
+  //   } else if (type.includes("truck")) {
+  //     modelPath = "/models/truck.glb";
+  //   }
+
+  //   if (modelPath) {
+  //     this.loader.load(
+  //       modelPath,
+  //       (gltf) => {
+  //         const obj = gltf.scene;
+  //         const scale = type.includes("crane") ? 1.2 : 2.5;
+  //         obj.scale.set(scale, scale, scale);
+  //         obj.position.copy(position);
+
+  //         obj.traverse((node) => {
+  //           if (node.isMesh) {
+  //             node.castShadow = true;
+  //             node.receiveShadow = true;
+  //           }
+  //         });
+
+  //         obj.userData = {
+  //           pickable: true,
+  //           type: "resource",
+  //           resourceId: resource.id || resource.code,
+  //           resourceType: type,
+  //         };
+
+  //         this.scene.add(obj);
+
+  //         // ✅ Add to dynamicObjects
+  //         this.dynamicObjects.resources.push(obj);
+
+  //         // ✅ Add to cameraController pickables here
+  //         if (this.cameraController) {
+  //           this.cameraController.pickables.push(obj);
+  //         }
+
+  //         console.log("Resource added:", resource.code || resource.id);
+  //       }
+  //     );
+
+  //   } else {
+  //     this.addResourceFallbackCube(resource, position);
+  //   }
+  // }
+
+  // addResourceFallbackCube(resource, position) {
+  //   const geometry = new THREE.BoxGeometry(10, 20, 10);
+  //   const material = new THREE.MeshStandardMaterial({ color: 0x00aaee });
+  //   const cube = new THREE.Mesh(geometry, material);
+
+  //   cube.position.copy(position);
+  //   cube.castShadow = true;
+  //   cube.receiveShadow = true;
+
+  //   cube.userData = {
+  //     pickable: true,
+  //     type: "resource",
+  //     resourceId: resource.id || resource.code,
+  //   };
+  //   this.scene.add(cube);
+  //   this.dynamicObjects.resources.push(cube);
+  // }
 
   // ==========================
   //  Original code
@@ -373,27 +268,101 @@ export class PortBuilder {
     // Sky background
     this.scene.background = new THREE.Color(config.hemisphere.skyColor);
 
-    this.scene.fog = new THREE.Fog(0xa0d8ef, 220, 2000);
+    this.scene.fog = new THREE.Fog(0xa0d8ef, 40, 135);
     console.log("Lighting setup complete (Ambient + Directional + Hemisphere + Sky)");
   }
 
   buildFacility(facility) {
-    // Si tienes elementos estáticos en el JSON que NO vienen de la DB
-    // como la plataforma de hormigón base
-    if (facility.type === "dock") {
-       this.buildProceduralBlock(facility);
+    //Imported models
+    if (
+      facility.type === "vessel" ||
+      facility.type === "container_stack" ||
+      facility.type === "crane"
+    ) {
+      this.loadModelForFacility(facility);
+      return;
     }
+
+    //Simple procedural objects
+    this.buildProceduralBlock(facility);
   }
 
+  //For imported models
+  loadModelForFacility(facility) {
+    let modelPath = "";
+    let scale = 1;
+    let rotationY = 0;
+    let yOffset = 0;
+
+    // Models
+    if (facility.id === "BIG_CARGO") {
+      modelPath = "/models/container_ship.glb";
+      scale = 40.0;
+      rotationY = Math.PI;
+      yOffset = 6.0;
+    } else if (facility.id === "SMALL_BOAT") {
+      modelPath = "/models/fishing_boat.glb";
+      scale = 4.0;
+      rotationY = -Math.PI / 2;
+      yOffset = 3.0;
+    } else if (facility.type === "container_stack") {
+      modelPath = "/models/container_stack.glb";
+      scale = 2.5;
+      yOffset = 2.15;
+    } else if (facility.type === "crane") {
+      modelPath = "/models/crane.glb";
+      scale = 1.2;
+      yOffset = 0.0;
+      rotationY = Math.PI / 2;
+    }
+
+    if (!modelPath) return;
+
+    this.loader.load(modelPath, (gltf) => {
+      const model = gltf.scene;
+
+      model.position.set(
+        facility.position.x,
+        facility.position.y + yOffset,
+        facility.position.z
+      );
+      model.scale.set(scale, scale, scale);
+      model.rotation.y = rotationY;
+
+      this.setPickable(model, { type: facility.type, id: facility.id, name: facility.name });
+      this.addToPickables(model);
+
+      this.scene.add(model);
+      console.log(`Loaded: ${facility.name}`);
+    });
+  }
+
+
+  //Simple objects (dock)
   buildProceduralBlock(facility) {
-    const { width, depth, length } = facility.dimensions;
-    const geometry = new THREE.BoxGeometry(width, depth, length);
-    
+    const width = facility.dimensions.width;
+    const height = facility.dimensions.depth;
+    const length = facility.dimensions.length;
+
+    const geometry = new THREE.BoxGeometry(width, height, length);
+
+    const repeatU = width / 2;
+    const repeatV = length / 2;
     const materialConfig = this.data.materials.dock;
-    const material = this.materialManager.createMaterial(materialConfig, width/2, length/2);
-    
+    const material = this.materialManager.createMaterial(
+      materialConfig,
+      repeatU,
+      repeatV
+    );
     const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(facility.position.x, facility.position.y + depth / 2, facility.position.z);
+
+    mesh.position.set(
+      facility.position.x,
+      facility.position.y + height / 2,
+      facility.position.z
+    );
+
+    mesh.castShadow = true;
     mesh.receiveShadow = true;
 
     this.setPickable(mesh, { type: facility.type || "facility", id: facility.id, name: facility.name });

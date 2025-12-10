@@ -1,37 +1,32 @@
-// Frontend/src/pages/Visualisation.jsx
 import React from "react";
-import ThumbRaiserComponent from "../components/Thumb_Raiser";
-
-// Frontend/src/pages/Visualisation.jsx
+// Assuming you have imported the corrected ThumbRaiserComponent from the previous step
+import ThumbRaiserComponent from "../components/Thumb_Raiser"; 
 
 const Visualisation = () => {
   return (
-    <main style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    // The main container that centers the content horizontally
+    <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       
       <h1>Visualisation</h1>
       <p>This is the visualisation page.</p>
 
-      {/* Contenedor GRANDE y FIJO */}
       <div 
           style={{ 
-              position: 'auto',
-              display: 'flex',
-              justifyContent: 'center',
-              width: '100%',        // Ancho relativo a la pantalla
+              display: 'flex', 
+              justifyContent: 'center', 
+              width: '150%', 
               maxWidth: '1600px', 
-              height: '90vh',      // Altura fija (80% de la pantalla)
-              margin: '0 auto',
-              marginBottom: '40px',
-              backgroundColor: '#000', // Fondo negro para evitar flasheos blancos
-              overflow: 'hidden',  // Evita scrollbars
-              borderRadius: '8px', // Opcional: bordes redondeados
-              boxShadow: '0 4px 10px rgba(0,0,0,0.3)' // Opcional: sombra
+              margin: '0px auto',
+              marginBottom: '80px' 
           }}
       >
-          <ThumbRaiserComponent /> 
+          <div className="VisualizationCanvasWrapper"> 
+              <ThumbRaiserComponent /> 
+          </div>
       </div>
       
     </main>
   );
 };
+
 export default Visualisation;
