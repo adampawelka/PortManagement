@@ -1,31 +1,41 @@
-import react from "react";
-import "../styles/Thumb_Raiser.css";
-
+import React, { useEffect, useRef } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import "../styles/Thumb_Raiser.css"; // Asegúrate de que este archivo no tenga estilos que oculten el canvas
 import Orientation from "../../Visualisation/Basic_Thumb_Raiser/orientation";
 import * as THREE from "three";
 import ThumbRaiser from "../../Visualisation/Basic_Thumb_Raiser/thumb_raiser";
 
 const ThumbRaiserComponent = (): React.JSX.Element => {
-  react.useEffect(() => {
-    console.log("Initialize ThumbRaiser 3D scene");
+  const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+  // Usamos ref solo para guardar la instancia de la clase, no para el DOM
+  const thumbRaiserRef = useRef<ThumbRaiser | null>(null);
+  const loadedRef = useRef(false);
 
-    // 1. Crear la instancia del motor 3D
+  useEffect(() => {
+    // 1. Evitar doble carga en React Strict Mode
+    if (loadedRef.current || isLoading || !isAuthenticated) return;
+    
+    // 2. Verificación de seguridad: ¿Existe el elemento en el DOM?
+    const canvasElement = document.getElementById("myCanvas");
+    if (!canvasElement) {
+        console.error("Canvas element not found!");
+        return;
+    }
+
+    loadedRef.current = true;
+    console.log("Initialize ThumbRaiser 3D scene directly looking for ID");
+
+    // -----------------------------------------------------------
+    // TU CÓDIGO ORIGINAL (Sin pasar el canvas por parámetro)
+    // -----------------------------------------------------------
     const thumbRaiser = new ThumbRaiser(
-      {}, // General Parameters
-      { scale: new THREE.Vector3(1.0, 0.5, 1.0) }, // Maze parameters
+      {}, 
+      { scale: new THREE.Vector3(1.0, 0.5, 1.0) }, 
       {
         ambientLight: { intensity: 0.1 },
-        pointLight1: {
-          intensity: 50.0,
-          distance: 20.0,
-          position: new THREE.Vector3(-3.5, 10.0, 2.5),
-        },
-        pointLight2: {
-          intensity: 50.0,
-          distance: 20.0,
-          position: new THREE.Vector3(3.5, 10.0, -2.5),
-        },
-      }, // Lights parameters
+        pointLight1: { intensity: 50.0, distance: 20.0, position: new THREE.Vector3(-3.5, 10.0, 2.5) },
+        pointLight2: { intensity: 50.0, distance: 20.0, position: new THREE.Vector3(3.5, 10.0, -2.5) },
+      }, 
       {
         view: "third-person",
         multipleViewsViewport: new THREE.Vector4(0.0, 0.0, 0.55, 0.5),
@@ -33,67 +43,91 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
         initialDistance: 2.0,
         distanceMin: 1.0,
         distanceMax: 4.0,
-      } // Third-person view camera parameters
+      }
+      // NO pasamos el canvas aquí, ya que tu clase lo busca por ID dentro.
     );
 
-    // 2. Cargar datos dinámicos desde el backend (US 3.3.3)
+    thumbRaiserRef.current = thumbRaiser;
+
+    // -----------------------------------------------------------
+    // CARGA DE DATOS (Igual que antes)
+    // -----------------------------------------------------------
     const loadDynamicData = async () => {
       try {
-        const [vvnRes, resRes, docksRes] = await Promise.all([
-          fetch("/api/VesselVisitNotifications"),
-          fetch("/api/Resources"),
-          fetch("/api/Docks"),
+        const token = await getAccessTokenSilently();
+        const headers = { Authorization: `Bearer ${token}` };
+        // Asegúrate de que este puerto sea correcto (https vs http)
+        const BASE_URL = "http://localhost:5000/api"; 
+
+        const [vvnRes, resRes, docksRes, wareRes] = await Promise.all([
+          fetch(`${BASE_URL}/VesselVisitNotifications`, { headers }),
+          fetch(`${BASE_URL}/Resources`, { headers }),
+          fetch(`${BASE_URL}/Docks`, { headers }),
+          fetch(`${BASE_URL}/StorageAreas`, { headers }) 
         ]);
 
-        if (!vvnRes.ok || !resRes.ok || !docksRes.ok) {
-          console.error("Error HTTP al cargar datos para la visualización 3D", {
-            vvnStatus: vvnRes.status,
-            resStatus: resRes.status,
-            docksStatus: docksRes.status,
-          });
-          return;
+        if (vvnRes.ok && resRes.ok && docksRes.ok) {
+           const data = await Promise.all([
+             vvnRes.json(), 
+             resRes.json(), 
+             docksRes.json(), 
+             wareRes.ok ? wareRes.json() : []
+           ]);
+
+           thumbRaiser.loadDynamicObjects({
+             vesselVisitNotifications: data[0],
+             resources: data[1],
+             docks: data[2],
+             storageAreas: data[3]
+           });
         }
-
-        const [vesselVisitNotifications, resources, docks] = await Promise.all([
-          vvnRes.json(),
-          resRes.json(),
-          docksRes.json(),
-        ]);
-
-        // Pasamos los datos al motor 3D
-        thumbRaiser.loadDynamicObjects({
-          vesselVisitNotifications,
-          resources,
-          docks,
-        });
       } catch (err) {
-        console.error("Error al cargar datos dinámicos para la escena 3D", err);
+        console.error("Error loading data", err);
       }
     };
 
     loadDynamicData();
 
-    // 3. Bucle de animación
+    // -----------------------------------------------------------
+    // ANIMATION LOOP
+    // -----------------------------------------------------------
     let animationFrameId: number;
-
     const animate = () => {
-      thumbRaiser.update();
+      // Importante: chequeo de seguridad
+      if (thumbRaiserRef.current) {
+        thumbRaiserRef.current.update();
+      }
       animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
 
-    // 4. Limpieza opcional (si añadís un dispose() en ThumbRaiser)
+    // Cleanup al desmontar
     return () => {
-      if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      // Si en el futuro creáis thumbRaiser.dispose(), se llamaría aquí.
+      cancelAnimationFrame(animationFrameId);
+      loadedRef.current = false;
     };
-  }, []);
+  }, [isAuthenticated, isLoading, getAccessTokenSilently]);
+
+  if (isLoading) return <div>Loading Scene...</div>;
 
   return (
     <>
       <div id="parent"></div>
-      <canvas id="myCanvas"></canvas>
+      
+      {/* SOLUCIÓN CRÍTICA: 
+         Estilos en línea para forzar al canvas a ocupar el espacio 
+         y comportarse como bloque.
+      */}
+      <canvas 
+        id="myCanvas" 
+        style={{ 
+            display: "block", 
+            width: "100%", 
+            height: "100%", 
+            outline: "none" 
+        }}
+      ></canvas>
     </>
   );
 };
