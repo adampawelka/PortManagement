@@ -19,19 +19,19 @@ export const menuItems = [
       },
       {
         name: "Approve Notifications",
-        key: "approved_notifications",
+        key: "approve_notifications",
         path: "/vvn/approve",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
         name: "Reject Notifications",
-        key: "rejected_notifications",
+        key: "reject_notifications",
         path: "/vvn/reject",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
         name: "Submit Notifications",
-        key: "submitted_notifications",
+        key: "submit_notifications",
         path: "/vvn/submit",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
@@ -98,7 +98,7 @@ export const menuItems = [
       {
         name: "Add New Dock",
         key: "add_new_dock",
-        path: "/docks/new",
+        path: "/docks/add",
         roles: ["PortAuthorityOfficer", "LogisticsOperator"],
       },
       {
@@ -124,7 +124,7 @@ export const menuItems = [
       {
         name: "Add New Vessel",
         key: "add_new_vessel",
-        path: "/vessels/new",
+        path: "/vessels/add",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
       },
       {
@@ -136,7 +136,7 @@ export const menuItems = [
       {
         name: "Vessel Types",
         key: "vessel_types",
-        path: "/vessels/types",
+        //path: "/vessels/types",
         roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
         subMenu: [
           {
@@ -148,7 +148,7 @@ export const menuItems = [
           {
             name: "Add New Type",
             key: "add_new_type",
-            path: "/vessels/types/new",
+            path: "/vessels/types/add",
             roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
           },
           {
@@ -175,15 +175,27 @@ export const menuItems = [
     roles: ["LogisticsOperator"],
     subMenu: [
           {
-            name: "Schedule",
-            key: "schedule",
-            path: "/schedule",
+            name: "Recommended Schedule",
+            key: "recommended_schedule",
+            path: "/recommended-schedule",
+            roles: ["LogisticsOperator"],
+          },
+          {
+            name: "Optimal Schedule",
+            key: "optimal_schedule",
+            path: "/optimal-schedule",
             roles: ["LogisticsOperator"],
           },
           {
             name: "Alternative Schedule",
             key: "alternative_schedule",
             path: "/alternative-schedule",
+            roles: ["LogisticsOperator"],
+          },
+          {
+            name: "Schedule Multi Crane",
+            key: "multi_crane_schedule",
+            path: "/multi-crane-schedule",
             roles: ["LogisticsOperator"],
           },
           {
@@ -206,13 +218,13 @@ export const menuItems = [
         name: "Users",
         key: "users",
         path: "/user-management/users",
-        roles: ["Administrator"],
+        roles: ["Administrator", "LogisticsOperator"],
       },
       {
         name: "Pending Users",
         key: "pending_users",
         path: "/user-management/pending-users",
-        roles: ["Administrator"],
+        roles: ["Administrator", "LogisticsOperator"],
       }
     ]
   },

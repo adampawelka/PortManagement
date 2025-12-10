@@ -6,6 +6,7 @@ using DDDSample1.Domain.Shared;
 using DDDSample1.Domain.Vessels;
 using DDDSample1.Domain.ShippingAgents;
 using DDDSample1.Domain.Docks;
+using DDDSample1.Infrastructure.VesselVisitNotifications;
 
 namespace DDDSample1.Domain.VesselVisitNotifications
 {

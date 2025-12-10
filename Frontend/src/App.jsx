@@ -7,36 +7,41 @@ import GlobalLayout from "./components/GlobalLayout.jsx";
 import LoginButton from "./components/LoginButton.jsx";
 
 import Home from "./pages/Home.jsx";
+
 import Visualisation from "./pages/Visualisation.jsx";
-import Scheduling from "./pages/Scheduling.jsx";
-import Schedule from "./pages/Schedule.jsx";
-import AlternativeSchedule from "./pages/Alternative_Schedule.jsx";
-import TestAlgorithms from "./pages/TestAlgorithms.jsx";
-import UserManagement from "./pages/UserManagement.jsx";
 
-import RejectVvnPage from "./pages/RejectVvnPage.jsx";
-import ApproveVvnPage from "./pages/ApproveVvnPage.jsx";
-import ListNotificationsPage from "./pages/ListNotificationsPage.jsx";
-import AddVNNPage from "./pages/AddVVNPage.jsx";
-import SubmitVvnPage from "./pages/SubmitVVNPage.jsx";
+import OptimalSchedule from "./pages/Scheduling/OptimalSchedule.jsx";
+import AlternativeSchedule from "./pages/Scheduling/AlternativeSchedule.jsx";
+import RecommendedSchedule from "./pages/Scheduling/RecommendedSchedule.jsx";
+import TestAlgorithms from "./pages/Scheduling/TestAlgorithms.jsx";
+import MultiCraneSchedule from "./pages/Scheduling/MultiCraneSchedule.jsx";
 
-import DocksListPage from "./pages/DocksListPage.jsx";
-import AvailableResourcesPage from "./pages/AvailableResourcesList.jsx";
-import AddResourcePage from "./pages/AddResourcesPage.jsx";
-import StorageAreasPage from "./pages/StorageAreasPage.jsx";
-import AddStorageAreaPage from "./pages/AddStorageArea.jsx";
+import UsersManagementPage from "./pages/Users/UsersManagement.jsx";
+import PendingUsersManagementPage from "./pages/Users/PendingUsersManagementPage.jsx";
 
-import VesselsListPage from "./pages/VesselsListPage.jsx";
-import AddVesselPage from "./pages/AddVesselPage.jsx";
-import SearchVesselPage from "./pages/SearchVesselPage.jsx";
+import RejectVVNPage from "./pages/VesselVisitNotifications/RejectVVNPage.jsx";
+import ApproveVVNPage from "./pages/VesselVisitNotifications/ApproveVVNPage.jsx";
+import ListNotificationsPage from "./pages/VesselVisitNotifications/ListNotificationsPage.jsx";
+import AddVNNPage from "./pages/VesselVisitNotifications/AddVVNPage.jsx";
+import SubmitVVNPage from "./pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 
+import AvailableResourcesPage from "./pages/Resources/AvailableResourcesList.jsx";
+import AddResourcePage from "./pages/Resources/AddResourcesPage.jsx";
 
-import VesselTypePage from "./pages/VesselTypesListPage.jsx";
-import AddVesselTypePage from "./pages/AddVesselTypePage.jsx";
-import SearchVesselTypePage from "./pages/SearchVesselType.jsx";
+import StorageAreasPage from "./pages/StorageAreas/StorageAreasPage.jsx";
+import AddStorageAreaPage from "./pages/StorageAreas/AddStorageArea.jsx";
 
-import AddDockPage from "./pages/AddDockPage.jsx";
-import SearchDockPage from "./pages/SearchDockPage.jsx";
+import VesselsListPage from "./pages/Vessels/VesselsListPage.jsx";
+import AddVesselPage from "./pages/Vessels/AddVesselPage.jsx";
+import SearchVesselPage from "./pages/Vessels/SearchVesselPage.jsx";
+
+import VesselTypePage from "./pages/Vessels/VesselTypesListPage.jsx";
+import AddVesselTypePage from "./pages/Vessels/AddVesselTypePage.jsx";
+import SearchVesselTypePage from "./pages/Vessels/SearchVesselTypePage.jsx";
+
+import DocksListPage from "./pages/Docks/DocksListPage.jsx";
+import AddDockPage from "./pages/Docks/AddDockPage.jsx";
+import SearchDockPage from "./pages/Docks/SearchDockPage.jsx";
 
 
 import { useApi } from "./services/api.js";
@@ -77,7 +82,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] , testUser = null}) => {
         // TEMPORARY DEVELOPMENT USER
         // ----------------------------------------
         const data1 = {
-          role: "LogisticsOperator",   // CHANGE HERE THE ROLE 
+          role: "LogisticsOperator",   // CHANGE HERE THE ROLE
           status: "Active"
         }; //roles: "Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"
 
@@ -275,7 +280,7 @@ const App = () => {
         />
 
         <Route
-          path="docks/new"
+          path="docks/add"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AddDockPage />
@@ -290,8 +295,6 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-
-
 
         <Route
           path="/vessels/list"
@@ -321,7 +324,7 @@ const App = () => {
         />
 
         <Route
-          path="/vessels/new"
+          path="/vessels/add"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AddVesselPage />
@@ -330,7 +333,7 @@ const App = () => {
         />
 
         <Route
-          path="/vessels/types/new"
+          path="/vessels/types/add"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AddVesselTypePage />
@@ -352,7 +355,7 @@ const App = () => {
           path="/vvn/approve"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
-              <ApproveVvnPage />
+              <ApproveVVNPage />
             </ProtectedRoute>
           }
         />
@@ -370,7 +373,7 @@ const App = () => {
           path="/vvn/reject"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
-              <RejectVvnPage />
+              <RejectVVNPage />
             </ProtectedRoute>
           }
         />
@@ -379,7 +382,7 @@ const App = () => {
           path="/vvn/submit"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
-              <SubmitVvnPage />
+              <SubmitVVNPage />
             </ProtectedRoute>
           }
         />
@@ -394,16 +397,6 @@ const App = () => {
           }
         />
         
-
-        <Route
-          path="scheduling"
-          element={
-            <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
-              <Scheduling />
-            </ProtectedRoute>
-          }
-            
-        />
 
         <Route
           path="/alternative-schedule"
@@ -425,28 +418,37 @@ const App = () => {
         />
 
         <Route
-          path="schedule"
+          path="/optimal-schedule"
           element={
             <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
-              <Schedule />
+              <OptimalSchedule />
             </ProtectedRoute>
           }
         />
 
-        {/* <Route
-          path="user-management"
+        <Route
+            path="/multi-crane-schedule"
+            element={
+              <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
+                <MultiCraneSchedule />
+              </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/recommended-schedule"
           element={
-            <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
-              <UserManagement />
+            <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
+              <RecommendedSchedule />
             </ProtectedRoute>
           }
-        /> */}
+        />
 
         <Route
           path="user-management/users"
           element={
-            <ProtectedRoute requiredRoles={["Administrator"]}>
-              <UserManagement />
+            <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
+              <UsersManagementPage />
             </ProtectedRoute>
           }
         />
@@ -454,8 +456,8 @@ const App = () => {
         <Route
           path="user-management/pending-users"
           element={
-            <ProtectedRoute requiredRoles={["Administrator"]}>
-              <UserManagement />
+            <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
+              <PendingUsersManagementPage />
             </ProtectedRoute>
           }
         />

@@ -29,6 +29,7 @@ using DDDSample1.Infrastructure.Resources;
 using DDDSample1.Infrastructure.Users;
 using DDDSample1.Infrastructure.StaffMembers;
 
+
 // JWT
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -158,6 +159,7 @@ namespace DDDSample1
             services.AddTransient<PendingUserService>();
             services.AddTransient<IStaffMemberRepository, StaffMemberRepository>();
             services.AddTransient<StaffMemberService>();
+            services.AddTransient<IEmailSender, EmailSender>(); 
         }
     }
 }
