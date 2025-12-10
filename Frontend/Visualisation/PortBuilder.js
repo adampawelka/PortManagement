@@ -395,7 +395,31 @@ export class PortBuilder {
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(facility.position.x, facility.position.y + depth / 2, facility.position.z);
     mesh.receiveShadow = true;
+
+    this.setPickable(mesh, { type: facility.type || "facility", id: facility.id, name: facility.name });
+    this.addToPickables(mesh);
+
     this.scene.add(mesh);
+  }
+
+
+  setPickable(object3D, userData) {
+    // Assign userData to the top-level object
+    object3D.userData = { pickable: true, ...userData };
+
+    object3D.traverse(node => {
+      if (node.isMesh) {
+        node.userData = { pickable: true, ...userData };
+        if (Array.isArray(node.material)) node.material.forEach(m => m.emissive ??= new THREE.Color(0x000000));
+        else node.material.emissive ??= new THREE.Color(0x000000);
+      }
+    });
+  }
+
+
+  addToPickables(object3D) {
+    if (!this.cameraController || !object3D.userData?.pickable) return;
+    this.cameraController.pickables.push(object3D);
   }
 
   // Make the sea

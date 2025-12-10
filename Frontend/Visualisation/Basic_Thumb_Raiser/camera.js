@@ -41,6 +41,7 @@ export default class Camera {
 
         this.setWindowSize(windowWidth, windowHeight);
         this.initialize();
+
     }
 
     /*
