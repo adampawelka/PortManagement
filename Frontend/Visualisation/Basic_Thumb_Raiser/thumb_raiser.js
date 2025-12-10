@@ -184,7 +184,7 @@ export default class ThumbRaiser {
     // ---------------------------------------------------------
 
     // Posicionar la cámara lejos para ver todo
-    this.thirdPersonViewCamera.object.position.set(0, 50, 120);
+    this.thirdPersonViewCamera.object.position.set(0, 80, 160);
     this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
 
     this.gameRunning = true;
