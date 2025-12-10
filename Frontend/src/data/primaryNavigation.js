@@ -1,6 +1,6 @@
-export const menuItems = [
-  { 
-    name: "Home", 
+export const primaryNavigationItems = [
+  {
+    name: "Home",
     key: "home",
     path: "/",
     roles: null
@@ -93,7 +93,7 @@ export const menuItems = [
         name: "Dock List",
         key: "dock_list",
         path: "/docks/list",
-        roles: ["PortAuthorityOfficer", "LogisticsOperator","admin", "guest"],
+        roles: ["PortAuthorityOfficer", "LogisticsOperator", "admin", "guest"],
       },
       {
         name: "Add New Dock",
@@ -161,77 +161,27 @@ export const menuItems = [
       },
     ],
   },
-  // TO-ADD VISUALISATION PERMS 
   {
-    name: "Visualisation",
-    key: "visualisation",
-    path: "/visualisation",
-    roles: ["admin", "user", "guest", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
-  },
-  {
-    name: "Scheduling",
-    key: "scheduling",
-    path: "/scheduling",
-    roles: ["LogisticsOperator"],
-    subMenu: [
-          {
-            name: "Operational Plans",
-            key: "operational_plans",
-            path: "/operational-plans",
-            roles: ["LogisticsOperator"],
-          },
-          {
-            name: "Recommended Schedule",
-            key: "recommended_schedule",
-            path: "/recommended-schedule",
-            roles: ["LogisticsOperator"],
-          },
-          {
-            name: "Optimal Schedule",
-            key: "optimal_schedule",
-            path: "/optimal-schedule",
-            roles: ["LogisticsOperator"],
-          },
-          {
-            name: "Alternative Schedule",
-            key: "alternative_schedule",
-            path: "/alternative-schedule",
-            roles: ["LogisticsOperator"],
-          },
-          {
-            name: "Schedule Multi Crane",
-            key: "multi_crane_schedule",
-            path: "/multi-crane-schedule",
-            roles: ["LogisticsOperator"],
-          },
-          {
-            name: "Test Algorithms",
-            key: "test_algorithms",
-            path: "/test-algorithms",
-            roles: ["admin", "user", "guest"],
-          },
-          
-    ]
-  },
-  {
-  name: "User Management",
-  key: "user_management",
-  path: "/user-management",
-  roles: ["Administrator", "LogisticsOperator"],
-  subMenu: 
-    [
-      {
-        name: "Users",
-        key: "users",
-        path: "/user-management/users",
-        roles: ["Administrator", "LogisticsOperator"],
-      },
-      {
-        name: "Pending Users",
-        key: "pending_users",
-        path: "/user-management/pending-users",
-        roles: ["Administrator", "LogisticsOperator"],
-      }
-    ]
+    name: "User Management",
+    key: "user_management",
+    path: "/user-management",
+    roles: ["Administrator", "LogisticsOperator"],
+    subMenu:
+      [
+        {
+          name: "Users",
+          key: "users",
+          path: "/user-management/users",
+          roles: ["Administrator", "LogisticsOperator"],
+        },
+        {
+          name: "Pending Users",
+          key: "pending_users",
+          path: "/user-management/pending-users",
+          roles: ["Administrator", "LogisticsOperator"],
+        }
+      ]
   },
 ];
+
+

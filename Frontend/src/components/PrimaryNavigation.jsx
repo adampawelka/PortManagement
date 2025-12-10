@@ -1,22 +1,21 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { menuItems } from "../data/menus.js"; // Import menu items
+import { primaryNavigationItems } from "../data/primaryNavigation.js"; 
 import { useUser } from "../App.jsx"; 
-import "../styles/PrimaryNavigation.css"; // Import the CSS
+import "../styles/PrimaryNavigation.css"; 
 import { useAuth0 } from '@auth0/auth0-react';
 
 
 const PrimaryNavigation = () => {
-  const { t } = useTranslation(); // Translation function
+  const { t } = useTranslation(); 
   const user = useUser(); 
   const currentUserRole = user?.role || null;
   
   // Filter menu items based on the user's role
-  const filteredMenuItems = menuItems.filter(
+  const filteredMenuItems = primaryNavigationItems.filter(
     (item) => 
-      (!item.roles || item.roles.includes(currentUserRole)) &&
-      !["visualisation", "scheduling"].includes(item.key)
+      (!item.roles || item.roles.includes(currentUserRole))
   );
 
   // Recursive function to render submenus

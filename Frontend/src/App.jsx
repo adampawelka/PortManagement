@@ -16,7 +16,7 @@ import RecommendedSchedule from "./pages/Scheduling/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/Scheduling/TestAlgorithms.jsx";
 import MultiCraneSchedule from "./pages/Scheduling/MultiCraneSchedule.jsx";
 
-import OperationalPlans from "./pages/Scheduling/OperationalPlans.jsx";
+import OperationalPlansGenerate from "./pages/Scheduling/OperationalPlans.jsx";
 
 import UsersManagementPage from "./pages/Users/UsersManagement.jsx";
 import PendingUsersManagementPage from "./pages/Users/PendingUsersManagementPage.jsx";
@@ -401,13 +401,22 @@ const App = () => {
         
 
         <Route
-          path="/operational-plans"
+          path="/operational-plans/generate"
           element={
             <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
-              <OperationalPlans />
+              <OperationalPlansGenerate />
             </ProtectedRoute>
            }
         />
+
+        {/* <Route
+          path="/operational-plans/list"
+          element={
+            <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
+              <OperationalPlansList />
+            </ProtectedRoute>
+           }
+        /> */}
 
         <Route
           path="/alternative-schedule"

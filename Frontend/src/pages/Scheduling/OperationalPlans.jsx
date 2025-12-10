@@ -21,7 +21,7 @@ import {
 
 import { useOperationalPlansVM } from "../../viewmodels/Scheduling/useOperationalPlansVM";
 
-const OperationalPlans = () => {
+const OperationalPlansGenerate = () => {
     const {
         date,
         setDate,
@@ -349,4 +349,4 @@ const OperationalPlans = () => {
     );
 };
 
-export default OperationalPlans;
+export default OperationalPlansGenerate;

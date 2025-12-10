@@ -42,6 +42,8 @@
   "multi_crane_schedule": "Schedule with Multiple Cranes",
   "recommended_schedule": "Recommended Schedule",
   "operational_plans": "Operational Plans",
+  "operational_plans_generate": "Generate Operational Plans",
+  "operational_plans_list": "Search Operational Plans",
   "test_algorithms": "Test Algorithms",
   "user_management": "User Management",
   "users": "Users",
