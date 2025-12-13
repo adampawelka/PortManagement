@@ -5,7 +5,7 @@ namespace OEMAPI.Domain.ExecutedOperations
     public class CreatingExecutedOperationDto
     {
         public string VveId { get; set; }
-        public string PlannedOperationId { get; set; }
+        public Guid PlannedOperationId { get; set; }
         public string ResourceId { get; set; }
         public string StaffId { get; set; }
         public DateTime ActualStart { get; set; }
@@ -14,7 +14,7 @@ namespace OEMAPI.Domain.ExecutedOperations
 
         public CreatingExecutedOperationDto(
             string vveId,
-            string plannedOperationId,
+            Guid plannedOperationId,
             string resourceId,
             string staffId,
             DateTime actualStart,

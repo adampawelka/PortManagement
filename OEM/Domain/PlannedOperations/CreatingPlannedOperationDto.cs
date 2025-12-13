@@ -4,7 +4,7 @@ namespace OEMAPI.Domain.PlannedOperations
 {
     public class CreatingPlannedOperationDto
     {
-        public string OperatorPlanId { get; set; }
+        public Guid OperatorPlanId { get; set; }
         public string ResourceId { get; set; }
         public string StaffId { get; set; }
         public DateTime PlannedStart { get; set; }
@@ -13,7 +13,7 @@ namespace OEMAPI.Domain.PlannedOperations
         public string Status { get; set; }
 
         public CreatingPlannedOperationDto(
-            string operatorPlanId,
+            Guid operatorPlanId,
             string resourceId,
             string staffId,
             DateTime plannedStart,

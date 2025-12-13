@@ -1,10 +1,10 @@
-
+using OEMAPI.Domain.IncidentTypes;
 
 namespace OEMAPI.Domain.Incidents
 {
     public class Incident : Entity<IncidentId>, IAggregateRoot
     {
-        public IncidentTypeId IncidentTypeId { get; private set; }
+        public IncidentType IncidentType { get; private set; }
         public StartTime StartTime { get; private set; }
         public EndTime EndTime { get; private set; }
         public Severity Severity { get; private set; }
@@ -14,14 +14,14 @@ namespace OEMAPI.Domain.Incidents
         private Incident() { }
 
         public Incident(
-            IncidentTypeId incidentTypeId, 
+            IncidentType incidentType, 
             StartTime startTime, 
             Severity severity,
             Description description,
             CreatedBy createdBy)
         {
             Id = new IncidentId(Guid.NewGuid().ToString());
-            IncidentTypeId = incidentTypeId;
+            IncidentType = incidentType;
             StartTime = startTime;
             Severity = severity;
             Description = description;

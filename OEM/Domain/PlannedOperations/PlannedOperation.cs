@@ -1,8 +1,10 @@
+using OEMAPI.Domain.OperatorPlans;
+
 namespace OEMAPI.Domain.PlannedOperations
 {
     public class PlannedOperation : Entity<PlannedOperationId>, IAggregateRoot
     {
-        public OperatorPlanId OperatorPlanId { get; private set; }
+        public OperatorPlan OperatorPlan { get; private set; }
         public ResourceId ResourceId { get; private set; }
         public StaffId StaffId { get; private set; }
         public PlannedStart PlannedStart { get; private set; }
@@ -13,7 +15,7 @@ namespace OEMAPI.Domain.PlannedOperations
         private PlannedOperation() { }
 
         public PlannedOperation(
-            OperatorPlanId operatorPlanId,
+            OperatorPlan operatorPlan,
             ResourceId resourceId,
             StaffId staffId,
             PlannedStart plannedStart,
@@ -22,7 +24,7 @@ namespace OEMAPI.Domain.PlannedOperations
             Status status)
         {
             Id = new PlannedOperationId(Guid.NewGuid().ToString());
-            OperatorPlanId = operatorPlanId;
+            OperatorPlan = operatorPlan;
             ResourceId = resourceId;
             StaffId = staffId;
             PlannedStart = plannedStart;

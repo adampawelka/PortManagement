@@ -6,7 +6,7 @@ namespace OEMAPI.Domain.ExecutedOperations
     {
         public Guid Id { get; set; }
         public string VveId { get; set; }
-        public string PlannedOperationId { get; set; }
+        public Guid PlannedOperationId { get; set; }
         public string ResourceId { get; set; }
         public string StaffId { get; set; }
         public DateTime ActualStart { get; set; }

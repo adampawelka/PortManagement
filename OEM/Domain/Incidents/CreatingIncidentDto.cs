@@ -4,14 +4,14 @@ namespace OEMAPI.Domain.Incidents
 {
     public class CreatingIncidentDto
     {
-        public string IncidentTypeId { get; set; }
+        public Guid IncidentTypeId { get; set; }
         public DateTime StartTime { get; set; }
         public string Severity { get; set; }
         public string Description { get; set; }
         public string CreatedBy { get; set; }
 
         public CreatingIncidentDto(
-            string incidentTypeId,
+            Guid incidentTypeId,
             DateTime startTime,
             string severity,
             string description,
