@@ -19,7 +19,7 @@ import { PortBuilder } from "../PortBuilder.js";
 import CameraController from "./cameraController.js";
 
 export default class ThumbRaiser {
-  constructor(generalParameters, lightsParameters, thirdPersonViewCameraParameters) {
+  constructor(generalParameters, lightsParameters, thirdPersonViewCameraParameters, onObjectSelected) {
     this.generalParameters = merge({}, generalData, generalParameters);
     this.lightsParameters = merge({}, lightsData, lightsParameters);
     this.thirdPersonViewCameraParameters = merge({}, cameraData, thirdPersonViewCameraParameters);
@@ -68,7 +68,7 @@ export default class ThumbRaiser {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this.cameraController = new CameraController(this.camera.object, this.renderer);
+    this.cameraController = new CameraController(this.camera.object, this.renderer, onObjectSelected);
     if (this.cameraController) {
     // Intentamos establecer las propiedades comunes de controladores Three.js
     this.cameraController.minDistance = 2.0;
@@ -78,6 +78,7 @@ export default class ThumbRaiser {
     this.cameraController.distanceMin = 2.0;
     this.cameraController.distanceMax = 200.0;
     }
+
 
 
     // *** Crear el puerto (PortBuilder) y guardarlo en this para usarlo después

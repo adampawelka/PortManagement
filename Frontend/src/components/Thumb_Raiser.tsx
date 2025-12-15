@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import "../styles/Thumb_Raiser.css"; // Asegúrate de que este archivo no tenga estilos que oculten el canvas
 import Orientation from "../../Visualisation/Basic_Thumb_Raiser/orientation";
@@ -6,10 +6,39 @@ import * as THREE from "three";
 import ThumbRaiser from "../../Visualisation/Basic_Thumb_Raiser/thumb_raiser";
 
 const ThumbRaiserComponent = (): React.JSX.Element => {
-  const { getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
+  const { user, getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
   // Usamos ref solo para guardar la instancia de la clase, no para el DOM
   const thumbRaiserRef = useRef<ThumbRaiser | null>(null);
   const loadedRef = useRef(false);
+
+  const [selectedInfo, setSelectedInfo] = useState<any>(null); // Datos del objeto seleccionado
+  const [showOverlay, setShowOverlay] = useState(false);       // Visibilidad del panel
+
+  // 1. Función que recibe los datos desde el mundo 3D
+  const handleObjectSelected = (data: any) => {
+    console.log("4. Objeto seleccionado:", data);
+    setSelectedInfo(data);
+    
+    // Opcional: Si quieres que se abra automáticamente al hacer clic, descomenta esto:
+    //if (data) setShowOverlay(true);
+    // else setShowOverlay(false);
+  };
+
+
+  // 2. Listener para la tecla "i"
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "i") {
+        // Solo hacemos toggle si hay algo seleccionado
+        if (selectedInfo) {
+          setShowOverlay((prev) => !prev);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedInfo]); // Dependencia importante: selectedInfo
 
   useEffect(() => {
     // 1. Evitar doble carga en React Strict Mode
@@ -42,7 +71,8 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
         initialDistance: 2.0,
         distanceMin: 1.0,
         distanceMax: 4.0,
-      }
+      },
+      handleObjectSelected
       // NO pasamos el canvas aquí, ya que tu clase lo busca por ID dentro.
     );
 
@@ -109,6 +139,22 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
   }, [isAuthenticated, isLoading, getAccessTokenSilently]);
 
   if (isLoading) return <div>Loading Scene...</div>;
+  // 2. FUNCIÓN PARA OBTENER EL ROL
+  const getUserRole = () => {
+    if (!user) return null;
+
+    // OPCIÓN A: Si has configurado Auth0 para poner roles en el namespace estándar
+    // Cambia la URL por la que hayas configurado en tu Auth0 Action/Rule
+    // return user['https://tu-proyecto/roles']?.[0];
+
+    // OPCIÓN B: Para probar AHORA MISMO (Simulación)
+    // Descomenta el que quieras probar:
+    // return "Administrator";
+    // return "PortAuthorityOfficer";
+    return "LogisticsOperator"; 
+  };
+
+  const userRole = getUserRole();
 
   return (
     <>
@@ -127,6 +173,70 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
             outline: "none" 
         }}
       ></canvas>
+      {/* --- PANEL DE INFORMACIÓN (OVERLAY) --- */}
+      {showOverlay && selectedInfo && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            right: "20px",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            maxWidth: "300px",
+            pointerEvents: "none", // IMPORTANTE: Permite hacer clic/mover cámara a través del panel
+            zIndex: 10,
+            fontFamily: "Arial, sans-serif",
+            border: "1px solid #444"
+          }}
+        >
+          <h3 style={{ marginTop: 0, color: "#4fa3ff" }}>
+            {selectedInfo.type || "Element"} Info
+          </h3>
+          
+          <div style={{ fontSize: "14px", lineHeight: "1.8", marginTop: "10px" }}>
+            
+            {/* 1. CASO DOCK: Name, Location */}
+            {selectedInfo.type === "Dock" && (
+                <>
+                    <p><strong>Name:</strong> {selectedInfo.name}</p>
+                    <p><strong>Location:</strong> {selectedInfo.location}</p>
+                </>
+            )}
+
+            {/* 2. CASO STORAGE AREA: Location, Type */}
+            {selectedInfo.type === "StorageArea" && (
+                <>
+                    <p><strong>Location:</strong> {selectedInfo.location}</p>
+                    <p><strong>Type:</strong> {selectedInfo.storageType}</p>
+                </>
+            )}
+
+            {/* 3. CASO RESOURCE: Name, Description, Type */}
+            {selectedInfo.type === "Resource" && (
+                <>
+                    <p><strong>Name:</strong> {selectedInfo.name}</p>
+                    <p><strong>Type:</strong> {selectedInfo.tipo}</p>
+                    <p><strong>Description:</strong> {selectedInfo.description}</p>
+                </>
+            )}
+
+            {/* 4. CASO VESSEL: Name, IMO */}
+            {selectedInfo.type === "Vessel" && (
+                <>
+                    <p><strong>Name:</strong> {selectedInfo.name}</p>
+                    <p><strong>IMO:</strong> {selectedInfo.IMO}</p>
+                </>
+            )}
+
+            {/* DEBUG: Mostrar ID siempre para desarrollo (puedes quitarlo luego) */}
+            <hr style={{borderColor: "#333", margin: "10px 0"}}/>
+            <p style={{ fontSize: "12px", color: "#888" }}>System ID: {selectedInfo.id}</p>
+
+          </div>
+        </div>
+      )}
     </>
   );
 };

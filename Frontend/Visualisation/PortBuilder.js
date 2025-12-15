@@ -212,12 +212,28 @@ export class PortBuilder {
           }
         });
         // --- INTERACTIVIDAD (PICKING) ---
-        // Preparamos los datos del edificio
-        const buildingInfo = {
-            type: type,          // "Dock" o "Warehouse"
-            id: entity.id,       // ID del backend
-            name: entity.name || type // Nombre o tipo si no tiene
-        };
+        let buildingInfo = {};
+
+        if (type === "Dock") {
+            // REGLAS PARA DOCKS: Name y Location
+            buildingInfo = {
+                type: "Dock",
+                name: entity.dockName || "Dock",
+                location: entity.dockLocation || `Coords (${Math.round(position.x)}, ${Math.round(position.z)})`, // Si el backend no trae location, usamos coordenadas
+                id: entity.id
+            };
+        } else if (type === "Warehouse") {
+            // REGLAS PARA STORAGE: Location y Type
+            buildingInfo = {
+                type: "StorageArea", // Cambiamos el string para identificarlo fácil en React
+                location: entity.storageAreaLocation || entity.id, // En almacenes, a veces el nombre ES la ubicación
+                storageType: entity.storageAreaType, // El requerimiento pide "Type"
+                id: entity.id
+            };
+        } else {
+             // Default
+             buildingInfo = { type: "Building", name: entity.name, id: entity.id };
+        }
 
         // 1. Lo hacemos seleccionable (resaltado)
         this.setPickable(object, buildingInfo);
@@ -225,9 +241,6 @@ export class PortBuilder {
         // 2. Lo añadimos a la lista del controlador
         this.addToPickables(object);
         // --------------------------------
-
-
-
 
         this.scene.add(object);
         this.dynamicObjects.buildings.push(object);
@@ -271,6 +284,7 @@ export class PortBuilder {
             type: "Vessel",
             id: visit.vesselId || "Unknown ID",
             name: visit.vesselName || "Unknown Ship",
+            IMO: visit.vesselIMO || visit.imo || "N/A", // <--- AÑADIDO
             status: visit.status
         };
 
@@ -331,7 +345,11 @@ export class PortBuilder {
         const resourceInfo = {
             type: "Resource",
             //type: type,     // "Crane" o "Truck"
-            id: resource.id || resource.code
+            id: resource.id || resource.code,
+            description: resource.description,
+            tipo: resource.type,
+            name: resource.code
+            
             
         };
 

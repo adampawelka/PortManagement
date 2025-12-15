@@ -1,9 +1,10 @@
 import * as THREE from "three";
 
 export default class CameraController {
-    constructor(camera, renderer, floorY = 0) {
+    constructor(camera, renderer, onObjectSelected = null, floorY = 0) {
         this.camera = camera;
         this.renderer = renderer;
+        this.onObjectSelected = onObjectSelected;
 
         this.raycaster = new THREE.Raycaster();
         this.pickables = [];        // objects that can be selected
@@ -183,6 +184,15 @@ export default class CameraController {
             });
 
             this.selectedObject = object;
+            // LOG DE DEPURACIÓN
+            console.log("1. Highlight ejecutado. Objeto:", object);
+            console.log("2. Callback onObjectSelected es:", this.onObjectSelected);
+            console.log("3. UserData del objeto:", object.userData);
+
+            if (this.onObjectSelected && object.userData) {
+                // Enviamos los datos (id, name, type) a React
+                this.onObjectSelected(object.userData);
+            }
         }
     }
 
@@ -196,6 +206,10 @@ export default class CameraController {
         });
 
         this.selectedObject = null;
+
+        if (this.onObjectSelected) {
+            this.onObjectSelected(null); // Enviamos null para limpiar la UI
+        }
     }
 
 
