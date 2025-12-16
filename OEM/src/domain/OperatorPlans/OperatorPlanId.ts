@@ -11,7 +11,7 @@ export class OperatorPlanId extends Entity<any> {
     super(null, id);
   }
 
-  public static caller(id: UniqueEntityID): OperatorPlanId {
+  public static create(id: UniqueEntityID): OperatorPlanId {
     return new OperatorPlanId(id);
   }
 }

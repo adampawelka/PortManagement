@@ -11,7 +11,7 @@ export class VesselVisitExecutionId extends Entity<any> {
     super(null, id);
   }
 
-  public static caller(id: UniqueEntityID): VesselVisitExecutionId {
+  public static create(id: UniqueEntityID): VesselVisitExecutionId {
     return new VesselVisitExecutionId(id);
   }
 }

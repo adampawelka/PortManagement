@@ -11,7 +11,7 @@ export class IncidentId extends Entity<any> {
     super(null, id);
   }
 
-  public static caller(id: UniqueEntityID): IncidentId {
+  public static create(id: UniqueEntityID): IncidentId {
     return new IncidentId(id);
   }
 }

@@ -11,7 +11,7 @@ export class ComplementaryTaskId extends Entity<any> {
     super(null, id);
   }
 
-  public static caller(id: UniqueEntityID): ComplementaryTaskId {
+  public static create(id: UniqueEntityID): ComplementaryTaskId {
     return new ComplementaryTaskId(id);
   }
 }

@@ -11,7 +11,7 @@ export class ExecutedOperationId extends Entity<any> {
     super(null, id);
   }
 
-  public static caller(id: UniqueEntityID): ExecutedOperationId {
+  public static create(id: UniqueEntityID): ExecutedOperationId {
     return new ExecutedOperationId(id);
   }
 }
