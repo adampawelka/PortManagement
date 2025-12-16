@@ -1,3 +1,4 @@
+
 import { Entity } from "./Entity";
 import { IDomainEvent } from "./events/IDomainEvent";
 import { DomainEvents } from "./events/DomainEvents";

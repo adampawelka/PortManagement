@@ -1,3 +1,4 @@
+
 import { shallowEqual } from "shallow-equal-object";
 
 interface ValueObjectProps {

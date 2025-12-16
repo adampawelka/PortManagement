@@ -1,3 +1,4 @@
+
 export abstract class WatchedList<T> {
 
   public currentItems: T[];
