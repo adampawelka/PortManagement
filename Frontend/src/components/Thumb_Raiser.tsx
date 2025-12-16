@@ -4,12 +4,16 @@ import "../styles/Thumb_Raiser.css"; // Asegúrate de que este archivo no tenga 
 import Orientation from "../../Visualisation/Basic_Thumb_Raiser/orientation";
 import * as THREE from "three";
 import ThumbRaiser from "../../Visualisation/Basic_Thumb_Raiser/thumb_raiser";
+import { useApi } from "../services/api"; 
+import { getRoleStatus } from "../services/userService";
 
 const ThumbRaiserComponent = (): React.JSX.Element => {
   const { user, getAccessTokenSilently, isAuthenticated, isLoading } = useAuth0();
   // Usamos ref solo para guardar la instancia de la clase, no para el DOM
   const thumbRaiserRef = useRef<ThumbRaiser | null>(null);
   const loadedRef = useRef(false);
+  const { apiFetch } = useApi();
+  const [dbRole, setDbRole] = useState<string>("PortAuthorityOfficer");
 
   const [selectedInfo, setSelectedInfo] = useState<any>(null); // Datos del objeto seleccionado
   const [showOverlay, setShowOverlay] = useState(false);       // Visibilidad del panel
@@ -39,6 +43,35 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedInfo]); // Dependencia importante: selectedInfo
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      if (!user?.sub || !apiFetch) return;
+
+      try {      
+        const data = await getRoleStatus(
+            apiFetch, 
+            user.sub,      // iamId     // name (opcional pero tu servicio lo acepta)
+        );
+        
+        console.log("Respuesta de getRoleStatus:", data);
+
+        // Ajusta esto según lo que devuelva tu backend (role, Role, userRole, etc.)
+        // Viendo el nombre del endpoint, quizás devuelva un objeto con estado y rol
+        const roleName = data.role || data.Role || "Administrator";
+        setDbRole(roleName);
+        //console.log("Rol asignado: ", dbRole);
+        
+
+      } catch (error) {
+        console.error("Error obteniendo rol con getRoleStatus:", error);
+      }
+    };
+
+    if (isAuthenticated) {
+        fetchRole();
+    }
+  }, [user, isAuthenticated, apiFetch]);
 
   useEffect(() => {
     // 1. Evitar doble carga en React Strict Mode
@@ -139,22 +172,6 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
   }, [isAuthenticated, isLoading, getAccessTokenSilently]);
 
   if (isLoading) return <div>Loading Scene...</div>;
-  // 2. FUNCIÓN PARA OBTENER EL ROL
-  const getUserRole = () => {
-    if (!user) return null;
-
-    // OPCIÓN A: Si has configurado Auth0 para poner roles en el namespace estándar
-    // Cambia la URL por la que hayas configurado en tu Auth0 Action/Rule
-    // return user['https://tu-proyecto/roles']?.[0];
-
-    // OPCIÓN B: Para probar AHORA MISMO (Simulación)
-    // Descomenta el que quieras probar:
-    // return "Administrator";
-    // return "PortAuthorityOfficer";
-    return "LogisticsOperator"; 
-  };
-
-  const userRole = getUserRole();
 
   return (
     <>
@@ -191,50 +208,142 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
             border: "1px solid #444"
           }}
         >
-          <h3 style={{ marginTop: 0, color: "#4fa3ff" }}>
+          <h3 style={{ marginTop: 0, color: "#4d3ae1ff" }}>
             {selectedInfo.type || "Element"} Info
           </h3>
           
-          <div style={{ fontSize: "14px", lineHeight: "1.8", marginTop: "10px" }}>
-            
-            {/* 1. CASO DOCK: Name, Location */}
-            {selectedInfo.type === "Dock" && (
-                <>
-                    <p><strong>Name:</strong> {selectedInfo.name}</p>
-                    <p><strong>Location:</strong> {selectedInfo.location}</p>
-                </>
-            )}
+          <div style={{ marginBottom: "10px" }}>
 
-            {/* 2. CASO STORAGE AREA: Location, Type */}
-            {selectedInfo.type === "StorageArea" && (
-                <>
-                    <p><strong>Location:</strong> {selectedInfo.location}</p>
-                    <p><strong>Type:</strong> {selectedInfo.storageType}</p>
-                </>
-            )}
-
-            {/* 3. CASO RESOURCE: Name, Description, Type */}
-            {selectedInfo.type === "Resource" && (
-                <>
-                    <p><strong>Name:</strong> {selectedInfo.name}</p>
-                    <p><strong>Type:</strong> {selectedInfo.tipo}</p>
-                    <p><strong>Description:</strong> {selectedInfo.description}</p>
-                </>
-            )}
-
-            {/* 4. CASO VESSEL: Name, IMO */}
-            {selectedInfo.type === "Vessel" && (
-                <>
-                    <p><strong>Name:</strong> {selectedInfo.name}</p>
-                    <p><strong>IMO:</strong> {selectedInfo.IMO}</p>
-                </>
-            )}
-
-            {/* DEBUG: Mostrar ID siempre para desarrollo (puedes quitarlo luego) */}
-            <hr style={{borderColor: "#333", margin: "10px 0"}}/>
-            <p style={{ fontSize: "12px", color: "#888" }}>System ID: {selectedInfo.id}</p>
-
+                <p style={{ margin: "4px 0" }}><strong>Name:</strong> <span style={{color: "#fff"}}>{selectedInfo.name}</span></p>
+                {selectedInfo.description && <p style={{ margin: "4px 0" }}><strong>Desc:</strong> <span style={{color: "#ccc"}}>{selectedInfo.description}</span></p>}
+                
+                {selectedInfo.type === "Dock" && selectedInfo.location && (
+                    <p style={{ margin: "4px 0" }}><strong>Location:</strong> {selectedInfo.location}</p>
+                )}
+                {selectedInfo.type === "StorageArea" && selectedInfo.location && (
+                    <p style={{ margin: "4px 0" }}><strong>Location:</strong> {selectedInfo.location}</p>
+                )}
+                {selectedInfo.type === "Vessel" && (
+                    <>
+                        <p style={{ margin: "4px 0" }}>Status: <strong>{selectedInfo.status}</strong></p>
+                        {selectedInfo.crewMembers && selectedInfo.crewMembers.length > 0 && (
+                            <div style={{ marginTop: "8px" }}>
+                                <p style={{ margin: "2px 0", fontWeight: "bold" }}>Crew List:</p>
+                                <ul style={{ margin: "2px 0", paddingLeft: "20px", fontSize: "13px" }}>
+                                    {selectedInfo.crewMembers.map((member: any, index: number) => (
+                                        // Aquí mostramos SOLO el nombre. 
+                                        // Si el objeto es { name: "..." }, usa member.name
+                                        // Si es un string directo, usa member
+                                        <li key={index}>
+                                            {member.name || member.Name || "Unnamed Member"}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                        {selectedInfo.cargoManifests && selectedInfo.cargoManifests.length > 0 && (
+                            <div style={{ marginTop: "8px" }}>
+                                <p style={{ margin: "2px 0", fontWeight: "bold" }}>Cargo Manifests:</p>
+                                <ul style={{ margin: "2px 0", paddingLeft: "20px", fontSize: "13px" }}>
+                                    {selectedInfo.cargoManifests.map((cargo: any, index: number) => (
+                                        <li key={index}>
+                                            {/* Ajusta 'cargo.id' o 'cargo.description' según tu backend */}
+                                            {cargo.manifestType || "Unknown Cargo"}                              
+                                            {cargo.containerIdentifiers && cargo.containerIdentifiers.length > 0 ? (
+                                              <ul style={{ marginTop: "2px", paddingLeft: "15px", listStyleType: "circle", color: "#aaa" }}>
+                                                  {cargo.containerIdentifiers.map((container: any, cIndex: number) => (
+                                                    <li key={cIndex} style={{ fontSize: "12px" }}>
+                                                        {/* Aquí pon la propiedad que quieras mostrar del contenedor (id, code, type...) */}
+                                                        📦 {container.Iso6346Regex || container.value || "Unknown Container"}
+                                                    </li>
+                                                  ))}
+                                              </ul>
+                                            ) : (
+                                              <div style={{ fontSize: "11px", fontStyle: "italic", marginLeft: "10px", color: "#666" }}>
+                                                  (Empty manifest)
+                                              </div>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </>
+                )}
           </div>
+
+          
+          {(dbRole === "LogisticsOperator" || dbRole === "Administrator") && (
+              <div style={{ background: "rgba(152, 126, 241, 0.1)", padding: "10px", borderRadius: "6px", marginTop: "10px", borderLeft: "3px solid #4d3ae1ff" }}>
+                <strong style={{ color: "#ffffffff", fontSize: "12px", textTransform: "uppercase" }}>📦 Logistics Data</strong>
+              
+                {selectedInfo.type === "Dock" && (
+                    <div>
+                     <p style={{ margin: "4px 0" }}>Length: {selectedInfo.length}</p>
+                     <p style={{ margin: "4px 0" }}>Depth: {selectedInfo.depth}</p>
+                     <p style={{ margin: "4px 0" }}>Max Draft: {selectedInfo.maxDraft}</p>
+                     {selectedInfo.allowedVesselTypes && selectedInfo.allowedVesselTypes.length > 0 && (
+                            <div style={{ marginTop: "8px" }}>
+                                <p style={{ margin: "2px 0", fontWeight: "bold" }}>Allowed Vessels:</p>
+                                <ul style={{ margin: "2px 0", paddingLeft: "20px", fontSize: "13px" }}>
+                                    {selectedInfo.allowedVesselTypes.map((member: any, index: number) => (
+                                        // Aquí mostramos SOLO el nombre. 
+                                        // Si el objeto es { name: "..." }, usa member.name
+                                        // Si es un string directo, usa member
+                                        <li key={index}>
+                                            {member.name || member.Name || "Unnamed Member"}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                )}
+                {selectedInfo.type === "StorageArea" && (
+                    <>
+                        <p style={{ margin: "4px 0" }}>Capacity: {selectedInfo.maxCapacity}</p>
+                        <p style={{ margin: "4px 0" }}>Occupancy: {selectedInfo.occupancy}</p>
+                    </>
+                )}
+                 {selectedInfo.type === "Resource" && (
+                    <div>
+                     <p style={{ margin: "4px 0" }}>Status: {selectedInfo.status}</p>
+                     <p style={{ margin: "4px 0" }}>Set Up Time: {selectedInfo.setupTime}</p>
+                    </div>
+                )}
+              </div>
+            )}
+            {/* --- SECCIÓN ESPECÍFICA: PORT AUTHORITY --- */}
+            {(dbRole === "PortAuthorityOfficer" || dbRole === "Administrator") && (
+              <div style={{ background: "rgba(255, 99, 71, 0.1)", padding: "10px", borderRadius: "6px", marginTop: "10px", borderLeft: "3px solid #ff6347" }}>
+                <strong style={{ color: "#ff6347", fontSize: "12px", textTransform: "uppercase" }}>👮 Port Authority Data</strong>
+                
+                
+                {selectedInfo.type === "Dock" && (
+                    <div>
+                     <p style={{ margin: "4px 0" }}>Length: {selectedInfo.length}</p>
+                     <p style={{ margin: "4px 0" }}>Depth: {selectedInfo.depth}</p>
+                     <p style={{ margin: "4px 0" }}>Max Draft: {selectedInfo.maxDraft}</p>
+                     {selectedInfo.allowedVesselTypes && selectedInfo.allowedVesselTypes.length > 0 && (
+                            <div style={{ marginTop: "8px" }}>
+                                <p style={{ margin: "2px 0", fontWeight: "bold" }}>Allowed Vessels:</p>
+                                <ul style={{ margin: "2px 0", paddingLeft: "20px", fontSize: "13px" }}>
+                                    {selectedInfo.allowedVesselTypes.map((member: any, index: number) => (
+                                        // Aquí mostramos SOLO el nombre. 
+                                        // Si el objeto es { name: "..." }, usa member.name
+                                        // Si es un string directo, usa member
+                                        <li key={index}>
+                                            {member.name || member.Name || "Unnamed Member"}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                )}
+              </div>
+            )}
+                     
         </div>
       )}
     </>

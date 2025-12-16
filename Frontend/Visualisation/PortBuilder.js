@@ -220,7 +220,11 @@ export class PortBuilder {
                 type: "Dock",
                 name: entity.dockName || "Dock",
                 location: entity.dockLocation || `Coords (${Math.round(position.x)}, ${Math.round(position.z)})`, // Si el backend no trae location, usamos coordenadas
-                id: entity.id
+                id: entity.id,
+                length: entity.length,
+                depth: entity.depth,
+                maxDrafts: entity.maxDrafts,
+                allowedVesselTypes: entity.allowedVesselTypes
             };
         } else if (type === "Warehouse") {
             // REGLAS PARA STORAGE: Location y Type
@@ -228,7 +232,9 @@ export class PortBuilder {
                 type: "StorageArea", // Cambiamos el string para identificarlo fácil en React
                 location: entity.storageAreaLocation || entity.id, // En almacenes, a veces el nombre ES la ubicación
                 storageType: entity.storageAreaType, // El requerimiento pide "Type"
-                id: entity.id
+                id: entity.id,
+                maxCapacity: entity.maxCapacity,
+                occupancy: entity.currentOccupancy
             };
         } else {
              // Default
@@ -285,7 +291,9 @@ export class PortBuilder {
             id: visit.vesselId || "Unknown ID",
             name: visit.vesselName || "Unknown Ship",
             IMO: visit.vesselIMO || visit.imo || "N/A", // <--- AÑADIDO
-            status: visit.status
+            status: visit.status,
+            cargoManifests: visit.cargoManifests || [],
+            crewMembers: visit.crewMembers || []
         };
 
         // 2. Marcamos el objeto y sus hijos como seleccionables
@@ -348,9 +356,10 @@ export class PortBuilder {
             id: resource.id || resource.code,
             description: resource.description,
             tipo: resource.type,
-            name: resource.code
-            
-            
+            name: resource.code,
+            status: resource.status,
+            setupTime: resource.setupTime
+
         };
 
         // 1. Lo hacemos seleccionable
