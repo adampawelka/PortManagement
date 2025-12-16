@@ -1,10 +1,10 @@
-import { AggregateRoot } from "../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../core/domain/UniqueEntityID";
-import { Result } from "../core/logic/Result";
-import { Guard } from "../core/logic/Guard";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
+import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
+import { Result } from "../../core/logic/Result";
+import { Guard } from "../../core/logic/Guard";
 
 import { ExecutedOperationId } from "./ExecutedOperationId";
-import { VveId } from "../VesselVisitExecutions/VveId";
+import { VesselVisitExecutionId } from "../VesselVisitExecutions/VesselVisitExecutionId";
 import { PlannedOperationId } from "../PlannedOperations/PlannedOperationId";
 import { ResourceId } from "./ResourceId";
 import { StaffId } from "./StaffId";
@@ -13,7 +13,7 @@ import { ActualEnd } from "./ActualEnd";
 import { ExecutedOperationStatus } from "./ExecutedOperationStatus";
 
 interface ExecutedOperationProps {
-  vveId: VveId;
+  vesselVisitExecutionId: VesselVisitExecutionId;
   plannedOperationId: PlannedOperationId;
   resourceId: ResourceId;
   staffId: StaffId;
@@ -32,8 +32,8 @@ export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
     return ExecutedOperationId.caller(this.id);
   }
 
-  get vveId(): VveId {
-    return this.props.vveId;
+  get vesselVisitExecutionId(): VesselVisitExecutionId {
+    return this.props.vesselVisitExecutionId;
   }
 
   get plannedOperationId(): PlannedOperationId {
@@ -70,7 +70,7 @@ export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
   ): Result<ExecutedOperation> {
 
     const guardedProps = [
-      { argument: props.vveId, argumentName: "vveId" },
+      { argument: props.vesselVisitExecutionId, argumentName: "vveId" },
       { argument: props.plannedOperationId, argumentName: "plannedOperationId" },
       { argument: props.resourceId, argumentName: "resourceId" },
       { argument: props.staffId, argumentName: "staffId" },

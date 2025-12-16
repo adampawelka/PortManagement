@@ -1,70 +1,49 @@
-import { AggregateRoot } from "../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../core/domain/UniqueEntityID";
-import { Result } from "../core/logic/Result";
-import { Guard } from "../core/logic/Guard";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
+import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
+import { Result } from "../../core/logic/Result";
+import { Guard } from "../../core/logic/Guard";
 
-import { OperationPlanId } from "./OperationPlanId";
+import { OperatorPlanId } from "./OperatorPlanId";
 import { VesselVisitExecutionId } from "../VesselVisitExecutions/VesselVisitExecutionId";
 import { CreatedAt } from "./CreatedAt";
 import { CreatedBy } from "./CreatedBy";
 import { AlgorithmUsed } from "./AlgorithmUsed";
 
-interface OperationPlanProps {
+interface OperatorPlanProps {
   vveId: VesselVisitExecutionId;
   createdAt: CreatedAt;
   createdBy: CreatedBy;
   algorithmUsed: AlgorithmUsed;
 }
 
-export class OperationPlan extends AggregateRoot<OperationPlanProps> {
+export class OperatorPlan extends AggregateRoot<OperatorPlanProps> {
 
-  get id(): UniqueEntityID {
-    return this._id;
+  get operatorPlanId(): OperatorPlanId {
+    return OperatorPlanId.caller(this.id);
   }
 
-  get operationPlanId(): OperationPlanId {
-    return OperationPlanId.caller(this.id);
-  }
-
-  get vveId(): VesselVisitExecutionId {
-    return this.props.vveId;
-  }
-
-  get createdAt(): CreatedAt {
-    return this.props.createdAt;
-  }
-
-  get createdBy(): CreatedBy {
-    return this.props.createdBy;
-  }
-
-  get algorithmUsed(): AlgorithmUsed {
-    return this.props.algorithmUsed;
-  }
-
-  private constructor(props: OperationPlanProps, id?: UniqueEntityID) {
+  private constructor(props: OperatorPlanProps, id?: UniqueEntityID) {
     super(props, id);
   }
 
   public static create(
-    props: OperationPlanProps,
+    props: OperatorPlanProps,
     id?: UniqueEntityID
-  ): Result<OperationPlan> {
+  ): Result<OperatorPlan> {
 
-    const guardedProps = [
+    const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.vveId, argumentName: "vveId" },
       { argument: props.createdAt, argumentName: "createdAt" },
       { argument: props.createdBy, argumentName: "createdBy" },
       { argument: props.algorithmUsed, argumentName: "algorithmUsed" }
-    ];
-
-    const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
+    ]);
 
     if (!guardResult.succeeded) {
-      return Result.fail<OperationPlan>(guardResult.message);
+      return Result.fail<OperatorPlan>(guardResult.message);
     }
 
-    const plan = new OperationPlan({ ...props }, id);
-    return Result.ok<OperationPlan>(plan);
+    return Result.ok<OperatorPlan>(
+      new OperatorPlan({ ...props }, id)
+    );
   }
 }

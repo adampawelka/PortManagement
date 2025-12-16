@@ -1,10 +1,10 @@
-import { AggregateRoot } from "../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../core/domain/UniqueEntityID";
-import { Result } from "../core/logic/Result";
-import { Guard } from "../core/logic/Guard";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
+import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
+import { Result } from "../../core/logic/Result";
+import { Guard } from "../../core/logic/Guard";
 
 import { ComplementaryTaskId } from "./ComplementaryTaskId";
-import { VveId } from "../VesselVisitExecutions/VveId";
+import { VesselVisitExecutionId } from "../VesselVisitExecutions/VesselVisitExecutionId";
 import { ResponsibleTeam } from "./ResponsibleTeam";
 import { StartTime } from "./StartTime";
 import { EndTime } from "./EndTime";
@@ -12,7 +12,7 @@ import { ComplementaryTaskStatus } from "./ComplementaryTaskStatus";
 import { ComplementaryTaskCategoryId } from "../ComplementaryTaskCategories/ComplementaryTaskCategoryId";
 
 interface ComplementaryTaskProps {
-  vveId: VveId;
+  vesselVisitExecutionId: VesselVisitExecutionId;
   categoryId: ComplementaryTaskCategoryId;
   responsibleTeam: ResponsibleTeam;
   startTime: StartTime;
@@ -30,8 +30,8 @@ export class ComplementaryTask extends AggregateRoot<ComplementaryTaskProps> {
     return ComplementaryTaskId.caller(this.id);
   }
 
-  get vveId(): VveId {
-    return this.props.vveId;
+  get vesselVisitExecutionId(): VesselVisitExecutionId {
+    return this.props.vesselVisitExecutionId;
   }
 
   get categoryId(): ComplementaryTaskCategoryId {
@@ -64,7 +64,7 @@ export class ComplementaryTask extends AggregateRoot<ComplementaryTaskProps> {
   ): Result<ComplementaryTask> {
 
     const guardedProps = [
-      { argument: props.vveId, argumentName: "vveId" },
+      { argument: props.vesselVisitExecutionId, argumentName: "vveId" },
       { argument: props.categoryId, argumentName: "categoryId" },
       { argument: props.responsibleTeam, argumentName: "responsibleTeam" },
       { argument: props.startTime, argumentName: "startTime" },

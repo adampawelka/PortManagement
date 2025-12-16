@@ -1,7 +1,7 @@
-import { AggregateRoot } from "../core/domain/AggregateRoot";
-import { UniqueEntityID } from "../core/domain/UniqueEntityID";
-import { Result } from "../core/logic/Result";
-import { Guard } from "../core/logic/Guard";
+import { AggregateRoot } from "../../core/domain/AggregateRoot";
+import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
+import { Result } from "../../core/logic/Result";
+import { Guard } from "../../core/logic/Guard";
 
 import { PlannedOperationId } from "./PlannedOperationId";
 import { PlannedResourceId } from "./PlannedResourceId";
@@ -10,7 +10,7 @@ import { PlannedStart } from "./PlannedStart";
 import { PlannedEnd } from "./PlannedEnd";
 import { OperationType } from "./OperationType";
 import { PlannedOperationStatus } from "./PlannedOperationStatus";
-import { OperationPlanId } from "../OperationPlans/OperationPlanId";
+import { OperatorPlanId } from "../OperatorPlans/OperatorPlanId";
 
 interface PlannedOperationProps {
   resourceId: PlannedResourceId;
@@ -19,7 +19,7 @@ interface PlannedOperationProps {
   plannedEnd: PlannedEnd;
   operationType: OperationType;
   status: PlannedOperationStatus;
-  operationPlanId: OperationPlanId;
+  operatorPlanId: OperatorPlanId;
 }
 
 export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
@@ -56,8 +56,8 @@ export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
     return this.props.status;
   }
 
-  get operationPlanId(): OperationPlanId {
-    return this.props.operationPlanId;
+  get operatorPlanId(): OperatorPlanId {
+    return this.props.operatorPlanId;
   }
 
   private constructor(props: PlannedOperationProps, id?: UniqueEntityID) {
@@ -76,7 +76,7 @@ export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
       { argument: props.plannedEnd, argumentName: "plannedEnd" },
       { argument: props.operationType, argumentName: "operationType" },
       { argument: props.status, argumentName: "status" },
-      { argument: props.operationPlanId, argumentName: "operationPlanId" }
+      { argument: props.operatorPlanId, argumentName: "operationPlanId" }
     ];
 
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
