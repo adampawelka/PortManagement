@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useApi } from '../../services/api';
 import { addVesselType } from '../../services/vesselTypeService';
+import { useNotification } from '../../hooks/useNotification';
 
 const initialFormState = {
   name: '',
@@ -13,6 +14,7 @@ const initialFormState = {
 
 export const useAddVesselTypeVM = () => {
   const { apiFetch } = useApi();
+  const { showSuccess } = useNotification();
 
   const [formData, setFormData] = useState(initialFormState);
   const [loading, setLoading] = useState(false);
@@ -50,9 +52,13 @@ export const useAddVesselTypeVM = () => {
 
     try {
       await addVesselType(apiFetch, vesselTypeDto);
+      // Show success notification toast
+      showSuccess('Vessel Type created successfully!');
+      // Also set message for Alert (optional - can remove later)
       setMessage({ type: 'success', text: 'Vessel Type created successfully!' });
       setFormData(initialFormState);
     } catch (err) {
+      // Error notifications are already handled by api.js
       setMessage({ type: 'error', text: err.message });
     } finally {
       setLoading(false);
