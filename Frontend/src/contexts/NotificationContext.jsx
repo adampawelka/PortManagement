@@ -8,13 +8,18 @@ export const NOTIFICATION_TYPES = {
 };
 
 // Notification structure 
-// { id, type, message, duration }
+// { id, type, message, duration, createdAt }
 
 const NotificationContext = createContext(null);
 
 export const NotificationProvider = ({ children }) => {
     const [notifications, setNotifications] = useState([]);
     const MAX_VISIBLE = 5; // Maximum notifications visible at once
+
+    // Remove notification - define first so it can be used in addNotification
+    const removeNotification = useCallback((id) => {
+        setNotifications(prev => prev.filter(n => n.id !== id));
+    }, []);
 
     // Add new notification
     const addNotification = useCallback((type, message, duration = 5000) => {
@@ -24,7 +29,8 @@ export const NotificationProvider = ({ children }) => {
             id,
             type,
             message,
-            duration
+            duration,
+            createdAt: Date.now() // Track when notification was created for timer
         };
 
         setNotifications(prev => {
@@ -41,12 +47,7 @@ export const NotificationProvider = ({ children }) => {
         }
 
         return id;
-    }, []);
-
-    // Remove notification
-    const removeNotification = useCallback((id) => {
-        setNotifications(prev => prev.filter(n => n.id !== id));
-    }, []);
+    }, [removeNotification]);
 
     // Clear all notifications
     const clearAll = useCallback(() => {
