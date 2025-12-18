@@ -21,30 +21,47 @@ export const NotificationProvider = ({ children }) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);
 
-    // Add new notification
+    // Add new notification with deduplication
     const addNotification = useCallback((type, message, duration = 5000) => {
-        const id = Date.now() + Math.random(); // Unique id for notification
-
-        const notification = {
-            id,
-            type,
-            message,
-            duration,
-            createdAt: Date.now() // Track when notification was created for timer
-        };
+        const now = Date.now();
+        const DEDUPE_WINDOW = 2000; // 2 seconds - ignore duplicates within this window
+        const id = now + Math.random(); // Generate ID upfront
 
         setNotifications(prev => {
+            // Check if there's a duplicate notification (same type and message) created recently
+            const isDuplicate = prev.some(n => 
+                n.type === type && 
+                n.message === message && 
+                (now - n.createdAt) < DEDUPE_WINDOW
+            );
+
+            // If duplicate found, don't add it
+            if (isDuplicate) {
+                return prev;
+            }
+
+            // Create new notification
+            const notification = {
+                id,
+                type,
+                message,
+                duration,
+                createdAt: now // Track when notification was created for timer
+            };
+
             const updated = [...prev, notification];
             // Keep only the last MAX_VISIBLE notifications
-            return updated.slice(-MAX_VISIBLE);
-        });
+            const limited = updated.slice(-MAX_VISIBLE);
+            
+            // Auto-remove after duration
+            if (duration > 0) {
+                setTimeout(() => {
+                    removeNotification(id);
+                }, duration);
+            }
 
-        // Auto-remove after duration
-        if (duration > 0) {
-            setTimeout(() => {
-                removeNotification(id);
-            }, duration);
-        }
+            return limited;
+        });
 
         return id;
     }, [removeNotification]);

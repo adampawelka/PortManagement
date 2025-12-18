@@ -22,8 +22,12 @@ export const useApi = (baseUrl = "http://localhost:5000") => {
 
             // Handle auth errors (401/403) - logout but also show notification
             if (response.status === 401 || response.status === 403) {
-                const errorMessage = await handleApiError(response);
-                showError(errorMessage);
+                try {
+                    const errorMessage = await handleApiError(response);
+                    showError(errorMessage);
+                } catch (error) {
+                    showError("Unauthorized: Please log in again.");
+                }
                 console.error("Unauthorized or forbidden request. Logging out.");
                 logout({ returnTo: window.location.origin });
                 return response; // Return response so caller can handle it
@@ -31,8 +35,12 @@ export const useApi = (baseUrl = "http://localhost:5000") => {
 
             // Handle other HTTP errors (4xx, 5xx) - show notification but don't logout
             if (!response.ok) {
-                const errorMessage = await handleApiError(response);
-                showError(errorMessage);
+                try {
+                    const errorMessage = await handleApiError(response);
+                    showError(errorMessage);
+                } catch (error) {
+                    showError(`Error ${response.status}: ${response.statusText || 'An error occurred'}`);
+                }
                 return response; // Return response so caller can still check response.ok
             }
 
@@ -40,8 +48,12 @@ export const useApi = (baseUrl = "http://localhost:5000") => {
             return response;
         } catch (err) {
             // Handle network errors and other exceptions
-            const errorMessage = await handleApiError(err);
-            showError(errorMessage);
+            try {
+                const errorMessage = await handleApiError(err);
+                showError(errorMessage);
+            } catch (error) {
+                showError("An unexpected error occurred. Please try again.");
+            }
             console.error("API error:", err);
             throw err; // Re-throw so caller can handle if needed
         }
