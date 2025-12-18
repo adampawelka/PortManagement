@@ -43,6 +43,9 @@ import DocksListPage from "./pages/Docks/DocksListPage.jsx";
 import AddDockPage from "./pages/Docks/AddDockPage.jsx";
 import SearchDockPage from "./pages/Docks/SearchDockPage.jsx";
 
+import { NotificationProvider } from './contexts/NotificationContext';
+import NotificationToast from './components/NotificationSystem/NotificationToast';
+
 
 import { useApi } from "./services/api.js";
 
@@ -184,7 +187,8 @@ const DebugUserInfo = () => {
 // ---------------------------
 const App = () => {
   return (
-    <Routes>
+    <NotificationProvider>
+      <Routes>
 
       {/* Public Login Page */}
       <Route
@@ -466,6 +470,8 @@ const App = () => {
 
       </Route>
     </Routes>
+    <NotificationToast />
+    </NotificationProvider>
   );
 };
 
