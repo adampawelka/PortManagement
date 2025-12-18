@@ -4,6 +4,7 @@ import { addVessel } from '../../services/vesselService';
 import { getVesselTypes } from '../../services/vesselTypeService';
 import { getShippingAgents } from '../../services/shippingAgentService';
 import { useApi } from '../../services/api';
+import { useNotification } from '../../hooks/useNotification';
 
 const initialFormState = {
   imoNumber: '',
@@ -14,6 +15,7 @@ const initialFormState = {
 
 export const useAddVesselVM = () => {
   const { apiFetch } = useApi();
+  const { showSuccess } = useNotification();
 
   const [formData, setFormData] = useState(initialFormState);
   const [vesselTypes, setVesselTypes] = useState([]);
@@ -74,9 +76,14 @@ export const useAddVesselVM = () => {
 
     try {
       await addVessel(apiFetch, vesselDto);
+      // Show success notification toast
+      showSuccess('Vessel added successfully!');
+      // Also set message for Alert (optional - can remove later)
       setMessage({ type: 'success', text: 'Vessel added successfully!' });
       setFormData(initialFormState);
     } catch (err) {
+      // Error notifications are already handled by api.js (toast notification)
+      // But we also keep the Alert message for visibility on the page
       setMessage({ type: 'error', text: err.message || 'Failed to add vessel' });
     } finally {
       setSubmitting(false);
