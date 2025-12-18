@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { getVesselVisitNotifications, addVesselVisitNotification } from '../../services/vesselVisitNotificationService';
 import { useApi } from '../../services/api';
 import { getVessels } from '../../services/vesselService';
+import { useNotification } from '../../hooks/useNotification';
 
 export const useAddVesselVisitNotificationVM = () => {
   const { apiFetch } = useApi();
+  const { showSuccess } = useNotification();
   const [formData, setFormData] = useState({
     vesselId: '',
     submittedById: '',
@@ -74,6 +76,9 @@ export const useAddVesselVisitNotificationVM = () => {
 
     try {
       const response = await addVesselVisitNotification(apiFetch, vvnDto);
+      // Show success notification toast
+      showSuccess('Notification submitted successfully!');
+      // Also set message for Alert (optional - can remove later)
       setMessage({ type: 'success', text: 'Notification submitted successfully!' });
       setFormData({
         vesselId: '',
