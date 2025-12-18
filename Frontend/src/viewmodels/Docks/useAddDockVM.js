@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useApi } from "../../services/api";
 import { addDock } from "../../services/dockService";
 import { getVesselTypes } from "../../services/vesselTypeService";
+import { useNotification } from "../../hooks/useNotification";
 
 const initialFormState = {
   dockName: "",
@@ -14,6 +15,7 @@ const initialFormState = {
 
 export const useAddDockVM = () => {
   const { apiFetch } = useApi();
+  const { showSuccess } = useNotification();
 
   const [formData, setFormData] = useState(initialFormState);
   const [vesselTypes, setVesselTypes] = useState([]);
@@ -76,6 +78,9 @@ export const useAddDockVM = () => {
 
     try {
       await addDock(apiFetch, dockDto);
+      // Show success notification toast
+      showSuccess("Dock created successfully!");
+      // Also set message for Alert (optional - can remove later)
       setMessage({ type: "success", text: "Dock created successfully!" });
       setFormData(initialFormState);
     } catch (err) {
