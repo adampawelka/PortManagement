@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
-import { useSubmitVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useSubmitVesselVisitNotificationVM'; 
+import { Container, TextField, Typography, Alert } from '@mui/material';
+import { useSubmitVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useSubmitVesselVisitNotificationVM';
+import { LoadingButton, LoadingOverlay } from '../../components/LoadingComponents'; 
 
 const SubmitVVNPage = () => {
   const {
@@ -12,17 +13,19 @@ const SubmitVVNPage = () => {
   } = useSubmitVesselVisitNotificationVM(); 
 
   return (
-    <Container 
-      maxWidth="sm" 
-      sx={{ 
-        mt: 4, 
-        backgroundColor: 'var(--color-surface)', 
-        p: 4, 
-        borderRadius: 'var(--radius-md)', 
-        boxShadow: 3,
-        fontFamily: 'var(--font-family-base)',
-      }}
-    >
+    <>
+      <LoadingOverlay open={loading} message="Submitting notification..." />
+      <Container 
+        maxWidth="sm" 
+        sx={{ 
+          mt: 4, 
+          backgroundColor: 'var(--color-surface)', 
+          p: 4, 
+          borderRadius: 'var(--radius-md)', 
+          boxShadow: 3,
+          fontFamily: 'var(--font-family-base)',
+        }}
+      >
       <Typography 
         variant="h4" 
         gutterBottom 
@@ -62,10 +65,10 @@ const SubmitVVNPage = () => {
           }}
         />
 
-        <Button 
+        <LoadingButton 
           type="submit" 
           variant="contained" 
-          disabled={loading} 
+          loading={loading}
           sx={{ 
             mt: 3, 
             py: 1.5, 
@@ -75,10 +78,11 @@ const SubmitVVNPage = () => {
           }} 
           fullWidth
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Submit'}
-        </Button>
+          Submit
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 
