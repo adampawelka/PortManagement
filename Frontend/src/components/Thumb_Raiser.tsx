@@ -214,17 +214,25 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
           
           <div style={{ marginBottom: "10px" }}>
 
-                <p style={{ margin: "4px 0" }}><strong>Name:</strong> <span style={{color: "#fff"}}>{selectedInfo.name}</span></p>
-                {selectedInfo.description && <p style={{ margin: "4px 0" }}><strong>Desc:</strong> <span style={{color: "#ccc"}}>{selectedInfo.description}</span></p>}
-                
+                                
                 {selectedInfo.type === "Dock" && selectedInfo.location && (
+                  <div>
+                    <p style={{ margin: "4px 0" }}><strong>Name:</strong> <span style={{color: "#fff"}}>{selectedInfo.name}</span></p>
+                    {selectedInfo.description && <p style={{ margin: "4px 0" }}><strong>Desc:</strong> <span style={{color: "#ccc"}}>{selectedInfo.description}</span></p>}
                     <p style={{ margin: "4px 0" }}><strong>Location:</strong> {selectedInfo.location}</p>
+                  </div>
                 )}
                 {selectedInfo.type === "StorageArea" && selectedInfo.location && (
+                  <div>
+                    <p style={{ margin: "4px 0" }}><strong>Name:</strong> <span style={{color: "#fff"}}>{selectedInfo.storageType}</span></p>
+                    {selectedInfo.description && <p style={{ margin: "4px 0" }}><strong>Desc:</strong> <span style={{color: "#ccc"}}>{selectedInfo.description}</span></p>}
                     <p style={{ margin: "4px 0" }}><strong>Location:</strong> {selectedInfo.location}</p>
+                  </div>
                 )}
                 {selectedInfo.type === "Vessel" && (
                     <>
+                        <p style={{ margin: "4px 0" }}><strong>Name:</strong> <span style={{color: "#fff"}}>{selectedInfo.name}</span></p>
+                        {selectedInfo.description && <p style={{ margin: "4px 0" }}><strong>Desc:</strong> <span style={{color: "#ccc"}}>{selectedInfo.description}</span></p>}
                         <p style={{ margin: "4px 0" }}>Status: <strong>{selectedInfo.status}</strong></p>
                         {selectedInfo.crewMembers && selectedInfo.crewMembers.length > 0 && (
                             <div style={{ marginTop: "8px" }}>
@@ -254,7 +262,7 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
                                                   {cargo.containerIdentifiers.map((container: any, cIndex: number) => (
                                                     <li key={cIndex} style={{ fontSize: "12px" }}>
                                                         {/* Aquí pon la propiedad que quieras mostrar del contenedor (id, code, type...) */}
-                                                        📦 {container.Iso6346Regex || container.value || "Unknown Container"}
+                                                        📦 {container || container.value || "Unknown Container"}
                                                     </li>
                                                   ))}
                                               </ul>
@@ -307,6 +315,8 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
                 )}
                  {selectedInfo.type === "Resource" && (
                     <div>
+                     <p style={{ margin: "4px 0" }}><strong>Name:</strong> <span style={{color: "#fff"}}>{selectedInfo.name}</span></p>
+                     {selectedInfo.description && <p style={{ margin: "4px 0" }}><strong>Desc:</strong> <span style={{color: "#ccc"}}>{selectedInfo.description}</span></p>}
                      <p style={{ margin: "4px 0" }}>Status: {selectedInfo.status}</p>
                      <p style={{ margin: "4px 0" }}>Set Up Time: {selectedInfo.setupTime}</p>
                     </div>
