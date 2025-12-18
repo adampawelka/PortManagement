@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
-import { useRejectVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useRejectVesselVisitNotificationVM'; 
+import { Container, TextField, Typography, Alert } from '@mui/material';
+import { useRejectVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useRejectVesselVisitNotificationVM';
+import { LoadingButton, LoadingOverlay } from '../../components/LoadingComponents'; 
 
 const RejectVVNPage = () => {
   const {
@@ -14,17 +15,19 @@ const RejectVVNPage = () => {
   } = useRejectVesselVisitNotificationVM(); 
 
   return (
-    <Container 
-      maxWidth="sm" 
-      sx={{ 
-        mt: 4, 
-        backgroundColor: 'var(--color-surface)', 
-        p: 4, 
-        borderRadius: 'var(--radius-md)', 
-        boxShadow: 3,
-        fontFamily: 'var(--font-family-base)',
-      }}
-    >
+    <>
+      <LoadingOverlay open={loading} message="Rejecting notification..." />
+      <Container 
+        maxWidth="sm" 
+        sx={{ 
+          mt: 4, 
+          backgroundColor: 'var(--color-surface)', 
+          p: 4, 
+          borderRadius: 'var(--radius-md)', 
+          boxShadow: 3,
+          fontFamily: 'var(--font-family-base)',
+        }}
+      >
       <Typography 
         variant="h4" 
         gutterBottom 
@@ -75,10 +78,10 @@ const RejectVVNPage = () => {
           }}
         />
 
-        <Button 
+        <LoadingButton 
           type="submit" 
           variant="contained" 
-          disabled={loading} 
+          loading={loading}
           sx={{ 
             mt: 3, 
             py: 1.5, 
@@ -88,10 +91,11 @@ const RejectVVNPage = () => {
           }} 
           fullWidth
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Reject'}
-        </Button>
+          Reject
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 
