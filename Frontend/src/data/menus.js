@@ -199,6 +199,12 @@ export const menuItems = [
             roles: ["LogisticsOperator"],
           },
           {
+            name: "Genetic Schedule",
+            key: "genetic_schedule",
+            path: "/genetic-schedule",
+            roles: ["LogisticsOperator"],
+          },
+          {
             name: "Test Algorithms",
             key: "test_algorithms",
             path: "/test-algorithms",

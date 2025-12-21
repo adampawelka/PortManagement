@@ -41,6 +41,7 @@
   "alternative_schedule": "Agendamento Alternativo" ,
   "multi_crane_schedule": "Agendamento com Várias Gruas",
   "recommended_schedule": "Agendamento Recomendado",
+  "genetic_schedule": "Agendamento Genético",
   "test_algorithms": "Testar Algoritmos",
   "user_management": "Gestão de Utilizadores",
   "users": "Utilizadores",

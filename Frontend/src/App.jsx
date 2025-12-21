@@ -15,6 +15,7 @@ import AlternativeSchedule from "./pages/Scheduling/AlternativeSchedule.jsx";
 import RecommendedSchedule from "./pages/Scheduling/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/Scheduling/TestAlgorithms.jsx";
 import MultiCraneSchedule from "./pages/Scheduling/MultiCraneSchedule.jsx";
+import GeneticSchedule from "./pages/Scheduling/GeneticSchedule.jsx";
 
 import UsersManagementPage from "./pages/Users/UsersManagement.jsx";
 import PendingUsersManagementPage from "./pages/Users/PendingUsersManagementPage.jsx";
@@ -441,6 +442,15 @@ const App = () => {
             <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
               <RecommendedSchedule />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+            path="/genetic-schedule"
+            element={
+              <ProtectedRoute requiredRoles={["LogisticsOperator","LogisticsOperator"]}>
+                <GeneticSchedule />
+              </ProtectedRoute>
           }
         />
 

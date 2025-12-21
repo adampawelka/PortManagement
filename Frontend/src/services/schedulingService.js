@@ -31,11 +31,45 @@ export const useSchedulingService = () => {
     }
 
     return await res.json(); // ← TU JEST FIX
-};
+    };
+
+    const calculateGeneticSchedule = async (date, mode = "single", params = {}) => {
+        const {
+        populationSize = 50,
+        generations = 100,
+        crossoverRate = 0.8,  // Changed from 80 to 0.8
+        mutationRate = 0.1,    // Changed from 10 to 0.1
+        maxTime = 10,
+        desiredDelay = 0
+    } = params;
+
+    const queryParams = new URLSearchParams({
+        date: encodeURIComponent(date),
+        mode: mode,
+        populationSize: populationSize,
+        generations: generations,
+        crossoverRate: crossoverRate * 100, // Convert to percentage for API
+        mutationRate: mutationRate * 100,   // Convert to percentage for API
+        maxTime: maxTime,
+        desiredDelay: desiredDelay
+    });
+
+        const res = await apiFetch(`/api/Scheduling/calculate-schedule-genetic?${queryParams}`, {
+            method: "GET",
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text);
+        }
+
+        return await res.json();
+    };
 
 
     return {
         calculateSchedule,
         calculateMultiCraneSchedule,
+        calculateGeneticSchedule,
     };
 };
