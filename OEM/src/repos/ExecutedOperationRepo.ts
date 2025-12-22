@@ -33,11 +33,11 @@ export class ExecutedOperationRepo implements IExecutedOperationRepo {
   }
 
   async findByVesselVisitExecutionId(
-    vveId: VesselVisitExecutionId
+    vesselVisitExecutionId: VesselVisitExecutionId
   ): Promise<ExecutedOperation[]> {
 
     const docs = await ExecutedOperationSchema.find({
-      vesselVisitExecutionId: vveId.toString()
+      vesselVisitExecutionId: vesselVisitExecutionId.toString()
     });
 
     return docs.map(doc => ExecutedOperationMap.toDomain(doc));

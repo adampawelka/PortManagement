@@ -33,11 +33,11 @@ export class ComplementaryTaskRepo implements IComplementaryTaskRepo {
   }
 
   async findByVesselVisitExecutionId(
-    vveId: VesselVisitExecutionId
+    vesselVisitExecutionId: VesselVisitExecutionId
   ): Promise<ComplementaryTask[]> {
 
     const docs = await ComplementaryTaskSchema.find({
-      vesselVisitExecutionId: vveId.toString()
+      vesselVisitExecutionId: vesselVisitExecutionId.toString()
     });
 
     return docs.map(doc => ComplementaryTaskMap.toDomain(doc));

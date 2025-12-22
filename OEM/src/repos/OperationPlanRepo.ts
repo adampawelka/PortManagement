@@ -32,12 +32,12 @@ export class OperationPlanRepo implements IOperationPlanRepo {
     return OperationPlanMap.toDomain(doc);
   }
 
-  async findByVveId(
-    vveId: VesselVisitExecutionId
+  async findByvesselVisitExecutionId(
+    vesselVisitExecutionId: VesselVisitExecutionId
   ): Promise<OperationPlan | null> {
 
     const doc = await OperationPlanSchema.findOne({
-      vveId: vveId.toString()
+      vesselVisitExecutionId: vesselVisitExecutionId.toString()
     });
 
     if (!doc) return null;

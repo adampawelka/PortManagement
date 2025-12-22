@@ -1,6 +1,6 @@
 export interface ExecutedOperationDTO {
   id: string;
-  vveId: string;
+  vesselVisitExecutionId: string;
   plannedOperationId: string;
   resourceId: string;
   staffId: string;
@@ -10,7 +10,7 @@ export interface ExecutedOperationDTO {
 }
 
 export interface CreateExecutedOperationDTO {
-  vveId: string;
+  vesselVisitExecutionId: string;
   plannedOperationId: string;
   resourceId: string;
   staffId: string;

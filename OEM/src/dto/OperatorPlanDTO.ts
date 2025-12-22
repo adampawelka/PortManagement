@@ -1,13 +1,13 @@
 export interface OperatorPlanDTO {
   id: string;
-  vveId: string;
+  vesselVisitExecutionId: string;
   createdAt: string;
   createdBy: string;
   algorithmUsed: string;
 }
 
 export interface CreateOperatorPlanDTO {
-  vveId: string;
+  vesselVisitExecutionId: string;
   createdAt: string;
   createdBy: string;
   algorithmUsed: string;
