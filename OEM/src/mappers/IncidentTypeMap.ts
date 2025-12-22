@@ -1,0 +1,35 @@
+import { IncidentType } from "../Domain/IncidentTypes/IncidentType";
+import { UniqueEntityID } from "../core/domain/UniqueEntityID";
+
+export class IncidentTypeMap {
+
+  static toPersistence(type: IncidentType): any {
+    return {
+      domainId: type.incidentTypeId.toString(),
+      code: type.code.value,
+      name: type.name.value,
+      description: type.description.value,
+      severity: type.severity.value
+    };
+  }
+
+  static toDomain(raw: any): IncidentType {
+    const data = raw.toObject ? raw.toObject() : raw;
+
+    const typeOrError = IncidentType.create(
+      {
+        code: data.code,
+        name: data.name,
+        description: data.description,
+        severity: data.severity
+      },
+      new UniqueEntityID(data.domainId)
+    );
+
+    if (typeOrError.isFailure) {
+      throw new Error(typeOrError.errorValue().toString());
+    }
+
+    return typeOrError.getValue();
+  }
+}
