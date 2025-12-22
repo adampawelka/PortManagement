@@ -3,33 +3,33 @@ import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 import { Result } from "../../core/logic/Result";
 import { Guard } from "../../core/logic/Guard";
 
-import { OperatorPlanId } from "./OperatorPlanId";
+import { OperationPlanId } from "./OperationPlanId";
 import { VesselVisitExecutionId } from "../VesselVisitExecutions/VesselVisitExecutionId";
 import { CreatedAt } from "./CreatedAt";
 import { CreatedBy } from "./CreatedBy";
 import { AlgorithmUsed } from "./AlgorithmUsed";
 
-interface OperatorPlanProps {
+interface OperationPlanProps {
   vveId: VesselVisitExecutionId;
   createdAt: CreatedAt;
   createdBy: CreatedBy;
   algorithmUsed: AlgorithmUsed;
 }
 
-export class OperatorPlan extends AggregateRoot<OperatorPlanProps> {
+export class OperationPlan extends AggregateRoot<OperationPlanProps> {
 
-  get operatorPlanId(): OperatorPlanId {
-    return OperatorPlanId.caller(this.id);
+  get operationPlanId(): OperationPlanId {
+    return OperationPlanId.caller(this.id);
   }
 
-  private constructor(props: OperatorPlanProps, id?: UniqueEntityID) {
+  private constructor(props: OperationPlanProps, id?: UniqueEntityID) {
     super(props, id);
   }
 
   public static create(
-    props: OperatorPlanProps,
+    props: OperationPlanProps,
     id?: UniqueEntityID
-  ): Result<OperatorPlan> {
+  ): Result<OperationPlan> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.vveId, argumentName: "vveId" },
@@ -39,11 +39,11 @@ export class OperatorPlan extends AggregateRoot<OperatorPlanProps> {
     ]);
 
     if (!guardResult.succeeded) {
-      return Result.fail<OperatorPlan>(guardResult.message);
+      return Result.fail<OperationPlan>(guardResult.message);
     }
 
-    return Result.ok<OperatorPlan>(
-      new OperatorPlan({ ...props }, id)
+    return Result.ok<OperationPlan>(
+      new OperationPlan({ ...props }, id)
     );
   }
 }

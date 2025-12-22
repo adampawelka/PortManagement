@@ -1,7 +1,7 @@
 import { Entity } from "../../core/domain/Entity";
 import { UniqueEntityID } from "../../core/domain/UniqueEntityID";
 
-export class OperatorPlanId extends Entity<any> {
+export class OperationPlanId extends Entity<any> {
 
   get id(): UniqueEntityID {
     return this._id;
@@ -11,7 +11,7 @@ export class OperatorPlanId extends Entity<any> {
     super(null, id);
   }
 
-  public static create(id: UniqueEntityID): OperatorPlanId {
-    return new OperatorPlanId(id);
+  public static create(id: UniqueEntityID): OperationPlanId {
+    return new OperationPlanId(id);
   }
 }
