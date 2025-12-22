@@ -1,7 +1,7 @@
 import { IIncidentTypeRepo } from "../services/IRepos/IIncidentTypeRepo";
 
-import { IncidentType } from "../domain/IncidentTypes/IncidentType";
-import { IncidentTypeId } from "../domain/IncidentTypes/IncidentTypeId";
+import { IncidentType } from "../Domain/IncidentTypes/IncidentType";
+import { IncidentTypeId } from "../Domain/IncidentTypes/IncidentTypeId";
 
 import IncidentTypeSchema from "../persistence/schemas/IncidentTypeSchema";
 import { IncidentTypeMap } from "../mappers/IncidentTypeMap";

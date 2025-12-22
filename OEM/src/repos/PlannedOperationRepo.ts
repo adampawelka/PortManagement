@@ -1,8 +1,8 @@
 import { IPlannedOperationRepo } from "../services/IRepos/IPlannedOperationRepo";
 
-import { PlannedOperation } from "../domain/PlannedOperations/PlannedOperation";
-import { PlannedOperationId } from "../domain/PlannedOperations/PlannedOperationId";
-import { OperationPlanId } from "../domain/OperationPlans/OperationPlanId";
+import { PlannedOperation } from "../Domain/PlannedOperations/PlannedOperation";
+import { PlannedOperationId } from "../Domain/PlannedOperations/PlannedOperationId";
+import { OperationPlanId } from "../Domain/OperationPlans/OperationPlanId";
 
 import PlannedOperationSchema from "../persistence/schemas/PlannedOperationSchema";
 import { PlannedOperationMap } from "../mappers/PlannedOperationMap";

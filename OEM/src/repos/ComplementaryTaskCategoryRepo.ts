@@ -1,7 +1,7 @@
 import { IComplementaryTaskCategoryRepo } from "../services/IRepos/IComplementaryTaskCategoryRepo";
 
-import { ComplementaryTaskCategory } from "../domain/ComplementaryTaskCategories/ComplementaryTaskCategory";
-import { ComplementaryTaskCategoryId } from "../domain/ComplementaryTaskCategories/ComplementaryTaskCategoryId";
+import { ComplementaryTaskCategory } from "../Domain/ComplementaryTaskCategories/ComplementaryTaskCategory";
+import { ComplementaryTaskCategoryId } from "../Domain/ComplementaryTaskCategories/ComplementaryTaskCategoryId";
 
 import ComplementaryTaskCategorySchema from "../persistence/schemas/ComplementaryTaskCategorySchema";
 import { ComplementaryTaskCategoryMap } from "../mappers/ComplementaryTaskCategoryMap";

@@ -1,8 +1,8 @@
 import { IOperationPlanRepo } from "../services/IRepos/IOperationPlanRepo";
 
-import { OperationPlan } from "../domain/OperationPlans/OperationPlan";
-import { OperationPlanId } from "../domain/OperationPlans/OperationPlanId";
-import { VesselVisitExecutionId } from "../domain/VesselVisitExecutions/VesselVisitExecutionId";
+import { OperationPlan } from "../Domain/OperationPlans/OperationPlan";
+import { OperationPlanId } from "../Domain/OperationPlans/OperationPlanId";
+import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
 
 import OperationPlanSchema from "../persistence/schemas/OperationPlanSchema";
 import { OperationPlanMap } from "../mappers/OperationPlanMap";
