@@ -10,7 +10,7 @@ import { CreatedBy } from "./CreatedBy";
 import { AlgorithmUsed } from "./AlgorithmUsed";
 
 interface OperationPlanProps {
-  vveId: VesselVisitExecutionId;
+  vesselVisitExecutionId: VesselVisitExecutionId;
   createdAt: CreatedAt;
   createdBy: CreatedBy;
   algorithmUsed: AlgorithmUsed;
@@ -20,6 +20,22 @@ export class OperationPlan extends AggregateRoot<OperationPlanProps> {
 
   get operationPlanId(): OperationPlanId {
     return OperationPlanId.caller(this.id);
+  }
+
+  get vesselVisitExecutionId(): VesselVisitExecutionId {
+    return this.props.vesselVisitExecutionId;
+  }
+
+  get createdAt(): CreatedAt {
+    return this.props.createdAt;
+  }
+
+  get createdBy(): CreatedBy {
+    return this.props.createdBy;
+  }
+
+  get algorithmUsed(): AlgorithmUsed {
+    return this.props.algorithmUsed;
   }
 
   private constructor(props: OperationPlanProps, id?: UniqueEntityID) {
@@ -32,7 +48,7 @@ export class OperationPlan extends AggregateRoot<OperationPlanProps> {
   ): Result<OperationPlan> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
-      { argument: props.vveId, argumentName: "vveId" },
+      { argument: props.vesselVisitExecutionId, argumentName: "vesselVisitExecutionId" },
       { argument: props.createdAt, argumentName: "createdAt" },
       { argument: props.createdBy, argumentName: "createdBy" },
       { argument: props.algorithmUsed, argumentName: "algorithmUsed" }
@@ -42,8 +58,7 @@ export class OperationPlan extends AggregateRoot<OperationPlanProps> {
       return Result.fail<OperationPlan>(guardResult.message);
     }
 
-    return Result.ok<OperationPlan>(
-      new OperationPlan({ ...props }, id)
-    );
+    return Result.ok(new OperationPlan(props, id));
   }
 }
+
