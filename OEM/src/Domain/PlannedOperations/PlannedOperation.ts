@@ -10,7 +10,7 @@ import { PlannedStart } from "./PlannedStart";
 import { PlannedEnd } from "./PlannedEnd";
 import { OperationType } from "./OperationType";
 import { PlannedOperationStatus } from "./PlannedOperationStatus";
-import { OperatorPlanId } from "../OperatorPlans/OperatorPlanId";
+import { OperationPlanId } from "../OperationPlans/OperationPlanId";
 
 interface PlannedOperationProps {
   resourceId: PlannedResourceId;
@@ -19,7 +19,7 @@ interface PlannedOperationProps {
   plannedEnd: PlannedEnd;
   operationType: OperationType;
   status: PlannedOperationStatus;
-  operatorPlanId: OperatorPlanId;
+  OperationPlanId: OperationPlanId;
 }
 
 export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
@@ -56,8 +56,8 @@ export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
     return this.props.status;
   }
 
-  get operatorPlanId(): OperatorPlanId {
-    return this.props.operatorPlanId;
+  get OperationPlanId(): OperationPlanId {
+    return this.props.OperationPlanId;
   }
 
   private constructor(props: PlannedOperationProps, id?: UniqueEntityID) {
@@ -76,7 +76,7 @@ export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
       { argument: props.plannedEnd, argumentName: "plannedEnd" },
       { argument: props.operationType, argumentName: "operationType" },
       { argument: props.status, argumentName: "status" },
-      { argument: props.operatorPlanId, argumentName: "operationPlanId" }
+      { argument: props.OperationPlanId, argumentName: "operationPlanId" }
     ];
 
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
