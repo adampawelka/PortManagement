@@ -1,0 +1,41 @@
+import { ExecutedOperation } from "../Domain/ExecutedOperations/ExecutedOperation";
+import { UniqueEntityID } from "../core/domain/UniqueEntityID";
+
+export class ExecutedOperationMap {
+
+  static toPersistence(operation: ExecutedOperation): any {
+    return {
+      domainId: operation.executedOperationId.toString(),
+      vesselVisitExecutionId: operation.vesselVisitExecutionId.toString(),
+      plannedOperationId: operation.plannedOperationId.toString(),
+      resourceId: operation.resourceId.toString(),
+      staffId: operation.staffId.toString(),
+      actualStart: operation.actualStart.value,
+      actualEnd: operation.actualEnd?.value ?? null,
+      status: operation.status.value
+    };
+  }
+
+  static toDomain(raw: any): ExecutedOperation {
+    const data = raw.toObject ? raw.toObject() : raw;
+
+    const executedOperationOrError = ExecutedOperation.create(
+      {
+        vesselVisitExecutionId: data.vesselVisitExecutionId,
+        plannedOperationId: data.plannedOperationId,
+        resourceId: data.resourceId,
+        staffId: data.staffId,
+        actualStart: data.actualStart,
+        actualEnd: data.actualEnd ?? undefined,
+        status: data.status
+      },
+      new UniqueEntityID(data.domainId)
+    );
+
+    if (executedOperationOrError.isFailure) {
+      throw new Error(executedOperationOrError.errorValue().toString());
+    }
+
+    return executedOperationOrError.getValue();
+  }
+}
