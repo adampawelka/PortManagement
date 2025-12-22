@@ -6,7 +6,7 @@ export interface IComplementaryTaskRepo {
   save(task: ComplementaryTask): Promise<void>;
   findById(id: ComplementaryTaskId): Promise<ComplementaryTask | null>;
   findByVesselVisitExecutionId(
-    vveId: VesselVisitExecutionId
+    vesselVisitExecutionId: VesselVisitExecutionId
   ): Promise<ComplementaryTask[]>;
   findall(): Promise<ComplementaryTask[]>;
   exists(id: ComplementaryTaskId): Promise<boolean>;

@@ -6,7 +6,7 @@ export interface IExecutedOperationRepo {
   save(operation: ExecutedOperation): Promise<void>;
   findById(id: ExecutedOperationId): Promise<ExecutedOperation | null>;
   findByVesselVisitExecutionId(
-    vveId: VesselVisitExecutionId
+    vesselVisitExecutionId: VesselVisitExecutionId
   ): Promise<ExecutedOperation[]>;
   findAll(): Promise<ExecutedOperation[]>;
   exists(id: ExecutedOperationId): Promise<boolean>;

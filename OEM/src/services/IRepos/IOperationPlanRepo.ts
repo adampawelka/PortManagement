@@ -7,8 +7,8 @@ export interface IOperationPlanRepo {
 
   findById(id: OperationPlanId): Promise<OperationPlan | null>;
 
-  findByVveId(
-    vveId: VesselVisitExecutionId
+  findByvesselVisitExecutionId(
+    vesselVisitExecutionId: VesselVisitExecutionId
   ): Promise<OperationPlan | null>;
 
   findAll(): Promise<OperationPlan[]>;
