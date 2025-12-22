@@ -70,7 +70,7 @@ export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
   ): Result<ExecutedOperation> {
 
     const guardedProps = [
-      { argument: props.vesselVisitExecutionId, argumentName: "vveId" },
+      { argument: props.vesselVisitExecutionId, argumentName: "vesselVisitExecutionId" },
       { argument: props.plannedOperationId, argumentName: "plannedOperationId" },
       { argument: props.resourceId, argumentName: "resourceId" },
       { argument: props.staffId, argumentName: "staffId" },

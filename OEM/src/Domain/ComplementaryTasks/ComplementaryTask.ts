@@ -64,7 +64,7 @@ export class ComplementaryTask extends AggregateRoot<ComplementaryTaskProps> {
   ): Result<ComplementaryTask> {
 
     const guardedProps = [
-      { argument: props.vesselVisitExecutionId, argumentName: "vveId" },
+      { argument: props.vesselVisitExecutionId, argumentName: "vesselVisitExecutionId" },
       { argument: props.categoryId, argumentName: "categoryId" },
       { argument: props.responsibleTeam, argumentName: "responsibleTeam" },
       { argument: props.startTime, argumentName: "startTime" },
