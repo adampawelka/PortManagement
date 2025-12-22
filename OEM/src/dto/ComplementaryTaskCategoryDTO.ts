@@ -1,4 +1,4 @@
-export default interface ComplementaryTaskCategoryDTO {
+export interface ComplementaryTaskCategoryDTO {
   id: string;
   code: string;
   name: string;

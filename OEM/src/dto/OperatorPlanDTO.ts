@@ -1,4 +1,4 @@
-export default interface OperatorPlanDTO {
+export interface OperatorPlanDTO {
   id: string;
   vveId: string;
   createdAt: string;

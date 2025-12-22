@@ -1,4 +1,4 @@
-export default interface ExecutedOperationDTO {
+export interface ExecutedOperationDTO {
   id: string;
   vveId: string;
   plannedOperationId: string;

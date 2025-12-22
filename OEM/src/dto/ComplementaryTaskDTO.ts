@@ -1,6 +1,6 @@
-export default interface ComplementaryTaskDTO {
+export interface ComplementaryTaskDTO {
   id: string;
-  vveId: string;
+  vesselVisitExecutionId: string;
   categoryId: string;
   responsibleTeam: string;
   startTime: string;
@@ -9,7 +9,7 @@ export default interface ComplementaryTaskDTO {
 }
 
 export interface CreateComplementaryTaskDTO {
-  vveId: string;
+  vesselVisitExecutionId: string;
   categoryId: string;
   responsibleTeam: string;
   startTime: string;

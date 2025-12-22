@@ -1,4 +1,4 @@
-export default interface IncidentTypeDTO {
+export interface IncidentTypeDTO {
   id: string;
   code: string;
   name: string;

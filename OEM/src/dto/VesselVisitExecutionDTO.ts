@@ -1,4 +1,4 @@
-export default interface VesselVisitExecutionDTO {
+export interface VesselVisitExecutionDTO {
   id: string;
   vvnId: string;
   actualArrivalTime: string;
