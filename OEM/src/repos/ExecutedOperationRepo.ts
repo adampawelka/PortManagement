@@ -1,8 +1,8 @@
 import { IExecutedOperationRepo } from "../services/IRepos/IExecutedOperationRepo";
 
-import { ExecutedOperation } from "../Domain/ExecutedOperations/ExecutedOperation";
-import { ExecutedOperationId } from "../Domain/ExecutedOperations/ExecutedOperationId";
-import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
+import { ExecutedOperation } from "../domain/ExecutedOperations/ExecutedOperation";
+import { ExecutedOperationId } from "../domain/ExecutedOperations/ExecutedOperationId";
+import { VesselVisitExecutionId } from "../domain/VesselVisitExecutions/VesselVisitExecutionId";
 
 import ExecutedOperationSchema from "../persistence/schemas/ExecutedOperationSchema";
 import { ExecutedOperationMap } from "../mappers/ExecutedOperationMap";

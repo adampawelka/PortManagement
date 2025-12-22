@@ -1,8 +1,8 @@
 import { IComplementaryTaskRepo } from "../services/IRepos/IComplementaryTaskRepo";
 
-import { ComplementaryTask } from "../Domain/ComplementaryTasks/ComplementaryTask";
-import { ComplementaryTaskId } from "../Domain/ComplementaryTasks/ComplementaryTaskId";
-import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
+import { ComplementaryTask } from "../domain/ComplementaryTasks/ComplementaryTask";
+import { ComplementaryTaskId } from "../domain/ComplementaryTasks/ComplementaryTaskId";
+import { VesselVisitExecutionId } from "../domain/VesselVisitExecutions/VesselVisitExecutionId";
 
 import ComplementaryTaskSchema from "../persistence/schemas/ComplementaryTaskSchema";
 import { ComplementaryTaskMap } from "../mappers/ComplementaryTaskMap";

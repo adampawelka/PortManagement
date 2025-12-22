@@ -1,5 +1,6 @@
-import { VesselVisitExecution } from "../Domain/VesselVisitExecutions/VesselVisitExecution";
-import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
+import { VesselVisitExecution } from "../domain/VesselVisitExecutions/VesselVisitExecution";
+import { VesselVisitExecutionId } from "../domain/VesselVisitExecutions/VesselVisitExecutionId";
+
 
 import VesselVisitExecutionSchema from "../persistence/schemas/VesselVisitExecutionSchema";
 import { VesselVisitExecutionMap } from "../mappers/VesselVisitExecutionMap";
