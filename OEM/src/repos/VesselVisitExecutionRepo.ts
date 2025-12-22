@@ -30,6 +30,12 @@ export class VesselVisitExecutionRepo {
     return VesselVisitExecutionMap.toDomain(doc);
   }
 
+  async findall(): Promise<VesselVisitExecution[]> {
+    const docs = await VesselVisitExecutionSchema.find({});
+
+    return docs.map(doc => VesselVisitExecutionMap.toDomain(doc));
+  }
+
   async exists(
     id: VesselVisitExecutionId
   ): Promise<boolean> {

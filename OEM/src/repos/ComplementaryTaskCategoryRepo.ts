@@ -43,6 +43,13 @@ export class ComplementaryTaskCategoryRepo
     return ComplementaryTaskCategoryMap.toDomain(doc);
   }
 
+  async findAll(): Promise<ComplementaryTaskCategory[]> {
+    const docs = await ComplementaryTaskCategorySchema.find();
+
+    return docs.map(doc => ComplementaryTaskCategoryMap.toDomain(doc));
+  }
+
+
   async exists(
     id: ComplementaryTaskCategoryId
   ): Promise<boolean> {

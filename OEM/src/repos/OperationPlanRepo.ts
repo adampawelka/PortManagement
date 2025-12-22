@@ -45,6 +45,12 @@ export class OperationPlanRepo implements IOperationPlanRepo {
     return OperationPlanMap.toDomain(doc);
   }
 
+  async findAll(): Promise<OperationPlan[]> {
+    const docs = await OperationPlanSchema.find({});
+
+    return docs.map(doc => OperationPlanMap.toDomain(doc));
+  }
+
   async exists(
     id: OperationPlanId
   ): Promise<boolean> {
