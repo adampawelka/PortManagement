@@ -1,4 +1,4 @@
-export default interface IExecutedOperationDTO {
+export default interface ExecutedOperationDTO {
   id: string;
   vveId: string;
   plannedOperationId: string;
@@ -7,4 +7,20 @@ export default interface IExecutedOperationDTO {
   actualStart: string;
   actualEnd?: string;
   status: string;
+}
+
+export interface CreateExecutedOperationDTO {
+  vveId: string;
+  plannedOperationId: string;
+  resourceId: string;
+  staffId: string;
+  actualStart: string;
+  actualEnd?: string;
+  status: string;
+}
+
+export interface UpdateExecutedOperationDTO {
+  actualStart?: string;
+  actualEnd?: string;
+  status?: string;
 }
