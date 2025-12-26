@@ -31,3 +31,32 @@ export const searchOperationalPlans = async (apiOemFetch, { dateStart, dateEnd, 
 };
 
 
+
+// MOCK DATA GENERATOR
+export const generateMockOperationalPlans = (count = 5) => {
+    const vessels = ["Aurora", "Neptune", "Poseidon", "Odyssey", "Titan"];
+    const docks = ["Dock A", "Dock B", "Dock C"];
+    const cranes = ["Crane 1", "Crane 2", "Crane 3"];
+
+    const randomDate = (start = new Date(), days = 7) => {
+        const date = new Date(start);
+        date.setDate(date.getDate() + Math.floor(Math.random() * days));
+        return date.toISOString().slice(0, 10); // YYYY-MM-DD
+    };
+
+    const randomDelay = () => Math.floor(Math.random() * 120); // in minutes
+
+    const plans = Array.from({ length: count }, (_, i) => ({
+        vvnId: 1000 + i,
+        vesselName: vessels[Math.floor(Math.random() * vessels.length)],
+        dock: docks[Math.floor(Math.random() * docks.length)],
+        crane: cranes[Math.floor(Math.random() * cranes.length)],
+        operations: Array.from({ length: 3 }, () => ({
+            start: randomDate(),
+            end: randomDate(),
+            expectedDelay: randomDelay()
+        }))
+    }));
+
+    return plans;
+};
