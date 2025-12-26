@@ -1,17 +1,38 @@
 import { useState } from 'react';
 import { rejectVesselVisitNotification } from '../../services/vesselVisitNotificationService'; 
 import { useApi } from '../../services/api';
+import { useNotification } from '../../hooks/useNotification';
+import { useFormAutoSave } from '../../hooks/useFormAutoSave';
+
+const initialFormState = {
+  notificationId: '',
+  rejectionReason: '',
+};
+
 export const useRejectVesselVisitNotificationVM = () => {
   const { apiFetch } = useApi();
-  const [notificationId, setNotificationId] = useState('');
-  const [rejectionReason, setReason] = useState('');
+  const { showSuccess } = useNotification();
+  const [formData, setFormData] = useState(initialFormState);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
+
+  // Auto-save form data to localStorage
+  const { clearSavedData } = useFormAutoSave(
+    'reject-notification-form',
+    formData,
+    setFormData,
+    initialFormState
+  );
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleReject = async (e) => {
     e.preventDefault();
 
-    if (!notificationId || !rejectionReason) {
+    if (!formData.notificationId || !formData.rejectionReason) {
       setMessage({ type: 'error', text: 'Notification ID and Reason are required.' });
       return;
     }
@@ -19,18 +40,20 @@ export const useRejectVesselVisitNotificationVM = () => {
     setLoading(true);
     setMessage(null);
 
-
-
     try {
       const rejectBodyDto = { 
-        Reason: rejectionReason // El string simple que se mapea a RejectNotificationDto
+        Reason: formData.rejectionReason // El string simple que se mapea a RejectNotificationDto
       };
-      const response = await rejectVesselVisitNotification(apiFetch, notificationId, rejectBodyDto); 
+      const response = await rejectVesselVisitNotification(apiFetch, formData.notificationId, rejectBodyDto); 
 
       if (response) {
-        setMessage({ type: 'success', text: `Notification ${notificationId} rejected successfully!` });
-        setNotificationId('');
-        setReason('');
+        // Show success notification toast
+        showSuccess(`Notification ${formData.notificationId} rejected successfully!`);
+        // Also set message for Alert (optional - can remove later)
+        setMessage({ type: 'success', text: `Notification ${formData.notificationId} rejected successfully!` });
+        setFormData(initialFormState);
+        // Clear saved form data after successful submission
+        clearSavedData();
       }
     } catch (err) {
       setMessage({ type: 'error', text: err.message || 'Error while rejecting notification.' });
@@ -40,12 +63,10 @@ export const useRejectVesselVisitNotificationVM = () => {
   };
 
   return {
-    notificationId,
-    rejectionReason,
+    formData,
     loading,
     message,
-    setNotificationId,
-    setReason,
+    handleChange,
     handleReject,
   };
 };

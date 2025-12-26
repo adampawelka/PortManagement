@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useApi } from '../../services/api';  // Assuming apiFetch is from the useApi hook
 import { addResource } from '../../services/resourceService';  // Import the service function for adding resources
+import { useNotification } from '../../hooks/useNotification';
 
 const initialFormState = {
   code: '',
@@ -13,7 +14,8 @@ const initialFormState = {
 };
 
 export const useAddResourceVM = () => {
-  const { apiFetch } = useApi(); 
+  const { apiFetch } = useApi();
+  const { showSuccess } = useNotification(); 
   const [formData, setFormData] = useState(initialFormState);  
   const [loading, setLoading] = useState(true);  
   const [submitting, setSubmitting] = useState(false);  
@@ -64,6 +66,9 @@ export const useAddResourceVM = () => {
 
     try {
       await addResource(apiFetch, resourceDto);
+      // Show success notification toast
+      showSuccess('Resource added successfully!');
+      // Also set message for Alert (optional - can remove later)
       setMessage({ type: 'success', text: 'Resource added successfully!' });
       setFormData(initialFormState);  // Reset form
     } catch (err) {

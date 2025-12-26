@@ -1,7 +1,8 @@
 // src/components/Resources/AddResourcePage.js
 import React from 'react';
-import { Container, Typography, Alert, TextField, Button, CircularProgress } from '@mui/material';
+import { Container, Typography, Alert, TextField } from '@mui/material';
 import { useAddResourceVM } from '../../viewmodels/Resources/useAddResourceVM';  // Import ViewModel
+import { LoadingButton, LoadingOverlay, LoadingSpinner } from '../../components/LoadingComponents';
 
 const AddResourcePage = () => {
   const { formData, loading, submitting, message, error, handleChange, handleSubmit, criticalError } = useAddResourceVM();
@@ -9,8 +10,8 @@ const AddResourcePage = () => {
   // While the form is loading
   if (loading) {
     return (
-      <Container sx={{ mt: 4, color: 'var(--color-text-dark)', fontFamily: 'var(--font-family-base)' }}>
-        Loading initial data...
+      <Container sx={{ mt: 4, fontFamily: 'var(--font-family-base)' }}>
+        <LoadingSpinner size="large" message="Loading initial data..." />
       </Container>
     );
   }
@@ -25,17 +26,19 @@ const AddResourcePage = () => {
   }
 
   return (
-    <Container 
-      maxWidth="sm" 
-      sx={{ 
-        mt: 4, 
-        backgroundColor: 'var(--color-surface)', 
-        p: 4, 
-        borderRadius: 'var(--radius-md)', 
-        boxShadow: 3,
-        fontFamily: 'var(--font-family-base)',
-      }}
-    >
+    <>
+      <LoadingOverlay open={submitting} message="Creating resource..." />
+      <Container 
+        maxWidth="sm" 
+        sx={{ 
+          mt: 4, 
+          backgroundColor: 'var(--color-surface)', 
+          p: 4, 
+          borderRadius: 'var(--radius-md)', 
+          boxShadow: 3,
+          fontFamily: 'var(--font-family-base)',
+        }}
+      >
       <Typography 
         variant="h4" 
         gutterBottom
@@ -128,10 +131,11 @@ const AddResourcePage = () => {
           variant="outlined"
         />
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="contained"
-          disabled={submitting || criticalError}
+          loading={submitting}
+          disabled={criticalError}
           fullWidth
           sx={{ 
             mt: 3, 
@@ -141,10 +145,11 @@ const AddResourcePage = () => {
             '&:hover': { backgroundColor: 'var(--color-primary-light)' }
           }}
         >
-          {submitting ? <CircularProgress size={24} color="inherit" /> : 'Create Resource'}
-        </Button>
+          Create Resource
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 

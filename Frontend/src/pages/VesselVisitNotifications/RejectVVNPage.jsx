@@ -1,30 +1,31 @@
 import React from 'react';
-import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
-import { useRejectVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useRejectVesselVisitNotificationVM'; 
+import { Container, TextField, Typography, Alert } from '@mui/material';
+import { useRejectVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useRejectVesselVisitNotificationVM';
+import { LoadingButton, LoadingOverlay } from '../../components/LoadingComponents'; 
 
 const RejectVVNPage = () => {
   const {
-    notificationId,
-    rejectionReason,
+    formData,
     loading,
     message,
-    setNotificationId,
-    setReason,
+    handleChange,
     handleReject,
   } = useRejectVesselVisitNotificationVM(); 
 
   return (
-    <Container 
-      maxWidth="sm" 
-      sx={{ 
-        mt: 4, 
-        backgroundColor: 'var(--color-surface)', 
-        p: 4, 
-        borderRadius: 'var(--radius-md)', 
-        boxShadow: 3,
-        fontFamily: 'var(--font-family-base)',
-      }}
-    >
+    <>
+      <LoadingOverlay open={loading} message="Rejecting notification..." />
+      <Container 
+        maxWidth="sm" 
+        sx={{ 
+          mt: 4, 
+          backgroundColor: 'var(--color-surface)', 
+          p: 4, 
+          borderRadius: 'var(--radius-md)', 
+          boxShadow: 3,
+          fontFamily: 'var(--font-family-base)',
+        }}
+      >
       <Typography 
         variant="h4" 
         gutterBottom 
@@ -54,8 +55,9 @@ const RejectVVNPage = () => {
       <form onSubmit={handleReject}>
         <TextField
           label="Notification ID (GUID)"
-          value={notificationId}
-          onChange={(e) => setNotificationId(e.target.value)}
+          name="notificationId"
+          value={formData.notificationId}
+          onChange={handleChange}
           required
           fullWidth
           margin="normal"
@@ -65,8 +67,9 @@ const RejectVVNPage = () => {
         />
         <TextField
           label="Reason"
-          value={rejectionReason}
-          onChange={(e) => setReason(e.target.value)}
+          name="rejectionReason"
+          value={formData.rejectionReason}
+          onChange={handleChange}
           required
           fullWidth
           margin="normal"
@@ -75,10 +78,10 @@ const RejectVVNPage = () => {
           }}
         />
 
-        <Button 
+        <LoadingButton 
           type="submit" 
           variant="contained" 
-          disabled={loading} 
+          loading={loading}
           sx={{ 
             mt: 3, 
             py: 1.5, 
@@ -88,10 +91,11 @@ const RejectVVNPage = () => {
           }} 
           fullWidth
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Reject'}
-        </Button>
+          Reject
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 

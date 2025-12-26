@@ -1,31 +1,32 @@
 // src/pages/ApproveVvnPage.js
 import React from 'react';
-import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
+import { Container, TextField, Typography, Alert } from '@mui/material';
 import { useApproveVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useApproveVesselVisitNotificationVM';
+import { LoadingButton, LoadingOverlay } from '../../components/LoadingComponents';
 
 const ApproveVVNPage = () => {
   const {
-    notificationId,
-    dockID,
+    formData,
     loading,
     message,
-    setNotificationId,
-    setDock,
+    handleChange,
     handleApprove,
   } = useApproveVesselVisitNotificationVM();
 
   return (
-    <Container 
-      maxWidth="sm" 
-      sx={{ 
-        mt: 4, 
-        backgroundColor: 'var(--color-surface)', 
-        p: 4, 
-        borderRadius: 'var(--radius-md)', 
-        boxShadow: 3, 
-        fontFamily: 'var(--font-family-base)', 
-      }}
-    >
+    <>
+      <LoadingOverlay open={loading} message="Approving notification..." />
+      <Container 
+        maxWidth="sm" 
+        sx={{ 
+          mt: 4, 
+          backgroundColor: 'var(--color-surface)', 
+          p: 4, 
+          borderRadius: 'var(--radius-md)', 
+          boxShadow: 3, 
+          fontFamily: 'var(--font-family-base)', 
+        }}
+      >
       <Typography 
         variant="h4" 
         gutterBottom 
@@ -46,8 +47,9 @@ const ApproveVVNPage = () => {
       <form onSubmit={handleApprove}>
         <TextField 
           label="Notification ID (GUID)" 
-          value={notificationId} 
-          onChange={(e) => setNotificationId(e.target.value)}
+          name="notificationId"
+          value={formData.notificationId} 
+          onChange={handleChange}
           required 
           fullWidth 
           margin="normal"
@@ -64,8 +66,9 @@ const ApproveVVNPage = () => {
 
         <TextField 
           label="DOCK ID (GUID)" 
-          value={dockID} 
-          onChange={(e) => setDock(e.target.value)}
+          name="dockID"
+          value={formData.dockID} 
+          onChange={handleChange}
           required 
           fullWidth 
           margin="normal"
@@ -81,10 +84,10 @@ const ApproveVVNPage = () => {
           }}
         />
 
-        <Button 
+        <LoadingButton 
           type="submit" 
           variant="contained" 
-          disabled={loading} 
+          loading={loading}
           sx={{ 
             mt: 3, 
             py: 1.5, 
@@ -95,10 +98,11 @@ const ApproveVVNPage = () => {
           }} 
           fullWidth
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Approve'}
-        </Button>
+          Approve
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 

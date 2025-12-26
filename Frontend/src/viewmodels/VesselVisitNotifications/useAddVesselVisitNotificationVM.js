@@ -2,20 +2,33 @@ import { useState, useEffect, useCallback } from 'react';
 import { getVesselVisitNotifications, addVesselVisitNotification } from '../../services/vesselVisitNotificationService';
 import { useApi } from '../../services/api';
 import { getVessels } from '../../services/vesselService';
+import { useNotification } from '../../hooks/useNotification';
+import { useFormAutoSave } from '../../hooks/useFormAutoSave';
+
+const getInitialFormState = () => ({
+  vesselId: '',
+  submittedById: '',
+  eta: new Date().toISOString().slice(0, 16),
+  etd: new Date().toISOString().slice(0, 16),
+  loadunload: '',
+  manifestContainers: '',
+  crewName: '',
+  crewCitizenId: '',
+  crewNationality: '',
+});
 
 export const useAddVesselVisitNotificationVM = () => {
   const { apiFetch } = useApi();
-  const [formData, setFormData] = useState({
-    vesselId: '',
-    submittedById: '',
-    eta: new Date().toISOString().slice(0, 16),
-    etd: new Date().toISOString().slice(0, 16),
-    loadunload: '',
-    manifestContainers: '',
-    crewName: '',
-    crewCitizenId: '',
-    crewNationality: '',
-  });
+  const { showSuccess } = useNotification();
+  const [formData, setFormData] = useState(getInitialFormState());
+
+  // Auto-save form data to localStorage
+  const { clearSavedData } = useFormAutoSave(
+    'add-notification-form',
+    formData,
+    setFormData,
+    getInitialFormState
+  );
 
   const [vessels, setVessels] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,18 +87,13 @@ export const useAddVesselVisitNotificationVM = () => {
 
     try {
       const response = await addVesselVisitNotification(apiFetch, vvnDto);
+      // Show success notification toast
+      showSuccess('Notification submitted successfully!');
+      // Also set message for Alert (optional - can remove later)
       setMessage({ type: 'success', text: 'Notification submitted successfully!' });
-      setFormData({
-        vesselId: '',
-        submittedById: '',
-        eta: new Date().toISOString().slice(0, 16),
-        etd: new Date().toISOString().slice(0, 16),
-        loadunload: '',
-        manifestContainers: '',
-        crewName: '',
-        crewCitizenId: '',
-        crewNationality: '',
-      });
+      setFormData(getInitialFormState());
+      // Clear saved form data after successful submission
+      clearSavedData();
     } catch (err) {
       setMessage({ type: 'error', text: `Submission failed: ${err.message}.` });
     } finally {

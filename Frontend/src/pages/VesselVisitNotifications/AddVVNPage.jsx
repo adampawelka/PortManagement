@@ -1,24 +1,31 @@
 import React from 'react';
-import { Container, TextField, Button, Typography, CircularProgress, Alert, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { Container, TextField, Typography, Alert, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import { useAddVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useAddVesselVisitNotificationVM';
+import { LoadingButton, LoadingOverlay, LoadingSpinner } from '../../components/LoadingComponents';
 
 const AddVVNPage = () => {
   const { formData, vessels, loading, submitting, message, handleChange, handleSubmit } = useAddVesselVisitNotificationVM();
 
-  if (loading) return <Container sx={{ mt: 4 }}><CircularProgress /> Loading vessels...</Container>;
+  if (loading) return (
+    <Container sx={{ mt: 4 }}>
+      <LoadingSpinner size="large" message="Loading vessels..." />
+    </Container>
+  );
 
   return (
-    <Container
-      maxWidth="md"
-      sx={{
-        mt: 4,
-        backgroundColor: 'var(--color-surface)', 
-        p: 4,
-        borderRadius: 'var(--radius-md)', 
-        boxShadow: 3,
-        fontFamily: 'var(--font-family-base)', 
-      }}
-    >
+    <>
+      <LoadingOverlay open={submitting} message="Creating vessel visit notification..." />
+      <Container
+        maxWidth="md"
+        sx={{
+          mt: 4,
+          backgroundColor: 'var(--color-surface)', 
+          p: 4,
+          borderRadius: 'var(--radius-md)', 
+          boxShadow: 3,
+          fontFamily: 'var(--font-family-base)', 
+        }}
+      >
       <Typography
         variant="h4"
         gutterBottom
@@ -235,10 +242,10 @@ const AddVVNPage = () => {
           }}
         />
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="contained"
-          disabled={submitting}
+          loading={submitting}
           sx={{
             mt: 3,
             py: 1.5,
@@ -250,10 +257,11 @@ const AddVVNPage = () => {
           }}
           fullWidth
         >
-          {submitting ? <CircularProgress size={24} color="inherit" /> : 'Add VVN'}
-        </Button>
+          Add VVN
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 
