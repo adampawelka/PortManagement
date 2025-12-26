@@ -11,22 +11,24 @@ const OperationalPlanSearch = () => {
 
     const [dateStart, setDateStart] = useState("");
     const [dateEnd, setDateEnd] = useState("");
+    const [hasSearched, setHasSearched] = useState(false);
 
     const handleSearch = () => {
         if (!dateStart) return alert("Please select a start date.");
         if (!dateEnd) return alert("Please select an end date.");
 
+        setHasSearched(true);
         search({ dateStart, dateEnd });
     };
 
     return (
         <Container maxWidth="xl" sx={{ mt: 4 }}>
-            <Typography variant="h4" sx={{ mb: 3 }}>
+            <Typography variant="h4" sx={{ mb: 3, textAlign: "center" }}>
                 Operational Plans ({plans.length})
             </Typography>
 
             {/* Controls */}
-            <Paper sx={{ p: 2, mb: 3, display: "flex", gap: 2, flexWrap: "wrap" }}>
+            <Paper sx={{ p: 3, mb: 3, display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
                 <FormControl>
                     <TextField
                         label="Start Date"
@@ -55,8 +57,11 @@ const OperationalPlanSearch = () => {
             {/* Loading/Error */}
             {loading && <CircularProgress sx={{ display: "block", mx: "auto", my: 2 }} />}
             {error && <Alert severity="error">{error}</Alert>}
-            {!loading && plans.length === 0 && !error && (
-                <Alert severity="info">No operational plans found.</Alert>
+
+            {!loading && hasSearched && plans.length === 0 && !error && (
+                <Alert severity="info" sx={{ textAlign: "center" }}>
+                    No operational plans found.
+                </Alert>
             )}
 
             {/* Results */}
