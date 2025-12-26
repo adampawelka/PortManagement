@@ -13,23 +13,23 @@ import { PlannedOperationStatus } from "./PlannedOperationStatus";
 import { OperationPlanId } from "../OperationPlans/OperationPlanId";
 
 interface PlannedOperationProps {
+  operationPlanId: OperationPlanId;
   resourceId: PlannedResourceId;
   staffId: PlannedStaffId;
   plannedStart: PlannedStart;
   plannedEnd: PlannedEnd;
   operationType: OperationType;
   status: PlannedOperationStatus;
-  OperationPlanId: OperationPlanId;
 }
 
 export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
 
-  get id(): UniqueEntityID {
-    return this._id;
-  }
-
   get plannedOperationId(): PlannedOperationId {
     return PlannedOperationId.caller(this.id);
+  }
+
+  get operationPlanId(): OperationPlanId {
+    return this.props.operationPlanId;
   }
 
   get resourceId(): PlannedResourceId {
@@ -56,10 +56,6 @@ export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
     return this.props.status;
   }
 
-  get OperationPlanId(): OperationPlanId {
-    return this.props.OperationPlanId;
-  }
-
   private constructor(props: PlannedOperationProps, id?: UniqueEntityID) {
     super(props, id);
   }
@@ -69,23 +65,21 @@ export class PlannedOperation extends AggregateRoot<PlannedOperationProps> {
     id?: UniqueEntityID
   ): Result<PlannedOperation> {
 
-    const guardedProps = [
+    const guardResult = Guard.againstNullOrUndefinedBulk([
+      { argument: props.operationPlanId, argumentName: "operationPlanId" },
       { argument: props.resourceId, argumentName: "resourceId" },
       { argument: props.staffId, argumentName: "staffId" },
       { argument: props.plannedStart, argumentName: "plannedStart" },
       { argument: props.plannedEnd, argumentName: "plannedEnd" },
       { argument: props.operationType, argumentName: "operationType" },
-      { argument: props.status, argumentName: "status" },
-      { argument: props.OperationPlanId, argumentName: "operationPlanId" }
-    ];
-
-    const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
+      { argument: props.status, argumentName: "status" }
+    ]);
 
     if (!guardResult.succeeded) {
       return Result.fail<PlannedOperation>(guardResult.message);
     }
 
-    const operation = new PlannedOperation({ ...props }, id);
-    return Result.ok<PlannedOperation>(operation);
+    return Result.ok(new PlannedOperation(props, id));
   }
 }
+
