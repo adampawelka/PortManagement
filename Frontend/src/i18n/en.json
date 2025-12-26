@@ -44,5 +44,8 @@
   "test_algorithms": "Test Algorithms",
   "user_management": "User Management",
   "users": "Users",
-  "pending_users": "Pending Users"
+  "pending_users": "Pending Users",
+  "operational_plans": "Operational Plans",
+  "generate_operational_plan": "Generate Operational Plan",
+  "search_operational_plans": "Search Operational Plans"
 }

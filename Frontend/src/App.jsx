@@ -43,6 +43,9 @@ import DocksListPage from "./pages/Docks/DocksListPage.jsx";
 import AddDockPage from "./pages/Docks/AddDockPage.jsx";
 import SearchDockPage from "./pages/Docks/SearchDockPage.jsx";
 
+//import GenerateOperationalPlan from "./pages/OperationalPlans/GenerateOperationalPlan.jsx";
+import SearchOperationalPlans from "./pages/OperationalPlans/SearchOperationalPlans.jsx";
+
 
 import { useApi } from "./services/api.js";
 
@@ -65,6 +68,7 @@ const fetchUserRole = async (iamUserId, name, email, apiFetch) => {
 const ProtectedRoute = ({ children, requiredRoles = [] , testUser = null}) => {
   const { isAuthenticated, isLoading, user } = useAuth0();
   const { apiFetch } = useApi();
+  //const { apiOemFetch } = useApiOEM();
 
   const [loadingUser, setLoadingUser] = useState(true);
   const [userData, setUserData] = useState(null);
@@ -88,7 +92,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] , testUser = null}) => {
 
         // ----------------------------------------
         // REAL API CALL — use this when BD works:
-        // const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        //const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
         // ----------------------------------------
 
         setUserData(data1);
@@ -458,6 +462,16 @@ const App = () => {
           element={
             <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
               <PendingUsersManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+
+        <Route
+          path="operational-plans/search-operational-plans"
+          element={
+            <ProtectedRoute requiredRoles={["LogisticsOperator"]}>
+              <SearchOperationalPlans />
             </ProtectedRoute>
           }
         />

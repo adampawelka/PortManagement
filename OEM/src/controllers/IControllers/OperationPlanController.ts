@@ -80,4 +80,19 @@ export default class OperationPlanController {
       return next(e);
     }
   };
+
+  // GET: /operationPlans/search  SERVICE MUST BE IMPLEMENTED FIRST
+  // public async search(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     const { dateStart, dateEnd, vesselId } = req.query;
+  //     const plansDTO = await this.operationPlanServiceInstance.search({
+  //       dateStart: dateStart as string,
+  //       dateEnd: dateEnd as string,
+  //       vesselId: vesselId as string
+  //     });
+  //     return res.status(200).json(plansDTO);
+  //   } catch (e) {
+  //     return next(e);
+  //   }
+  // }
 }

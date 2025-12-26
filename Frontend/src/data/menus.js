@@ -208,6 +208,26 @@ export const menuItems = [
     ]
   },
   {
+    name: "Operational Plans",
+    key: "operational_plans",
+    path: "/operational-plans",
+    roles: ["LogisticsOperator"],
+    subMenu: [
+      {
+        name: "Generate Operational Plan",
+        key: "generate_operational_plan",
+        path: "operational-plans/generate-operational-plan",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Search Operational Plans",
+        key: "search_operational_plans",
+        path: "operational-plans/search-operational-plans",
+        roles: ["LogisticsOperator"],
+      }
+    ]
+  },
+  {
   name: "User Management",
   key: "user_management",
   path: "/user-management",
