@@ -1,0 +1,147 @@
+{
+  "version": "1.0.0",
+  "effectiveDate": "2025-12-26",
+  "lastUpdated": "2025-12-26",
+  "sections": {
+    "en": {
+      "title": "Terms and Conditions",
+      "acceptance": {
+        "title": "1. Acceptance of Terms",
+        "content": "By accessing and using the Port Management and Logistics System (the 'System'), you agree to be bound by these Terms and Conditions ('Terms'). If you do not agree to these Terms, you must not use the System.\n\nThese Terms constitute a legally binding agreement between you and the System operator. Your access to the System is conditional upon your continued compliance with these Terms."
+      },
+      "serviceDescription": {
+        "title": "2. Service Description",
+        "content": "The System is a comprehensive port management platform that provides the following services:",
+        "services": [
+          "Vessel visit notification submission and management",
+          "Dock assignment and scheduling",
+          "Cargo manifest processing and validation",
+          "Resource allocation and operational planning",
+          "Staff and equipment scheduling",
+          "3D visualization of port facilities and operations",
+          "Compliance monitoring and audit logging",
+          "Real-time operational status tracking"
+        ],
+        "additional": "The specific features and functionalities available to you depend on your assigned user role within the System."
+      },
+      "userAccounts": {
+        "title": "3. User Accounts and Roles",
+        "content": "**3.1 Account Creation**\n\nUser accounts are created by System Administrators. You cannot self-register. When an Administrator creates your account:\n- You will receive an activation link via email\n- Your account will initially be in a 'deactivated' status\n- You must complete the activation process before accessing the System\n\n**3.2 Activation Process**\n\nUpon receiving your activation link:\n- You must authenticate via Auth0 using your provided email address\n- The System will verify that your authenticated identity matches the account\n- Upon successful verification, your account will be activated\n- Activation links expire after 7 days\n\n**3.3 User Roles**\n\nThe System supports the following roles:\n- **Port Authority Officer**: Manage vessel visit approvals, dock assignments, and port regulations\n- **Shipping Agent Representative**: Submit and manage vessel visit notifications\n- **Logistics Operator**: Schedule operations, allocate resources, and manage staff\n- **Administrator**: Manage user accounts, system configuration, and permissions\n\n**3.4 Account Security**\n\nYou are responsible for:\n- Maintaining the confidentiality of your authentication credentials\n- All activities that occur under your account\n- Immediately notifying us of any unauthorized use of your account\n- Logging out from shared or public computers\n\n**3.5 Account Deactivation**\n\nYour account may be deactivated if:\n- You violate these Terms\n- You are no longer authorized to represent your organization\n- Your employment or contract relationship ends\n- Required by law or regulatory authorities"
+      },
+      "acceptableUse": {
+        "title": "4. Acceptable Use Policy",
+        "content": "**4.1 Permitted Activities**\n\nYou may use the System only for:\n- Performing duties related to your assigned role\n- Legitimate port management and logistics operations\n- Activities explicitly authorized by your organization\n- Compliance with applicable maritime and port regulations\n\n**4.2 Prohibited Activities**\n\nYou must NOT:\n- Access data or features not authorized for your role\n- Share your account credentials with others\n- Attempt to circumvent security measures or access controls\n- Submit false, misleading, or fraudulent information\n- Interfere with System operations or other users' access\n- Use the System for illegal activities\n- Reverse engineer, decompile, or disassemble any System component\n- Introduce malware, viruses, or malicious code\n- Scrape, harvest, or extract data using automated tools\n- Use the System to send spam or unsolicited communications\n\n**4.3 Consequences of Violations**\n\nViolation of this Acceptable Use Policy may result in:\n- Immediate account suspension or termination\n- Revocation of system access privileges\n- Legal action and prosecution\n- Reporting to relevant authorities\n- Liability for damages caused"
+      },
+      "dataAccuracy": {
+        "title": "5. Data Accuracy and User Responsibilities",
+        "content": "**5.1 Accuracy Obligation**\n\nYou are responsible for ensuring that all information you submit to the System is:\n- Accurate and complete\n- Current and up-to-date\n- Compliant with ISO standards (e.g., ISO 6346:2022 for container identification)\n- Truthful and not misleading\n\n**5.2 Critical Safety Information**\n\nFor vessel visit notifications involving dangerous cargo, you must:\n- Accurately identify all hazardous materials\n- Designate qualified safety officers\n- Provide complete crew information\n- Comply with all maritime safety regulations\n\n**5.3 Consequences of Inaccurate Data**\n\nSubmitting inaccurate or false information may:\n- Result in vessel visit rejection\n- Cause operational delays and safety hazards\n- Lead to regulatory violations and penalties\n- Result in account termination\n- Expose you to legal liability\n\n**5.4 Data Updates**\n\nYou must promptly update any information that becomes inaccurate or changes, including vessel schedules, cargo manifests, and contact information."
+      },
+      "intellectualProperty": {
+        "title": "6. Intellectual Property Rights",
+        "content": "**6.1 System Ownership**\n\nThe System, including all software, designs, text, graphics, interfaces, and documentation, is owned by the System operator and is protected by intellectual property laws. You are granted a limited, non-exclusive, non-transferable license to use the System in accordance with these Terms.\n\n**6.2 User-Generated Content**\n\nYou retain ownership of data you submit to the System (e.g., vessel visit notifications, cargo manifests). However, by submitting this data, you grant us a license to:\n- Use, process, and store the data to provide System services\n- Share the data with authorized users as necessary for port operations\n- Retain the data in accordance with our Privacy Policy and legal obligations\n\n**6.3 Restrictions**\n\nYou may not:\n- Copy, modify, or create derivative works of the System\n- Remove or alter any copyright, trademark, or proprietary notices\n- Use our trademarks, logos, or branding without written permission"
+      },
+      "systemAvailability": {
+        "title": "7. System Availability and Maintenance",
+        "content": "**7.1 Service Availability**\n\nWhile we strive to maintain high availability, we do not guarantee that the System will be:\n- Available at all times without interruption\n- Error-free or free from bugs\n- Compatible with all devices or browsers\n\n**7.2 Maintenance Windows**\n\nWe may perform scheduled maintenance that temporarily limits or suspends System access. We will provide advance notice of planned maintenance when possible.\n\n**7.3 Business Continuity**\n\nWe maintain backup and recovery procedures designed to minimize data loss and restore operations following failures. However, we cannot guarantee zero downtime or complete data recovery in all circumstances.\n\n**7.4 Emergency Procedures**\n\nIn case of System unavailability, follow your organization's emergency procedures for port operations."
+      },
+      "liability": {
+        "title": "8. Limitation of Liability",
+        "content": "**8.1 System Performance**\n\nThe System is provided 'as is' and 'as available.' We make no warranties, express or implied, regarding:\n- System accuracy, reliability, or completeness\n- Fitness for a particular purpose\n- Uninterrupted or error-free operation\n\n**8.2 User Responsibility**\n\nYou are solely responsible for:\n- Decisions made based on System data\n- Verifying critical information before taking action\n- Compliance with maritime regulations and safety protocols\n- Maintaining alternative procedures for critical operations\n\n**8.3 Limitation of Damages**\n\nTo the maximum extent permitted by law, we shall not be liable for:\n- Indirect, incidental, or consequential damages\n- Loss of profits, revenue, or data\n- Business interruption or operational delays\n- Damages resulting from third-party actions\n- Damages exceeding the fees paid for System access (if applicable)\n\n**8.4 Exceptions**\n\nNothing in these Terms excludes or limits liability for:\n- Death or personal injury caused by negligence\n- Fraud or fraudulent misrepresentation\n- Any liability that cannot be excluded or limited by law"
+      },
+      "compliance": {
+        "title": "9. Legal Compliance",
+        "content": "**9.1 Maritime Regulations**\n\nYou must comply with all applicable:\n- International maritime conventions and regulations\n- National and local port authority regulations\n- Customs and immigration requirements\n- Safety and environmental standards\n\n**9.2 Data Protection**\n\nYou must comply with:\n- GDPR and applicable data protection laws\n- Our Privacy Policy\n- Data minimization principles when submitting information\n- Security requirements for handling personal data\n\n**9.3 Export Controls**\n\nFor shipments involving dangerous goods or controlled materials, you must:\n- Comply with export control regulations\n- Obtain necessary licenses and permits\n- Provide accurate classification and documentation"
+      },
+      "termination": {
+        "title": "10. Account Termination",
+        "content": "**10.1 Termination by User**\n\nYou may request account deactivation by contacting your Administrator or our support team. Upon termination:\n- Your access will be revoked within 24 hours\n- Your personal data will be retained according to our Privacy Policy\n- Historical data you submitted may be retained for audit and compliance purposes\n\n**10.2 Termination by Us**\n\nWe may suspend or terminate your account immediately if:\n- You violate these Terms\n- We suspect fraudulent or illegal activity\n- Required by law or regulatory authorities\n- Your organization's contract with us ends\n\n**10.3 Effect of Termination**\n\nUpon termination:\n- All licenses granted to you cease immediately\n- You must cease all use of the System\n- Provisions regarding confidentiality, liability, and intellectual property survive termination"
+      },
+      "changes": {
+        "title": "11. Changes to Terms",
+        "content": "We may modify these Terms at any time. When we make material changes:\n- We will update the 'Last Updated' date\n- We will notify you via email or in-system notification\n- We may require you to accept the updated Terms to continue using the System\n- Your continued use after changes are posted constitutes acceptance\n\nYou should review these Terms periodically for updates."
+      },
+      "governingLaw": {
+        "title": "12. Governing Law and Dispute Resolution",
+        "content": "**12.1 Governing Law**\n\nThese Terms are governed by the laws of Portugal and the European Union, without regard to conflict of law principles.\n\n**12.2 Jurisdiction**\n\nAny disputes arising from these Terms or your use of the System shall be subject to the exclusive jurisdiction of the courts of Porto, Portugal.\n\n**12.3 Dispute Resolution**\n\nBefore initiating legal proceedings, parties agree to attempt resolution through good-faith negotiation for a period of 30 days."
+      },
+      "miscellaneous": {
+        "title": "13. Miscellaneous Provisions",
+        "content": "**13.1 Entire Agreement**\n\nThese Terms, together with our Privacy Policy and Cookie Policy, constitute the entire agreement between you and us regarding the System.\n\n**13.2 Severability**\n\nIf any provision of these Terms is found to be unenforceable, the remaining provisions shall continue in full effect.\n\n**13.3 Waiver**\n\nOur failure to enforce any right or provision does not constitute a waiver of that right or provision.\n\n**13.4 Assignment**\n\nYou may not assign your rights under these Terms without our written consent. We may assign our rights to any successor or affiliate.\n\n**13.5 Language**\n\nThese Terms are provided in English and Portuguese. In case of any discrepancy, the English version shall prevail."
+      },
+      "contact": {
+        "title": "14. Contact Information",
+        "content": "For questions about these Terms and Conditions, please contact:\n\n**Legal Department**\nEmail: legal@portmanagement.example\nAddress: [Company Address]\nPhone: [Contact Number]\n\nFor technical support:\nEmail: support@portmanagement.example\n\nFor data protection inquiries:\nEmail: dpo@portmanagement.example"
+      }
+    },
+    "pt": {
+      "title": "Termos e Condições",
+      "acceptance": {
+        "title": "1. Aceitação dos Termos",
+        "content": "Ao aceder e utilizar o Sistema de Gestão Portuária e Logística (o 'Sistema'), concorda estar vinculado a estes Termos e Condições ('Termos'). Se não concordar com estes Termos, não deve utilizar o Sistema.\n\nEstes Termos constituem um acordo juridicamente vinculativo entre si e o operador do Sistema. O seu acesso ao Sistema está condicionado ao cumprimento contínuo destes Termos."
+      },
+      "serviceDescription": {
+        "title": "2. Descrição do Serviço",
+        "content": "O Sistema é uma plataforma abrangente de gestão portuária que fornece os seguintes serviços:",
+        "services": [
+          "Submissão e gestão de notificações de visita de embarcações",
+          "Atribuição e agendamento de docas",
+          "Processamento e validação de manifestos de carga",
+          "Alocação de recursos e planeamento operacional",
+          "Agendamento de pessoal e equipamento",
+          "Visualização 3D de instalações e operações portuárias",
+          "Monitorização de conformidade e registo de auditoria",
+          "Rastreamento de estado operacional em tempo real"
+        ],
+        "additional": "As funcionalidades específicas disponíveis para si dependem da sua função de utilizador atribuída no Sistema."
+      },
+      "userAccounts": {
+        "title": "3. Contas de Utilizador e Funções",
+        "content": "**3.1 Criação de Conta**\n\nAs contas de utilizador são criadas por Administradores do Sistema. Não pode auto-registar-se. Quando um Administrador cria a sua conta:\n- Receberá um link de ativação por email\n- A sua conta estará inicialmente num estado 'desativado'\n- Deve completar o processo de ativação antes de aceder ao Sistema\n\n**3.2 Processo de Ativação**\n\nAo receber o seu link de ativação:\n- Deve autenticar-se através do Auth0 usando o endereço de email fornecido\n- O Sistema verificará que a sua identidade autenticada corresponde à conta\n- Após verificação bem-sucedida, a sua conta será ativada\n- Os links de ativação expiram após 7 dias\n\n**3.3 Funções de Utilizador**\n\nO Sistema suporta as seguintes funções:\n- **Oficial da Autoridade Portuária**: Gerir aprovações de visitas de embarcações, atribuições de docas e regulamentos portuários\n- **Representante de Agente de Navegação**: Submeter e gerir notificações de visita de embarcações\n- **Operador Logístico**: Agendar operações, alocar recursos e gerir pessoal\n- **Administrador**: Gerir contas de utilizador, configuração do sistema e permissões\n\n**3.4 Segurança da Conta**\n\nÉ responsável por:\n- Manter a confidencialidade das suas credenciais de autenticação\n- Todas as atividades que ocorram sob a sua conta\n- Notificar-nos imediatamente de qualquer uso não autorizado da sua conta\n- Terminar sessão em computadores partilhados ou públicos\n\n**3.5 Desativação da Conta**\n\nA sua conta pode ser desativada se:\n- Violar estes Termos\n- Já não estiver autorizado a representar a sua organização\n- A sua relação de emprego ou contrato terminar\n- Exigido por lei ou autoridades reguladoras"
+      },
+      "acceptableUse": {
+        "title": "4. Política de Uso Aceitável",
+        "content": "**4.1 Atividades Permitidas**\n\nPode usar o Sistema apenas para:\n- Realizar tarefas relacionadas com a sua função atribuída\n- Operações legítimas de gestão portuária e logística\n- Atividades explicitamente autorizadas pela sua organização\n- Conformidade com regulamentos marítimos e portuários aplicáveis\n\n**4.2 Atividades Proibidas**\n\nNÃO deve:\n- Aceder a dados ou funcionalidades não autorizadas para a sua função\n- Partilhar as suas credenciais de conta com outros\n- Tentar contornar medidas de segurança ou controlos de acesso\n- Submeter informações falsas, enganosas ou fraudulentas\n- Interferir com operações do Sistema ou acesso de outros utilizadores\n- Usar o Sistema para atividades ilegais\n- Fazer engenharia reversa, descompilar ou desmontar qualquer componente do Sistema\n- Introduzir malware, vírus ou código malicioso\n- Extrair dados usando ferramentas automatizadas\n- Usar o Sistema para enviar spam ou comunicações não solicitadas\n\n**4.3 Consequências de Violações**\n\nA violação desta Política de Uso Aceitável pode resultar em:\n- Suspensão ou terminação imediata da conta\n- Revogação de privilégios de acesso ao sistema\n- Ação legal e processo\n- Reporte às autoridades relevantes\n- Responsabilidade por danos causados"
+      },
+      "dataAccuracy": {
+        "title": "5. Precisão de Dados e Responsabilidades do Utilizador",
+        "content": "**5.1 Obrigação de Precisão**\n\nÉ responsável por garantir que todas as informações que submete ao Sistema são:\n- Precisas e completas\n- Atuais e atualizadas\n- Conformes com normas ISO (por exemplo, ISO 6346:2022 para identificação de contentores)\n- Verdadeiras e não enganosas\n\n**5.2 Informações Críticas de Segurança**\n\nPara notificações de visita de embarcações envolvendo carga perigosa, deve:\n- Identificar com precisão todos os materiais perigosos\n- Designar oficiais de segurança qualificados\n- Fornecer informações completas da tripulação\n- Cumprir todos os regulamentos de segurança marítima\n\n**5.3 Consequências de Dados Imprecisos**\n\nSubmeter informações imprecisas ou falsas pode:\n- Resultar em rejeição da visita de embarcação\n- Causar atrasos operacionais e riscos de segurança\n- Levar a violações regulamentares e penalidades\n- Resultar em terminação da conta\n- Expô-lo a responsabilidade legal\n\n**5.4 Atualizações de Dados**\n\nDeve atualizar prontamente qualquer informação que se torne imprecisa ou mude, incluindo horários de embarcações, manifestos de carga e informações de contacto."
+      },
+      "intellectualProperty": {
+        "title": "6. Direitos de Propriedade Intelectual",
+        "content": "**6.1 Propriedade do Sistema**\n\nO Sistema, incluindo todo o software, designs, texto, gráficos, interfaces e documentação, é propriedade do operador do Sistema e está protegido por leis de propriedade intelectual. É-lhe concedida uma licença limitada, não exclusiva e intransferível para usar o Sistema de acordo com estes Termos.\n\n**6.2 Conteúdo Gerado pelo Utilizador**\n\nMantém a propriedade dos dados que submete ao Sistema (por exemplo, notificações de visita de embarcações, manifestos de carga). No entanto, ao submeter estes dados, concede-nos uma licença para:\n- Usar, processar e armazenar os dados para fornecer serviços do Sistema\n- Partilhar os dados com utilizadores autorizados conforme necessário para operações portuárias\n- Reter os dados de acordo com a nossa Política de Privacidade e obrigações legais\n\n**6.3 Restrições**\n\nNão pode:\n- Copiar, modificar ou criar obras derivadas do Sistema\n- Remover ou alterar quaisquer avisos de direitos de autor, marca registada ou propriedade\n- Usar as nossas marcas registadas, logotipos ou branding sem permissão por escrito"
+      },
+      "systemAvailability": {
+        "title": "7. Disponibilidade do Sistema e Manutenção",
+        "content": "**7.1 Disponibilidade do Serviço**\n\nEmbora nos esforcemos para manter alta disponibilidade, não garantimos que o Sistema estará:\n- Disponível em todos os momentos sem interrupção\n- Livre de erros ou bugs\n- Compatível com todos os dispositivos ou navegadores\n\n**7.2 Janelas de Manutenção**\n\nPodemos realizar manutenção programada que temporariamente limita ou suspende o acesso ao Sistema. Forneceremos aviso prévio de manutenção planeada quando possível.\n\n**7.3 Continuidade de Negócio**\n\nMantemos procedimentos de backup e recuperação projetados para minimizar a perda de dados e restaurar operações após falhas. No entanto, não podemos garantir zero tempo de inatividade ou recuperação completa de dados em todas as circunstâncias.\n\n**7.4 Procedimentos de Emergência**\n\nEm caso de indisponibilidade do Sistema, siga os procedimentos de emergência da sua organização para operações portuárias."
+      },
+      "liability": {
+        "title": "8. Limitação de Responsabilidade",
+        "content": "**8.1 Desempenho do Sistema**\n\nO Sistema é fornecido 'como está' e 'conforme disponível'. Não fazemos garantias, expressas ou implícitas, relativamente a:\n- Precisão, fiabilidade ou completude do Sistema\n- Adequação a um propósito particular\n- Operação ininterrupta ou livre de erros\n\n**8.2 Responsabilidade do Utilizador**\n\nÉ o único responsável por:\n- Decisões tomadas com base em dados do Sistema\n- Verificar informações críticas antes de tomar ações\n- Conformidade com regulamentos marítimos e protocolos de segurança\n- Manter procedimentos alternativos para operações críticas\n\n**8.3 Limitação de Danos**\n\nNa medida máxima permitida por lei, não seremos responsáveis por:\n- Danos indiretos, incidentais ou consequenciais\n- Perda de lucros, receitas ou dados\n- Interrupção de negócios ou atrasos operacionais\n- Danos resultantes de ações de terceiros\n- Danos excedendo as taxas pagas pelo acesso ao Sistema (se aplicável)\n\n**8.4 Exceções**\n\nNada nestes Termos exclui ou limita a responsabilidade por:\n- Morte ou lesões pessoais causadas por negligência\n- Fraude ou declaração fraudulenta\n- Qualquer responsabilidade que não possa ser excluída ou limitada por lei"
+      },
+      "compliance": {
+        "title": "9. Conformidade Legal",
+        "content": "**9.1 Regulamentos Marítimos**\n\nDeve cumprir com todos os:\n- Convenções e regulamentos marítimos internacionais aplicáveis\n- Regulamentos nacionais e locais da autoridade portuária\n- Requisitos alfandegários e de imigração\n- Normas de segurança e ambientais\n\n**9.2 Proteção de Dados**\n\nDeve cumprir com:\n- RGPD e leis aplicáveis de proteção de dados\n- A nossa Política de Privacidade\n- Princípios de minimização de dados ao submeter informações\n- Requisitos de segurança para manuseamento de dados pessoais\n\n**9.3 Controlos de Exportação**\n\nPara envios envolvendo mercadorias perigosas ou materiais controlados, deve:\n- Cumprir com regulamentos de controlo de exportação\n- Obter licenças e autorizações necessárias\n- Fornecer classificação e documentação precisas"
+      },
+      "termination": {
+        "title": "10. Terminação da Conta",
+        "content": "**10.1 Terminação pelo Utilizador**\n\nPode solicitar desativação da conta contactando o seu Administrador ou a nossa equipa de suporte. Após terminação:\n- O seu acesso será revogado dentro de 24 horas\n- Os seus dados pessoais serão retidos de acordo com a nossa Política de Privacidade\n- Dados históricos que submeteu podem ser retidos para fins de auditoria e conformidade\n\n**10.2 Terminação por Nós**\n\nPodemos suspender ou terminar a sua conta imediatamente se:\n- Violar estes Termos\n- Suspeitarmos de atividade fraudulenta ou ilegal\n- Exigido por lei ou autoridades reguladoras\n- O contrato da sua organização connosco terminar\n\n**10.3 Efeito da Terminação**\n\nApós terminação:\n- Todas as licenças concedidas a si cessam imediatamente\n- Deve cessar todo o uso do Sistema\n- As disposições relativas a confidencialidade, responsabilidade e propriedade intelectual sobrevivem à terminação"
+      },
+      "changes": {
+        "title": "11. Alterações aos Termos",
+        "content": "Podemos modificar estes Termos a qualquer momento. Quando fizermos alterações materiais:\n- Atualizaremos a data de 'Última Atualização'\n- Notificaremos via email ou notificação no sistema\n- Podemos exigir que aceite os Termos atualizados para continuar a usar o Sistema\n- O uso continuado após a publicação de alterações constitui aceitação\n\nDeve rever estes Termos periodicamente para atualizações."
+      },
+      "governingLaw": {
+        "title": "12. Lei Aplicável e Resolução de Disputas",
+        "content": "**12.1 Lei Aplicável**\n\nEstes Termos são regidos pelas leis de Portugal e da União Europeia, sem considerar princípios de conflito de leis.\n\n**12.2 Jurisdição**\n\nQuaisquer disputas decorrentes destes Termos ou do seu uso do Sistema estarão sujeitas à jurisdição exclusiva dos tribunais do Porto, Portugal.\n\n**12.3 Resolução de Disputas**\n\nAntes de iniciar procedimentos legais, as partes concordam em tentar a resolução através de negociação de boa-fé por um período de 30 dias."
+      },
+      "miscellaneous": {
+        "title": "13. Disposições Diversas",
+        "content": "**13.1 Acordo Completo**\n\nEstes Termos, juntamente com a nossa Política de Privacidade e Política de Cookies, constituem o acordo completo entre si e nós relativamente ao Sistema.\n\n**13.2 Divisibilidade**\n\nSe qualquer disposição destes Termos for considerada inexequível, as disposições restantes continuarão em pleno efeito.\n\n**13.3 Renúncia**\n\nA nossa falha em fazer cumprir qualquer direito ou disposição não constitui uma renúncia desse direito ou disposição.\n\n**13.4 Cessão**\n\nNão pode ceder os seus direitos sob estes Termos sem o nosso consentimento por escrito. Podemos ceder os nossos direitos a qualquer sucessor ou afiliado.\n\n**13.5 Idioma**\n\nEstes Termos são fornecidos em inglês e português. Em caso de discrepância, a versão em inglês prevalecerá."
+      },
+      "contact": {
+        "title": "14. Informações de Contacto",
+        "content": "Para questões sobre estes Termos e Condições, contacte:\n\n**Departamento Jurídico**\nEmail: legal@portmanagement.example\nMorada: [Morada da Empresa]\nTelefone: [Número de Contacto]\n\nPara suporte técnico:\nEmail: support@portmanagement.example\n\nPara questões de proteção de dados:\nEmail: dpo@portmanagement.example"
+      }
+    }
+  }
+}
