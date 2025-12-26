@@ -1,9 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
-  Container, Typography, CircularProgress, Alert, Paper,
-  Table, TableHead, TableRow, TableCell, TableBody,
-  FormControl, TextField, Button, Box, TableSortLabel,
-  Select, MenuItem, InputLabel
+  Container,
+  Typography,
+  CircularProgress,
+  Alert,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  FormControl,
+  TextField,
+  Button,
+  Box,
+  TableSortLabel,
+  Select,
+  MenuItem,
+  InputLabel,
 } from "@mui/material";
 import { useOperationalPlanSearchVM } from "../../viewmodels/OperationalPlans/useOperationalPlanSearchVM";
 
@@ -13,19 +27,19 @@ const OperationalPlanSearch = () => {
     loading,
     error,
     search,
-    filterField,
-    setFilterField,
     filterQuery,
     setFilterQuery,
     sortField,
     sortDirection,
     setSort,
-    filterOptions
+    filterOptions,
   } = useOperationalPlanSearchVM();
 
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+  const [planSortField, setPlanSortField] = useState("vesselName");
+  const [planSortDirection, setPlanSortDirection] = useState("asc");
 
   const handleSearch = () => {
     if (!dateStart || !dateEnd) return alert("Select both start and end dates.");
@@ -35,13 +49,31 @@ const OperationalPlanSearch = () => {
 
   const handleClearFilters = () => {
     setFilterQuery("");
-    setFilterField("");
     setDateStart("");
     setDateEnd("");
     setHasSearched(false);
   };
 
-  const isSortable = plans.length > 0;
+  // Sort plans before rendering
+  const sortedPlans = useMemo(() => {
+    return [...plans].sort((a, b) => {
+      let aValue, bValue;
+      if (planSortField === "vesselName") {
+        aValue = a.vesselName.toLowerCase();
+        bValue = b.vesselName.toLowerCase();
+      } else if (planSortField === "start") {
+        aValue = a.operations[0]?.start || "";
+        bValue = b.operations[0]?.start || "";
+      } else if (planSortField === "end") {
+        aValue = a.operations[a.operations.length - 1]?.end || "";
+        bValue = b.operations[b.operations.length - 1]?.end || "";
+      }
+
+      if (aValue < bValue) return planSortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return planSortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [plans, planSortField, planSortDirection]);
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4 }}>
@@ -49,13 +81,23 @@ const OperationalPlanSearch = () => {
         Operational Plans
       </Typography>
 
-      <Paper sx={{ p: 3, mb: 3, display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center", alignItems: "center" }}>
+      {/* Filters */}
+      <Paper
+        sx={{
+          p: 3,
+          mb: 3,
+          display: "flex",
+          gap: 2,
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
         <FormControl>
           <TextField
             label="Start Date"
             type="date"
             value={dateStart}
-            onChange={e => setDateStart(e.target.value)}
+            onChange={(e) => setDateStart(e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
         </FormControl>
@@ -65,55 +107,75 @@ const OperationalPlanSearch = () => {
             label="End Date"
             type="date"
             value={dateEnd}
-            onChange={e => setDateEnd(e.target.value)}
+            onChange={(e) => setDateEnd(e.target.value)}
             InputLabelProps={{ shrink: true }}
           />
         </FormControl>
 
-        <Button variant="contained" onClick={handleSearch}>Search</Button>
-        <Button variant="outlined" color="secondary" onClick={handleClearFilters}>Clear Filters</Button>
-
-        <FormControl sx={{ minWidth: 150 }}>
-          <InputLabel>Filter by</InputLabel>
-          <Select
-            value={filterField}
-            onChange={e => {
-              setFilterField(e.target.value);
-              setFilterQuery("");
-            }}
-            label="Filter by"
-          >
-            <MenuItem value="vesselName">Vessel Name</MenuItem>
-            <MenuItem value="start">Start Time</MenuItem>
-            <MenuItem value="expectedDelay">Expected Delay</MenuItem>
-          </Select>
-        </FormControl>
+        <Button variant="contained" onClick={handleSearch}>
+          Search
+        </Button>
 
         <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Filter value</InputLabel>
+          <InputLabel>Filter by Vessel</InputLabel>
           <Select
             value={filterQuery}
-            onChange={e => setFilterQuery(e.target.value)}
-            label="Filter value"
-            disabled={!filterField}
+            onChange={(e) => setFilterQuery(e.target.value)}
+            label="Filter by Vessel"
           >
             <MenuItem value="">All</MenuItem>
-            {filterOptions.map(opt => (
-              <MenuItem key={opt} value={opt}>{opt}</MenuItem>
+            {filterOptions.map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
+
+        <Button variant="outlined" color="secondary" onClick={handleClearFilters}>
+          Clear
+        </Button>
       </Paper>
 
       {loading && <CircularProgress sx={{ display: "block", mx: "auto", my: 2 }} />}
       {error && <Alert severity="error">{error}</Alert>}
-      {!loading && hasSearched && plans.length === 0 && !error &&
-        <Alert severity="info" sx={{ textAlign: "center" }}>No operational plans found.</Alert>
-      }
+      {!loading && hasSearched && plans.length === 0 && !error && (
+        <Alert severity="info" sx={{ textAlign: "center" }}>
+          No operational plans found.
+        </Alert>
+      )}
 
+      {/* Plan Sort */}
       {plans.length > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <FormControl sx={{ minWidth: 180 }}>
+            <InputLabel>Sort Plans By</InputLabel>
+            <Select
+              value={planSortField}
+              onChange={(e) => setPlanSortField(e.target.value)}
+              label="Sort Plans By"
+            >
+              <MenuItem value="vesselName">Vessel Name</MenuItem>
+              <MenuItem value="start">Start Date</MenuItem>
+              <MenuItem value="end">End Date</MenuItem>
+            </Select>
+          </FormControl>
+          <Button
+            variant="outlined"
+            sx={{ ml: 2 }}
+            onClick={() =>
+              setPlanSortDirection(planSortDirection === "asc" ? "desc" : "asc")
+            }
+          >
+            {planSortDirection === "asc" ? "Asc" : "Desc"}
+          </Button>
+        </Box>
+      )}
+
+      {/* Plans */}
+      {sortedPlans.length > 0 && (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          {plans.map((plan, idx) => (
+          {sortedPlans.map((plan, idx) => (
             <Paper key={idx} sx={{ p: 2 }}>
               <Typography sx={{ fontWeight: 600 }}>{plan.vesselName}</Typography>
               <Typography sx={{ mb: 1 }}>VVN {plan.vvnId}</Typography>
@@ -121,28 +183,28 @@ const OperationalPlanSearch = () => {
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell sortDirection={sortField === "start" ? sortDirection : false}>
-                      {isSortable ? (
-                        <TableSortLabel
-                          active={sortField === "start"}
-                          direction={sortField === "start" ? sortDirection : "asc"}
-                          onClick={() => setSort("start")}
-                        >
-                          Start
-                        </TableSortLabel>
-                      ) : "Start"}
+                    <TableCell
+                      sortDirection={sortField === "start" ? sortDirection : false}
+                    >
+                      <TableSortLabel
+                        active={sortField === "start"}
+                        direction={sortField === "start" ? sortDirection : "asc"}
+                        onClick={() => setSort("start")}
+                      >
+                        Start
+                      </TableSortLabel>
                     </TableCell>
                     <TableCell>End</TableCell>
-                    <TableCell sortDirection={sortField === "expectedDelay" ? sortDirection : false}>
-                      {isSortable ? (
-                        <TableSortLabel
-                          active={sortField === "expectedDelay"}
-                          direction={sortField === "expectedDelay" ? sortDirection : "asc"}
-                          onClick={() => setSort("expectedDelay")}
-                        >
-                          Expected Delay
-                        </TableSortLabel>
-                      ) : "Expected Delay"}
+                    <TableCell
+                      sortDirection={sortField === "expectedDelay" ? sortDirection : false}
+                    >
+                      <TableSortLabel
+                        active={sortField === "expectedDelay"}
+                        direction={sortField === "expectedDelay" ? sortDirection : "asc"}
+                        onClick={() => setSort("expectedDelay")}
+                      >
+                        Expected Delay
+                      </TableSortLabel>
                     </TableCell>
                   </TableRow>
                 </TableHead>
