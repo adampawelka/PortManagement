@@ -1,15 +1,12 @@
 :root {
-  /* Primary (delikatny fiolet/niebieski jak wcześniej) */
   --color-primary: #2e0d7a;
   --color-primary-light: #4a1dbb;
 
-  /* Standard UI */
   --color-background: #faf9ff;
   --color-surface: #ffffff;
   --color-text-light: #ffffff;
   --color-text-dark: #1d1d1f;
 
-  /* Statusy – pastelowe jak w starej wersji */
   --color-success: #4caf50;
   --color-success-bg: #dff3e1;
 
