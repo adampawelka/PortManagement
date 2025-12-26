@@ -5,12 +5,10 @@ import { LoadingButton, LoadingOverlay } from '../../components/LoadingComponent
 
 const RejectVVNPage = () => {
   const {
-    notificationId,
-    rejectionReason,
+    formData,
     loading,
     message,
-    setNotificationId,
-    setReason,
+    handleChange,
     handleReject,
   } = useRejectVesselVisitNotificationVM(); 
 
@@ -57,8 +55,9 @@ const RejectVVNPage = () => {
       <form onSubmit={handleReject}>
         <TextField
           label="Notification ID (GUID)"
-          value={notificationId}
-          onChange={(e) => setNotificationId(e.target.value)}
+          name="notificationId"
+          value={formData.notificationId}
+          onChange={handleChange}
           required
           fullWidth
           margin="normal"
@@ -68,8 +67,9 @@ const RejectVVNPage = () => {
         />
         <TextField
           label="Reason"
-          value={rejectionReason}
-          onChange={(e) => setReason(e.target.value)}
+          name="rejectionReason"
+          value={formData.rejectionReason}
+          onChange={handleChange}
           required
           fullWidth
           margin="normal"

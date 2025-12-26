@@ -6,12 +6,10 @@ import { LoadingButton, LoadingOverlay } from '../../components/LoadingComponent
 
 const ApproveVVNPage = () => {
   const {
-    notificationId,
-    dockID,
+    formData,
     loading,
     message,
-    setNotificationId,
-    setDock,
+    handleChange,
     handleApprove,
   } = useApproveVesselVisitNotificationVM();
 
@@ -49,8 +47,9 @@ const ApproveVVNPage = () => {
       <form onSubmit={handleApprove}>
         <TextField 
           label="Notification ID (GUID)" 
-          value={notificationId} 
-          onChange={(e) => setNotificationId(e.target.value)}
+          name="notificationId"
+          value={formData.notificationId} 
+          onChange={handleChange}
           required 
           fullWidth 
           margin="normal"
@@ -67,8 +66,9 @@ const ApproveVVNPage = () => {
 
         <TextField 
           label="DOCK ID (GUID)" 
-          value={dockID} 
-          onChange={(e) => setDock(e.target.value)}
+          name="dockID"
+          value={formData.dockID} 
+          onChange={handleChange}
           required 
           fullWidth 
           margin="normal"

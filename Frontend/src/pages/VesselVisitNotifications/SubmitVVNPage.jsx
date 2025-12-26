@@ -5,10 +5,10 @@ import { LoadingButton, LoadingOverlay } from '../../components/LoadingComponent
 
 const SubmitVVNPage = () => {
   const {
-    notificationId,
+    formData,
     loading,
     message,
-    setNotificationId,
+    handleChange,
     handleSubmit,
   } = useSubmitVesselVisitNotificationVM(); 
 
@@ -55,8 +55,9 @@ const SubmitVVNPage = () => {
       <form onSubmit={handleSubmit}>
         <TextField
           label="Notification ID (GUID)"
-          value={notificationId}
-          onChange={(e) => setNotificationId(e.target.value)}
+          name="notificationId"
+          value={formData.notificationId}
+          onChange={handleChange}
           required
           fullWidth
           margin="normal"
