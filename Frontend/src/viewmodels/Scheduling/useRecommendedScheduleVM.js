@@ -1,107 +1,131 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSchedulingService } from "../../services/schedulingService";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 import { useApi } from "../../services/api";
 
 export const useRecommendedScheduleVM = () => {
-    const { apiFetch } = useApi();
-    const { calculateSchedule, parsePrologResult } = useSchedulingService();
+  const { apiFetch } = useApi();
+  const { calculateSchedule, parsePrologResult } = useSchedulingService();
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [results, setResults] = useState([]);
-    const [executionTime, setExecutionTime] = useState(null);
-    const [algorithm, setAlgorithm] = useState("");
-    const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [results, setResults] = useState([]);
+  const [executionTime, setExecutionTime] = useState(null);
+  const [algorithm, setAlgorithm] = useState("");
+  const [reason, setReason] = useState("");
+  const [vesselNotifications, setVesselNotifications] = useState([]);
 
-    const chooseAlgorithm = (vesselCount) => {
-        if (vesselCount < 10)
-            return { algo: "optimal", reason: "Small vessel set" };
-        if (vesselCount > 10 && vesselCount < 20)
-            return { algo: "heuristic", reason: "Medium-sized instance" };
-        return { algo: "genetic", reason: "Large or time-constrained instance" };
-    };
+  // Wybór algorytmu
+  const chooseAlgorithm = (vesselCount) => {
+    if (vesselCount < 10) return { algo: "optimal", reason: "Small vessel set" };
+    if (vesselCount >= 10 && vesselCount < 20) return { algo: "heuristic", reason: "Medium-sized instance" };
+    return { algo: "genetic", reason: "Large or time-constrained instance" };
+  };
 
-    const extractExecutionTime = (txt) => {
-        const patterns = [
-            /Execution Time:\s*([\d.e-]+)/i,
-            /Heuristic Execution Time:\s*([\d.e-]+)/i,
-            /Brute Force Execution Time:\s*([\d.e-]+)/i,
-            /Genetic Execution Time:\s*([\d.e-]+)/i,
-        ];
+  // Wyciąganie czasu wykonania z tekstu
+  const extractExecutionTime = (txt) => {
+    const patterns = [
+      /Execution Time:\s*([\d.e-]+)/i,
+      /Heuristic Execution Time:\s*([\d.e-]+)/i,
+      /Brute Force Execution Time:\s*([\d.e-]+)/i,
+      /Genetic Execution Time:\s*([\d.e-]+)/i,
+    ];
 
-        for (const p of patterns) {
-            const match = txt.match(p);
-            if (match) return parseFloat(match[1]);
-        }
-        return null;
-    };
+    for (const p of patterns) {
+      const match = txt.match(p);
+      if (match) return parseFloat(match[1]);
+    }
+    return null;
+  };
 
-    const generate = async (isoDate, overrideAlgorithm = "") => {
-        setLoading(true);
-        setError("");
+  // Obliczanie delay
+  const calculateDelay = (endSlot, etd) => {
+    if (endSlot == null || !etd) return 0;
+    const etdHour = new Date(etd).getHours();
+    const delay = endSlot - etdHour;
+    return delay > 0 ? delay : 0;
+  };
+
+  // Suma wszystkich delay
+  const totalDelay = useMemo(() => {
+    return results.reduce((acc, item) => acc + (item.delay || 0), 0);
+  }, [results]);
+
+  const generate = async (isoDate, overrideAlgorithm = "") => {
+    setLoading(true);
+    setError("");
+    setResults([]);
+    setExecutionTime(null);
+    setVesselNotifications([]);
+
+    try {
+      // Pobranie notyfikacji dla danego dnia
+      const allNotifs = await getVesselVisitNotifications(apiFetch);
+      const filtered = allNotifs.filter(n =>
+        n.status === "Approved" &&
+        new Date(n.eta).toISOString().split("T")[0] === isoDate
+      );
+      setVesselNotifications(filtered);
+
+      const vesselsCount = filtered.length;
+      const { algo, reason: autoReason } = chooseAlgorithm(vesselsCount);
+      const finalAlgo = overrideAlgorithm || algo;
+      const finalReason = overrideAlgorithm ? "User override" : autoReason;
+
+      setAlgorithm(finalAlgo);
+      setReason(finalReason);
+
+      // Blokada dla genetic przy override
+      if (finalAlgo === "genetic" && overrideAlgorithm) {
         setResults([]);
-        setExecutionTime(null);
+        return;
+      }
 
-        try {
-            const all = await getVesselVisitNotifications(apiFetch);
+      // Wywołanie API
+      const raw = await calculateSchedule(isoDate, finalAlgo);
 
-            const filtered = all.filter(v =>
-                v.status === "Approved" && v.eta.split("T")[0] === isoDate
-            );
+      // Czas wykonania
+      const exec = extractExecutionTime(raw);
+      if (exec !== null) setExecutionTime(exec);
 
-            const vessels = filtered.length;
+      // Parsowanie JSON
+      const json = JSON.parse(raw || "{}");
 
-            const { algo, reason: autoReason } = chooseAlgorithm(vessels);
-            const finalAlgo = overrideAlgorithm || algo;
-            const finalReason = overrideAlgorithm ? "User override" : autoReason;
+      // Parsowanie wyników + liczenie delay
+      const parsed = Object.entries(json).flatMap(([dockId, dockInfo]) =>
+        parsePrologResult(
+          dockInfo.schedule,
+          dockInfo.vessels ?? [],
+          dockInfo.dock || dockId,
+          dockInfo.crane,
+          dockInfo.staff ?? [],
+          dockInfo.areas ?? []
+        ).map(item => {
+          const note = filtered.find(n =>
+            n.vesselName && n.vesselName.toLowerCase().replace(/\s+/g, "_") === item.vessel.toLowerCase()
+          );
+          const delay = note && item.endSlot != null ? calculateDelay(item.endSlot, note.etd) : 0;
+          return { ...item, delay };
+        })
+      );
 
-            setAlgorithm(finalAlgo);
-            setReason(finalReason);
+      setResults(parsed);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            // blokujemy genetic przy wymuszeniu algorytmu
-            if (finalAlgo === "genetic" && overrideAlgorithm) {
-                setResults([]);
-                return;
-            }
-
-            const txt = await calculateSchedule(isoDate, finalAlgo);
-
-            // parse JSON
-            const data = JSON.parse(txt);
-
-            const parsed = Object.values(data).flatMap(dockInfo =>
-                parsePrologResult(
-                    dockInfo.schedule,
-                    dockInfo.vessels ?? [],
-                    dockInfo.dock,
-                    dockInfo.crane,
-                    dockInfo.staff ?? [],
-                    dockInfo.areas ?? []
-                )
-            );
-
-            setResults(parsed);
-
-            // czas wykonania
-            const exec = extractExecutionTime(txt);
-            if (exec) setExecutionTime(exec);
-
-        } catch (err) {
-            console.error(err);
-            setError(err.message || "Unknown error");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return {
-        loading,
-        error,
-        results,
-        executionTime,
-        algorithm,
-        reason,
-        generate
-    };
+  return {
+    loading,
+    error,
+    results,
+    executionTime,
+    algorithm,
+    reason,
+    totalDelay,
+    generate
+  };
 };

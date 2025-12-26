@@ -211,6 +211,7 @@ const RecommendedSchedulePage = () => {
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Start</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>End</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Delay</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Staff</TableCell>
                             </TableRow>
                         </TableHead>
@@ -227,6 +228,7 @@ const RecommendedSchedulePage = () => {
                                     <TableCell>{row.crane}</TableCell>
                                     <TableCell>{row.start}</TableCell>
                                     <TableCell>{row.end}</TableCell>
+                                    <TableCell>{row.delay}</TableCell>
                                     <TableCell>{row.staff}</TableCell>
                                 </TableRow>
                             ))}
