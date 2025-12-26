@@ -1,0 +1,365 @@
+{
+  "version": "1.0.0",
+  "effectiveDate": "2025-12-26",
+  "lastUpdated": "2025-12-26",
+  "sections": {
+    "en": {
+      "title": "Cookie Policy",
+      "introduction": {
+        "title": "Introduction",
+        "content": "This Cookie Policy explains how the Port Management and Logistics System ('System') uses cookies and similar tracking technologies. This policy helps you understand what cookies are, how we use them, and how you can manage your cookie preferences.\n\nBy using our System, you consent to the use of essential cookies required for the System to function properly. You have the option to accept or decline non-essential cookies."
+      },
+      "whatAreCookies": {
+        "title": "What Are Cookies?",
+        "content": "Cookies are small text files that are placed on your device (computer, tablet, or mobile phone) when you visit a website. Cookies are widely used to make websites work more efficiently and provide information to website owners.\n\nCookies can be 'session cookies' (which are deleted when you close your browser) or 'persistent cookies' (which remain on your device for a set period or until you delete them).\n\nSimilar technologies include:\n- **Local Storage**: Data stored in your browser that persists across sessions\n- **Session Storage**: Temporary data storage that is cleared when the browser tab is closed\n- **Tokens**: Encrypted data used for authentication and session management"
+      },
+      "cookiesWeUse": {
+        "title": "Types of Cookies We Use",
+        "content": "We use the following types of cookies on our System:",
+        "types": [
+          {
+            "type": "Essential Cookies",
+            "required": true,
+            "description": "These cookies are strictly necessary for the System to function and cannot be disabled. They enable core functionality such as security, network management, and accessibility.",
+            "examples": [
+              {
+                "name": "auth0.session",
+                "purpose": "Maintains your authenticated session via Auth0",
+                "duration": "Session (deleted when browser closes)",
+                "provider": "Auth0"
+              },
+              {
+                "name": "auth_token",
+                "purpose": "Stores your authentication token for API requests",
+                "duration": "Until logout or token expiration",
+                "provider": "System"
+              },
+              {
+                "name": "csrf_token",
+                "purpose": "Protects against Cross-Site Request Forgery attacks",
+                "duration": "Session",
+                "provider": "System"
+              },
+              {
+                "name": "user_role",
+                "purpose": "Stores your assigned system role for access control",
+                "duration": "Session",
+                "provider": "System"
+              }
+            ]
+          },
+          {
+            "type": "Functional Cookies",
+            "required": false,
+            "description": "These cookies enable enhanced functionality and personalization. The System will still work if you decline these cookies, but some features may be limited.",
+            "examples": [
+              {
+                "name": "language_preference",
+                "purpose": "Remembers your preferred language (English or Portuguese)",
+                "duration": "1 year",
+                "provider": "System"
+              },
+              {
+                "name": "ui_preferences",
+                "purpose": "Stores your interface preferences (e.g., sidebar collapsed state)",
+                "duration": "6 months",
+                "provider": "System"
+              },
+              {
+                "name": "timezone_preference",
+                "purpose": "Stores your timezone for displaying times correctly",
+                "duration": "1 year",
+                "provider": "System"
+              }
+            ]
+          },
+          {
+            "type": "Analytics Cookies",
+            "required": false,
+            "description": "These cookies help us understand how users interact with the System by collecting and reporting information anonymously. This helps us improve System performance and user experience.",
+            "examples": [
+              {
+                "name": "_ga",
+                "purpose": "Google Analytics: Distinguishes unique users",
+                "duration": "2 years",
+                "provider": "Google Analytics (if enabled)"
+              },
+              {
+                "name": "_gid",
+                "purpose": "Google Analytics: Distinguishes users",
+                "duration": "24 hours",
+                "provider": "Google Analytics (if enabled)"
+              }
+            ],
+            "note": "Analytics cookies are currently disabled by default and will only be activated if you explicitly consent."
+          }
+        ]
+      },
+      "thirdPartyCookies": {
+        "title": "Third-Party Cookies",
+        "content": "Our System uses Auth0 for authentication, which may set its own cookies. These cookies are essential for the authentication service to function properly.\n\n**Auth0 Cookies:**\n- **Purpose**: Secure user authentication and session management\n- **Privacy Policy**: https://auth0.com/privacy\n- **Cookie Policy**: https://auth0.com/cookie-policy\n- **Data Processing**: Auth0 may process authentication data in accordance with their privacy policy and GDPR requirements\n\n**Auth0 Services Used:**\n- Single Sign-On (SSO)\n- Multi-Factor Authentication (MFA)\n- Session management\n- Token generation and validation\n\nWhen you authenticate via Auth0, you may also be subject to the cookie policies of the identity provider you choose (e.g., Google, Microsoft, Facebook):\n- **Google**: https://policies.google.com/privacy\n- **Microsoft**: https://privacy.microsoft.com/\n- **Facebook**: https://www.facebook.com/privacy/\n\nWe recommend reviewing the privacy policies of these third-party providers to understand how they use cookies."
+      },
+      "cookiePurposes": {
+        "title": "How We Use Cookies",
+        "content": "We use cookies for the following purposes:",
+        "purposes": [
+          {
+            "purpose": "Authentication and Security",
+            "description": "Essential cookies ensure that you remain logged in as you navigate the System and protect against unauthorized access and security threats."
+          },
+          {
+            "purpose": "Access Control",
+            "description": "Cookies store your assigned role to ensure you only access features and data appropriate to your permissions."
+          },
+          {
+            "purpose": "User Experience",
+            "description": "Functional cookies remember your preferences (language, interface settings) to provide a personalized experience."
+          },
+          {
+            "purpose": "System Performance",
+            "description": "Analytics cookies (if enabled) help us identify performance issues and understand how users interact with different features."
+          },
+          {
+            "purpose": "Compliance and Audit",
+            "description": "Certain cookies help us maintain audit logs required for regulatory compliance by tracking user sessions and actions."
+          }
+        ]
+      },
+      "cookieDuration": {
+        "title": "How Long Cookies Last",
+        "content": "**Session Cookies**: Deleted automatically when you close your browser. These include authentication session cookies and temporary security tokens.\n\n**Persistent Cookies**: Remain on your device for a specified period or until manually deleted:\n- Language preferences: 1 year\n- UI preferences: 6 months\n- Analytics cookies (if enabled): Up to 2 years\n\n**Token Expiration**: Authentication tokens typically expire after:\n- Access tokens: 1 hour (automatically refreshed while you're active)\n- Refresh tokens: 7 days of inactivity\n- Session tokens: When you log out or close the browser\n\nYou can delete cookies at any time through your browser settings."
+      },
+      "managingCookies": {
+        "title": "Managing Your Cookie Preferences",
+        "content": "You have several options for managing cookies:",
+        "options": [
+          {
+            "method": "Cookie Consent Banner",
+            "description": "When you first visit the System, a cookie consent banner will appear allowing you to:\n- Accept all cookies\n- Reject non-essential cookies\n- Customize your preferences by cookie type\n\nYou can change your preferences at any time by clicking 'Cookie Settings' in the footer."
+          },
+          {
+            "method": "Browser Settings",
+            "description": "Most browsers allow you to:\n- View and delete cookies\n- Block all cookies\n- Block third-party cookies\n- Clear cookies when you close the browser\n\n**Note**: Blocking essential cookies will prevent you from using the System."
+          },
+          {
+            "method": "Browser-Specific Instructions",
+            "browsers": [
+              {
+                "browser": "Google Chrome",
+                "link": "https://support.google.com/chrome/answer/95647"
+              },
+              {
+                "browser": "Mozilla Firefox",
+                "link": "https://support.mozilla.org/en-US/kb/cookies-information-websites-store-on-your-computer"
+              },
+              {
+                "browser": "Microsoft Edge",
+                "link": "https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09"
+              },
+              {
+                "browser": "Safari",
+                "link": "https://support.apple.com/guide/safari/manage-cookies-sfri11471/mac"
+              }
+            ]
+          }
+        ],
+        "consequences": "**Consequences of Disabling Cookies:**\n\n- **Essential Cookies**: If you block essential cookies, you will not be able to use the System as authentication and security features will not work.\n- **Functional Cookies**: If you block functional cookies, the System will still work, but you will need to set your language preference on each visit and UI customizations will not be saved.\n- **Analytics Cookies**: Blocking analytics cookies has no impact on System functionality but prevents us from collecting usage data to improve the System."
+      },
+      "doNotTrack": {
+        "title": "Do Not Track Signals",
+        "content": "Some browsers include a 'Do Not Track' (DNT) feature that signals websites that you do not want your online activity tracked.\n\nOur System respects DNT signals in the following way:\n- Essential cookies will continue to function (required for System operation)\n- Functional and analytics cookies will be treated as declined if DNT is enabled\n- Third-party cookies from Auth0 are still necessary for authentication\n\nNote that enabling DNT in your browser does not disable essential cookies required for the System to function."
+      },
+      "updates": {
+        "title": "Updates to This Cookie Policy",
+        "content": "We may update this Cookie Policy from time to time to reflect:\n- Changes in the cookies we use\n- Changes in cookie regulations\n- Improvements to the System\n- User feedback\n\nWhen we make significant changes:\n- We will update the 'Last Updated' date at the top of this policy\n- We may display a notification in the System\n- We may ask you to review and accept the updated policy\n\nWe encourage you to review this Cookie Policy periodically to stay informed about our use of cookies."
+      },
+      "moreInformation": {
+        "title": "More Information About Cookies",
+        "content": "If you want to learn more about cookies and how they work, you can visit:\n\n- **All About Cookies**: http://www.allaboutcookies.org/\n- **Your Online Choices**: http://www.youronlinechoices.eu/ (for European users)\n- **Network Advertising Initiative**: http://www.networkadvertising.org/\n\nThese independent resources provide detailed information about cookies, privacy, and online advertising."
+      },
+      "contact": {
+        "title": "Contact Us About Cookies",
+        "content": "If you have questions about our use of cookies or this Cookie Policy, please contact:\n\n**Data Protection Officer**\nEmail: dpo@portmanagement.example\nAddress: [Company Address]\nPhone: [Contact Number]\n\nFor technical questions about cookie management in the System:\nEmail: support@portmanagement.example\n\nWe will respond to your inquiry within 30 days."
+      }
+    },
+    "pt": {
+      "title": "Política de Cookies",
+      "introduction": {
+        "title": "Introdução",
+        "content": "Esta Política de Cookies explica como o Sistema de Gestão Portuária e Logística ('Sistema') usa cookies e tecnologias de rastreamento similares. Esta política ajuda-o a compreender o que são cookies, como os usamos e como pode gerir as suas preferências de cookies.\n\nAo usar o nosso Sistema, consente o uso de cookies essenciais necessários para o Sistema funcionar corretamente. Tem a opção de aceitar ou recusar cookies não essenciais."
+      },
+      "whatAreCookies": {
+        "title": "O Que São Cookies?",
+        "content": "Cookies são pequenos ficheiros de texto que são colocados no seu dispositivo (computador, tablet ou telemóvel) quando visita um website. Os cookies são amplamente usados para fazer os websites funcionarem de forma mais eficiente e fornecer informações aos proprietários do website.\n\nOs cookies podem ser 'cookies de sessão' (que são eliminados quando fecha o navegador) ou 'cookies persistentes' (que permanecem no seu dispositivo por um período definido ou até que os elimine).\n\nTecnologias similares incluem:\n- **Armazenamento Local**: Dados armazenados no seu navegador que persistem entre sessões\n- **Armazenamento de Sessão**: Armazenamento temporário de dados que é limpo quando o separador do navegador é fechado\n- **Tokens**: Dados encriptados usados para autenticação e gestão de sessão"
+      },
+      "cookiesWeUse": {
+        "title": "Tipos de Cookies Que Usamos",
+        "content": "Usamos os seguintes tipos de cookies no nosso Sistema:",
+        "types": [
+          {
+            "type": "Cookies Essenciais",
+            "required": true,
+            "description": "Estes cookies são estritamente necessários para o Sistema funcionar e não podem ser desativados. Permitem funcionalidades essenciais como segurança, gestão de rede e acessibilidade.",
+            "examples": [
+              {
+                "name": "auth0.session",
+                "purpose": "Mantém a sua sessão autenticada através do Auth0",
+                "duration": "Sessão (eliminado quando o navegador fecha)",
+                "provider": "Auth0"
+              },
+              {
+                "name": "auth_token",
+                "purpose": "Armazena o seu token de autenticação para pedidos API",
+                "duration": "Até logout ou expiração do token",
+                "provider": "Sistema"
+              },
+              {
+                "name": "csrf_token",
+                "purpose": "Protege contra ataques Cross-Site Request Forgery",
+                "duration": "Sessão",
+                "provider": "Sistema"
+              },
+              {
+                "name": "user_role",
+                "purpose": "Armazena a sua função atribuída no sistema para controlo de acesso",
+                "duration": "Sessão",
+                "provider": "Sistema"
+              }
+            ]
+          },
+          {
+            "type": "Cookies Funcionais",
+            "required": false,
+            "description": "Estes cookies permitem funcionalidades melhoradas e personalização. O Sistema continuará a funcionar se recusar estes cookies, mas algumas funcionalidades podem ser limitadas.",
+            "examples": [
+              {
+                "name": "language_preference",
+                "purpose": "Lembra a sua língua preferida (Inglês ou Português)",
+                "duration": "1 ano",
+                "provider": "Sistema"
+              },
+              {
+                "name": "ui_preferences",
+                "purpose": "Armazena as suas preferências de interface (por exemplo, estado da barra lateral)",
+                "duration": "6 meses",
+                "provider": "Sistema"
+              },
+              {
+                "name": "timezone_preference",
+                "purpose": "Armazena o seu fuso horário para exibir horas corretamente",
+                "duration": "1 ano",
+                "provider": "Sistema"
+              }
+            ]
+          },
+          {
+            "type": "Cookies de Análise",
+            "required": false,
+            "description": "Estes cookies ajudam-nos a compreender como os utilizadores interagem com o Sistema recolhendo e reportando informações anonimamente. Isto ajuda-nos a melhorar o desempenho do Sistema e a experiência do utilizador.",
+            "examples": [
+              {
+                "name": "_ga",
+                "purpose": "Google Analytics: Distingue utilizadores únicos",
+                "duration": "2 anos",
+                "provider": "Google Analytics (se ativado)"
+              },
+              {
+                "name": "_gid",
+                "purpose": "Google Analytics: Distingue utilizadores",
+                "duration": "24 horas",
+                "provider": "Google Analytics (se ativado)"
+              }
+            ],
+            "note": "Os cookies de análise estão atualmente desativados por padrão e só serão ativados se consentir explicitamente."
+          }
+        ]
+      },
+      "thirdPartyCookies": {
+        "title": "Cookies de Terceiros",
+        "content": "O nosso Sistema usa Auth0 para autenticação, que pode definir os seus próprios cookies. Estes cookies são essenciais para o serviço de autenticação funcionar corretamente.\n\n**Cookies do Auth0:**\n- **Finalidade**: Autenticação segura do utilizador e gestão de sessão\n- **Política de Privacidade**: https://auth0.com/privacy\n- **Política de Cookies**: https://auth0.com/cookie-policy\n- **Processamento de Dados**: O Auth0 pode processar dados de autenticação de acordo com a sua política de privacidade e requisitos do RGPD\n\n**Serviços Auth0 Utilizados:**\n- Single Sign-On (SSO)\n- Autenticação Multifator (MFA)\n- Gestão de sessão\n- Geração e validação de tokens\n\nQuando se autentica através do Auth0, também pode estar sujeito às políticas de cookies do fornecedor de identidade que escolher (por exemplo, Google, Microsoft, Facebook):\n- **Google**: https://policies.google.com/privacy\n- **Microsoft**: https://privacy.microsoft.com/\n- **Facebook**: https://www.facebook.com/privacy/\n\nRecomendamos rever as políticas de privacidade destes fornecedores terceiros para compreender como usam cookies."
+      },
+      "cookiePurposes": {
+        "title": "Como Usamos Cookies",
+        "content": "Usamos cookies para as seguintes finalidades:",
+        "purposes": [
+          {
+            "purpose": "Autenticação e Segurança",
+            "description": "Cookies essenciais garantem que permanece autenticado enquanto navega no Sistema e protegem contra acesso não autorizado e ameaças de segurança."
+          },
+          {
+            "purpose": "Controlo de Acesso",
+            "description": "Os cookies armazenam a sua função atribuída para garantir que apenas acede a funcionalidades e dados apropriados às suas permissões."
+          },
+          {
+            "purpose": "Experiência do Utilizador",
+            "description": "Os cookies funcionais lembram as suas preferências (língua, definições de interface) para fornecer uma experiência personalizada."
+          },
+          {
+            "purpose": "Desempenho do Sistema",
+            "description": "Os cookies de análise (se ativados) ajudam-nos a identificar problemas de desempenho e compreender como os utilizadores interagem com diferentes funcionalidades."
+          },
+          {
+            "purpose": "Conformidade e Auditoria",
+            "description": "Certos cookies ajudam-nos a manter registos de auditoria necessários para conformidade regulamentar rastreando sessões e ações de utilizadores."
+          }
+        ]
+      },
+      "cookieDuration": {
+        "title": "Quanto Tempo Duram os Cookies",
+        "content": "**Cookies de Sessão**: Eliminados automaticamente quando fecha o navegador. Incluem cookies de sessão de autenticação e tokens de segurança temporários.\n\n**Cookies Persistentes**: Permanecem no seu dispositivo por um período especificado ou até serem manualmente eliminados:\n- Preferências de língua: 1 ano\n- Preferências de UI: 6 meses\n- Cookies de análise (se ativados): Até 2 anos\n\n**Expiração de Tokens**: Os tokens de autenticação normalmente expiram após:\n- Tokens de acesso: 1 hora (atualizados automaticamente enquanto está ativo)\n- Tokens de atualização: 7 dias de inatividade\n- Tokens de sessão: Quando termina sessão ou fecha o navegador\n\nPode eliminar cookies a qualquer momento através das definições do seu navegador."
+      },
+      "managingCookies": {
+        "title": "Gerir as Suas Preferências de Cookies",
+        "content": "Tem várias opções para gerir cookies:",
+        "options": [
+          {
+            "method": "Banner de Consentimento de Cookies",
+            "description": "Quando visita o Sistema pela primeira vez, aparecerá um banner de consentimento de cookies permitindo-lhe:\n- Aceitar todos os cookies\n- Rejeitar cookies não essenciais\n- Personalizar as suas preferências por tipo de cookie\n\nPode alterar as suas preferências a qualquer momento clicando em 'Definições de Cookies' no rodapé."
+          },
+          {
+            "method": "Definições do Navegador",
+            "description": "A maioria dos navegadores permite-lhe:\n- Ver e eliminar cookies\n- Bloquear todos os cookies\n- Bloquear cookies de terceiros\n- Limpar cookies quando fecha o navegador\n\n**Nota**: Bloquear cookies essenciais impedirá o uso do Sistema."
+          },
+          {
+            "method": "Instruções Específicas do Navegador",
+            "browsers": [
+              {
+                "browser": "Google Chrome",
+                "link": "https://support.google.com/chrome/answer/95647"
+              },
+              {
+                "browser": "Mozilla Firefox",
+                "link": "https://support.mozilla.org/pt-PT/kb/cookies-informacao-que-websites-armazenam-no-comp"
+              },
+              {
+                "browser": "Microsoft Edge",
+                "link": "https://support.microsoft.com/pt-pt/microsoft-edge/eliminar-cookies-no-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09"
+              },
+              {
+                "browser": "Safari",
+                "link": "https://support.apple.com/pt-pt/guide/safari/sfri11471/mac"
+              }
+            ]
+          }
+        ],
+        "consequences": "**Consequências de Desativar Cookies:**\n\n- **Cookies Essenciais**: Se bloquear cookies essenciais, não poderá usar o Sistema pois as funcionalidades de autenticação e segurança não funcionarão.\n- **Cookies Funcionais**: Se bloquear cookies funcionais, o Sistema continuará a funcionar, mas terá de definir a sua preferência de língua em cada visita e as personalizações de UI não serão guardadas.\n- **Cookies de Análise**: Bloquear cookies de análise não tem impacto na funcionalidade do Sistema mas impede-nos de recolher dados de uso para melhorar o Sistema."
+      },
+      "doNotTrack": {
+        "title": "Sinais Do Not Track",
+        "content": "Alguns navegadores incluem uma funcionalidade 'Do Not Track' (DNT) que sinaliza aos websites que não quer que a sua atividade online seja rastreada.\n\nO nosso Sistema respeita os sinais DNT da seguinte forma:\n- Os cookies essenciais continuarão a funcionar (necessários para operação do Sistema)\n- Os cookies funcionais e de análise serão tratados como recusados se o DNT estiver ativado\n- Os cookies de terceiros do Auth0 ainda são necessários para autenticação\n\nNote que ativar DNT no seu navegador não desativa cookies essenciais necessários para o Sistema funcionar."
+      },
+      "updates": {
+        "title": "Atualizações a Esta Política de Cookies",
+        "content": "Podemos atualizar esta Política de Cookies periodicamente para refletir:\n- Alterações nos cookies que usamos\n- Alterações nos regulamentos de cookies\n- Melhorias ao Sistema\n- Feedback dos utilizadores\n\nQuando fizermos alterações significativas:\n- Atualizaremos a data de 'Última Atualização' no topo desta política\n- Podemos exibir uma notificação no Sistema\n- Podemos pedir-lhe para rever e aceitar a política atualizada\n\nEncorajamos a rever esta Política de Cookies periodicamente para se manter informado sobre o nosso uso de cookies."
+      },
+      "moreInformation": {
+        "title": "Mais Informações Sobre Cookies",
+        "content": "Se quiser saber mais sobre cookies e como funcionam, pode visitar:\n\n- **All About Cookies**: http://www.allaboutcookies.org/\n- **Your Online Choices**: http://www.youronlinechoices.eu/ (para utilizadores europeus)\n- **Network Advertising Initiative**: http://www.networkadvertising.org/\n\nEstes recursos independentes fornecem informações detalhadas sobre cookies, privacidade e publicidade online."
+      },
+      "contact": {
+        "title": "Contacte-nos Sobre Cookies",
+        "content": "Se tiver questões sobre o nosso uso de cookies ou esta Política de Cookies, contacte:\n\n**Encarregado de Proteção de Dados**\nEmail: dpo@portmanagement.example\nMorada: [Morada da Empresa]\nTelefone: [Número de Contacto]\n\nPara questões técnicas sobre gestão de cookies no Sistema:\nEmail: support@portmanagement.example\n\nResponderemos à sua questão no prazo de 30 dias."
+      }
+    }
+  }
+}
