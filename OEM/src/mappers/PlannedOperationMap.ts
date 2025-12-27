@@ -6,7 +6,7 @@ export class PlannedOperationMap {
   static toPersistence(operation: PlannedOperation): any {
     return {
       domainId: operation.plannedOperationId.toString(),
-      operationPlanId: operation.OperationPlanId.toString(),
+      operationPlanId: operation.operationPlanId.toString(),
       resourceId: operation.resourceId.value,
       staffId: operation.staffId.value,
       plannedStart: operation.plannedStart.value,
@@ -21,7 +21,7 @@ export class PlannedOperationMap {
 
     const operationOrError = PlannedOperation.create(
       {
-        OperationPlanId: data.operationPlanId,
+        operationPlanId: data.operationPlanId,
         resourceId: data.resourceId,
         staffId: data.staffId,
         plannedStart: data.plannedStart,
