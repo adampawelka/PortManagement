@@ -19,7 +19,7 @@ interface OperationPlanProps {
 export class OperationPlan extends AggregateRoot<OperationPlanProps> {
 
   get operationPlanId(): OperationPlanId {
-    return OperationPlanId.caller(this.id);
+    return OperationPlanId.create(this.id);
   }
 
   get vesselVisitExecutionId(): VesselVisitExecutionId {

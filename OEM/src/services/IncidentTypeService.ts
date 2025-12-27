@@ -54,7 +54,7 @@ export class IncidentTypeService implements IIncidentTypeService {
     id: string
   ): Promise<IncidentTypeDTO | null> {
 
-    const typeId = IncidentTypeId.caller(
+    const typeId = IncidentTypeId.create(
       new UniqueEntityID(id)
     );
 
@@ -85,7 +85,7 @@ export class IncidentTypeService implements IIncidentTypeService {
     dto: UpdateIncidentTypeDTO
   ): Promise<IncidentTypeDTO | null> {
 
-    const typeId = IncidentTypeId.caller(
+    const typeId = IncidentTypeId.create(
       new UniqueEntityID(id)
     );
 

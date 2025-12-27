@@ -29,7 +29,7 @@ export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
   }
 
   get executedOperationId(): ExecutedOperationId {
-    return ExecutedOperationId.caller(this.id);
+    return ExecutedOperationId.create(this.id);
   }
 
   get vesselVisitExecutionId(): VesselVisitExecutionId {

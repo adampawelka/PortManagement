@@ -33,7 +33,7 @@ export class VesselVisitExecutionService
   ): Promise<VesselVisitExecutionDTO> {
 
     const vveOrError = VesselVisitExecution.create({
-      vvnId: VvnId.caller(
+      vvnId: VvnId.create(
         new UniqueEntityID(dto.vvnId)
       ),
       actualArrivalTime: ActualArrivalTime.create(
@@ -43,7 +43,7 @@ export class VesselVisitExecutionService
         ? ActualBerthTime.create(new Date(dto.actualBerthTime)).getValue()
         : undefined,
       dockId: dto.dockId
-        ? DockId.caller(new UniqueEntityID(dto.dockId))
+        ? DockId.create(new UniqueEntityID(dto.dockId))
         : undefined,
       status: VesselVisitExecutionStatus.create(
         dto.status as VesselVisitExecutionStatusEnum
@@ -65,7 +65,7 @@ export class VesselVisitExecutionService
     id: string
   ): Promise<VesselVisitExecutionDTO | null> {
 
-    const vveId = VesselVisitExecutionId.caller(
+    const vveId = VesselVisitExecutionId.create(
       new UniqueEntityID(id)
     );
 
@@ -85,7 +85,7 @@ export class VesselVisitExecutionService
     dto: UpdateVesselVisitExecutionDTO
   ): Promise<VesselVisitExecutionDTO | null> {
 
-    const vveId = VesselVisitExecutionId.caller(
+    const vveId = VesselVisitExecutionId.create(
       new UniqueEntityID(id)
     );
 
@@ -104,7 +104,7 @@ export class VesselVisitExecutionService
 
     if (dto.dockId) {
       vve.props.dockId =
-        DockId.caller(new UniqueEntityID(dto.dockId));
+        DockId.create(new UniqueEntityID(dto.dockId));
     }
 
     if (dto.status) {

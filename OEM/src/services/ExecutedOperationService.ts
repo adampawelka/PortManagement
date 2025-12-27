@@ -38,16 +38,16 @@ export class ExecutedOperationService
     const statusEnum = this.parseStatus(dto.status);
 
     const operationOrError = ExecutedOperation.create({
-      vesselVisitExecutionId: VesselVisitExecutionId.caller(
+      vesselVisitExecutionId: VesselVisitExecutionId.create(
         new UniqueEntityID(dto.vesselVisitExecutionId)
       ),
-      plannedOperationId: PlannedOperationId.caller(
+      plannedOperationId: PlannedOperationId.create(
         new UniqueEntityID(dto.plannedOperationId)
       ),
-      resourceId: PlannedResourceId.caller(
+      resourceId: PlannedResourceId.create(
         new UniqueEntityID(dto.resourceId)
       ),
-      staffId: PlannedStaffId.caller(
+      staffId: PlannedStaffId.create(
         new UniqueEntityID(dto.staffId)
       ),
       actualStart: ActualStart.create(
@@ -76,7 +76,7 @@ export class ExecutedOperationService
     id: string
   ): Promise<ExecutedOperationDTO | null> {
 
-    const operationId = ExecutedOperationId.caller(
+    const operationId = ExecutedOperationId.create(
       new UniqueEntityID(id)
     );
 
@@ -93,7 +93,7 @@ export class ExecutedOperationService
     vesselVisitExecutionId: string
   ): Promise<ExecutedOperationDTO[]> {
 
-    const vve = VesselVisitExecutionId.caller(
+    const vve = VesselVisitExecutionId.create(
       new UniqueEntityID(vesselVisitExecutionId)
     );
 
@@ -119,7 +119,7 @@ export class ExecutedOperationService
     dto: UpdateExecutedOperationDTO
   ): Promise<ExecutedOperationDTO | null> {
 
-    const operationId = ExecutedOperationId.caller(
+    const operationId = ExecutedOperationId.create(
       new UniqueEntityID(id)
     );
 

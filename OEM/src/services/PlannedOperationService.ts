@@ -38,13 +38,13 @@ export class PlannedOperationService
   ): Promise<PlannedOperationDTO> {
 
     const operationOrError = PlannedOperation.create({
-      operationPlanId: OperationPlanId.caller(
+      operationPlanId: OperationPlanId.create(
         new UniqueEntityID(dto.operationPlanId)
       ),
-      resourceId: PlannedResourceId.caller(
+      resourceId: PlannedResourceId.create(
         new UniqueEntityID(dto.resourceId)
       ),
-      staffId: PlannedStaffId.caller(
+      staffId: PlannedStaffId.create(
         new UniqueEntityID(dto.staffId)
       ),
       plannedStart: PlannedStart.create(
@@ -75,7 +75,7 @@ export class PlannedOperationService
     id: string
   ): Promise<PlannedOperationDTO | null> {
 
-    const operationId = PlannedOperationId.caller(
+    const operationId = PlannedOperationId.create(
       new UniqueEntityID(id)
     );
 
@@ -89,7 +89,7 @@ export class PlannedOperationService
     operationPlanId: string
   ): Promise<PlannedOperationDTO[]> {
 
-    const planId = OperationPlanId.caller(
+    const planId = OperationPlanId.create(
       new UniqueEntityID(operationPlanId)
     );
 
@@ -111,7 +111,7 @@ export class PlannedOperationService
     dto: UpdatePlannedOperationDTO
   ): Promise<PlannedOperationDTO | null> {
 
-    const operationId = PlannedOperationId.caller(
+    const operationId = PlannedOperationId.create(
       new UniqueEntityID(id)
     );
 

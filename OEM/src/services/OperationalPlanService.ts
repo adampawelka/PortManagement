@@ -28,7 +28,7 @@ export class OperationPlanService
   ): Promise<OperatorPlanDTO> {
 
     const planOrError = OperationPlan.create({
-      vesselVisitExecutionId: VesselVisitExecutionId.caller(
+      vesselVisitExecutionId: VesselVisitExecutionId.create(
         new UniqueEntityID(dto.vesselVisitExecutionId)
       ),
       createdAt: CreatedAt.create(
@@ -52,7 +52,7 @@ export class OperationPlanService
     id: string
   ): Promise<OperatorPlanDTO | null> {
 
-    const planId = OperationPlanId.caller(
+    const planId = OperationPlanId.create(
       new UniqueEntityID(id)
     );
 
@@ -67,7 +67,7 @@ export class OperationPlanService
     vesselVisitExecutionId: string
   ): Promise<OperatorPlanDTO | null> {
 
-    const vve = VesselVisitExecutionId.caller(
+    const vve = VesselVisitExecutionId.create(
       new UniqueEntityID(vesselVisitExecutionId)
     );
 
@@ -87,7 +87,7 @@ export class OperationPlanService
     dto: UpdateOperatorPlanDTO
   ): Promise<OperatorPlanDTO | null> {
 
-    const planId = OperationPlanId.caller(
+    const planId = OperationPlanId.create(
       new UniqueEntityID(id)
     );
 
