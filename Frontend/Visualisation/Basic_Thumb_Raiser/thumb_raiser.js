@@ -70,13 +70,13 @@ export default class ThumbRaiser {
 
     this.cameraController = new CameraController(this.camera.object, this.renderer, onObjectSelected);
     if (this.cameraController) {
-    // Intentamos establecer las propiedades comunes de controladores Three.js
-    this.cameraController.minDistance = 2.0;
-    this.cameraController.maxDistance = 200.0; // ¡Correa larga!
-    
-    // Si tu controlador usa nombres diferentes (a veces pasa en plantillas académicas):
-    this.cameraController.distanceMin = 2.0;
-    this.cameraController.distanceMax = 200.0;
+      // Intentamos establecer las propiedades comunes de controladores Three.js
+      this.cameraController.minDistance = 2.0;
+      this.cameraController.maxDistance = 200.0; // ¡Correa larga!
+
+      // Si tu controlador usa nombres diferentes (a veces pasa en plantillas académicas):
+      this.cameraController.distanceMin = 2.0;
+      this.cameraController.distanceMax = 200.0;
     }
 
 
@@ -116,6 +116,17 @@ export default class ThumbRaiser {
 
     this.clock = new THREE.Clock();
 
+  }
+  //4.2.4 -> Data must be periodically refreshed from the back-end
+  async refreshDynamicData() {
+    try {
+      const response = await fetch("/api/dynamic-data"); // usa tu endpoint real
+      const dynamicData = await response.json();
+
+      this.loadDynamicObjects(dynamicData);
+    } catch (error) {
+      console.warn("Error refreshing dynamic data", error);
+    }
   }
 
   loadDynamicObjects(dynamicData) {
@@ -157,26 +168,34 @@ export default class ThumbRaiser {
 
       this.scene3D.add(this.lights.object);
       const cam = this.thirdPersonViewCamera.object;
-    
-    // 2. Aumentamos la distancia de visión a 5000 unidades (antes sería 100 o 1000)
-      cam.far = 5000; 
-      
+
+      // 2. Aumentamos la distancia de visión a 5000 unidades (antes sería 100 o 1000)
+      cam.far = 5000;
+
       // 3. ¡IMPORTANTE! Hay que actualizar la matriz para que surta efecto
       cam.updateProjectionMatrix();
       this.thirdPersonViewCamera.object.position.set(0, 80, 160);
       this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
       this.cameraController.setInitialView();
       this.clock = new THREE.Clock();
+
+      // refresco periodico (4.2.4)
+      this.refreshInterval = setInterval(() => {
+        this.refreshDynamicData();
+      }, 5000);
+
       this.gameRunning = true;
       return;
     }
 
-    // Render
+    // Render normal
     this.renderer.clear();
     this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     this.renderer.render(this.scene3D, this.camera.object);
     this.renderer.render(this.scene2D, this.camera2D);
-    const deltaTime = this.clock.getDelta(); // seconds since last call
+    const deltaTime = this.clock.getDelta(); //seconds sice last call
     this.cameraController.update(deltaTime);
   }
+
 }
+
