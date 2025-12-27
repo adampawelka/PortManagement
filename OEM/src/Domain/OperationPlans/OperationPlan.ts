@@ -8,12 +8,14 @@ import { VesselVisitExecutionId } from "../VesselVisitExecutions/VesselVisitExec
 import { CreatedAt } from "./CreatedAt";
 import { CreatedBy } from "./CreatedBy";
 import { AlgorithmUsed } from "./AlgorithmUsed";
+import { ScheduledOperation } from "./ScheduleOperation";
 
 interface OperationPlanProps {
   vesselVisitExecutionId: VesselVisitExecutionId;
   createdAt: CreatedAt;
   createdBy: CreatedBy;
   algorithmUsed: AlgorithmUsed;
+  schedule: ScheduledOperation[];
 }
 
 export class OperationPlan extends AggregateRoot<OperationPlanProps> {
@@ -38,6 +40,10 @@ export class OperationPlan extends AggregateRoot<OperationPlanProps> {
     return this.props.algorithmUsed;
   }
 
+  get schedule(): ScheduledOperation[] {
+    return this.props.schedule;
+  }
+
   private constructor(props: OperationPlanProps, id?: UniqueEntityID) {
     super(props, id);
   }
@@ -51,14 +57,20 @@ export class OperationPlan extends AggregateRoot<OperationPlanProps> {
       { argument: props.vesselVisitExecutionId, argumentName: "vesselVisitExecutionId" },
       { argument: props.createdAt, argumentName: "createdAt" },
       { argument: props.createdBy, argumentName: "createdBy" },
-      { argument: props.algorithmUsed, argumentName: "algorithmUsed" }
+      { argument: props.algorithmUsed, argumentName: "algorithmUsed" },
+      { argument: props.schedule, argumentName: "schedule" },
     ]);
 
     if (!guardResult.succeeded) {
       return Result.fail<OperationPlan>(guardResult.message);
     }
 
+    if (!Array.isArray(props.schedule) || props.schedule.length === 0) {
+      return Result.fail<OperationPlan>("Schedule must be a non-empty array of ScheduledOperation");
+    }
+
     return Result.ok(new OperationPlan(props, id));
   }
+
 }
 
