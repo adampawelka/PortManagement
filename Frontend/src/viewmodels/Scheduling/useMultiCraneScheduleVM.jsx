@@ -67,35 +67,69 @@ export const useScheduleMultiCraneVM = () => {
         const singleRaw = dockInfo.singleCrane?.schedules ?? [];
         const multiRaw = dockInfo.multiCrane?.schedules ?? [];
 
-        const single = singleRaw.map((s) => ({
-          vessel: getVesselName(s, dockVessels),
-          dock: dockInfo.dockName,
-          crane: dockInfo.craneCode,
-          start: s.startTime ?? slotToTime(s.startSlot ?? s.StartSlot),
-          end: s.endTime ?? slotToTime(s.endSlot ?? s.EndSlot),
-          startSlot: s.startSlot ?? s.StartSlot,
-          endSlot: s.endSlot ?? s.EndSlot,
-          cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
-          staff: randomStaff(dockInfo.staff),
-          area: dockInfo.area,
-        }));
+        const single = singleRaw.map((s) => {
+  const startSlot = typeof s.startSlot === "number" ? s.startSlot : (typeof s.StartSlot === "number" ? s.StartSlot : 0);
+  const vesselInfo = dockVessels.find(
+    (v) =>
+      (v.VesselName || v.vesselName)?.toLowerCase().replace(/[\s-]/g, "_") === (s.vesselName || s.VesselName || "").toLowerCase()
+  );
 
-        const multi = multiRaw.map((s) => ({
-  vessel: getVesselName(s, dockVessels),
-  dock: dockInfo.dockName,
-  crane: dockInfo.craneCode,
-  start: s.startTime !== undefined 
-            ? s.startTime 
-            : (s.startSlot !== undefined ? slotToTime(s.startSlot) : "N/A"),
-  end: s.endTime !== undefined 
-          ? s.endTime 
-          : (s.endSlot !== undefined ? slotToTime(s.endSlot) : "N/A"),
-  startSlot: s.startSlot,
-  endSlot: s.endSlot,
-  cranes: s.cranesUsed ?? 1,
-  staff: randomStaff(dockInfo.staff),
-  area: dockInfo.area,
-}));
+  const etaHour = vesselInfo ? (() => {
+    const eta = new Date(vesselInfo.ETA);
+    if (isNaN(eta.getTime())) return 0;
+    return eta.getHours() + (eta.getMinutes() >= 30 ? 1 : 0);
+  })() : 0;
+
+  const delay = Math.max(0, startSlot - etaHour);
+
+  return {
+    vessel: getVesselName(s, dockVessels),
+    dock: dockInfo.dockName,
+    crane: dockInfo.craneCode,
+    start: s.startTime ?? slotToTime(startSlot),
+    end: s.endTime ?? slotToTime(s.endSlot ?? s.EndSlot ?? startSlot),
+    startSlot,
+    endSlot: s.endSlot ?? s.EndSlot ?? startSlot,
+    cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
+    staff: randomStaff(dockInfo.staff),
+    area: dockInfo.area,
+    delay,
+  };
+});
+
+
+
+        const multi = multiRaw.map((s) => {
+  const startSlot = typeof s.startSlot === "number" ? s.startSlot : (typeof s.StartSlot === "number" ? s.StartSlot : 0);
+  const vesselInfo = dockVessels.find(
+    (v) =>
+      (v.VesselName || v.vesselName)?.toLowerCase().replace(/[\s-]/g, "_") === (s.vesselName || s.VesselName || "").toLowerCase()
+  );
+
+  const etaHour = vesselInfo ? (() => {
+    const eta = new Date(vesselInfo.ETA);
+    if (isNaN(eta.getTime())) return 0;
+    return eta.getHours() + (eta.getMinutes() >= 30 ? 1 : 0);
+  })() : 0;
+
+  const delay = Math.max(0, startSlot - etaHour);
+
+  return {
+    vessel: getVesselName(s, dockVessels),
+    dock: dockInfo.dockName,
+    crane: dockInfo.craneCode,
+    start: s.startTime ?? slotToTime(startSlot),
+    end: s.endTime ?? slotToTime(s.endSlot ?? s.EndSlot ?? startSlot),
+    startSlot,
+    endSlot: s.endSlot ?? s.EndSlot ?? startSlot,
+    cranes: s.cranesUsed ?? 1,
+    staff: randomStaff(dockInfo.staff),
+    area: dockInfo.area,
+    delay,
+  };
+});
+
+
 
 
         return {
