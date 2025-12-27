@@ -15,14 +15,12 @@ export const useRecommendedScheduleVM = () => {
   const [reason, setReason] = useState("");
   const [vesselNotifications, setVesselNotifications] = useState([]);
 
-  // Wybór algorytmu
   const chooseAlgorithm = (vesselCount) => {
     if (vesselCount < 10) return { algo: "optimal", reason: "Small vessel set" };
     if (vesselCount >= 10 && vesselCount < 20) return { algo: "heuristic", reason: "Medium-sized instance" };
     return { algo: "genetic", reason: "Large or time-constrained instance" };
   };
 
-  // Wyciąganie czasu wykonania z tekstu
   const extractExecutionTime = (txt) => {
     const patterns = [
       /Execution Time:\s*([\d.e-]+)/i,
@@ -30,7 +28,6 @@ export const useRecommendedScheduleVM = () => {
       /Brute Force Execution Time:\s*([\d.e-]+)/i,
       /Genetic Execution Time:\s*([\d.e-]+)/i,
     ];
-
     for (const p of patterns) {
       const match = txt.match(p);
       if (match) return parseFloat(match[1]);
@@ -38,7 +35,6 @@ export const useRecommendedScheduleVM = () => {
     return null;
   };
 
-  // Obliczanie delay
   const calculateDelay = (endSlot, etd) => {
     if (endSlot == null || !etd) return 0;
     const etdHour = new Date(etd).getHours();
@@ -46,10 +42,7 @@ export const useRecommendedScheduleVM = () => {
     return delay > 0 ? delay : 0;
   };
 
-  // Suma wszystkich delay
-  const totalDelay = useMemo(() => {
-    return results.reduce((acc, item) => acc + (item.delay || 0), 0);
-  }, [results]);
+  const totalDelay = useMemo(() => results.reduce((acc, item) => acc + (item.delay || 0), 0), [results]);
 
   const generate = async (isoDate, overrideAlgorithm = "") => {
     setLoading(true);
@@ -59,7 +52,6 @@ export const useRecommendedScheduleVM = () => {
     setVesselNotifications([]);
 
     try {
-      // Pobranie notyfikacji dla danego dnia
       const allNotifs = await getVesselVisitNotifications(apiFetch);
       const filtered = allNotifs.filter(n =>
         n.status === "Approved" &&
@@ -75,39 +67,45 @@ export const useRecommendedScheduleVM = () => {
       setAlgorithm(finalAlgo);
       setReason(finalReason);
 
-      // Blokada dla genetic przy override
       if (finalAlgo === "genetic" && overrideAlgorithm) {
         setResults([]);
         return;
       }
 
-      // Wywołanie API
       const raw = await calculateSchedule(isoDate, finalAlgo);
-
-      // Czas wykonania
       const exec = extractExecutionTime(raw);
       if (exec !== null) setExecutionTime(exec);
 
-      // Parsowanie JSON
       const json = JSON.parse(raw || "{}");
 
-      // Parsowanie wyników + liczenie delay
-      const parsed = Object.entries(json).flatMap(([dockId, dockInfo]) =>
-        parsePrologResult(
+      const parsed = Object.entries(json).flatMap(([dockId, dockInfo]) => {
+        const lines = dockInfo.schedule.split(/\),/);
+
+        return parsePrologResult(
           dockInfo.schedule,
           dockInfo.vessels ?? [],
           dockInfo.dock || dockId,
           dockInfo.crane,
           dockInfo.staff ?? [],
           dockInfo.areas ?? []
-        ).map(item => {
+        ).map((item, index) => {
           const note = filtered.find(n =>
             n.vesselName && n.vesselName.toLowerCase().replace(/\s+/g, "_") === item.vessel.toLowerCase()
           );
-          const delay = note && item.endSlot != null ? calculateDelay(item.endSlot, note.etd) : 0;
+
+          let delay = 0;
+          if (finalAlgo === "optimal") {
+            // Delay z Prologa – z 4 elementu linii harmonogramu
+            const parts = lines[index]?.replace(/[()]/g, "").split(",");
+            delay = parts && parts[3] ? parseInt(parts[3].trim(), 10) : 0;
+          } else {
+            // Heurystyki: licz dynamicznie względem ETD
+            delay = note && item.endSlot != null ? calculateDelay(item.endSlot, note.etd) : 0;
+          }
+
           return { ...item, delay };
-        })
-      );
+        });
+      });
 
       setResults(parsed);
     } catch (err) {
