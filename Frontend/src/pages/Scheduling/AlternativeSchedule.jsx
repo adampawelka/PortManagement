@@ -226,11 +226,6 @@ const AlternativeSchedule = () => {
             <div>
               <strong>Total Delay:</strong> {totalDelay}h
             </div>
-            {executionTime !== null && (
-              <div style={{ marginTop: 6 }}>
-                <strong>Execution Time:</strong> {executionTime}s ({(executionTime * 1000).toFixed(3)} ms)
-              </div>
-            )}
           </div>
         </TableContainer>
       )}

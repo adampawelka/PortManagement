@@ -171,8 +171,8 @@ const OptimalSchedule = () => {
                                 <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Delay</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -190,8 +190,8 @@ const OptimalSchedule = () => {
                                     <TableCell>{row.crane}</TableCell>
                                     <TableCell>{row.start}</TableCell>
                                     <TableCell>{row.end}</TableCell>
+                                    <TableCell>{row.delay}</TableCell>
                                     <TableCell>{row.staff}</TableCell>
-                                    <TableCell>{row.area}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

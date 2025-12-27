@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { menuItems } from "../data/menus.js"; 
+import { sidebarMenuItems } from "../data/sidebar.js"; 
 import { useUser } from "../App.jsx"; 
 import { useAuth0 } from '@auth0/auth0-react';
 
@@ -13,12 +13,8 @@ const Sidebar = () => {
   const currentUserRole = user?.role || null;
   const [expandedMenu, setExpandedMenu] = useState(null);
 
-  const filteredMenuItems = menuItems.filter(
+  const sidebarItems = sidebarMenuItems.filter(
     (item) => !item.roles || item.roles.includes(currentUserRole)
-  );
-
-  const sidebarItems = filteredMenuItems.filter(
-    (item) => item.section === "sidebar" || ["visualisation", "scheduling"].includes(item.key)
   );
 
   const handleToggle = (key) => {

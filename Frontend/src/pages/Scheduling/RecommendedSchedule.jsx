@@ -159,11 +159,12 @@ const RecommendedSchedulePage = () => {
                         fontSize: "var(--font-size-body)",
                     }}
                 >
-                    <strong>Selected Algorithm:</strong> {algorithm} <br />
-                    <em>{reason}</em>
                     {executionTime && <div>Execution Time: {executionTime}s</div>}
                 </Alert>
             )}
+
+            <strong>Selected Algorithm:</strong> {algorithm} <br />
+            <em>{reason}</em>
 
             {loading && (
                 <CircularProgress
@@ -210,8 +211,8 @@ const RecommendedSchedulePage = () => {
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Start</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>End</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Delay</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Staff</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Area</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -227,8 +228,8 @@ const RecommendedSchedulePage = () => {
                                     <TableCell>{row.crane}</TableCell>
                                     <TableCell>{row.start}</TableCell>
                                     <TableCell>{row.end}</TableCell>
+                                    <TableCell>{row.delay}</TableCell>
                                     <TableCell>{row.staff}</TableCell>
-                                    <TableCell>{row.area}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

@@ -1,125 +1,129 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSchedulingService } from "../../services/schedulingService";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 import { useApi } from "../../services/api";
 
 export const useRecommendedScheduleVM = () => {
-    const { apiFetch } = useApi();
-    const { calculateSchedule } = useSchedulingService();
+  const { apiFetch } = useApi();
+  const { calculateSchedule, parsePrologResult } = useSchedulingService();
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [results, setResults] = useState([]);
-    const [executionTime, setExecutionTime] = useState(null);
-    const [algorithm, setAlgorithm] = useState("");
-    const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [results, setResults] = useState([]);
+  const [executionTime, setExecutionTime] = useState(null);
+  const [algorithm, setAlgorithm] = useState("");
+  const [reason, setReason] = useState("");
+  const [vesselNotifications, setVesselNotifications] = useState([]);
 
-    const chooseAlgorithm = (vesselCount, operations) => {
-        if (operations < 10)
-            return { algo: "optimal", reason: "Small operation set (<150 ops)" };
-        if (operations < 20)
-            return { algo: "heuristic", reason: "Medium-sized instance" };
-        return { algo: "genetic", reason: "Large or time-constrained instance" };
-    };
+  const chooseAlgorithm = (vesselCount) => {
+    if (vesselCount < 10) return { algo: "optimal", reason: "Small vessel set" };
+    if (vesselCount >= 10 && vesselCount < 20) return { algo: "heuristic", reason: "Medium-sized instance" };
+    return { algo: "genetic", reason: "Large or time-constrained instance" };
+  };
 
-    const extractExecutionTime = (txt) => {
-        const patterns = [
-            /Execution Time:\s*([\d.e-]+)/i,
-            /Heuristic Execution Time:\s*([\d.e-]+)/i,
-            /Brute Force Execution Time:\s*([\d.e-]+)/i,
-            /Genetic Execution Time:\s*([\d.e-]+)/i,
-        ];
-        for (const p of patterns) {
-            const match = txt.match(p);
-            if (match) return parseFloat(match[1]);
-        }
-        return null;
-    };
+  const extractExecutionTime = (txt) => {
+    const patterns = [
+      /Execution Time:\s*([\d.e-]+)/i,
+      /Heuristic Execution Time:\s*([\d.e-]+)/i,
+      /Brute Force Execution Time:\s*([\d.e-]+)/i,
+      /Genetic Execution Time:\s*([\d.e-]+)/i,
+    ];
+    for (const p of patterns) {
+      const match = txt.match(p);
+      if (match) return parseFloat(match[1]);
+    }
+    return null;
+  };
 
-    const parseSchedule = (jsonText) => {
-        const parsed = JSON.parse(jsonText);
-        const rows = [];
+  const calculateDelay = (endSlot, etd) => {
+    if (endSlot == null || !etd) return 0;
+    const etdHour = new Date(etd).getHours();
+    const delay = endSlot - etdHour;
+    return delay > 0 ? delay : 0;
+  };
 
-        for (const dockId in parsed) {
-            const info = parsed[dockId];
-            let scheduleText = info.schedule
-                .replace(/^\s*\[|\]\s*$/g, "")
-                .replace(/\[|\]/g, "")
-                .trim();
+  const totalDelay = useMemo(() => results.reduce((acc, item) => acc + (item.delay || 0), 0), [results]);
 
-            const exec = extractExecutionTime(scheduleText);
-            if (exec) setExecutionTime(exec);
+  const generate = async (isoDate, overrideAlgorithm = "") => {
+    setLoading(true);
+    setError("");
+    setResults([]);
+    setExecutionTime(null);
+    setVesselNotifications([]);
 
-            scheduleText = scheduleText.replace(/Execution Time:.*\n?/i, "");
-            const lines = scheduleText.split("),");
+    try {
+      const allNotifs = await getVesselVisitNotifications(apiFetch);
+      const filtered = allNotifs.filter(n =>
+        n.status === "Approved" &&
+        new Date(n.eta).toISOString().split("T")[0] === isoDate
+      );
+      setVesselNotifications(filtered);
 
-            lines.forEach(line => {
-                const clean = line.replace(/[\(\)]/g, "").trim();
-                const parts = clean.split(",").map(x => x.trim());
+      const vesselsCount = filtered.length;
+      const { algo, reason: autoReason } = chooseAlgorithm(vesselsCount);
+      const finalAlgo = overrideAlgorithm || algo;
+      const finalReason = overrideAlgorithm ? "User override" : autoReason;
 
-                if (parts.length >= 3) {
-                    rows.push({
-                        vessel: parts[0],
-                        dock: info.dock || dockId,
-                        crane: info.crane,
-                        start: parts[1],
-                        end: parts[2],
-                        staff: "Assigned Staff TBD",
-                        area: info.area
-                    });
-                }
-            });
-        }
+      setAlgorithm(finalAlgo);
+      setReason(finalReason);
 
-        return rows;
-    };
-
-    const generate = async (isoDate, overrideAlgorithm = "") => {
-        setLoading(true);
-        setError("");
+      if (finalAlgo === "genetic" && overrideAlgorithm) {
         setResults([]);
-        setExecutionTime(null);
+        return;
+      }
 
-        try {
-            const all = await getVesselVisitNotifications(apiFetch);
-            const filtered = all.filter(v =>
-                v.status === "Approved" &&
-                v.eta.split("T")[0] === isoDate
-            );
+      const raw = await calculateSchedule(isoDate, finalAlgo);
+      const exec = extractExecutionTime(raw);
+      if (exec !== null) setExecutionTime(exec);
 
-            const vessels = filtered.length;
-            const ops = filtered.reduce((sum, v) => sum + (v.estimatedOperations || 30), 0);
+      const json = JSON.parse(raw || "{}");
 
-            const { algo, reason: autoReason } = chooseAlgorithm(vessels, ops);
+      const parsed = Object.entries(json).flatMap(([dockId, dockInfo]) => {
+        const lines = dockInfo.schedule.split(/\),/);
 
-            const finalAlgo = overrideAlgorithm || algo;
-            const finalReason = overrideAlgorithm ? "User override" : autoReason;
+        return parsePrologResult(
+          dockInfo.schedule,
+          dockInfo.vessels ?? [],
+          dockInfo.dock || dockId,
+          dockInfo.crane,
+          dockInfo.staff ?? [],
+          dockInfo.areas ?? []
+        ).map((item, index) => {
+          const note = filtered.find(n =>
+            n.vesselName && n.vesselName.toLowerCase().replace(/\s+/g, "_") === item.vessel.toLowerCase()
+          );
 
-            setAlgorithm(finalAlgo);
-            setReason(finalReason);
+          let delay = 0;
+          if (finalAlgo === "optimal") {
+            // Delay z Prologa – z 4 elementu linii harmonogramu
+            const parts = lines[index]?.replace(/[()]/g, "").split(",");
+            delay = parts && parts[3] ? parseInt(parts[3].trim(), 10) : 0;
+          } else {
+            // Heurystyki: licz dynamicznie względem ETD
+            delay = note && item.endSlot != null ? calculateDelay(item.endSlot, note.etd) : 0;
+          }
 
-            if (finalAlgo === "genetic" && overrideAlgorithm) {
-                setResults([]);
-                return;
-            }
+          return { ...item, delay };
+        });
+      });
 
-            const txt = await calculateSchedule(isoDate, finalAlgo);
-            const parsed = parseSchedule(txt);
-            setResults(parsed);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
+      setResults(parsed);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return {
-        loading,
-        error,
-        results,
-        executionTime,
-        algorithm,
-        reason,
-        generate
-    };
+  return {
+    loading,
+    error,
+    results,
+    executionTime,
+    algorithm,
+    reason,
+    totalDelay,
+    generate
+  };
 };
