@@ -41,27 +41,107 @@ export default {
   }, // change this. is an example
 
   controllers: {
-    role: {
-      name: "RoleController",
-      path: "../controllers/roleController"
+    complementaryTaskCategory: {
+      name: "ComplementaryTaskCategoryController",
+      path: "../controllers/IControllers/ComplementaryTaskCategoryController"
+    },
+    complementaryTask: {
+      name: "ComplementaryTaskController",
+      path: "../controllers/IControllers/ComplementaryTaskController"
+    },
+    vesselVisitExecution: {
+      name: "VesselVisitExecutionController",
+      path: "../controllers/IControllers/VesselVisitExecutionController"
+    },
+    plannedOperation: {
+      name: "PlannedOperationController",
+      path: "../controllers/IControllers/PlannedOperationController"
+    },
+    operationPlan: {
+      name: "OperationPlanController",
+      path: "../controllers/IControllers/OperationPlanController"
+    },
+    incidentType: {
+      name: "IncidentTypeController",
+      path: "../controllers/IControllers/IncidentTypeController"
+    },
+    incident: {
+      name: "IncidentController",
+      path: "../controllers/IControllers/IncidentController"
+    },
+    executedOperation: {
+      name: "ExecutedOperationController",
+      path: "../controllers/IControllers/ExecutedOperationController"
     }
   },
 
   repos: {
-    role: {
-      name: "RoleRepo",
-      path: "../repos/roleRepo"
+    complementaryTaskCategory: {
+      name: "ComplementaryTaskCategoryRepo",
+      path: "../repos/ComplementaryTaskCategoryRepo"
     },
-    user: {
-      name: "UserRepo",
-      path: "../repos/userRepo"
+    complementaryTask: {
+      name: "ComplementaryTaskRepo",
+      path: "../repos/ComplementaryTaskRepo"
+    },
+    vesselVisitExecution: {
+      name: "VesselVisitExecutionRepo",
+      path: "../repos/VesselVisitExecutionRepo"
+    },
+    plannedOperation: {
+      name: "PlannedOperationRepo",
+      path: "../repos/PlannedOperationRepo"
+    },
+    operationPlan: {
+      name: "OperationPlanRepo",
+      path: "../repos/OperationPlanRepo"
+    },
+    incidentType: {
+      name: "IncidentTypeRepo",
+      path: "../repos/IncidentTypeRepo"
+    },
+    incident: {
+      name: "IncidentRepo",
+      path: "../repos/IncidentRepo"
+    },
+    executedOperation: {
+      name: "ExecutedOperationRepo",
+      path: "../repos/ExecutedOperationRepo"
     }
   },
 
   services: {
-    role: {
-      name: "RoleService",
-      path: "../services/roleService"
+    complementaryTaskCategory: {
+      name: "ComplementaryTaskCategoryService",
+      path: "../services/ComplementaryTaskCategoryService"
+    },
+    complementaryTask: {
+      name: "ComplementaryTaskService",
+      path: "../services/ComplementaryTaskService"
+    },
+    vesselVisitExecution: {
+      name: "VesselVisitExecutionService",
+      path: "../services/VesselVisitExecutionService"
+    },
+    plannedOperation: {
+      name: "PlannedOperationService",
+      path: "../services/PlannedOperationService"
+    },
+    operationPlan: {
+      name: "OperationPlanService",
+      path: "../services/OperationalPlanService"
+    },
+    incidentType: {
+      name: "IncidentTypeService",
+      path: "../services/IncidentTypeService"
+    },
+    incident: {
+      name: "IncidentService",
+      path: "../services/IncidentService"
+    },
+    executedOperation: {
+      name: "ExecutedOperationService",
+      path: "../services/ExecutedOperationService"
     }
-  },
+  }
 };
