@@ -6,9 +6,9 @@ export const sidebarMenuItems = [{
     subMenu:
       [
         {
-          name: "Operational Plans List",
-          key: "operational_plans_list",
-          path: "/operational-plans/list",
+          name: "Search Operational Plans",
+          key: "search_operational_plans",
+          path: "/operational-plans/search",
           roles: ["LogisticsOperator"],
         },
         {

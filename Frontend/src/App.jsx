@@ -16,8 +16,6 @@ import RecommendedSchedule from "./pages/Scheduling/RecommendedSchedule.jsx";
 import TestAlgorithms from "./pages/Scheduling/TestAlgorithms.jsx";
 import MultiCraneSchedule from "./pages/Scheduling/MultiCraneSchedule.jsx";
 
-import OperationalPlansGenerate from "./pages/Scheduling/OperationalPlans.jsx";
-
 import UsersManagementPage from "./pages/Users/UsersManagement.jsx";
 import PendingUsersManagementPage from "./pages/Users/PendingUsersManagementPage.jsx";
 
@@ -45,7 +43,7 @@ import DocksListPage from "./pages/Docks/DocksListPage.jsx";
 import AddDockPage from "./pages/Docks/AddDockPage.jsx";
 import SearchDockPage from "./pages/Docks/SearchDockPage.jsx";
 
-//import GenerateOperationalPlan from "./pages/OperationalPlans/GenerateOperationalPlan.jsx";
+import OperationalPlansGenerate from "./pages/OperationalPlans/OperationalPlans.jsx";
 import SearchOperationalPlans from "./pages/OperationalPlans/SearchOperationalPlans.jsx";
 
 
@@ -413,14 +411,14 @@ const App = () => {
            }
         />
 
-        {/* <Route
-          path="/operational-plans/list"
+        <Route
+          path="operational-plans/search"
           element={
-            <ProtectedRoute requiredRoles={["LogisticsOperator", "LogisticsOperator"]}>
-              <OperationalPlansList />
+            <ProtectedRoute requiredRoles={["LogisticsOperator"]}>
+              <SearchOperationalPlans />
             </ProtectedRoute>
-           }
-        /> */}
+          }
+        />
 
         <Route
           path="/alternative-schedule"
@@ -486,15 +484,6 @@ const App = () => {
           }
         />
 
-
-        <Route
-          path="operational-plans/search-operational-plans"
-          element={
-            <ProtectedRoute requiredRoles={["LogisticsOperator"]}>
-              <SearchOperationalPlans />
-            </ProtectedRoute>
-          }
-        />
 
         <Route path="*" element={<div>Page not found</div>} />
 

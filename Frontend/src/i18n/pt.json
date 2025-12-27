@@ -41,7 +41,6 @@
   "alternative_schedule": "Agendamento Alternativo" ,
   "multi_crane_schedule": "Agendamento com Várias Gruas",
   "recommended_schedule": "Agendamento Recomendado",
-  "operational_plans": "Planos Operacionais",
   "operational_plans_generate": "Gerar Planos Operacionais",
   "operational_plans_list": "Pesquisar Planos Operacionais",
   "test_algorithms": "Testar Algoritmos",
