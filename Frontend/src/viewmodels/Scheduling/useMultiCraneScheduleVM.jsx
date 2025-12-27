@@ -78,6 +78,7 @@ export const useScheduleMultiCraneVM = () => {
           cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
           staff: randomStaff(dockInfo.staff),
           area: dockInfo.area,
+          delay: s.delay ?? 0,
         }));
 
         const multi = multiRaw.map((s) => ({
@@ -91,6 +92,7 @@ export const useScheduleMultiCraneVM = () => {
           cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
           staff: randomStaff(dockInfo.staff),
           area: dockInfo.area,
+          delay: s.delay ?? 0,
         }));
 
         return {

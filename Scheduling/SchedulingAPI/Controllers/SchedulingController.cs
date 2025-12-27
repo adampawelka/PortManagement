@@ -213,7 +213,6 @@ namespace SchedulingAPI.Controllers
 
             try
             {
-                // --- AUTH ---
                 var authHeader = Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                     return Unauthorized(new { message = "Missing or invalid token." });
@@ -224,7 +223,6 @@ namespace SchedulingAPI.Controllers
                 client.DefaultRequestHeaders.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-                // --- VESSELS ---
                 var response = await client.GetAsync($"{_backendApiUrl}/api/VesselVisitNotifications");
                 response.EnsureSuccessStatusCode();
 
@@ -243,7 +241,6 @@ namespace SchedulingAPI.Controllers
                     .GroupBy(v => v.AssignedDockId)
                     .ToList();
 
-                // --- RESOURCES ---
                 var resourceResponse = await client.GetAsync($"{_backendApiUrl}/api/Resources");
                 resourceResponse.EnsureSuccessStatusCode();
 
@@ -252,27 +249,22 @@ namespace SchedulingAPI.Controllers
                     .Where(r => r.Type == "Crane" && r.Status == "active")
                     .ToList();
 
-                // --- STAFF ---
                 var staffResponse = await client.GetAsync($"{_backendApiUrl}/api/StaffMembers");
                 staffResponse.EnsureSuccessStatusCode();
 
                 var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffMemberDto>>();
 
-                // --- STORAGE AREAS ---
                 var areaResponse = await client.GetAsync($"{_backendApiUrl}/api/StorageAreas");
                 areaResponse.EnsureSuccessStatusCode();
 
                 var allAreas = await areaResponse.Content.ReadFromJsonAsync<List<StorageAreaDto>>();
 
-                // --- RESOURCE SELECTION ---
                 var selectedCrane = availableCranes.FirstOrDefault();
                 if (selectedCrane != null) availableCranes.Remove(selectedCrane);
 
                 var dockSchedules = new Dictionary<string, object>();
 
-                // ============================================================
-                //                     MAIN LOOP PER DOCK
-                // ============================================================
+
                 foreach (var dockGroup in dockGroups)
                 {
                     string dockId = dockGroup.Key.Value.ToString();
@@ -288,7 +280,6 @@ namespace SchedulingAPI.Controllers
                     if (!vesselsForDate.Any())
                         continue;
 
-                    // --- FIND CLOSEST STORAGE AREA ---
                     var closestArea = GetClosestArea(allAreas, dockGroup.Key.Value);
 
                     // --- PROLOG FACTS ---
@@ -306,7 +297,6 @@ namespace SchedulingAPI.Controllers
                         return $"asserta(vessel({vesselKey}, {etaHour}, {etdHour}, {unloadTime}, {loadTime})),";
                     }));
 
-                    // --- CHOOSE SOLVER ---
                     string scriptToUse;
                     string query;
 
@@ -335,10 +325,8 @@ namespace SchedulingAPI.Controllers
                             break;
                     }
 
-                    // --- PROLOG EXECUTION ---
                     string result = RunPrologQuery(query, scriptToUse);
 
-                    // --- RESPONSE ENTRY ---
                     dockSchedules[dockId] = new
                     {
                         dock = dock.DockName,
@@ -347,7 +335,7 @@ namespace SchedulingAPI.Controllers
                         crane = selectedCrane?.Code,
                         staff = allStaff,
 
-                        // 🔥 only closest area returned
+
                         area = closestArea
                     };
                 }
@@ -368,9 +356,6 @@ namespace SchedulingAPI.Controllers
         [HttpGet("calculate-schedule-multi-crane")]
         public async Task<IActionResult> CalculateScheduleMultiCrane([FromQuery] string date)
         {
-            // -------------------------
-            // VALIDATE DATE
-            // -------------------------
             if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
                 return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
 
@@ -384,68 +369,34 @@ namespace SchedulingAPI.Controllers
                     return Unauthorized(new { message = "Missing or invalid token." });
 
                 var token = authHeader.Substring("Bearer ".Length).Trim();
-
                 var client = _httpClientFactory.CreateClient();
                 client.DefaultRequestHeaders.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
                 // -------------------------
-                // LOAD ALL NECESSARY DATA ONCE (NO LOOP REQUESTS)
+                // LOAD DATA ONCE
                 // -------------------------
-
-                // 1. Vessels
-                var vesselResponse = await client.GetAsync($"{_backendApiUrl}/api/VesselVisitNotifications");
-                vesselResponse.EnsureSuccessStatusCode();
-                var vessels = await vesselResponse.Content.ReadFromJsonAsync<List<VesselVisitNotificationDto>>() ?? new();
-                var approvedVessels = vessels
-                    .Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue)
-                    .ToList();
-
+                var vessels = await client.GetFromJsonAsync<List<VesselVisitNotificationDto>>($"{_backendApiUrl}/api/VesselVisitNotifications") ?? new();
+                var approvedVessels = vessels.Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue).ToList();
                 if (!approvedVessels.Any())
                     return BadRequest(new { message = "No approved vessels assigned to any dock." });
 
-                // 2. Resources
-                var resourceResponse = await client.GetAsync($"{_backendApiUrl}/api/Resources");
-                resourceResponse.EnsureSuccessStatusCode();
-                var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>() ?? new();
+                var allResources = await client.GetFromJsonAsync<List<ResourceDto>>($"{_backendApiUrl}/api/Resources") ?? new();
+                var allStaff = await client.GetFromJsonAsync<List<StaffMemberDto>>($"{_backendApiUrl}/api/StaffMembers") ?? new();
+                var allAreas = await client.GetFromJsonAsync<List<StorageAreaDto>>($"{_backendApiUrl}/api/StorageAreas") ?? new();
 
-                // 3. Staff
-                var staffResponse = await client.GetAsync($"{_backendApiUrl}/api/StaffMembers");
-                staffResponse.EnsureSuccessStatusCode();
-                var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffMemberDto>>() ?? new();
-
-                // 4. Storage Areas
-                var areaResponse = await client.GetAsync($"{_backendApiUrl}/api/StorageAreas");
-                areaResponse.EnsureSuccessStatusCode();
-                var allAreas = await areaResponse.Content.ReadFromJsonAsync<List<StorageAreaDto>>() ?? new();
-
-                // -------------------------
-                // GROUP BY DOCK
-                // -------------------------
                 var dockGroups = approvedVessels.GroupBy(v => v.AssignedDockId);
                 var dockSchedules = new Dictionary<string, object>();
 
-                // -------------------------
-                // PROCESS EACH DOCK
-                // -------------------------
                 foreach (var dockGroup in dockGroups)
                 {
                     var dockId = dockGroup.Key?.ToString() ?? "unknown";
-
-                    // Load dock ONCE
-                    var dockResponse = await client.GetAsync($"{_backendApiUrl}/api/Docks/{dockId}");
-                    dockResponse.EnsureSuccessStatusCode();
-                    var dock = await dockResponse.Content.ReadFromJsonAsync<DockDto>();
+                    var dock = await client.GetFromJsonAsync<DockDto>($"{_backendApiUrl}/api/Docks/{dockId}");
                     if (dock == null)
                         return BadRequest(new { message = "No dock received from the API." });
 
-                    // Filter vessels for selected date
-                    var vesselsForDate = dockGroup
-                        .Where(v => v.ETA.Date == targetDate.Date)
-                        .ToList();
-
-                    if (!vesselsForDate.Any())
-                        continue;
+                    var vesselsForDate = dockGroup.Where(v => v.ETA.Date == targetDate.Date).ToList();
+                    if (!vesselsForDate.Any()) continue;
 
                     // -------------------------
                     // BUILD PROLOG FACTS
@@ -453,24 +404,15 @@ namespace SchedulingAPI.Controllers
                     var facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
                     {
                         int containerCount = v.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
-
                         int load = 2 + containerCount * 2;
                         int unload = 2 + containerCount * 2;
-
                         int eta = v.ETA.Minute >= 30 ? v.ETA.Hour + 1 : v.ETA.Hour;
                         int etd = v.ETD.Minute >= 30 ? v.ETD.Hour + 1 : v.ETD.Hour;
-
                         int maxCranes = containerCount > 100 ? 4 : containerCount > 50 ? 3 : 2;
-
                         string name = v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_");
-
                         return $"asserta(vessel_multi({name}, {eta}, {etd}, {unload}, {load}, {maxCranes})),";
-
                     }));
 
-                    // -------------------------
-                    // PROLOG QUERY
-                    // -------------------------
                     var query =
                         $"{facts} " +
                         "solve_multi_crane(SingleSeq, SingleDelay, SingleCraneHours, " +
@@ -482,9 +424,6 @@ namespace SchedulingAPI.Controllers
                         "format('MULTI_DELAY:~w~n', [MultiDelay]), " +
                         "format('MULTI_CRANE_HOURS:~w~n', [MultiCraneHours]), halt.";
 
-                    // -------------------------
-                    // EXECUTE PROLOG
-                    // -------------------------
                     string result;
                     try
                     {
@@ -492,25 +431,32 @@ namespace SchedulingAPI.Controllers
                     }
                     catch (Exception ex)
                     {
-                        return StatusCode(500, new
-                        {
-                            message = "Prolog execution failed",
-                            details = ex.ToString()
-                        });
+                        return StatusCode(500, new { message = "Prolog execution failed", details = ex.ToString() });
                     }
 
-                    // -------------------------
-                    // PARSE RESULT
-                    // -------------------------
                     var parsed = ParseMultiCraneResult(result, vesselsForDate, dock);
 
-                    // Assign the first crane found
-                    var crane = allResources
-                        .FirstOrDefault(r => r.Type == "Crane" && r.Status == "Active");
+                    // -------------------------
+                    // CALCULATE DELAY PER VESSEL (MULTI-CRANE)
+                    // -------------------------
+                    foreach (var vesselSchedule in parsed.MultiSchedules)
+{
+    var vessel = vesselsForDate.FirstOrDefault(v =>
+        v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselSchedule.VesselName);
 
-                    // -------------------------
-                    // FINAL DOCK ENTRY
-                    // -------------------------
+    if (vessel != null)
+    {
+        // ETD w pełnych godzinach od początku dnia
+        int etdSlot = (vessel.ETD.Day - vessel.ETA.Day) * 24 + vessel.ETD.Hour;
+
+        // delay w godzinach
+        vesselSchedule.Delay = Math.Max(0, vesselSchedule.EndSlot - etdSlot);
+    }
+}
+
+
+                    var crane = allResources.FirstOrDefault(r => r.Type == "Crane" && r.Status == "Active");
+
                     dockSchedules[dockId] = new
                     {
                         dockName = dock.DockName,
@@ -527,21 +473,20 @@ namespace SchedulingAPI.Controllers
                         multiCrane = new
                         {
                             schedules = parsed.MultiSchedules,
-                            delay = parsed.MultiDelay,
+                            delay = parsed.MultiSchedules.Sum(s => s.Delay),
                             craneHours = parsed.MultiCraneHours
                         },
                         improvement = new
                         {
-                            delayReduction = parsed.SingleDelay - parsed.MultiDelay,
+                            delayReduction = parsed.SingleDelay - parsed.MultiSchedules.Sum(s => s.Delay),
                             additionalCraneHours = parsed.MultiCraneHours - parsed.SingleCraneHours,
                             percentageImprovement = parsed.SingleDelay > 0
-                                ? Math.Round(((double)(parsed.SingleDelay - parsed.MultiDelay) / parsed.SingleDelay) * 100, 2)
+                                ? Math.Round(((double)(parsed.SingleDelay - parsed.MultiSchedules.Sum(s => s.Delay)) / parsed.SingleDelay) * 100, 2)
                                 : 0
                         }
                     };
                 }
 
-                // If nothing produced output
                 if (!dockSchedules.Any())
                     return BadRequest(new { message = "No vessels arriving on the selected date for any dock." });
 
@@ -549,14 +494,14 @@ namespace SchedulingAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    message = $"Error generating multi-crane schedule: {ex.Message}",
-                    details = ex.ToString()
-                });
+                return StatusCode(500, new { message = $"Error generating multi-crane schedule: {ex.Message}", details = ex.ToString() });
             }
         }
 
+
+        // -------------------------
+        // CLASSES
+        // -------------------------
         private class MultiCraneParseResult
         {
             public string SingleSchedule { get; set; }
@@ -569,7 +514,6 @@ namespace SchedulingAPI.Controllers
             public List<VesselSchedule> MultiSchedules { get; set; }
         }
 
-        // Add a new class to hold vessel schedule data
         private class VesselSchedule
         {
             public string VesselName { get; set; }
@@ -578,10 +522,8 @@ namespace SchedulingAPI.Controllers
             public int CranesUsed { get; set; }
             public int StartSlot { get; set; }
             public int EndSlot { get; set; }
+            public int Delay { get; set; }
         }
-
-        // Replace the ParseMultiCraneResult method with an improved version
-        // Replace all the parsing-related methods with this single comprehensive method
         private MultiCraneParseResult ParseMultiCraneResult(string result, List<VesselVisitNotificationDto> vesselsForDate, DockDto dock)
         {
             var parsed = new MultiCraneParseResult
@@ -730,7 +672,7 @@ namespace SchedulingAPI.Controllers
         }
 
         // Helper method for sequence format parsing
-        private List<VesselSchedule> ParseFromSequenceFormat(string prefix, int defaultCranes, string result, 
+        private List<VesselSchedule> ParseFromSequenceFormat(string prefix, int defaultCranes, string result,
             List<VesselVisitNotificationDto> vesselsForDate, HashSet<string> uniqueVessels)
         {
             var schedules = new List<VesselSchedule>();
@@ -747,7 +689,7 @@ namespace SchedulingAPI.Controllers
                 {
                     if (!uniqueVessels.Contains(vesselName))
                     {
-                        var vessel = vesselsForDate.FirstOrDefault(v => 
+                        var vessel = vesselsForDate.FirstOrDefault(v =>
                             v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselName);
 
                         if (vessel != null)
@@ -789,9 +731,9 @@ namespace SchedulingAPI.Controllers
             }
 
             return schedules;
-        }  
+        }
 
-        private List<VesselSchedule> ParseFromTripletPatterns(string prefix, int defaultCranes, string result, 
+        private List<VesselSchedule> ParseFromTripletPatterns(string prefix, int defaultCranes, string result,
             List<VesselVisitNotificationDto> vesselsForDate, HashSet<string> uniqueVessels)
         {
             var schedules = new List<VesselSchedule>();
@@ -809,12 +751,12 @@ namespace SchedulingAPI.Controllers
                     {
                         int startSlot = int.Parse(match.Groups[2].Value);
                         int endSlot = int.Parse(match.Groups[3].Value);
-                        int cranes = match.Groups.Count >= 5 && !string.IsNullOrEmpty(match.Groups[4].Value) 
-                                    ? int.Parse(match.Groups[4].Value) 
+                        int cranes = match.Groups.Count >= 5 && !string.IsNullOrEmpty(match.Groups[4].Value)
+                                    ? int.Parse(match.Groups[4].Value)
                                     : defaultCranes;
 
                         // Validate the end time makes sense
-                        var vessel = vesselsForDate.FirstOrDefault(v => 
+                        var vessel = vesselsForDate.FirstOrDefault(v =>
                             v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselName);
 
                         if (vessel != null)
@@ -863,10 +805,10 @@ namespace SchedulingAPI.Controllers
             }
 
             return schedules;
-        }  
+        }
 
-         private List<VesselSchedule> CreateSchedulesFromVessels(List<VesselVisitNotificationDto> vesselsForDate, 
-            int defaultCranes, HashSet<string> uniqueVessels)
+        private List<VesselSchedule> CreateSchedulesFromVessels(List<VesselVisitNotificationDto> vesselsForDate,
+           int defaultCranes, HashSet<string> uniqueVessels)
         {
             var schedules = new List<VesselSchedule>();
             int currentTime = 0;
@@ -918,9 +860,9 @@ namespace SchedulingAPI.Controllers
             }
 
             return schedules;
-        }  
+        }
 
-         private List<VesselSchedule> CreateSimpleFallbackSchedules(List<VesselVisitNotificationDto> vessels, int defaultCranes)
+        private List<VesselSchedule> CreateSimpleFallbackSchedules(List<VesselVisitNotificationDto> vessels, int defaultCranes)
         {
             var schedules = new List<VesselSchedule>();
             int currentTime = 0;
