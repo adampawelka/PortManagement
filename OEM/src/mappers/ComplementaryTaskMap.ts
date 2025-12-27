@@ -5,9 +5,9 @@ export class ComplementaryTaskMap {
 
   static toPersistence(task: ComplementaryTask): any {
     return {
-      domainId: task.taskId.toString(),
-      vesselVisitExecutionId: task.vesselVisitExecutionId.toString(),
-      categoryId: task.categoryId.toString(),
+      domainId: task.id.toString(),
+      vesselVisitExecutionId: task.vesselVisitExecutionId.id.toString(),
+      categoryId: task.categoryId.id.toString(),
       responsibleTeam: task.responsibleTeam.value,
       startTime: task.startTime.value,
       endTime: task.endTime?.value ?? null,

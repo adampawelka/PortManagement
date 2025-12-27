@@ -5,8 +5,8 @@ export class IncidentMap {
 
   static toPersistence(incident: Incident): any {
     return {
-      domainId: incident.incidentId.toString(),
-      incidentTypeId: incident.incidentTypeId.toString(),
+      domainId: incident.id.toString(),
+      incidentTypeId: incident.incidentTypeId.id.toString(),
       startTime: incident.startTime.value,
       endTime: incident.endTime?.value ?? null,
       severity: incident.severity.value,

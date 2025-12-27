@@ -5,8 +5,8 @@ export class OperationPlanMap {
 
   static toPersistence(operationPlan: OperationPlan): any {
     return {
-      domainId: operationPlan.operationPlanId.toString(),
-      vveId: operationPlan.props.vveId.toString(),
+      domainId: operationPlan.id.toString(),
+      vveId: operationPlan.props.vveId.id.toString(),
       createdAt: operationPlan.props.createdAt.value,
       createdBy: operationPlan.props.createdBy.value,
       algorithmUsed: operationPlan.props.algorithmUsed.value
