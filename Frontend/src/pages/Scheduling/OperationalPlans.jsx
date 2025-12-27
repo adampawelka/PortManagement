@@ -54,9 +54,7 @@ const OperationalPlansGenerate = () => {
 
     const singleCraneAlgorithms = [
         { value: "optimal", label: "Optimal" },
-        { value: "heuristic_edt", label: "EDT – Early Departure Time" },
-        { value: "heuristic_spt", label: "SPT – Shortest Processing Time" },
-        { value: "heuristic_dynamic_mst", label: "Dynamic MST – Minimum Slack Time" },
+        { value: "heuristic", label: "Heuristic" },
     ];
 
     return (
@@ -318,6 +316,7 @@ const OperationalPlansGenerate = () => {
                                         >
                                             <TableCell sx={{ fontWeight: 600, textAlign: "center" }}>Start</TableCell>
                                             <TableCell sx={{ fontWeight: 600, textAlign: "center" }}>End</TableCell>
+                                            <TableCell sx={{ fontWeight: 600, textAlign: "center" }}>Delay [h]</TableCell>
                                         </TableRow>
                                     </TableHead>
 
@@ -336,6 +335,7 @@ const OperationalPlansGenerate = () => {
                                             >
                                                 <TableCell>{op.start}</TableCell>
                                                 <TableCell>{op.end}</TableCell>
+                                                <TableCell>{op.delay}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
