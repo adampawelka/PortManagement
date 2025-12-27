@@ -71,8 +71,8 @@ export const useScheduleMultiCraneVM = () => {
           vessel: getVesselName(s, dockVessels),
           dock: dockInfo.dockName,
           crane: dockInfo.craneCode,
-          start: s.startTime || slotToTime(s.startSlot ?? s.StartSlot),
-          end: s.endTime || slotToTime(s.endSlot ?? s.EndSlot),
+          start: s.startTime ?? slotToTime(s.startSlot ?? s.StartSlot),
+          end: s.endTime ?? slotToTime(s.endSlot ?? s.EndSlot),
           startSlot: s.startSlot ?? s.StartSlot,
           endSlot: s.endSlot ?? s.EndSlot,
           cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
@@ -81,17 +81,22 @@ export const useScheduleMultiCraneVM = () => {
         }));
 
         const multi = multiRaw.map((s) => ({
-          vessel: getVesselName(s, dockVessels),
-          dock: dockInfo.dockName,
-          crane: dockInfo.craneCode,
-          start: s.startTime || slotToTime(s.startSlot ?? s.StartSlot),
-          end: s.endTime || slotToTime(s.endSlot ?? s.EndSlot),
-          startSlot: s.startSlot ?? s.StartSlot,
-          endSlot: s.endSlot ?? s.EndSlot,
-          cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
-          staff: randomStaff(dockInfo.staff),
-          area: dockInfo.area,
-        }));
+  vessel: getVesselName(s, dockVessels),
+  dock: dockInfo.dockName,
+  crane: dockInfo.craneCode,
+  start: s.startTime !== undefined 
+            ? s.startTime 
+            : (s.startSlot !== undefined ? slotToTime(s.startSlot) : "N/A"),
+  end: s.endTime !== undefined 
+          ? s.endTime 
+          : (s.endSlot !== undefined ? slotToTime(s.endSlot) : "N/A"),
+  startSlot: s.startSlot,
+  endSlot: s.endSlot,
+  cranes: s.cranesUsed ?? 1,
+  staff: randomStaff(dockInfo.staff),
+  area: dockInfo.area,
+}));
+
 
         return {
           dockId,

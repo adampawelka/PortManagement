@@ -44,40 +44,40 @@ export const useSchedulingService = () => {
     };
 
     const parsePrologResult = (raw, vessels, dockName, craneCode, staff, areas) => {
-  if (!raw) return [];
+        if (!raw) return [];
 
-  let cleaned = raw
-    .replace(/Heuristic Execution Time:.*?\n/i, "")
-    .replace(/Execution Time:.*?\n/i, "")
-    .replace(/Brute Force Execution Time:.*?\n/i, "")
-    .replace(/\[|\]/g, "")
-    .trim();
+        let cleaned = raw
+            .replace(/Heuristic Execution Time:.*?\n/i, "")
+            .replace(/Execution Time:.*?\n/i, "")
+            .replace(/Brute Force Execution Time:.*?\n/i, "")
+            .replace(/\[|\]/g, "")
+            .trim();
 
-  if (!cleaned) return [];
+        if (!cleaned) return [];
 
-  return cleaned.split(/\),/).map(token => {
-    const parts = token.replace(/[()]/g, "").split(",");
+        return cleaned.split(/\),/).map(token => {
+            const parts = token.replace(/[()]/g, "").split(",");
 
-    const vesselName = parts[0]?.trim();
-    const startSlot = parseInt(parts[1]?.trim(), 10);
-    const endSlot = parseInt(parts[2]?.trim(), 10);
+            const vesselName = parts[0]?.trim();
+            const startSlot = parseInt(parts[1]?.trim(), 10);
+            const endSlot = parseInt(parts[2]?.trim(), 10);
 
-    const v = vessels.find(x => x.vesselName?.toLowerCase() === vesselName?.toLowerCase());
+            const v = vessels.find(x => x.vesselName?.toLowerCase() === vesselName?.toLowerCase());
 
-    return {
-      vessel: vesselName,
-      vesselId: v?.vesselId || null,
-      startSlot,
-      endSlot,
-      start: slotToTime(startSlot),
-      end: slotToTime(endSlot),
-      dock: dockName,
-      crane: craneCode,
-      staff: staff,
-      areas: areas,
+            return {
+                vessel: vesselName,
+                vesselId: v?.vesselId || null,
+                startSlot,
+                endSlot,
+                start: slotToTime(startSlot),
+                end: slotToTime(endSlot),
+                dock: dockName,
+                crane: craneCode,
+                staff: staff,
+                areas: areas,
+            };
+        });
     };
-  });
-};
 
 
 
