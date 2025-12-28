@@ -13,28 +13,23 @@ const GlobalLayout = () => {
       <Header />
       <PrimaryNavigation />
 
-      {/* Główna sekcja: sidebar + reszta */}
       <div style={{ display: "flex", flex: 1 }}>
-        {/* Sidebar z lewej strony */}
         <Sidebar />
 
-        {/* Reszta kontentu po prawej stronie */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Pasek breadcrumb + język */}
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               padding: "15px",
-              borderBottom: '1px solid #eee' // Separador visual
+              borderBottom: '1px solid #eee' 
             }}
           >
             <Breadcrumbs />
             <LanguageSwitcher />
           </div>
 
-          {/* Główna treść */}
           <main
             style={{
               flex: 1,
