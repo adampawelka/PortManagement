@@ -6,7 +6,7 @@ export class OperationPlanMap {
   static toPersistence(operationPlan: OperationPlan): any {
     return {
       domainId: operationPlan.id.toString(),
-      vveId: operationPlan.props.vveId.id.toString(),
+      vveId: operationPlan.props.vesselVisitExecutionId.id.toString(),
       createdAt: operationPlan.props.createdAt.value,
       createdBy: operationPlan.props.createdBy.value,
       algorithmUsed: operationPlan.props.algorithmUsed.value
@@ -16,7 +16,7 @@ export class OperationPlanMap {
   static toDomain(raw: any): OperationPlan {
     const operationPlanOrError = OperationPlan.create(
       {
-        vveId: raw.vveId,
+        vesselVisitExecutionId: raw.vveId,
         createdAt: raw.createdAt,
         createdBy: raw.createdBy,
         algorithmUsed: raw.algorithmUsed

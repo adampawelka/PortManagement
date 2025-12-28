@@ -1,26 +1,26 @@
 import {
-  OperatorPlanDTO,
-  CreateOperatorPlanDTO,
-  UpdateOperatorPlanDTO
+  OperationPlanDTO,
+  CreateOperationPlanDTO,
+  UpdateOperationPlanDTO
 } from "../../dto/OperationPlanDTO";
 
 export interface IOperationPlanService {
   create(
-    dto: CreateOperatorPlanDTO
-  ): Promise<OperatorPlanDTO>;
+    dto: CreateOperationPlanDTO
+  ): Promise<OperationPlanDTO>;
 
   getById(
     id: string
-  ): Promise<OperatorPlanDTO | null>;
+  ): Promise<OperationPlanDTO | null>;
 
   getByvesselVisitExecutionId(
     vesselVisitExecutionId: string
-  ): Promise<OperatorPlanDTO | null>;
+  ): Promise<OperationPlanDTO | null>;
 
-  getAll(): Promise<OperatorPlanDTO[]>;
+  getAll(): Promise<OperationPlanDTO[]>;
 
   update(
     id: string,
-    dto: UpdateOperatorPlanDTO
-  ): Promise<OperatorPlanDTO | null>;
+    dto: UpdateOperationPlanDTO
+  ): Promise<OperationPlanDTO | null>;
 }

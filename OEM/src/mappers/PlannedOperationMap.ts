@@ -21,7 +21,7 @@ export class PlannedOperationMap {
 
     const operationOrError = PlannedOperation.create(
       {
-        OperationPlanId: data.operationPlanId,
+        operationPlanId: data.operationPlanId,
         resourceId: data.resourceId,
         staffId: data.staffId,
         plannedStart: data.plannedStart,
