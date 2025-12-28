@@ -328,6 +328,7 @@ const MultiCraneSchedule = () => {
                                             <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>Delay [h]</TableCell>
+                                            <TableCell sx={{ fontWeight: "bold" }}>Number of Cranes</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>Cranes</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
                                             <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
@@ -341,6 +342,7 @@ const MultiCraneSchedule = () => {
                                                 <TableCell>{row.end}</TableCell>
                                                 <TableCell>{row.delay}</TableCell>
                                                 <TableCell>{row.cranes}</TableCell>
+                                                <TableCell>{row.CraneNames?.join(", ") ?? "Unassigned"}</TableCell>
                                                 <TableCell>{row.staff}</TableCell>
                                                 <TableCell>{row.area}</TableCell>
                                             </TableRow>
