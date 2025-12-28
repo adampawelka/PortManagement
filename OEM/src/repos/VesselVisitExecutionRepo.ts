@@ -37,6 +37,22 @@ export class VesselVisitExecutionRepo {
     return docs.map(doc => VesselVisitExecutionMap.toDomain(doc));
   }
 
+  async findByVVN(vvnId: string): Promise<VesselVisitExecution[]> {
+    const docs = await VesselVisitExecutionSchema.find({
+      vvnId: vvnId
+    });
+
+    return docs.map(doc => VesselVisitExecutionMap.toDomain(doc));
+  }
+
+  async findInProgress(): Promise<VesselVisitExecution[]> {
+    const docs = await VesselVisitExecutionSchema.find({
+      status: 'in_progress'
+    });
+
+    return docs.map(doc => VesselVisitExecutionMap.toDomain(doc));
+  }
+
   async exists(
     id: VesselVisitExecutionId
   ): Promise<boolean> {

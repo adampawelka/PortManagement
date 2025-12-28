@@ -14,6 +14,10 @@ export interface IVesselVisitExecutionRepo {
   ): Promise<VesselVisitExecution | null>;
 
   findAll(): Promise<VesselVisitExecution[]>;
-  
+ 
+  findByVVN(vvnId: string): Promise<VesselVisitExecution[]>;
+
+  findInProgress(): Promise<VesselVisitExecution[]>;
+
   exists(vve: VesselVisitExecution): Promise<boolean>;
 }

@@ -1,5 +1,7 @@
 import { IExecutedOperationService } from "./IServices/IExecutedOperationService";
+import { IPlannedOperationService } from "./IServices/IPlannedOperationService";
 import { IExecutedOperationRepo } from "./IRepos/IExecutedOperationRepo";
+import { IVesselVisitExecutionRepo } from "./IRepos/IVesselVisitExecutionRepo";
 
 import {
   ExecutedOperationDTO,
@@ -9,6 +11,7 @@ import {
 
 import { ExecutedOperation } from "../Domain/ExecutedOperations/ExecutedOperation";
 import { ExecutedOperationId } from "../Domain/ExecutedOperations/ExecutedOperationId";
+import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
 import { ResourceId } from "../Domain/ExecutedOperations/ResourceId";
 import { StaffId } from "../Domain/ExecutedOperations/StaffId";
 import { ActualStart } from "../Domain/ExecutedOperations/ActualStart";
@@ -22,7 +25,11 @@ import { UniqueEntityID } from "../core/domain/UniqueEntityID";
 
 
 export class ExecutedOperationService implements IExecutedOperationService {
-  constructor(private readonly operationRepo: IExecutedOperationRepo) {}
+  constructor(
+    private readonly operationRepo: IExecutedOperationRepo,    
+    private readonly plannedOpService: IPlannedOperationService,
+    private readonly vveRepo: IVesselVisitExecutionRepo
+  ) {}
 
   async create(dto: CreateExecutedOperationDTO): Promise<ExecutedOperationDTO> {
     const statusEnum = this.parseStatus(dto.status);
@@ -66,6 +73,23 @@ export class ExecutedOperationService implements IExecutedOperationService {
   async getAll(): Promise<ExecutedOperationDTO[]> {
     const operations = await this.operationRepo.findAll();
     return operations.map(op => this.toDTO(op));
+  }
+
+  async getAvailablePlannedOperationsForVVE(
+    vesselVisitExecutionId: string
+  ): Promise<any[]> {
+    
+    const vveId = VesselVisitExecutionId.caller(new UniqueEntityID(vesselVisitExecutionId));
+    const vve = await this.vveRepo.findById(vveId);
+    
+    if (!vve) {
+      throw new Error(`Vessel Visit Execution ${vesselVisitExecutionId} not found`);
+    }
+
+    if (vve.status.value !== 'IN_PROGRESS') {
+      throw new Error(`Vessel Visit Execution is not in progress. Current status: ${vve.status.value}`);
+    }
+    return await this.plannedOpService.getPlannedOperationsForVVE(vesselVisitExecutionId);
   }
 
   async update(id: string, dto: UpdateExecutedOperationDTO): Promise<ExecutedOperationDTO | null> {

@@ -13,5 +13,10 @@ export interface IOperationPlanRepo {
 
   findAll(): Promise<OperationPlan[]>;
 
+  findAllByVesselVisitExecutionId(
+    vesselVisitExecutionId: VesselVisitExecutionId
+  ): Promise<OperationPlan[]>;
+
+
   exists(OperationPlan: OperationPlan): Promise<boolean>;
 }

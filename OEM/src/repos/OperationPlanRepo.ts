@@ -32,7 +32,7 @@ export class OperationPlanRepo implements IOperationPlanRepo {
     return OperationPlanMap.toDomain(doc);
   }
 
-  async findByvesselVisitExecutionId(
+  async findByVesselVisitExecutionId(
     vesselVisitExecutionId: VesselVisitExecutionId
   ): Promise<OperationPlan | null> {
 
@@ -50,6 +50,18 @@ export class OperationPlanRepo implements IOperationPlanRepo {
 
     return docs.map(doc => OperationPlanMap.toDomain(doc));
   }
+
+  async findAllByVesselVisitExecutionId(
+    vesselVisitExecutionId: VesselVisitExecutionId
+  ): Promise<OperationPlan[]> {
+
+    const docs = await OperationPlanSchema.find({
+      vesselVisitExecutionId: vesselVisitExecutionId.toString()
+    });
+
+    return docs.map(doc => OperationPlanMap.toDomain(doc));
+  }
+
 
   async exists(
     id: OperationPlanId

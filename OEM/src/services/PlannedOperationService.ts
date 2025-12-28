@@ -9,6 +9,7 @@ import {
 
 import { PlannedOperation } from "../Domain/PlannedOperations/PlannedOperation";
 import { PlannedOperationId } from "../Domain/PlannedOperations/PlannedOperationId";
+import { OperationPlan } from "../Domain/OperationPlans/OperationPlan";
 import { OperationPlanId } from "../Domain/OperationPlans/OperationPlanId";
 import { PlannedResourceId } from "../Domain/PlannedOperations/PlannedResourceId";
 import { PlannedStaffId } from "../Domain/PlannedOperations/PlannedStaffId";
@@ -24,13 +25,19 @@ import {
   PlannedOperationStatusEnum
 } from "../Domain/PlannedOperations/PlannedOperationStatus";
 
+import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
+import { IVesselVisitExecutionRepo } from "./IRepos/IVesselVisitExecutionRepo";
+import { IOperationPlanRepo } from "./IRepos/IOperationPlanRepo";
+
 import { UniqueEntityID } from "../core/domain/UniqueEntityID";
 
 export class PlannedOperationService
   implements IPlannedOperationService {
 
   constructor(
-    private readonly plannedOperationRepo: IPlannedOperationRepo
+    private readonly plannedOperationRepo: IPlannedOperationRepo,
+    private readonly operationPlanRepo: IOperationPlanRepo,
+    private readonly vveRepo: IVesselVisitExecutionRepo
   ) { }
 
   async create(
@@ -92,6 +99,33 @@ export class PlannedOperationService
     return operations.map(op => this.toDTO(op));
   }
 
+  async getPlannedOperationsForVVE(
+    vesselVisitExecutionId: string
+  ): Promise<PlannedOperationDTO[]> {
+
+    const vveId = VesselVisitExecutionId.create(new UniqueEntityID(vesselVisitExecutionId));
+    const vve = await this.vveRepo.findById(vveId);
+    
+    if (!vve) {
+      throw new Error(`Vessel Visit Execution ${vesselVisitExecutionId} not found`);
+    }
+
+    const operationPlans = await this.operationPlanRepo.findAllByVesselVisitExecutionId(vveId);
+    
+    if (operationPlans.length === 0) {
+      return []; 
+    }
+
+    const allPlannedOps: PlannedOperation[] = [];
+    
+    for (const plan of operationPlans) {
+      const planId = OperationPlanId.create(new UniqueEntityID(plan.id.toString()));
+      const plannedOps = await this.plannedOperationRepo.findByOperationPlanId(planId);
+      allPlannedOps.push(...plannedOps);
+    }
+
+    return allPlannedOps.map(op => this.toDTO(op));
+  }
 
   async update(
     id: string,
@@ -124,6 +158,40 @@ export class PlannedOperationService
 
     await this.plannedOperationRepo.save(operation);
     return this.toDTO(operation);
+  }
+
+  async getPlannedOperationsByVVN(
+    vvnId: string
+  ): Promise<PlannedOperationDTO[]> {
+    
+    const vves = await this.vveRepo.findByVVN(vvnId);
+    
+    if (vves.length === 0) {
+      return [];
+    }
+
+    const vveIds = vves.map(vve => vve.id.toString());
+    const allOperationPlans: OperationPlan[] = [];
+    
+    for (const vveId of vveIds) {
+      const vveEntityId = VesselVisitExecutionId.create(new UniqueEntityID(vveId));
+      const operationPlans = await this.operationPlanRepo.findAllByVesselVisitExecutionId(vveEntityId);
+      allOperationPlans.push(...operationPlans);
+    }
+
+    if (allOperationPlans.length === 0) {
+      return [];
+    }
+
+    const allPlannedOps: PlannedOperation[] = [];
+    
+    for (const plan of allOperationPlans) {
+      const planId = OperationPlanId.create(new UniqueEntityID(plan.id.toString()));
+      const plannedOps = await this.plannedOperationRepo.findByOperationPlanId(planId);
+      allPlannedOps.push(...plannedOps);
+    }
+
+    return allPlannedOps.map(op => this.toDTO(op));
   }
 
 

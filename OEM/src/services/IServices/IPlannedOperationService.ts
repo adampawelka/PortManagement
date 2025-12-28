@@ -9,6 +9,12 @@ export interface IPlannedOperationService {
   getById(id: string): Promise<PlannedOperationDTO | null>;
   getByOperationPlanId(operationPlanId: string): Promise<PlannedOperationDTO[]>;
   getAll(): Promise<PlannedOperationDTO[]>;
+  getPlannedOperationsForVVE(
+    vesselVisitExecutionId: string
+  ): Promise<PlannedOperationDTO[]>;
+  getPlannedOperationsByVVN(
+    vvnId: string
+  ): Promise<PlannedOperationDTO[]>
   update(
     id: string,
     dto: UpdatePlannedOperationDTO
