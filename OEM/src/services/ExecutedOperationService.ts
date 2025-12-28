@@ -58,7 +58,72 @@ export class ExecutedOperationService implements IExecutedOperationService {
     await this.operationRepo.save(operation);
     return this.toDTO(operation);
   }
+  async createFromPlannedOperation(
+    dto: CreateExecutedOperationDTO
+  ): Promise<ExecutedOperationDTO> {
+    
+    // Validate that the planned operation exists
+    const plannedOp = await this.plannedOpService.getById(dto.plannedOperationId);
+    if (!plannedOp) {
+      throw new Error(`Planned Operation ${dto.plannedOperationId} not found`);
+    }
 
+    // Validate that the VVE exists and is in progress
+    const vveId = VesselVisitExecutionId.caller(new UniqueEntityID(dto.vesselVisitExecutionId));
+    const vve = await this.vveRepo.findById(vveId);
+    if (!vve) {
+      throw new Error(`Vessel Visit Execution ${dto.vesselVisitExecutionId} not found`);
+    }
+    
+    if (vve.status.value !== 'IN_PROGRESS') {
+      throw new Error(`Vessel Visit Execution is not in progress. Current status: ${vve.status.value}`);
+    }
+
+    // Create the executed operation
+    const executedOp = await this.create(dto);
+    
+    return executedOp;
+  }
+
+
+  async batchCreateFromPlannedOperations(
+    vveId: string,
+    plannedOperationIds: string[]
+  ): Promise<ExecutedOperationDTO[]> {
+    
+    const vve = VesselVisitExecutionId.caller(new UniqueEntityID(vveId));
+    const vveEntity = await this.vveRepo.findById(vve);
+    
+    if (!vveEntity) {
+      throw new Error(`Vessel Visit Execution ${vveId} not found`);
+    }
+    
+    if (vveEntity.status.value !== 'IN_PROGRESS') {
+      throw new Error(`Vessel Visit Execution is not in progress. Current status: ${vveEntity.status.value}`);
+    }
+
+    const results: ExecutedOperationDTO[] = [];
+    
+    for (const plannedOpId of plannedOperationIds) {
+        // Get planned operation details
+        const plannedOp = await this.plannedOpService.getById(plannedOpId);
+
+        // Create executed operation from planned operation
+        const executedOpDTO: CreateExecutedOperationDTO = {
+          vesselVisitExecutionId: vveId,
+          plannedOperationId: plannedOpId,
+          resourceId: plannedOp.resourceId,
+          staffId: plannedOp.staffId,
+          actualStart: new Date().toISOString(), // Start now
+          actualEnd: undefined, // Not ended yet
+          status: 'started' // Mark as started
+        };
+
+        const created = await this.create(executedOpDTO);
+        results.push(created);
+    }
+    return results;
+  }
   async getById(id: string): Promise<ExecutedOperationDTO | null> {
     const operationId = ExecutedOperationId.create(new UniqueEntityID(id)); 
     const operation = await this.operationRepo.findById(operationId);

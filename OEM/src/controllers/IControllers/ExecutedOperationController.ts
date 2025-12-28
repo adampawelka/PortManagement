@@ -20,11 +20,54 @@ export default class ExecutedOperationController {
     }
   };
 
+  // POST: /executedOperations/from-planned (NEW - US 4.1.9)
+  public async createFromPlannedOperation(req: Request, res: Response, next: NextFunction) {
+    try {
+      const operationDTO = await this.executedOpServiceInstance.createFromPlannedOperation(req.body as CreateExecutedOperationDTO);
+      return res.status(201).json(operationDTO);
+    } catch (e) {
+      return next(e);
+    }
+  };
+
+  public async batchCreateFromPlannedOperations(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { vesselVisitExecutionId, plannedOperationIds } = req.body;
+      
+      if (!vesselVisitExecutionId || !plannedOperationIds || !Array.isArray(plannedOperationIds)) {
+        return res.status(400).json({ 
+          error: "Missing required fields: vesselVisitExecutionId and plannedOperationIds (array)" 
+        });
+      }
+
+      const operationsDTO = await this.executedOpServiceInstance.batchCreateFromPlannedOperations(
+        vesselVisitExecutionId,
+        plannedOperationIds
+      );
+      
+      return res.status(201).json({
+        message: `Created ${operationsDTO.length} executed operations`,
+        operations: operationsDTO
+      });
+    } catch (e) {
+      return next(e);
+    }
+  };
+
   // GET: /executedOperations/vve/:vveId (Para métricas de ejecución de US 4.1.10)
   public async getByVVE(req: Request, res: Response, next: NextFunction) {
     try {
       const operationsDTO = await this.executedOpServiceInstance.getByVesselVisitExecutionId(req.params.vveId);
       return res.status(200).json(operationsDTO);
+    } catch (e) {
+      return next(e);
+    }
+  };
+
+  public async getAvailablePlannedOperations(req: Request, res: Response, next: NextFunction) {
+    try {
+      const plannedOperations = await this.executedOpServiceInstance.getAvailablePlannedOperationsForVVE(req.params.vveId);
+      return res.status(200).json(plannedOperations);
     } catch (e) {
       return next(e);
     }
