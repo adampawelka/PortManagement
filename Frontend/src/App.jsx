@@ -29,7 +29,7 @@ import AvailableResourcesPage from "./pages/Resources/AvailableResourcesList.jsx
 import AddResourcePage from "./pages/Resources/AddResourcesPage.jsx";
 
 import ManageStaffMembersPage from "./pages/StaffMembers/ManageStaffMembersPage.jsx";
-///import AddStaffMemberPage from "./pages/StaffMembers/AddStaffMemberPage.jsx";
+import AddStaffMemberPage from "./pages/StaffMembers/AddStaffMemberPage.jsx";
 
 import StorageAreasPage from "./pages/StorageAreas/StorageAreasPage.jsx";
 import AddStorageAreaPage from "./pages/StorageAreas/AddStorageArea.jsx";
@@ -48,7 +48,6 @@ import SearchDockPage from "./pages/Docks/SearchDockPage.jsx";
 
 import OperationalPlansGenerate from "./pages/OperationalPlans/GenerateOperationalPlans.jsx";
 import SearchOperationalPlans from "./pages/OperationalPlans/SearchOperationalPlans.jsx";
-
 
 import { useApi } from "./services/api.js";
 
@@ -286,14 +285,14 @@ const App = () => {
           }
         />
 
-        {/* <Route
+        <Route
           path="staff-members/add"
           element={
             <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
               <AddStaffMemberPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
 
         <Route
           path="docks/list"
