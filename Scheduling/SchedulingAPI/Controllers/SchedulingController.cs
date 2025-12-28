@@ -205,8 +205,8 @@ namespace SchedulingAPI.Controllers
 
         [HttpGet("calculate-schedule")]
         public async Task<IActionResult> CalculateSchedule(
-        [FromQuery] string date,
-        [FromQuery] string algorithm = "bruteforce")
+            [FromQuery] string date,
+            [FromQuery] string algorithm = "bruteforce")
         {
             if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
                 return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
@@ -357,9 +357,7 @@ namespace SchedulingAPI.Controllers
 
             try
             {
-                // -------------------------
-                // VALIDATE AUTH TOKEN
-                // -------------------------
+                // validate auth token
                 var authHeader = Request.Headers["Authorization"].ToString();
                 if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
                     return Unauthorized(new { message = "Missing or invalid token." });
@@ -369,9 +367,7 @@ namespace SchedulingAPI.Controllers
                 client.DefaultRequestHeaders.Authorization =
                     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-                // -------------------------
-                // LOAD DATA ONCE
-                // -------------------------
+                // load data
                 var vessels = await client.GetFromJsonAsync<List<VesselVisitNotificationDto>>($"{_backendApiUrl}/api/VesselVisitNotifications") ?? new();
                 var approvedVessels = vessels.Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue).ToList();
                 if (!approvedVessels.Any())
@@ -380,6 +376,10 @@ namespace SchedulingAPI.Controllers
                 var allResources = await client.GetFromJsonAsync<List<ResourceDto>>($"{_backendApiUrl}/api/Resources") ?? new();
                 var allStaff = await client.GetFromJsonAsync<List<StaffMemberDto>>($"{_backendApiUrl}/api/StaffMembers") ?? new();
                 var allAreas = await client.GetFromJsonAsync<List<StorageAreaDto>>($"{_backendApiUrl}/api/StorageAreas") ?? new();
+
+                var activeCranes = allResources.Where(r => r.Type == "Crane" && r.Status == "active").ToList();
+                if (!activeCranes.Any())
+                    return BadRequest(new { message = "No active cranes available" });
 
                 var dockGroups = approvedVessels.GroupBy(v => v.AssignedDockId);
                 var dockSchedules = new Dictionary<string, object>();
@@ -432,31 +432,34 @@ namespace SchedulingAPI.Controllers
 
                     var parsed = ParseMultiCraneResult(result, vesselsForDate, dock);
 
-                    var crane = allResources.FirstOrDefault(r => r.Type == "Crane" && r.Status == "active");
-                    if (crane == null)
-                        return BadRequest(new { message = "No active cranes available" });
+                    var firstCrane = activeCranes.First();
 
-
-                    // Single-Crane
                     foreach (var s in parsed.SingleSchedules)
                     {
                         s.CranesUsed = 1;
-                        s.CraneCodes = new List<string> { crane.Code };
+                        s.CraneCodes = new List<string> { firstCrane.Code };
+                        s.Warning = null;
                     }
 
-                    // Multi-Crane
-                    var activeCranes = allResources.Where(r => r.Type == "Crane" && r.Status == "Active").ToList();
                     foreach (var s in parsed.MultiSchedules)
                     {
                         if (s.CranesUsed <= 0)
                             s.CranesUsed = 1;
 
-                        s.CraneCodes = activeCranes.Take(s.CranesUsed).Select(c => c.Code).ToList();
+                        if (s.CranesUsed > activeCranes.Count)
+                        {
+                            s.CraneCodes = activeCranes.Select(c => c.Code).ToList();
+                            s.Warning = $"Only {activeCranes.Count} cranes available, requested {s.CranesUsed}";
+                            s.CranesUsed = activeCranes.Count;
+                        }
+                        else
+                        {
+                            s.CraneCodes = activeCranes.Take(s.CranesUsed).Select(c => c.Code).ToList();
+                            s.Warning = null;
+                        }
                     }
 
-                    // -------------------------
-                    // CALCULATE DELAY PER VESSEL (SINGLE-CRANE)
-                    // -------------------------
+                    // calculate delays
                     foreach (var vesselSchedule in parsed.SingleSchedules)
                     {
                         var vessel = vesselsForDate.FirstOrDefault(v =>
@@ -470,9 +473,6 @@ namespace SchedulingAPI.Controllers
                     }
                     var singleDelayTotal = parsed.SingleSchedules.Sum(s => s.Delay);
 
-                    // -------------------------
-                    // CALCULATE DELAY PER VESSEL (MULTI-CRANE)
-                    // -------------------------
                     foreach (var vesselSchedule in parsed.MultiSchedules)
                     {
                         var vessel = vesselsForDate.FirstOrDefault(v =>
@@ -489,10 +489,9 @@ namespace SchedulingAPI.Controllers
                     dockSchedules[dockId] = new
                     {
                         dockName = dock.DockName,
-                        craneCode = crane?.Code ?? "Unassigned",
+                        craneCode = firstCrane.Code,
                         staff = allStaff.Take(5),
                         area = allAreas.FirstOrDefault()?.StorageAreaType ?? "Unassigned",
-
                         singleCrane = new
                         {
                             schedules = parsed.SingleSchedules,
@@ -541,17 +540,20 @@ namespace SchedulingAPI.Controllers
             public List<VesselSchedule> SingleSchedules { get; set; }
             public List<VesselSchedule> MultiSchedules { get; set; }
         }
+
         private class VesselSchedule
         {
             public string VesselName { get; set; }
             public string StartTime { get; set; }
             public string EndTime { get; set; }
             public int CranesUsed { get; set; }
+            public List<string> CraneCodes { get; set; } 
             public int StartSlot { get; set; }
             public int EndSlot { get; set; }
             public int Delay { get; set; }
-            public List<string> CraneCodes { get; set; } = new List<string>();
+            public string Warning { get; set; } 
         }
+
 
         private MultiCraneParseResult ParseMultiCraneResult(string result, List<VesselVisitNotificationDto> vesselsForDate, DockDto dock)
         {
