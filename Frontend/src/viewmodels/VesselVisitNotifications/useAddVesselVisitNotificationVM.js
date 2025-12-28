@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getVesselVisitNotifications, addVesselVisitNotification } from '../../services/vesselVisitNotificationService';
+import { getShippingAgents } from '../../services/shippingAgentService';
 import { useApi } from '../../services/api';
 import { getVessels } from '../../services/vesselService';
 
@@ -18,6 +19,7 @@ export const useAddVesselVisitNotificationVM = () => {
   });
 
   const [vessels, setVessels] = useState([]);
+  const [representatives, setRepresentatives] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
@@ -25,8 +27,12 @@ export const useAddVesselVisitNotificationVM = () => {
   useEffect(() => {
     const loadVessels = async () => {
       try {
-        const vesselsData = await getVessels(apiFetch);
+        const [vesselsData, repsData] = await Promise.all([
+          getVessels(apiFetch),
+          getShippingAgents(apiFetch)
+        ]);
         setVessels(vesselsData);
+        setRepresentatives(repsData);
       } catch (error) {
         setMessage({ type: 'error', text: 'Failed to load vessels.' });
       } finally {
@@ -96,6 +102,7 @@ export const useAddVesselVisitNotificationVM = () => {
   return {
     formData,
     vessels,
+    representatives,
     loading,
     submitting,
     message,
