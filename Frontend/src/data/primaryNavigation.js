@@ -104,7 +104,7 @@ export const primaryNavigationItems = [
       {
         name: "Qualifications",
         key: "qualifications",
-        path: "/qualifications",
+        //path: "/qualifications",
         roles: ["LogisticsOperator"],
         subMenu: [
           {
