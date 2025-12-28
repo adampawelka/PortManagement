@@ -28,6 +28,9 @@ import SubmitVVNPage from "./pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 import AvailableResourcesPage from "./pages/Resources/AvailableResourcesList.jsx";
 import AddResourcePage from "./pages/Resources/AddResourcesPage.jsx";
 
+import ManageStaffMembersPage from "./pages/StaffMembers/ManageStaffMembersPage.jsx";
+import AddStaffMemberPage from "./pages/StaffMembers/AddStaffMemberPage.jsx";
+
 import StorageAreasPage from "./pages/StorageAreas/StorageAreasPage.jsx";
 import AddStorageAreaPage from "./pages/StorageAreas/AddStorageArea.jsx";
 
@@ -270,6 +273,24 @@ const App = () => {
           element={
             <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
               <AddResourcePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="staff-members/manage" 
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
+              <ManageStaffMembersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="staff-members/add"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "LogisticsOperator"]}>
+              <AddStaffMemberPage />
             </ProtectedRoute>
           }
         />

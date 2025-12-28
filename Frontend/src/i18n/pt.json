@@ -49,5 +49,9 @@
   "pending_users": "Utilizadores Pendentes",
   "operational_plans": "Planos Operacionais",
   "generate_operational_plan": "Gerar Plano Operacional",
-  "search_operational_plans": "Pesquisar Planos Operacionais"
+  "search_operational_plans": "Pesquisar Planos Operacionais",
+  "staff_members": "Membros da Equipa",
+  "manage_staff_members": "Gerir Membros da Equipa",
+  "add_staff_member": "Adicionar Membro da Equipa",
+  "manage": "Gerir"
 }
