@@ -6,6 +6,7 @@ import { Guard } from "../../core/logic/Guard";
 import { ExecutedOperationId } from "./ExecutedOperationId";
 import { VesselVisitExecutionId } from "../VesselVisitExecutions/VesselVisitExecutionId";
 import { PlannedOperationId } from "../PlannedOperations/PlannedOperationId";
+import { OperationPlanId } from "../OperationPlans/OperationPlanId";
 import { ResourceId } from "./ResourceId";
 import { StaffId } from "./StaffId";
 import { ActualStart } from "./ActualStart";
@@ -16,11 +17,13 @@ import { ExecutedOperationStatus } from "./ExecutedOperationStatus";
 interface ExecutedOperationProps {
   vesselVisitExecutionId: string; // string, because it's an existing entity
   plannedOperationId: string;     // string, because it's an existing entity
+  operationPlanId?: OperationPlanId;
   resourceId: ResourceId;
   staffId: StaffId;
   actualStart: ActualStart;
   actualEnd?: ActualEnd;
   status: ExecutedOperationStatus;
+  syncStatus?: string;
 }
 
 export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
@@ -61,6 +64,14 @@ export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
     return this.props.status;
   }
 
+  get operationPlanId(): OperationPlanId | undefined {
+    return this.props.operationPlanId;
+  }
+
+  get syncStatus(): string | undefined {
+    return this.props.syncStatus;
+  }
+
   private constructor(props: ExecutedOperationProps, id?: UniqueEntityID) {
     super(props, id);
   }
@@ -99,6 +110,14 @@ export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
 
   public updateStatus(status: ExecutedOperationStatus): void {
     this.props.status = status;
+  }
+
+  public markAsSynced(): void {
+    this.props.syncStatus = "synced";
+  }
+
+  public markAsPendingSync(): void {
+    this.props.syncStatus = "pending";
   }
 }
 
