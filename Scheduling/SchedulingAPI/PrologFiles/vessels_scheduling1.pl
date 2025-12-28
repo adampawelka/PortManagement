@@ -19,7 +19,7 @@ sequence_temporization1(EndPrevSeq, [V|LV], [(V, TInUnload, TEndLoad, Delay)|Seq
     vessel(V, TIn, TDep, TUnload, TLoad),
     (TIn > EndPrevSeq -> TInUnload is TIn ; TInUnload is EndPrevSeq + 1),
     TEndLoad is TInUnload + TUnload + TLoad - 1,
-    TPossibleDep is TEndLoad + 1,
+    TPossibleDep is TEndLoad,
     (TPossibleDep > TDep -> Delay is TPossibleDep - TDep ; Delay is 0),
     sequence_temporization1(TEndLoad, LV, SeqTriplets).
 
