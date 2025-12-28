@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useApi } from "../../services/api";
-import { getQualifications } from "../../services/qualificationService";
+import { getQualifications, searchQualifications } from "../../services/qualificationService";
 
 export const useQualificationsListVM = () => {
   const { apiFetch } = useApi();
@@ -8,6 +8,9 @@ export const useQualificationsListVM = () => {
   const [qualifications, setQualifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [codeFilter, setCodeFilter] = useState("");
+  const [nameFilter, setNameFilter] = useState("");
 
   const fetchQualifications = useCallback(async () => {
     setLoading(true);
@@ -22,6 +25,19 @@ export const useQualificationsListVM = () => {
     }
   }, [apiFetch]);
 
+  const search = useCallback(async (code, name) => {
+    setLoading(true);
+    setError("");
+    try {
+      const data = await searchQualifications(apiFetch, code, name);
+      setQualifications(data);
+    } catch (err) {
+      setError(err.message || "Failed to search qualifications");
+    } finally {
+      setLoading(false);
+    }
+  }, [apiFetch]);
+
   useEffect(() => {
     fetchQualifications();
   }, [fetchQualifications]);
@@ -31,5 +47,10 @@ export const useQualificationsListVM = () => {
     loading,
     error,
     fetchQualifications,
+    search,
+    codeFilter,
+    setCodeFilter,
+    nameFilter,
+    setNameFilter,
   };
 };

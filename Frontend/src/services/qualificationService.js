@@ -34,11 +34,7 @@ export const addQualification = async (apiFetch, qualificationDto) => {
   return res.json();
 };
 
-export const updateQualification = async (
-  apiFetch,
-  qualificationId,
-  qualificationDto
-) => {
+export const updateQualification = async (apiFetch, qualificationId, qualificationDto) => {
   const res = await apiFetch(`/api/Qualifications/${qualificationId}`, {
     method: "PUT",
     body: JSON.stringify(qualificationDto),
@@ -47,6 +43,22 @@ export const updateQualification = async (
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to update qualification");
+  }
+
+  return res.json();
+};
+
+// --- nowa poprawiona metoda search ---
+export const searchQualifications = async (apiFetch, code = "", name = "") => {
+  const params = new URLSearchParams();
+  if (code) params.append("code", code);
+  if (name) params.append("name", name);
+
+  const res = await apiFetch(`/api/Qualifications/search?${params.toString()}`);
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to search qualifications");
   }
 
   return res.json();
