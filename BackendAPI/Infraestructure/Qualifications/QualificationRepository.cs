@@ -17,7 +17,7 @@ namespace DDDSample1.Infrastructure.Qualifications
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<Qualification>> GetAllAsync()
+        public async Task<List<Qualification>> GetAllQualificationsAsync()
         {
             return await _context.Qualifications.ToListAsync();
         }
@@ -55,7 +55,7 @@ namespace DDDSample1.Infrastructure.Qualifications
             return await query.ToListAsync();
         }
 
-        public async Task AddAsync(Qualification qualification)
+        public async Task AddQualificationAsync(Qualification qualification)
         {
             if (qualification == null) 
                 throw new ArgumentNullException(nameof(qualification));

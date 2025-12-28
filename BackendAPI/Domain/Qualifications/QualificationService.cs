@@ -18,7 +18,7 @@ namespace DDDSample1.Domain.Qualifications
 
         public async Task<List<QualificationDto>> GetAllAsync()
         {
-            var qualifications = await _repo.GetAllAsync();
+            var qualifications = await _repo.GetAllQualificationsAsync();
             return qualifications.Select(MapToDto).ToList();
         }
 
@@ -39,7 +39,7 @@ namespace DDDSample1.Domain.Qualifications
 
             var qualification = new Qualification(qualificationCode, qualificationName);
 
-            await _repo.AddAsync(qualification);
+            await _repo.AddQualificationAsync(qualification);
             await _unitOfWork.CommitAsync();
 
             return MapToDto(qualification);
