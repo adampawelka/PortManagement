@@ -436,23 +436,34 @@ namespace SchedulingAPI.Controllers
 
                     var parsed = ParseMultiCraneResult(result, vesselsForDate, dock);
 
-                    // -------------------------
-                    // CALCULATE DELAY PER VESSEL (MULTI-CRANE)
-                    // -------------------------
+
+                    // calculate delays for single-crane schedule
+                    foreach (var vesselSchedule in parsed.SingleSchedules)
+                    {
+                        var vessel = vesselsForDate.FirstOrDefault(v =>
+                            v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselSchedule.VesselName);
+
+                        if (vessel != null)
+                        {
+                            int etdSlot = (vessel.ETD.Day - vessel.ETA.Day) * 24 + vessel.ETD.Hour;
+                            vesselSchedule.Delay = Math.Max(0, vesselSchedule.EndSlot - etdSlot);
+                        }
+                    }
+
+
+                    // calculate delays for multi-crane schedules
                     foreach (var vesselSchedule in parsed.MultiSchedules)
-{
-    var vessel = vesselsForDate.FirstOrDefault(v =>
-        v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselSchedule.VesselName);
+                    {
+                        var vessel = vesselsForDate.FirstOrDefault(v =>
+                            v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_") == vesselSchedule.VesselName);
 
-    if (vessel != null)
-    {
-        // ETD w pełnych godzinach od początku dnia
-        int etdSlot = (vessel.ETD.Day - vessel.ETA.Day) * 24 + vessel.ETD.Hour;
+                        if (vessel != null)
+                        {
+                            int etdSlot = (vessel.ETD.Day - vessel.ETA.Day) * 24 + vessel.ETD.Hour;
 
-        // delay w godzinach
-        vesselSchedule.Delay = Math.Max(0, vesselSchedule.EndSlot - etdSlot);
-    }
-}
+                            vesselSchedule.Delay = Math.Max(0, vesselSchedule.EndSlot - etdSlot);
+                        }
+                    }
 
 
                     var crane = allResources.FirstOrDefault(r => r.Type == "Crane" && r.Status == "Active");
