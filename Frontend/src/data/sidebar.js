@@ -19,13 +19,6 @@ export const sidebarMenuItems = [{
         },
       ]
   },
-  // TO-ADD VISUALISATION PERMS 
-  {
-    name: "Visualisation",
-    key: "visualisation",
-    path: "/visualisation",
-    roles: ["admin", "user", "guest", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
-  },
   {
     name: "Scheduling",
     key: "scheduling",
@@ -65,4 +58,12 @@ export const sidebarMenuItems = [{
 
     ]
   },
+  // TO-ADD VISUALISATION PERMS 
+  {
+    name: "Visualisation",
+    key: "visualisation",
+    path: "/visualisation",
+    roles: ["admin", "user", "guest", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
+  },
+  
 ]
