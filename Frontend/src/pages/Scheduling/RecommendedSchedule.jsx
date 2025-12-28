@@ -207,11 +207,11 @@ const RecommendedSchedulePage = () => {
                         <TableHead>
                             <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Vessel</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Dock</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Start</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>End</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Delay</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Dock</TableCell>
+                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Staff</TableCell>
                             </TableRow>
                         </TableHead>
@@ -224,11 +224,11 @@ const RecommendedSchedulePage = () => {
                                     }}
                                 >
                                     <TableCell>{row.vessel}</TableCell>
-                                    <TableCell>{row.dock}</TableCell>
-                                    <TableCell>{row.crane}</TableCell>
                                     <TableCell>{row.start}</TableCell>
                                     <TableCell>{row.end}</TableCell>
                                     <TableCell>{row.delay}</TableCell>
+                                    <TableCell>{row.dock}</TableCell>
+                                    <TableCell>{row.crane}</TableCell>
                                     <TableCell>{row.staff}</TableCell>
                                 </TableRow>
                             ))}

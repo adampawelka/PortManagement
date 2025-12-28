@@ -167,11 +167,11 @@ const OptimalSchedule = () => {
                         <TableHead>
                             <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
                                 <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>Delay</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
                             </TableRow>
                         </TableHead>
@@ -186,11 +186,11 @@ const OptimalSchedule = () => {
                                     }}
                                 >
                                     <TableCell>{row.vessel}</TableCell>
-                                    <TableCell>{row.dock}</TableCell>
-                                    <TableCell>{row.crane}</TableCell>
                                     <TableCell>{row.start}</TableCell>
                                     <TableCell>{row.end}</TableCell>
                                     <TableCell>{row.delay}</TableCell>
+                                    <TableCell>{row.dock}</TableCell>
+                                    <TableCell>{row.crane}</TableCell>
                                     <TableCell>{row.staff}</TableCell>
                                 </TableRow>
                             ))}
