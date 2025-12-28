@@ -83,4 +83,46 @@ export default class ExecutedOperationController {
       return next(e);
     }
   };
+
+    public async batchUpdateExecutedOperations(req: Request, res: Response, next: NextFunction) {
+    try {
+      const updates = req.body;
+      
+      if (!Array.isArray(updates)) {
+        return res.status(400).json({ 
+          error: "Request body must be an array of { id: string, updates: UpdateExecutedOperationDTO }" 
+        });
+      }
+
+      const results = [];
+      
+      for (const update of updates) {
+        try {
+          const operationDTO = await this.executedOpServiceInstance.update(update.id, update.updates);
+          results.push({ 
+            id: update.id, 
+            success: true, 
+            data: operationDTO 
+          });
+        } catch (error) {
+          results.push({ 
+            id: update.id, 
+            success: false, 
+            error: error instanceof Error ? error.message : 'Unknown error' 
+          });
+        }
+      }
+
+      const successful = results.filter(r => r.success);
+      const failed = results.filter(r => !r.success);
+
+      return res.status(200).json({
+        message: `Batch update completed. Successful: ${successful.length}, Failed: ${failed.length}`,
+        successful,
+        failed
+      });
+    } catch (e) {
+      return next(e);
+    }
+  };
 }
