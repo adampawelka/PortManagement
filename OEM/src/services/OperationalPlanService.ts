@@ -2,9 +2,9 @@ import { IOperationPlanService } from "./IServices/IOperationPlanService";
 import { IOperationPlanRepo } from "./IRepos/IOperationPlanRepo";
 
 import {
-  OperatorPlanDTO,
-  CreateOperatorPlanDTO,
-  UpdateOperatorPlanDTO
+  OperationPlanDTO,
+  CreateOperationPlanDTO,
+  UpdateOperationPlanDTO
 } from "../dto/OperationPlanDTO";
 
 import { OperationPlan } from "../Domain/OperationPlans/OperationPlan";
@@ -24,8 +24,8 @@ export class OperationPlanService
   ) {}
 
   async create(
-    dto: CreateOperatorPlanDTO
-  ): Promise<OperatorPlanDTO> {
+    dto: CreateOperationPlanDTO
+  ): Promise<OperationPlanDTO> {
 
     const planOrError = OperationPlan.create({
       vesselVisitExecutionId: VesselVisitExecutionId.create(
@@ -50,7 +50,7 @@ export class OperationPlanService
 
   async getById(
     id: string
-  ): Promise<OperatorPlanDTO | null> {
+  ): Promise<OperationPlanDTO | null> {
 
     const planId = OperationPlanId.create(
       new UniqueEntityID(id)
@@ -65,7 +65,7 @@ export class OperationPlanService
  
   async getByvesselVisitExecutionId(
     vesselVisitExecutionId: string
-  ): Promise<OperatorPlanDTO | null> {
+  ): Promise<OperationPlanDTO | null> {
 
     const vve = VesselVisitExecutionId.create(
       new UniqueEntityID(vesselVisitExecutionId)
@@ -77,15 +77,15 @@ export class OperationPlanService
     return this.toDTO(plan);
   }
 
-  async getAll(): Promise<OperatorPlanDTO[]> {
+  async getAll(): Promise<OperationPlanDTO[]> {
     const plans = await this.operationPlanRepo.findAll();
     return plans.map(p => this.toDTO(p));
   }
 
   async update(
     id: string,
-    dto: UpdateOperatorPlanDTO
-  ): Promise<OperatorPlanDTO | null> {
+    dto: UpdateOperationPlanDTO
+  ): Promise<OperationPlanDTO | null> {
 
     const planId = OperationPlanId.create(
       new UniqueEntityID(id)
@@ -115,7 +115,7 @@ export class OperationPlanService
 
   private toDTO(
     plan: OperationPlan
-  ): OperatorPlanDTO {
+  ): OperationPlanDTO {
     return {
       id: plan.id.toString(),
       vesselVisitExecutionId: plan.vesselVisitExecutionId.toString(),
