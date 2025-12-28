@@ -54,8 +54,7 @@ const MultiCraneSchedule = () => {
                 fontFamily: "var(--font-family-base)"
             }}
         >
-
-            {/* HEADER — identical style to OptimalSchedule */}
+            {/* HEADER */}
             <Typography
                 variant="h4"
                 gutterBottom
@@ -64,7 +63,7 @@ const MultiCraneSchedule = () => {
                     fontWeight: 600,
                     mb: 3,
                     letterSpacing: 0.3,
-                    fontSize: "var(--font-size-heading)",
+                    fontSize: "var(--font-size-heading)"
                 }}
             >
                 Multi-Crane Scheduling ({safeResults.length})
@@ -122,6 +121,7 @@ const MultiCraneSchedule = () => {
                 </Button>
             </Paper>
 
+            {/* LOADING / ERRORS */}
             {loading && (
                 <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
             )}
@@ -313,6 +313,16 @@ const MultiCraneSchedule = () => {
                                 <div><strong>Vessels:</strong> {dock?.multiCrane?.schedules?.length ?? 0}</div>
                             </Paper>
 
+                            {/* ALERT nad tabelą Multi-Crane */}
+                            {dock?.multiCrane?.schedules?.some(s => s.warning) && (
+                                <Alert severity="warning" sx={{ width: "100%", maxWidth: 700, mb: 2 }}>
+                                    {dock.multiCrane.schedules
+                                        .filter(s => s.warning)
+                                        .map((s, idx) => s.warning)
+                                        .join("; ")}
+                                </Alert>
+                            )}
+
                             <TableContainer
                                 component={Paper}
                                 sx={{
@@ -352,7 +362,6 @@ const MultiCraneSchedule = () => {
                             </TableContainer>
                         </Grid>
                     </Grid>
-
                 </Paper>
             ))}
         </Container>
