@@ -15,7 +15,6 @@ export const useUpdateQualificationVM = (apiFetch, qualificationId) => {
         const data = await getQualificationById(apiFetch, qualificationId);
 
         if (!data || Object.keys(data).length === 0) {
-          // brak kwalifikacji
           setNotFound(true);
         } else {
           setFormData({ code: data.code || "", name: data.name || "" });
@@ -28,7 +27,6 @@ export const useUpdateQualificationVM = (apiFetch, qualificationId) => {
           setMessage({ type: "error", text: err.message || "Failed to load qualification" });
         }
       } finally {
-        // WAŻNE: zawsze kończymy loading
         setLoading(false);
       }
     };
@@ -36,7 +34,6 @@ export const useUpdateQualificationVM = (apiFetch, qualificationId) => {
     if (qualificationId) {
       fetchQualification();
     } else {
-      // brak ID → brak kwalifikacji
       setNotFound(true);
       setLoading(false);
     }
