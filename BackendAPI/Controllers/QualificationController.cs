@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using DDDSample1.Domain.Qualifications;
 using Microsoft.AspNetCore.Authorization;
+using DDDSample1.Domain.Shared;
 
 namespace DDDSample1.Controllers
 {
-    [Authorize] 
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class QualificationsController : ControllerBase
@@ -19,7 +20,7 @@ namespace DDDSample1.Controllers
             _service = service;
         }
 
-        //GET: api/qualifications
+        // GET: api/qualifications
         [HttpGet]
         public async Task<ActionResult<List<QualificationDto>>> GetAll()
         {
@@ -34,7 +35,7 @@ namespace DDDSample1.Controllers
             }
         }
 
-        //GET: api/qualifications/{id}
+        // GET: api/qualifications/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<QualificationDto>> GetById(Guid id)
         {
@@ -52,7 +53,7 @@ namespace DDDSample1.Controllers
             }
         }
 
-        //POST: api/qualifications
+        // POST: api/qualifications
         [HttpPost]
         public async Task<ActionResult<QualificationDto>> CreateAsync([FromBody] CreatingQualificationDto dto)
         {
@@ -61,13 +62,17 @@ namespace DDDSample1.Controllers
                 var qualification = await _service.AddAsync(dto.Code, dto.Name);
                 return CreatedAtAction(nameof(GetById), new { id = qualification.Id }, qualification);
             }
+            catch (BusinessRuleValidationException ex)
+            {
+                return Conflict(new { Message = ex.Message }); 
+            }
             catch (Exception ex)
             {
                 return BadRequest(new { Message = ex.Message });
             }
         }
 
-        //PUT: api/qualifications/{id}
+        // PUT: api/qualifications/{id}
         [HttpPut("{id}")]
         public async Task<ActionResult<QualificationDto>> UpdateAsync(Guid id, [FromBody] UpdatingQualificationDto dto)
         {
@@ -78,6 +83,28 @@ namespace DDDSample1.Controllers
                     return NotFound();
 
                 return Ok(updated);
+            }
+            catch (BusinessRuleValidationException ex)
+            {
+                return Conflict(new { Message = ex.Message }); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        // GET: api/qualifications/search?code=abc&name=xyz
+        [HttpGet("search")]
+        public async Task<ActionResult<List<QualificationDto>>> Search([FromQuery] string? code, [FromQuery] string? name)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(code) && string.IsNullOrWhiteSpace(name))
+                    return BadRequest(new { Message = "At least one search parameter (code or name) must be provided." });
+
+                var results = await _service.SearchAsync(code, name);
+                return Ok(results);
             }
             catch (Exception ex)
             {

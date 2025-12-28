@@ -17,21 +17,22 @@ namespace DDDSample1.Infrastructure.Qualifications
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<Qualification>> GetAllQualificationsAsync()
+        public async Task<List<Qualification>> GetAllAsync()
         {
             return await _context.Qualifications.ToListAsync();
         }
 
-        public async Task<Qualification?> GetQualificationByCodeAsync(string code)
+        public async Task<Qualification?> GetByCodeAsync(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
                 return null;
 
-            return await _context.Qualifications
-                .FirstOrDefaultAsync(q => q.Code.Value == code.Trim());
+            var normalizedCode = code.Trim().ToUpperInvariant();
+            return await _context.Qualifications.AsNoTracking()
+                .FirstOrDefaultAsync(q => q.Code.Value.ToUpper() == normalizedCode);
         }
 
-        public async Task<List<Qualification>> GetQualificationsByNameAsync(string name)
+        public async Task<List<Qualification>> GetByNameAsync(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
                 return new List<Qualification>();
@@ -54,14 +55,15 @@ namespace DDDSample1.Infrastructure.Qualifications
             return await query.ToListAsync();
         }
 
-        public async Task<Qualification> AddQualificationAsync(Qualification qualification)
+        public async Task AddAsync(Qualification qualification)
         {
+            if (qualification == null) 
+                throw new ArgumentNullException(nameof(qualification));
+
             await _context.Qualifications.AddAsync(qualification);
-            await _context.SaveChangesAsync();
-            return qualification;
         }
 
-        public async Task<Qualification> UpdateQualificationAsync(Qualification qualification)
+        public async Task UpdateAsync(Qualification qualification)
         {
             var trackedEntity = _context.Qualifications.Local.FirstOrDefault(q => q.Id == qualification.Id);
             if (trackedEntity == null)
@@ -70,16 +72,6 @@ namespace DDDSample1.Infrastructure.Qualifications
             }
 
             _context.Entry(qualification).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return qualification;
-        }
-
-        public async Task<Qualification> GetByCodeAsync(string code)
-        {
-            var normalizedCode = code.ToUpperInvariant();
-            
-            return await _context.Qualifications.AsNoTracking().FirstOrDefaultAsync(q => q.Code.Value == normalizedCode);
         }
     }
 }

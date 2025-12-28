@@ -22,7 +22,7 @@ namespace DDDSample1.Domain.Qualifications
             return qualifications.Select(MapToDto).ToList();
         }
 
-        public async Task<QualificationDto> GetByIdAsync(QualificationId id)
+        public async Task<QualificationDto?> GetByIdAsync(QualificationId id)
         {
             var qualification = await _repo.GetByIdAsync(id);
             return qualification == null ? null : MapToDto(qualification);
@@ -45,7 +45,7 @@ namespace DDDSample1.Domain.Qualifications
             return MapToDto(qualification);
         }
 
-        public async Task<QualificationDto> UpdateAsync(QualificationId id, string code, string name)
+        public async Task<QualificationDto?> UpdateAsync(QualificationId id, string code, string name)
         {
             var qualification = await _repo.GetByIdAsync(id);
             if (qualification == null)
@@ -53,19 +53,30 @@ namespace DDDSample1.Domain.Qualifications
 
             var qualificationCode = new QualificationCode(code);
             var qualificationName = new QualificationName(name);
+
             var existing = await _repo.GetByCodeAsync(qualificationCode.Value);
             if (existing != null && !existing.Id.Equals(id))
                 throw new BusinessRuleValidationException($"A qualification with code '{code}' already exists.");
 
             qualification.Update(qualificationCode, qualificationName);
+
+            await _repo.UpdateAsync(qualification);
             await _unitOfWork.CommitAsync();
 
             return MapToDto(qualification);
         }
 
+        public async Task<List<QualificationDto>> SearchAsync(string? code, string? name)
+        {
+            var qualifications = await _repo.SearchAsync(code, name);
+            return qualifications.Select(MapToDto).ToList();
+        }
+
+
         private QualificationDto MapToDto(Qualification qualification)
         {
-            return new QualificationDto {
+            return new QualificationDto
+            {
                 Id = qualification.Id.AsString(),
                 Code = qualification.Code.Value,
                 Name = qualification.Name.Value
