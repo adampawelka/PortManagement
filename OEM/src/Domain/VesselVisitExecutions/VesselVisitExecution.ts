@@ -27,7 +27,7 @@ export class VesselVisitExecution extends AggregateRoot<VesselVisitExecutionProp
   }
 
   get vesselVisitExecutionId(): VesselVisitExecutionId {
-    return VesselVisitExecutionId.caller(this.id);
+    return VesselVisitExecutionId.create(this.id);
   }
 
   get vvnId(): VvnId {

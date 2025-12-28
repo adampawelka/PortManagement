@@ -8,7 +8,7 @@ import { VesselVisitExecutionId } from "../VesselVisitExecutions/VesselVisitExec
 import { CreatedAt } from "./CreatedAt";
 import { CreatedBy } from "./CreatedBy";
 import { AlgorithmUsed } from "./AlgorithmUsed";
-import { ScheduledOperation } from "./ScheduleOperation";
+import { ScheduledOperation } from "./ScheduledOperation";
 
 interface OperationPlanProps {
   vesselVisitExecutionId: VesselVisitExecutionId;
@@ -21,7 +21,7 @@ interface OperationPlanProps {
 export class OperationPlan extends AggregateRoot<OperationPlanProps> {
 
   get operationPlanId(): OperationPlanId {
-    return OperationPlanId.caller(this.id);
+    return OperationPlanId.create(this.id);
   }
 
   get vesselVisitExecutionId(): VesselVisitExecutionId {

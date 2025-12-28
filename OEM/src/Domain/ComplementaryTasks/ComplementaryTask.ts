@@ -27,7 +27,7 @@ export class ComplementaryTask extends AggregateRoot<ComplementaryTaskProps> {
   }
 
   get taskId(): ComplementaryTaskId {
-    return ComplementaryTaskId.caller(this.id);
+    return ComplementaryTaskId.create(this.id);
   }
 
   get vesselVisitExecutionId(): VesselVisitExecutionId {

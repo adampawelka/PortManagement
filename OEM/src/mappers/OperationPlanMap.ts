@@ -1,6 +1,6 @@
 import { OperationPlan } from "../Domain/OperationPlans/OperationPlan";
 import { UniqueEntityID } from "../core/domain/UniqueEntityID";
-import { ScheduledOperation } from "../Domain/OperationPlans/ScheduleOperation";
+import { ScheduledOperation } from "../Domain/OperationPlans/ScheduledOperation";
 
 import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
 import { CreatedAt } from "../Domain/OperationPlans/CreatedAt";
@@ -12,8 +12,8 @@ export class OperationPlanMap {
 
   static toPersistence(operationPlan: OperationPlan): any {
     return {
-      domainId: operationPlan.operationPlanId.toString(),
-      vveId: operationPlan.props.vesselVisitExecutionId.toString(),
+      domainId: operationPlan.id.toString(),
+      vveId: operationPlan.props.vesselVisitExecutionId.id.toString(),
       createdAt: operationPlan.props.createdAt.value,
       createdBy: operationPlan.props.createdBy.value,
       algorithmUsed: operationPlan.props.algorithmUsed.value,
@@ -72,10 +72,10 @@ export class OperationPlanMap {
 
     const operationPlanOrError = OperationPlan.create(
       {
-        vesselVisitExecutionId,
-        createdAt: createdAtOrError.getValue(),
-        createdBy: createdByOrError.getValue(),
-        algorithmUsed: algorithmUsedOrError.getValue(),
+        vesselVisitExecutionId: raw.vveId,
+        createdAt: raw.createdAt,
+        createdBy: raw.createdBy,
+        algorithmUsed: raw.algorithmUsed,
         schedule
       },
       new UniqueEntityID(raw.domainId)

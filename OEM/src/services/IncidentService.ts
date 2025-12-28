@@ -35,7 +35,7 @@ export class IncidentService implements IIncidentService {
     const severityEnum = this.parseSeverity(dto.severity);
 
     const incidentOrError = Incident.create({
-      incidentTypeId: IncidentTypeId.caller(
+      incidentTypeId: IncidentTypeId.create(
         new UniqueEntityID(dto.incidentTypeId)
       ),
       startTime: IncidentStartTime.create(
@@ -63,7 +63,7 @@ export class IncidentService implements IIncidentService {
     id: string
   ): Promise<IncidentDTO | null> {
 
-    const incidentId = IncidentId.caller(
+    const incidentId = IncidentId.create(
       new UniqueEntityID(id)
     );
 
@@ -77,7 +77,7 @@ export class IncidentService implements IIncidentService {
     incidentTypeId: string
   ): Promise<IncidentDTO[]> {
 
-    const typeId = IncidentTypeId.caller(
+    const typeId = IncidentTypeId.create(
       new UniqueEntityID(incidentTypeId)
     );
 
@@ -97,7 +97,7 @@ export class IncidentService implements IIncidentService {
     dto: UpdateIncidentDTO
   ): Promise<IncidentDTO | null> {
 
-    const incidentId = IncidentId.caller(
+    const incidentId = IncidentId.create(
       new UniqueEntityID(id)
     );
 
@@ -106,7 +106,7 @@ export class IncidentService implements IIncidentService {
 
     if (dto.incidentTypeId) {
       incident.props.incidentTypeId =
-        IncidentTypeId.caller(new UniqueEntityID(dto.incidentTypeId));
+        IncidentTypeId.create(new UniqueEntityID(dto.incidentTypeId));
     }
 
     if (dto.startTime) {

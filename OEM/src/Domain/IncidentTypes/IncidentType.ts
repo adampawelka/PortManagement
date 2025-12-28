@@ -23,7 +23,7 @@ export class IncidentType extends AggregateRoot<IncidentTypeProps> {
   }
 
   get incidentTypeId(): IncidentTypeId {
-    return IncidentTypeId.caller(this.id);
+    return IncidentTypeId.create(this.id);
   }
 
   get code(): IncidentTypeCode {

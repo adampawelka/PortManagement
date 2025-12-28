@@ -21,7 +21,7 @@ export class ComplementaryTaskCategory extends AggregateRoot<ComplementaryTaskCa
   }
 
   get categoryId(): ComplementaryTaskCategoryId {
-    return ComplementaryTaskCategoryId.caller(this.id);
+    return ComplementaryTaskCategoryId.create(this.id);
   }
 
   get code(): ComplementaryTaskCategoryCode {

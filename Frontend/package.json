@@ -14,6 +14,7 @@
     "@auth0/auth0-react": "^2.9.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
     "axios": "^1.13.1",
     "i18next": "^25.6.3",

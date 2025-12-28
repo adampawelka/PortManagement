@@ -12,8 +12,8 @@ export class VesselVisitExecutionMap {
 
   static toPersistence(vve: VesselVisitExecution): any {
     return {
-      domainId: vve.vesselVisitExecutionId.toString(),
-      vvnId: vve.vvnId.toString(),
+      domainId: vve.id.toString(),
+      vvnId: vve.vvnId.value,
       actualArrivalTime: vve.actualArrivalTime.value,
       actualBerthTime: vve.actualBerthTime?.value ?? null,
       dockId: vve.dockId?.value ?? null,

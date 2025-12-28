@@ -1,8 +1,6 @@
 import { IExecutedOperationRepo } from "../services/IRepos/IExecutedOperationRepo";
-
 import { ExecutedOperation } from "../Domain/ExecutedOperations/ExecutedOperation";
 import { ExecutedOperationId } from "../Domain/ExecutedOperations/ExecutedOperationId";
-import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
 
 import ExecutedOperationSchema from "../persistence/schemas/ExecutedOperationSchema";
 import { ExecutedOperationMap } from "../mappers/ExecutedOperationMap";
@@ -19,10 +17,7 @@ export class ExecutedOperationRepo implements IExecutedOperationRepo {
     );
   }
 
-  async findById(
-    id: ExecutedOperationId
-  ): Promise<ExecutedOperation | null> {
-
+  async findById(id: ExecutedOperationId): Promise<ExecutedOperation | null> {
     const doc = await ExecutedOperationSchema.findOne({
       domainId: id.toString()
     });
@@ -32,28 +27,20 @@ export class ExecutedOperationRepo implements IExecutedOperationRepo {
     return ExecutedOperationMap.toDomain(doc);
   }
 
-  async findByVesselVisitExecutionId(
-    vesselVisitExecutionId: VesselVisitExecutionId
-  ): Promise<ExecutedOperation[]> {
-
+  async findByVesselVisitExecutionId(vesselVisitExecutionId: string): Promise<ExecutedOperation[]> {
     const docs = await ExecutedOperationSchema.find({
-      vesselVisitExecutionId: vesselVisitExecutionId.toString()
+      vesselVisitExecutionId: vesselVisitExecutionId
     });
 
     return docs.map(doc => ExecutedOperationMap.toDomain(doc));
   }
 
   async findAll(): Promise<ExecutedOperation[]> {
-
     const docs = await ExecutedOperationSchema.find({});
-
     return docs.map(doc => ExecutedOperationMap.toDomain(doc));
   }
 
-  async exists(
-    id: ExecutedOperationId
-  ): Promise<boolean> {
-
+  async exists(id: ExecutedOperationId): Promise<boolean> {
     const count = await ExecutedOperationSchema.countDocuments({
       domainId: id.toString()
     });

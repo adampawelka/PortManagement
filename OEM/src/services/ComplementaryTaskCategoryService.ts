@@ -57,7 +57,7 @@ export class ComplementaryTaskCategoryService
     ): Promise<ComplementaryTaskCategoryDTO | null> {
 
         const categoryId =
-            ComplementaryTaskCategoryId.caller(
+            ComplementaryTaskCategoryId.create(
                 new UniqueEntityID(id)
             );
 
@@ -88,7 +88,7 @@ export class ComplementaryTaskCategoryService
         category: ComplementaryTaskCategory
     ): ComplementaryTaskCategoryDTO {
         return {
-            id: category.categoryId.toString(),
+            id: category.id.toString(),
             code: category.code.value,
             name: category.name.value,
             description: category.description.value

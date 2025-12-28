@@ -21,17 +21,33 @@ export default ({ mongoConnection, schemas, controllers, repos, services}: {
       Container.set(m.name, schema);
     });
   
+    // Instantiate repos manually (they don't have @Service() decorator and have no dependencies)
     repos.forEach(m => {
-      let repoClass = require(m.path).default;
-      let repoInstance = Container.get(repoClass);
+      let repoModule = require(m.path);
+      // Repos are exported as named exports (export class), not default exports
+      // Try to get the class by name, or get the first exported class
+      let repoClass = repoModule.default || repoModule[m.name] || Object.values(repoModule).find((val: any) => typeof val === 'function' && val.prototype);
+      if (!repoClass || typeof repoClass !== 'function') {
+        throw new Error(`Cannot find constructor for repo: ${m.name} at ${m.path}. Available exports: ${Object.keys(repoModule).join(', ')}`);
+      }
+      let repoInstance = new repoClass(); // Manual instantiation since no @Service() decorator
       Container.set(m.name, repoInstance);
     });
 
+    // Instantiate services manually with their repo dependencies
     services.forEach(m => {
-      let serviceClass = require(m.path).default;
-      let serviceInstance = Container.get(serviceClass)
+      let serviceModule = require(m.path);
+      // Services are also exported as named exports (export class)
+      let serviceClass = serviceModule.default || serviceModule[m.name] || Object.values(serviceModule).find((val: any) => typeof val === 'function' && val.prototype);
+      if (!serviceClass || typeof serviceClass !== 'function') {
+        throw new Error(`Cannot find constructor for service: ${m.name} at ${m.path}. Available exports: ${Object.keys(serviceModule).join(', ')}`);
+      }
+      // Services need repos injected - match service to repo by name pattern
+      const repoName = m.name.replace('Service', 'Repo');
+      const repoInstance = Container.get(repoName);
+      const serviceInstance = new serviceClass(repoInstance);
       Container.set(m.name, serviceInstance);
-      });
+    });
 
     controllers.forEach(m => {
       // load the @Service() class by its path

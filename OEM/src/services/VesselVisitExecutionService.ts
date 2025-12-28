@@ -26,30 +26,27 @@ export class VesselVisitExecutionService
 
   constructor(
     private readonly vveRepo: IVesselVisitExecutionRepo
-  ) {}
+  ) { }
 
   async create(
     dto: CreateVesselVisitExecutionDTO
   ): Promise<VesselVisitExecutionDTO> {
 
     const vveOrError = VesselVisitExecution.create({
-      vvnId: VvnId.caller(
-        new UniqueEntityID(dto.vvnId)
-      ),
-      actualArrivalTime: ActualArrivalTime.create(
-        new Date(dto.actualArrivalTime)
-      ).getValue(),
+      vvnId: VvnId.create(dto.vvnId).getValue(),
+      actualArrivalTime: ActualArrivalTime.create(new Date(dto.actualArrivalTime)).getValue(),
       actualBerthTime: dto.actualBerthTime
         ? ActualBerthTime.create(new Date(dto.actualBerthTime)).getValue()
         : undefined,
       dockId: dto.dockId
-        ? DockId.caller(new UniqueEntityID(dto.dockId))
+        ? DockId.create(dto.dockId).getValue()
         : undefined,
       status: VesselVisitExecutionStatus.create(
         dto.status as VesselVisitExecutionStatusEnum
       ).getValue(),
       createdBy: CreatedBy.create(dto.createdBy).getValue()
     });
+
 
     if (vveOrError.isFailure) {
       throw new Error(vveOrError.errorValue().toString());
@@ -65,7 +62,7 @@ export class VesselVisitExecutionService
     id: string
   ): Promise<VesselVisitExecutionDTO | null> {
 
-    const vveId = VesselVisitExecutionId.caller(
+    const vveId = VesselVisitExecutionId.create(
       new UniqueEntityID(id)
     );
 
@@ -85,7 +82,7 @@ export class VesselVisitExecutionService
     dto: UpdateVesselVisitExecutionDTO
   ): Promise<VesselVisitExecutionDTO | null> {
 
-    const vveId = VesselVisitExecutionId.caller(
+    const vveId = VesselVisitExecutionId.create(
       new UniqueEntityID(id)
     );
 
@@ -103,9 +100,9 @@ export class VesselVisitExecutionService
     }
 
     if (dto.dockId) {
-      vve.props.dockId =
-        DockId.caller(new UniqueEntityID(dto.dockId));
+      vve.props.dockId = DockId.create(dto.dockId).getValue();
     }
+
 
     if (dto.status) {
       vve.props.status =

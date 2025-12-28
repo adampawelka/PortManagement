@@ -1,21 +1,15 @@
-import {
-  OperationPlanDTO,
-  CreateOperationPlanDTO,
-  UpdateOperationPlanDTO
-} from "../../dto/OperationPlanDTO";
-
-import { ScheduledOperation } from "../../Domain/OperationPlans/ScheduleOperation";
+import { CreateOperationPlanDTO, OperationPlanDTO } from "../../dto/OperationPlanDTO";
 
 export interface IOperationPlanService {
-
   create(
-    dto: CreateOperationPlanDTO,
-    schedule: ScheduledOperation[]
+    dto: CreateOperationPlanDTO
   ): Promise<OperationPlanDTO>;
 
-  getById(id: string): Promise<OperationPlanDTO | null>;
+  getById(
+    id: string
+  ): Promise<OperationPlanDTO | null>;
 
-  getByvesselVisitExecutionId(
+  getByVesselVisitExecutionId(
     vesselVisitExecutionId: string
   ): Promise<OperationPlanDTO | null>;
 
@@ -23,6 +17,6 @@ export interface IOperationPlanService {
 
   update(
     id: string,
-    dto: UpdateOperationPlanDTO
+    dto: Partial<CreateOperationPlanDTO>
   ): Promise<OperationPlanDTO | null>;
 }

@@ -31,35 +31,22 @@ export class PlannedOperationService
 
   constructor(
     private readonly plannedOperationRepo: IPlannedOperationRepo
-  ) {}
+  ) { }
 
   async create(
     dto: CreatePlannedOperationDTO
   ): Promise<PlannedOperationDTO> {
 
     const operationOrError = PlannedOperation.create({
-      operationPlanId: OperationPlanId.caller(
-        new UniqueEntityID(dto.operationPlanId)
-      ),
-      resourceId: PlannedResourceId.caller(
-        new UniqueEntityID(dto.resourceId)
-      ),
-      staffId: PlannedStaffId.caller(
-        new UniqueEntityID(dto.staffId)
-      ),
-      plannedStart: PlannedStart.create(
-        new Date(dto.plannedStart)
-      ).getValue(),
-      plannedEnd: PlannedEnd.create(
-        new Date(dto.plannedEnd)
-      ).getValue(),
-      operationType: OperationType.create(
-        dto.operationType as OperationTypeEnum
-      ).getValue(),
-      status: PlannedOperationStatus.create(
-        PlannedOperationStatusEnum.PLANNED
-      ).getValue()
+      operationPlanId: OperationPlanId.create(new UniqueEntityID(dto.operationPlanId)),
+      resourceId: PlannedResourceId.create(dto.resourceId).getValue(), // <-- add .getValue()
+      staffId: PlannedStaffId.create(dto.staffId).getValue(),          // <-- add .getValue()
+      plannedStart: PlannedStart.create(new Date(dto.plannedStart)).getValue(),
+      plannedEnd: PlannedEnd.create(new Date(dto.plannedEnd)).getValue(),
+      operationType: OperationType.create(dto.operationType as OperationTypeEnum).getValue(),
+      status: PlannedOperationStatus.create(PlannedOperationStatusEnum.PLANNED).getValue()
     });
+
 
     if (operationOrError.isFailure) {
       throw new Error(operationOrError.errorValue().toString());
@@ -75,7 +62,7 @@ export class PlannedOperationService
     id: string
   ): Promise<PlannedOperationDTO | null> {
 
-    const operationId = PlannedOperationId.caller(
+    const operationId = PlannedOperationId.create(
       new UniqueEntityID(id)
     );
 
@@ -89,7 +76,7 @@ export class PlannedOperationService
     operationPlanId: string
   ): Promise<PlannedOperationDTO[]> {
 
-    const planId = OperationPlanId.caller(
+    const planId = OperationPlanId.create(
       new UniqueEntityID(operationPlanId)
     );
 
@@ -111,7 +98,7 @@ export class PlannedOperationService
     dto: UpdatePlannedOperationDTO
   ): Promise<PlannedOperationDTO | null> {
 
-    const operationId = PlannedOperationId.caller(
+    const operationId = PlannedOperationId.create(
       new UniqueEntityID(id)
     );
 
@@ -139,7 +126,7 @@ export class PlannedOperationService
     return this.toDTO(operation);
   }
 
-  
+
   private toDTO(
     operation: PlannedOperation
   ): PlannedOperationDTO {

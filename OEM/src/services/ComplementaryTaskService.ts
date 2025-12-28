@@ -36,10 +36,10 @@ export class ComplementaryTaskService
   ): Promise<ComplementaryTaskDTO> {
 
     const taskOrError = ComplementaryTask.create({
-      vesselVisitExecutionId: VesselVisitExecutionId.caller(
+      vesselVisitExecutionId: VesselVisitExecutionId.create(
         new UniqueEntityID(dto.vesselVisitExecutionId)
       ),
-      categoryId: ComplementaryTaskCategoryId.caller(
+      categoryId: ComplementaryTaskCategoryId.create(
         new UniqueEntityID(dto.categoryId)
       ),
       responsibleTeam: ResponsibleTeam.create(dto.responsibleTeam).getValue(),
@@ -69,7 +69,7 @@ export class ComplementaryTaskService
     id: string
   ): Promise<ComplementaryTaskDTO | null> {
 
-    const taskId = ComplementaryTaskId.caller(
+    const taskId = ComplementaryTaskId.create(
       new UniqueEntityID(id)
     );
 
@@ -86,7 +86,7 @@ export class ComplementaryTaskService
     vveId: string
   ): Promise<ComplementaryTaskDTO[]> {
 
-    const vve = VesselVisitExecutionId.caller(
+    const vve = VesselVisitExecutionId.create(
       new UniqueEntityID(vveId)
     );
 
@@ -110,7 +110,7 @@ export class ComplementaryTaskService
     dto: UpdateComplementaryTaskDTO
   ): Promise<ComplementaryTaskDTO | null> {
 
-    const taskId = ComplementaryTaskId.caller(
+    const taskId = ComplementaryTaskId.create(
       new UniqueEntityID(id)
     );
 
@@ -166,7 +166,7 @@ export class ComplementaryTaskService
     return {
       id: task.id.toString(),
       vesselVisitExecutionId: task.vesselVisitExecutionId.toString(),
-      categoryId: task.categoryId.toString(),
+      categoryId: task.categoryId.id.toString(),
       responsibleTeam: task.responsibleTeam.value,
       startTime: task.startTime.value.toISOString(),
       endTime: task.endTime

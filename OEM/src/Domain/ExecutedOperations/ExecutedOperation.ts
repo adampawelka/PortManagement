@@ -12,9 +12,10 @@ import { ActualStart } from "./ActualStart";
 import { ActualEnd } from "./ActualEnd";
 import { ExecutedOperationStatus } from "./ExecutedOperationStatus";
 
+
 interface ExecutedOperationProps {
-  vesselVisitExecutionId: VesselVisitExecutionId;
-  plannedOperationId: PlannedOperationId;
+  vesselVisitExecutionId: string; // string, because it's an existing entity
+  plannedOperationId: string;     // string, because it's an existing entity
   resourceId: ResourceId;
   staffId: StaffId;
   actualStart: ActualStart;
@@ -29,14 +30,14 @@ export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
   }
 
   get executedOperationId(): ExecutedOperationId {
-    return ExecutedOperationId.caller(this.id);
+    return ExecutedOperationId.create(this.id);
   }
 
-  get vesselVisitExecutionId(): VesselVisitExecutionId {
+  get vesselVisitExecutionId(): string {  
     return this.props.vesselVisitExecutionId;
   }
 
-  get plannedOperationId(): PlannedOperationId {
+  get plannedOperationId(): string {  
     return this.props.plannedOperationId;
   }
 
@@ -87,4 +88,17 @@ export class ExecutedOperation extends AggregateRoot<ExecutedOperationProps> {
     const executedOperation = new ExecutedOperation({ ...props }, id);
     return Result.ok<ExecutedOperation>(executedOperation);
   }
+
+  public updateActualStart(actualStart: ActualStart): void {
+    this.props.actualStart = actualStart;
+  }
+
+  public updateActualEnd(actualEnd: ActualEnd): void {
+    this.props.actualEnd = actualEnd;
+  }
+
+  public updateStatus(status: ExecutedOperationStatus): void {
+    this.props.status = status;
+  }
 }
+
