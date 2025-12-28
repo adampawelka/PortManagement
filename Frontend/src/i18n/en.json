@@ -53,5 +53,9 @@
   "staff_members": "Staff Members",
   "manage_staff_members": "Manage Staff Members",
   "add_staff_member": "Add Staff Member",
-  "manage": "Manage"
+  "manage": "Manage",
+  "qualifications": "Qualifications",
+  "qualifications_list": "Qualifications List",
+  "add_qualification": "Add Qualification",
+  "update_qualification": "Update Qualification"
 }
