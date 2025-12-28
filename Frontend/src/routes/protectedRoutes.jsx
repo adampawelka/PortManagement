@@ -16,7 +16,7 @@ import AddStaffMemberPage from "../pages/StaffMembers/AddStaffMemberPage.jsx";
 // Qualifications
 import QualificationsListPage from "../pages/Qualifications/QualificationsListPage.jsx";
 import AddQualificationPage from "../pages/Qualifications/AddQualificationPage.jsx";
-//import UpdateQualificationPage from "../pages/Qualifications/UpdateQualificationPage.jsx";
+import UpdateQualificationPage from "../pages/Qualifications/UpdateQualificationPage.jsx";
 
 // Docks
 import DocksListPage from "../pages/Docks/DocksListPage.jsx";
@@ -80,7 +80,7 @@ export const protectedRoutes = {
   qualifications: [
     { path: "qualifications/list", element: <QualificationsListPage />, roles: ["Administrator","LogisticsOperator"] },
     { path: "qualifications/add", element: <AddQualificationPage />, roles: ["Administrator","LogisticsOperator"] },
-    //{ path: "qualifications/update", element: <UpdateQualificationPage />, roles: ["Administrator","LogisticsOperator"] }
+    { path: "qualifications/update", element: <UpdateQualificationPage />, roles: ["Administrator","LogisticsOperator"] }
   ],
 
   docks: [
