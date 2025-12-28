@@ -80,8 +80,6 @@ export const useSchedulingService = () => {
     };
 
 
-
-
     return {
         calculateSchedule,
         parsePrologResult,

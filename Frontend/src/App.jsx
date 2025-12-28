@@ -43,7 +43,7 @@ import DocksListPage from "./pages/Docks/DocksListPage.jsx";
 import AddDockPage from "./pages/Docks/AddDockPage.jsx";
 import SearchDockPage from "./pages/Docks/SearchDockPage.jsx";
 
-import OperationalPlansGenerate from "./pages/OperationalPlans/OperationalPlans.jsx";
+import OperationalPlansGenerate from "./pages/OperationalPlans/GenerateOperationalPlans.jsx";
 import SearchOperationalPlans from "./pages/OperationalPlans/SearchOperationalPlans.jsx";
 
 

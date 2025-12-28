@@ -60,73 +60,102 @@ export const useOperationalPlansVM = () => {
   const parsePlans = (json, allVVN) => {
     if (!json) return [];
 
-    const parsed = typeof json === "string" ? JSON.parse(json) : json;
     const aggregated = {};
+    const normalizeName = (str) => (str ? str.toString().toLowerCase().replace(/\s+/g, "_") : "");
 
-    for (const key in parsed) {
-      const info = parsed[key];
-      if (!info?.schedule) continue;
+    if (mode === "single") {
+      const parsed = typeof json === "string" ? JSON.parse(json) : json;
 
-      const lines = info.schedule.split(/\),/);
+      for (const key in parsed) {
+        const info = parsed[key];
+        if (!info?.schedule) continue;
 
-      const operations = parsePrologResult(
-        info.schedule,
-        info.vessels ?? [],
-        info.dock,
-        info.crane,
-        info.staff ?? [],
-        info.areas ?? []
-      ).map((item, index) => {
-        const note = allVVN.find(
-          n => n.vesselName && n.vesselName.toLowerCase().replace(/\s+/g, "_") === item.vessel.toLowerCase()
-        );
+        const lines = info.schedule.split(/\),/);
 
-        let delay = 0;
-        if (algorithm === "optimal") {
-          // Delay z Prologa – 4 element linii harmonogramu
-          const parts = lines[index]?.replace(/[()]/g, "").split(",");
-          delay = parts && parts[3] ? parseInt(parts[3].trim(), 10) : 0;
-        } else if (algorithm === "heuristic") {
-          // Heurystyki: licz dynamicznie względem ETD
-          delay = note && item.endSlot != null ? calculateDelay(item.endSlot, note.etd) : 0;
-        }
+        const operations = parsePrologResult(
+          info.schedule,
+          info.vessels ?? [],
+          info.dock,
+          info.crane,
+          info.staff ?? [],
+          info.areas ?? []
+        ).map((item, index) => {
+          const note = allVVN.find(
+            n => normalizeName(n.vesselName) === normalizeName(item.vessel)
+          );
 
-        const startObj = convertHourToDateObj(date, item.startSlot);
-        const endObj = convertHourToDateObj(date, item.endSlot);
+          let delay = 0;
+          if (algorithm === "optimal") {
+            const parts = lines[index]?.replace(/[()]/g, "").split(",");
+            delay = parts && parts[3] ? parseInt(parts[3].trim(), 10) : 0;
+          } else if (algorithm === "heuristic") {
+            delay = note && item.endSlot != null ? calculateDelay(item.endSlot, note.etd) : 0;
+          }
 
-        return {
-          vesselName: note?.vesselName || item.vessel,
-          vesselId: note?.vesselId || null,
-          vvnId: note?.id || null,
-          dock: info.dock,
-          crane: info.crane,
-          area: info.area,
-          start: formatDateTimeReadable(startObj),
-          end: formatDateTimeReadable(endObj),
-          delay,
-        };
-      });
+          const startObj = convertHourToDateObj(date, item.startSlot);
+          const endObj = convertHourToDateObj(date, item.endSlot);
 
-      for (const op of operations) {
-        if (!op.vvnId) continue;
+          const vvnId = note?.id || null;
 
-        if (!aggregated[op.vvnId]) {
-          aggregated[op.vvnId] = {
-            vvnId: op.vvnId,
-            vesselId: op.vesselId,
-            vesselName: op.vesselName,
-            dock: op.dock,
-            crane: op.crane,
-            area: op.area,
+          if (!vvnId) return null;
+
+          if (!aggregated[vvnId]) {
+            aggregated[vvnId] = {
+              vvnId,
+              vesselId: note?.vesselId || null,
+              vesselName: note?.vesselName || item.vessel || "Unknown",
+              dock: info.dock,
+              crane: info.crane,
+              area: info.area,
+              operations: [],
+            };
+          }
+
+          aggregated[vvnId].operations.push({
+            start: formatDateTimeReadable(startObj),
+            end: formatDateTimeReadable(endObj),
+            delay,
+          });
+
+          return null;
+        });
+      }
+    }
+
+    if (mode === "multi") {
+      const parsed = typeof json === "string" ? JSON.parse(json) : json;
+
+      for (const dockData of Object.values(parsed)) {
+        const schedules = dockData?.multiCrane?.schedules;
+        if (!Array.isArray(schedules)) continue;
+
+        for (const s of schedules) {
+          const startSlot = Number(s.startSlot ?? s.StartSlot);
+          const endSlot = Number(s.endSlot ?? s.EndSlot);
+
+          if (Number.isNaN(startSlot) || Number.isNaN(endSlot)) continue;
+
+
+          const vesselName = s.vesselName ?? s.VesselName ?? "Unknown";
+
+          const vvnId = `multi_${normalizeName(vesselName)}`;
+
+          aggregated[vvnId] = {
+            vesselName,
+            dock: dockData.dockName,
+            crane: (s.craneCodes ?? s.CraneCodes ?? []).join(", "),
+            area: dockData.area,
             operations: [],
           };
-        }
 
-        aggregated[op.vvnId].operations.push({
-          start: op.start,
-          end: op.end,
-          delay: op.delay,
-        });
+          aggregated[vvnId].operations.push({
+            start: formatDateTimeReadable(convertHourToDateObj(date, startSlot)),
+            end: formatDateTimeReadable(convertHourToDateObj(date, endSlot)),
+            delay: Number(s.delay ?? s.Delay ?? 0),
+            warning: s.warning ?? s.Warning ?? null,
+          });
+
+        }
       }
     }
 

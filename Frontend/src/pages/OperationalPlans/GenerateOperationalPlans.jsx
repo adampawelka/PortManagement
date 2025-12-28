@@ -19,7 +19,7 @@ import {
     Box
 } from "@mui/material";
 
-import { useOperationalPlansVM } from "../../viewmodels/Scheduling/useOperationalPlansVM";
+import { useOperationalPlansVM } from "../../viewmodels/OperationalPlans/useGenerateOperationalPlansVM";
 
 const OperationalPlansGenerate = () => {
     const {
@@ -155,7 +155,6 @@ const OperationalPlansGenerate = () => {
                         backgroundColor: "var(--color-primary)",
                         ":hover": { backgroundColor: "var(--color-primary-light)" },
                         color: "var(--color-text-light)",
-                        fontWeight: 600
                     }}
                 >
                     Generate
@@ -288,8 +287,11 @@ const OperationalPlansGenerate = () => {
                                         <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Dock</Box>
                                         <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.dock}</Box>
 
-                                        <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Crane</Box>
+                                        <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Cranes</Box>
                                         <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.crane}</Box>
+
+                                        {/*<Box sx={{ opacity: 0.7, fontWeight: 600 }}>Staff</Box>
+                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.staff}</Box>*/}
 
                                     </Box>
                                 </Box>
