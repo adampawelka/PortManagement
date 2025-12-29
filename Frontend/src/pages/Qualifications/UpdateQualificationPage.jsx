@@ -78,8 +78,19 @@ const UpdateQualificationPage = () => {
             borderRadius: "var(--radius-sm)",
           }}
         >
+          {vm.successMessage && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {vm.successMessage}
+            </Alert>
+          )}
+
+          {vm.message && !vm.successMessage && (
+            <Alert severity={vm.message.type} sx={{ mb: 2 }}>
+              {vm.message.text}
+            </Alert>
+          )}
+
           <form onSubmit={vm.handleSubmit}>
-            {/* Wybór istniejącej kwalifikacji */}
             <FormControl fullWidth margin="normal">
               <InputLabel id="select-qualification-label">Select Qualification</InputLabel>
               <Select
@@ -96,7 +107,6 @@ const UpdateQualificationPage = () => {
               </Select>
             </FormControl>
 
-            {/* Pola pojawiają się tylko po wybraniu kwalifikacji */}
             {vm.selectedId && (
               <>
                 <TextField

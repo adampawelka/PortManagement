@@ -8,8 +8,8 @@ export const useUpdateQualificationVM = (apiFetch) => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [criticalError, setCriticalError] = useState(false);
-  const [notFound, setNotFound] = useState(false);
 
   // Pobranie wszystkich kwalifikacji przy ładowaniu VM
   const fetchQualifications = useCallback(async () => {
@@ -18,10 +18,10 @@ export const useUpdateQualificationVM = (apiFetch) => {
     try {
       const data = await getQualifications(apiFetch);
       setAvailableQualifications(data || []);
-      setLoading(false);
     } catch (err) {
       setCriticalError(true);
       setMessage({ type: "error", text: err.message || "Failed to fetch qualifications" });
+    } finally {
       setLoading(false);
     }
   }, [apiFetch]);
@@ -33,27 +33,32 @@ export const useUpdateQualificationVM = (apiFetch) => {
   // Obsługa wyboru kwalifikacji z listy
   const handleSelectChange = async (id) => {
     setSelectedId(id);
-    setLoading(true);
     setMessage(null);
+    setSuccessMessage(null);
 
+    if (!id) {
+      setFormData({ code: "", name: "" });
+      return;
+    }
+
+    setLoading(true);
     try {
       const data = await getQualificationById(apiFetch, id);
       if (!data) {
-        setNotFound(true);
+        setMessage({ type: "error", text: "Qualification not found" });
         setFormData({ code: "", name: "" });
       } else {
-        setNotFound(false);
         setFormData({ code: data.code, name: data.name });
       }
     } catch (err) {
-      setCriticalError(true);
       setMessage({ type: "error", text: err.message || "Failed to load qualification" });
+      setFormData({ code: "", name: "" });
     } finally {
       setLoading(false);
     }
   };
 
-  // Obsługa zmian w formularzu (nowy kod lub nazwa)
+  // Obsługa zmian w formularzu
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -66,11 +71,15 @@ export const useUpdateQualificationVM = (apiFetch) => {
 
     setSubmitting(true);
     setMessage(null);
+    setSuccessMessage(null);
 
     try {
       await updateQualification(apiFetch, selectedId, formData);
-      setMessage({ type: "success", text: "Qualification updated successfully!" });
-      // Odśwież listę kodów
+      setSuccessMessage("Qualification updated successfully!");
+      // reset Select i pól formularza
+      setSelectedId("");
+      setFormData({ code: "", name: "" });
+      // odśwież listę kwalifikacji
       await fetchQualifications();
     } catch (err) {
       setMessage({ type: "error", text: err.message || "Failed to update qualification" });
@@ -86,8 +95,8 @@ export const useUpdateQualificationVM = (apiFetch) => {
     loading,
     submitting,
     message,
+    successMessage,
     criticalError,
-    notFound,
     handleSelectChange,
     handleChange,
     handleSubmit,
