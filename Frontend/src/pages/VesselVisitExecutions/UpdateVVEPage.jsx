@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   TextField,
@@ -8,6 +8,9 @@ import {
   CircularProgress,
   MenuItem,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -16,22 +19,12 @@ import { useUpdateVVEVM } from '../../viewmodels/VesselVisitExecutions/useUpdate
 const UpdateVVEPage = () => {
   const vm = useUpdateVVEVM();
 
-  /* =======================
-     VVE INFO STATE
-  ======================= */
   const [vveIdInput, setVveIdInput] = useState('');
   const [dockInput, setDockInput] = useState('');
   const [berthTimeInput, setBerthTimeInput] = useState(null);
 
-  /* =======================
-     UI CONTROL
-  ======================= */
-  const [activeSection, setActiveSection] = useState(null);
-  // 'add' | 'edit' | null
+  const [activeSection, setActiveSection] = useState(null); // 'add' | 'edit' | null
 
-  /* =======================
-     ADD OPERATION STATE
-  ======================= */
   const [newOp, setNewOp] = useState({
     plannedOperationId: '',
     resourceId: '',
@@ -39,21 +32,10 @@ const UpdateVVEPage = () => {
     status: 'STARTED',
   });
 
-  /* =======================
-     EDIT OPERATION STATE
-  ======================= */
   const [editOpId, setEditOpId] = useState(null);
   const [editStatus, setEditStatus] = useState('');
 
-  /* =======================
-     EFFECTS
-  ======================= */
-  useEffect(() => {
-    if (vm.vveId) {
-      vm.fetchVVE();
-    }
-  }, [vm.vveId]);
-
+  useEffect(() => { if (vm.vveId) vm.fetchVVE(); }, [vm.vveId]);
   useEffect(() => {
     if (vm.vve) {
       setDockInput(vm.vve.dockId || '');
@@ -61,72 +43,66 @@ const UpdateVVEPage = () => {
     }
   }, [vm.vve]);
 
-  /* =======================
-     HANDLERS
-  ======================= */
-  const handleUpdateVVE = (e) => {
+  const handleUpdateVVE = async (e) => {
     e.preventDefault();
     vm.setVveId(vveIdInput);
-    vm.updateVVEInfo({
-      dockId: dockInput,
-      actualBerthTime: berthTimeInput,
-    });
+    await vm.updateVVEInfo({ dockId: dockInput, actualBerthTime: berthTimeInput });
   };
 
   const handleAddOperation = async () => {
     if (!newOp.plannedOperationId || !newOp.resourceId) return;
-
     await vm.createExecutedOperation(newOp);
-
-    setNewOp({
-      plannedOperationId: '',
-      resourceId: '',
-      actualStart: new Date(),
-      status: 'STARTED',
-    });
+    setNewOp({ plannedOperationId: '', resourceId: '', actualStart: new Date(), status: 'STARTED' });
   };
 
   const handleUpdateOperation = async (id) => {
     if (!editStatus) return;
-
     await vm.updateExecutedOperation(id, { status: editStatus });
-
     setEditOpId(null);
     setEditStatus('');
   };
 
-  /* =======================
-     RENDER
-  ======================= */
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container
-        maxWidth="sm"
+        maxWidth="md"
         sx={{
           mt: 4,
           p: 4,
-          borderRadius: 2,
+          borderRadius: 'var(--radius-md)',
           boxShadow: 3,
+          backgroundColor: 'var(--color-surface)',
+          fontFamily: 'var(--font-family-base)',
         }}
       >
-        <Typography variant="h4" gutterBottom>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            color: 'var(--color-primary-light)',
+            fontWeight: 600,
+            mb: 3,
+            fontSize: 'var(--font-size-heading)',
+          }}
+        >
           Update Vessel Visit Execution
         </Typography>
 
-        {vm.error && <Alert severity="error">{vm.error}</Alert>}
-        {vm.success && <Alert severity="success">{vm.success}</Alert>}
+        {vm.error && <Alert severity="error" sx={{ mb: 2 }}>{vm.error}</Alert>}
+        {vm.success && <Alert severity="success" sx={{ mb: 2 }}>{vm.success}</Alert>}
 
         {/* =======================
-            UPDATE VVE INFO
+            VVE DETAILS FORM
         ======================= */}
-        <Box component="form" onSubmit={handleUpdateVVE} mt={2}>
+        <Box component="form" onSubmit={handleUpdateVVE}>
           <TextField
             label="VVE ID"
             value={vveIdInput}
             onChange={(e) => setVveIdInput(e.target.value)}
-            required
             fullWidth
+            required
             margin="normal"
+            sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
           />
 
           <TextField
@@ -135,94 +111,88 @@ const UpdateVVEPage = () => {
             onChange={(e) => setDockInput(e.target.value)}
             fullWidth
             margin="normal"
+            sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
           />
 
           <DateTimePicker
             label="Actual Berth Time"
             value={berthTimeInput ? new Date(berthTimeInput) : null}
-            onChange={(v) =>
-              setBerthTimeInput(v ? v.toISOString() : null)
-            }
-            renderInput={(params) => (
-              <TextField {...params} fullWidth margin="normal" />
-            )}
+            onChange={(v) => setBerthTimeInput(v ? v.toISOString() : null)}
+            renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
           />
 
           <Button
             type="submit"
             variant="contained"
             fullWidth
-            sx={{ mt: 3 }}
+            sx={{
+              mt: 2,
+              py: 1.5,
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-text-light)',
+              '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+            }}
             disabled={vm.loading}
           >
-            {vm.loading ? (
-              <CircularProgress size={24} />
-            ) : (
-              'Update VVE'
-            )}
+            {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Update VVE'}
           </Button>
         </Box>
 
         {/* =======================
-            ACTION BUTTONS
+            ADD / EDIT BUTTONS
         ======================= */}
-        <Box mt={5} display="flex" gap={2}>
-          <Button
-            variant={activeSection === 'add' ? 'contained' : 'outlined'}
-            fullWidth
-            onClick={() =>
-              setActiveSection(activeSection === 'add' ? null : 'add')
-            }
-          >
-            Add New Executed Operation
-          </Button>
-
-          <Button
-            variant={activeSection === 'edit' ? 'contained' : 'outlined'}
-            fullWidth
-            onClick={() =>
-              setActiveSection(activeSection === 'edit' ? null : 'edit')
-            }
-          >
-            Edit Existing Executed Operation
-          </Button>
+        {/* {vm.vve && ( */}
+        <Box mt={4} display="flex" gap={2}>
+          {['add', 'edit'].map((section) => (
+            <Button
+              key={section}
+              variant={activeSection === section ? 'contained' : 'outlined'}
+              fullWidth
+              sx={{
+                py: 1.5,
+                backgroundColor: activeSection === section ? 'var(--color-primary)' : 'transparent',
+                color: activeSection === section ? 'var(--color-text-light)' : 'var(--color-text-dark)',
+                '&:hover': { backgroundColor: activeSection === section ? 'var(--color-primary-dark)' : 'var(--color-surface)' },
+              }}
+              onClick={() => setActiveSection(activeSection === section ? null : section)}
+            >
+              {section === 'add' ? 'Add Executed Operation' : 'Edit Executed Operation'}
+            </Button>
+          ))}
         </Box>
+        {/* )} */}
 
         {/* =======================
-            ADD OPERATION
+            ADD OPERATION FORM
         ======================= */}
         {activeSection === 'add' && (
-          <Box mt={4}>
-            <Typography variant="h6" gutterBottom>
-              Add Executed Operation
-            </Typography>
-
-            <TextField
-              select
-              label="Planned Operation"
-              value={newOp.plannedOperationId}
-              onChange={(e) =>
-                setNewOp({
-                  ...newOp,
-                  plannedOperationId: e.target.value,
-                })
-              }
-              fullWidth
-              margin="normal"
+          <Box mt={4} sx={{ p: 3, border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)' }}>
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                color: 'var(--color-primary-light)',
+                fontWeight: 600,
+                mb: 3,
+                fontSize: 'var(--font-size-heading)',
+              }}
             >
-              {vm.plannedOperations.map((p) => (
-                <MenuItem key={p.id} value={p.id}>
-                  {p.name}
-                </MenuItem>
-              ))}
-            </TextField>
+              Add Executed Operation</Typography>
+
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Planned Operation</InputLabel>
+              <Select
+                value={newOp.plannedOperationId}
+                onChange={(e) => setNewOp({ ...newOp, plannedOperationId: e.target.value })}
+              >
+                {vm.plannedOperations.map((p) => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
+              </Select>
+            </FormControl>
 
             <TextField
               label="Resource"
               value={newOp.resourceId}
-              onChange={(e) =>
-                setNewOp({ ...newOp, resourceId: e.target.value })
-              }
+              onChange={(e) => setNewOp({ ...newOp, resourceId: e.target.value })}
               fullWidth
               margin="normal"
             />
@@ -230,108 +200,95 @@ const UpdateVVEPage = () => {
             <DateTimePicker
               label="Start Time"
               value={newOp.actualStart}
-              onChange={(v) =>
-                setNewOp({
-                  ...newOp,
-                  actualStart: v || new Date(),
-                })
-              }
-              renderInput={(params) => (
-                <TextField {...params} fullWidth margin="normal" />
-              )}
+              onChange={(v) => setNewOp({ ...newOp, actualStart: v || new Date() })}
+              renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
             />
 
-            <TextField
-              select
-              label="Status"
-              value={newOp.status}
-              onChange={(e) =>
-                setNewOp({ ...newOp, status: e.target.value })
-              }
-              fullWidth
-              margin="normal"
-            >
-              <MenuItem value="STARTED">STARTED</MenuItem>
-              <MenuItem value="COMPLETED">COMPLETED</MenuItem>
-              <MenuItem value="DELAYED">DELAYED</MenuItem>
-            </TextField>
+            <FormControl fullWidth margin="normal">
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={newOp.status}
+                onChange={(e) => setNewOp({ ...newOp, status: e.target.value })}
+              >
+                <MenuItem value="STARTED">STARTED</MenuItem>
+                <MenuItem value="COMPLETED">COMPLETED</MenuItem>
+                <MenuItem value="DELAYED">DELAYED</MenuItem>
+              </Select>
+            </FormControl>
 
             <Button
               variant="contained"
               fullWidth
-              sx={{ mt: 2 }}
+              sx={{
+                mt: 2,
+                py: 1.5,
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-text-light)',
+                '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+              }}
               onClick={handleAddOperation}
             >
-              Save Executed Operation
+              Save Operation
             </Button>
           </Box>
         )}
 
         {/* =======================
-            EDIT OPERATIONS
+            EDIT OPERATION FORM
         ======================= */}
         {activeSection === 'edit' && (
           <Box mt={4}>
-            <Typography variant="h6" gutterBottom>
-              Existing Executed Operations
-            </Typography>
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{
+                color: 'var(--color-primary-light)',
+                fontWeight: 600,
+                mb: 3,
+                fontSize: 'var(--font-size-heading)',
+              }}
+            > Existing Executed Operations</Typography>
 
             {vm.executedOperations.length === 0 ? (
-              <Alert severity="info" sx={{ mt: 2 }}>
-                No executed operations found for this Vessel Visit Execution.
-              </Alert>
-            ) : (
-              vm.executedOperations.map((op) => (
-                <Box
-                  key={op.id}
-                  sx={{
-                    mb: 2,
-                    p: 2,
-                    border: '1px solid #ddd',
-                    borderRadius: 1,
-                  }}
-                >
-                  <Typography>
-                    Planned Operation: {op.plannedOperationId}
-                  </Typography>
-                  <Typography>
-                    Resource: {op.resourceId}
-                  </Typography>
-                  <Typography>
-                    Start: {new Date(op.actualStart).toLocaleString()}
-                  </Typography>
+              <Alert severity="info">No executed operations found. Add one to continue.</Alert>
+            ) : vm.executedOperations.map((op) => (
+              <Box key={op.id} sx={{ mt: 2, p: 3, border: '1px solid var(--color-border)', borderRadius: 'var(--radius-sm)' }}>
+                <Typography>Planned: {op.plannedOperationId}</Typography>
+                <Typography>Resource: {op.resourceId}</Typography>
+                <Typography>Start: {new Date(op.actualStart).toLocaleString()}</Typography>
 
-                  <TextField
-                    select
-                    label="Status"
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Update Status</InputLabel>
+                  <Select
                     value={editOpId === op.id ? editStatus : op.status}
-                    onChange={(e) => {
-                      setEditOpId(op.id);
-                      setEditStatus(e.target.value);
-                    }}
-                    fullWidth
-                    margin="normal"
+                    onChange={(e) => { setEditOpId(op.id); setEditStatus(e.target.value); }}
                   >
                     <MenuItem value="STARTED">STARTED</MenuItem>
                     <MenuItem value="COMPLETED">COMPLETED</MenuItem>
                     <MenuItem value="DELAYED">DELAYED</MenuItem>
-                  </TextField>
+                  </Select>
+                </FormControl>
 
-                  {editOpId === op.id && (
-                    <Button
-                      variant="contained"
-                      sx={{ mt: 1 }}
-                      onClick={() => handleUpdateOperation(op.id)}
-                    >
-                      Save Changes
-                    </Button>
-                  )}
-                </Box>
-              ))
-            )}
+                {editOpId === op.id && (
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                      mt: 1,
+                      py: 1.5,
+                      backgroundColor: 'var(--color-primary)',
+                      color: 'var(--color-text-light)',
+                      '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+                    }}
+                    onClick={() => handleUpdateOperation(op.id)}
+                  >
+                    Save Changes
+                  </Button>
+                )}
+              </Box>
+            ))}
           </Box>
         )}
-
       </Container>
     </LocalizationProvider>
   );
