@@ -19,6 +19,8 @@ import { useUpdateVVEVM } from '../../viewmodels/VesselVisitExecutions/useUpdate
 const UpdateVVEPage = () => {
   const vm = useUpdateVVEVM();
 
+  const isVveLoaded = !!vm.vve;
+
   const [vveIdInput, setVveIdInput] = useState('');
   const [dockInput, setDockInput] = useState('');
   const [berthTimeInput, setBerthTimeInput] = useState(null);
@@ -105,21 +107,28 @@ const UpdateVVEPage = () => {
             sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
           />
 
-          <TextField
-            label="Dock ID"
-            value={dockInput}
-            onChange={(e) => setDockInput(e.target.value)}
-            fullWidth
-            margin="normal"
-            sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
-          />
 
-          <DateTimePicker
-            label="Actual Berth Time"
-            value={berthTimeInput ? new Date(berthTimeInput) : null}
-            onChange={(v) => setBerthTimeInput(v ? v.toISOString() : null)}
-            renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-          />
+          {isVveLoaded && (
+            <>
+              <TextField
+                label="Dock ID"
+                value={dockInput}
+                onChange={(e) => setDockInput(e.target.value)}
+                fullWidth
+                margin="normal"
+                sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
+              />
+
+              <DateTimePicker
+                label="Actual Berth Time"
+                value={berthTimeInput ? new Date(berthTimeInput) : null}
+                onChange={(v) => setBerthTimeInput(v ? v.toISOString() : null)}
+                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+              />
+
+
+            </>
+          )}
 
           <Button
             type="submit"
@@ -132,7 +141,8 @@ const UpdateVVEPage = () => {
               color: 'var(--color-text-light)',
               '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
             }}
-            disabled={vm.loading}
+
+            disabled={!isVveLoaded || vm.loading}
           >
             {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Update VVE'}
           </Button>
@@ -141,26 +151,28 @@ const UpdateVVEPage = () => {
         {/* =======================
             ADD / EDIT BUTTONS
         ======================= */}
-        {/* {vm.vve && ( */}
-        <Box mt={4} display="flex" gap={2}>
-          {['add', 'edit'].map((section) => (
-            <Button
-              key={section}
-              variant={activeSection === section ? 'contained' : 'outlined'}
-              fullWidth
-              sx={{
-                py: 1.5,
-                backgroundColor: activeSection === section ? 'var(--color-primary)' : 'transparent',
-                color: activeSection === section ? 'var(--color-text-light)' : 'var(--color-text-dark)',
-                '&:hover': { backgroundColor: activeSection === section ? 'var(--color-primary-dark)' : 'var(--color-surface)' },
-              }}
-              onClick={() => setActiveSection(activeSection === section ? null : section)}
-            >
-              {section === 'add' ? 'Add Executed Operation' : 'Edit Executed Operation'}
-            </Button>
-          ))}
-        </Box>
-        {/* )} */}
+
+        {isVveLoaded && (
+          <Box mt={4} display="flex" gap={2}>
+            {['add', 'edit'].map((section) => (
+              <Button
+                key={section}
+                variant={activeSection === section ? 'contained' : 'outlined'}
+                fullWidth
+                disabled={!isVveLoaded}
+                sx={{
+                  py: 1.5,
+                  backgroundColor: activeSection === section ? 'var(--color-primary)' : 'transparent',
+                  color: activeSection === section ? 'var(--color-text-light)' : 'var(--color-text-dark)',
+                  '&:hover': { backgroundColor: activeSection === section ? 'var(--color-primary-dark)' : 'var(--color-surface)' },
+                }}
+                onClick={() => setActiveSection(activeSection === section ? null : section)}
+              >
+                {section === 'add' ? 'Add Executed Operation' : 'Edit Executed Operation'}
+              </Button>
+            ))}
+          </Box>
+        )}
 
         {/* =======================
             ADD OPERATION FORM
