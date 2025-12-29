@@ -38,6 +38,9 @@ import ListNotificationsPage from "../pages/VesselVisitNotifications/ListNotific
 import AddVNNPage from "../pages/VesselVisitNotifications/AddVVNPage.jsx";
 import SubmitVVNPage from "../pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 
+//VVE
+import UpdateVVEProgressPage from "../pages/VesselVisitExecutions/UpdateVVEProgressPage.jsx";
+
 // Operational Plans
 import OperationalPlansGenerate from "../pages/OperationalPlans/GenerateOperationalPlans.jsx";
 import SearchOperationalPlans from "../pages/OperationalPlans/SearchOperationalPlans.jsx";
@@ -104,6 +107,10 @@ export const protectedRoutes = {
     { path: "/vvn/reject", element: <RejectVVNPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
     { path: "/vvn/submit", element: <SubmitVVNPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
     { path: "/vvn/add", element: <AddVNNPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] }
+  ],
+
+  vve: [
+    { path: "/vve/update", element: <UpdateVVEProgressPage />, roles: ["LogisticsOperator"] }
   ],
 
   operationalPlans: [

@@ -1,8 +1,12 @@
-import { useState, useCallback } from 'react';
-import executedOperationService from '../../services/executedOperationService';
-import vesselVisitExecutionService from '../../services/vesselVisitExecutionService';
+import { useState, useCallback } from "react";
+import * as executedOperationService from "../../services/executedOperationService";
+import * as vesselVisitExecutionService from "../../services/vesselVisitExecutionService";
 
-export const useUpdateVVEProgressVM = (vveId) => {
+/**
+ * ViewModel for updating Vessel Visit Execution (VVE) and its executed operations.
+ * Covers US 4.1.8 and 4.1.9.
+ */
+export const useUpdateVVEProgressVM = (vveId, apiOemFetch) => {
   const [vve, setVve] = useState(null);
   const [executedOperations, setExecutedOperations] = useState([]);
   const [plannedOperations, setPlannedOperations] = useState([]);
@@ -10,161 +14,118 @@ export const useUpdateVVEProgressVM = (vveId) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  /** Fetch VVE details, executed operations, and available planned operations */
   const fetchVVEAndOperations = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
     try {
-      const vveResponse = await vesselVisitExecutionService.getVVE(vveId);
-      setVve(vveResponse);
-      
-      if (vveResponse.status !== 'IN_PROGRESS') {
-        throw new Error('VVE is not in progress. Only in-progress VVEs can be updated.');
+      const vveData = await vesselVisitExecutionService.getVVE(apiOemFetch, vveId);
+      setVve(vveData);
+
+      if (vveData.status !== "IN_PROGRESS") {
+        setError("VVE is not in progress. Only in-progress VVEs can be updated.");
       }
 
-      const executedOpsResponse = await executedOperationService.getByVVE(vveId);
-      setExecutedOperations(executedOpsResponse);
- 
-      const plannedOpsResponse = await executedOperationService.getAvailablePlannedOperations(vveId);
-      setPlannedOperations(plannedOpsResponse);
-      
+      const execOps = await executedOperationService.getByVVE(apiOemFetch, vveId);
+      setExecutedOperations(execOps);
+
+      const plannedOps = await executedOperationService.getAvailablePlannedOperations(apiOemFetch, vveId);
+      setPlannedOperations(plannedOps);
     } catch (err) {
-      setError(err.message || 'Failed to fetch VVE and operations');
+      setError(err.message || "Failed to fetch VVE and operations");
     } finally {
       setLoading(false);
     }
-  }, [vveId]);
+  }, [vveId, apiOemFetch]);
 
-  const createExecutedOperation = async (operationData) => {
+  /** Update VVE details (berth times, dock assignments, status, etc.) */
+  const updateVVE = useCallback(async (updates) => {
+    setLoading(true);
     setError(null);
     setSuccess(null);
-    
     try {
-      const response = await executedOperationService.createFromPlannedOperation({
+      const updated = await vesselVisitExecutionService.updateVVE(apiOemFetch, vveId, updates);
+      setVve(updated);
+      setSuccess("VVE updated successfully");
+      return updated;
+    } catch (err) {
+      setError("Failed to update VVE: " + err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [vveId, apiOemFetch]);
+
+  /** Create a new executed operation from a planned operation */
+  const createExecutedOperation = useCallback(async (operationData) => {
+    setError(null);
+    setSuccess(null);
+    try {
+      const response = await executedOperationService.createFromPlannedOperation(apiOemFetch, {
         ...operationData,
-        vesselVisitExecutionId: vveId
+        vesselVisitExecutionId: vveId,
       });
-      
       setExecutedOperations(prev => [...prev, response]);
-      setSuccess('Executed operation recorded successfully');
-      
+      setSuccess("Executed operation recorded successfully");
       return response;
     } catch (err) {
-      setError('Failed to create executed operation: ' + err.message);
+      setError("Failed to create executed operation: " + err.message);
       throw err;
     }
-  };
+  }, [vveId, apiOemFetch]);
 
-  const createMultipleExecutedOperations = async (plannedOperationIds) => {
+  /** Update an existing executed operation (status, timestamps, resources) */
+  const updateExecutedOperation = useCallback(async (operationId, updates) => {
     setError(null);
     setSuccess(null);
-    
     try {
-      const response = await executedOperationService.batchCreateFromPlanned(vveId, plannedOperationIds);
-      
-      // Refresh executed operations
-      const executedOpsResponse = await executedOperationService.getByVVE(vveId);
-      setExecutedOperations(executedOpsResponse);
-      
-      setSuccess(`Created ${response.operations.length} executed operations successfully`);
-      
-      return response;
+      const updatedOp = await executedOperationService.updateExecutedOperation(apiOemFetch, operationId, updates);
+      setExecutedOperations(prev => prev.map(op => op.id === operationId ? updatedOp : op));
+      setSuccess("Executed operation updated successfully");
+      return updatedOp;
     } catch (err) {
-      setError('Failed to create executed operations: ' + err.message);
+      setError("Failed to update executed operation: " + err.message);
       throw err;
     }
-  };
+  }, [apiOemFetch]);
 
-  const updateExecutedOperation = async (operationId, updates) => {
+  /** Mark all executed operations as completed */
+  const markAllAsCompleted = useCallback(async () => {
     setError(null);
     setSuccess(null);
-    
-    try {
-      const response = await executedOperationService.updateExecutedOperation(operationId, updates);
-      
-
-      setExecutedOperations(prev => 
-        prev.map(op => op.id === operationId ? response : op)
-      );
-      
-      setSuccess('Executed operation updated successfully');
-      
-      return response;
-    } catch (err) {
-      setError('Failed to update executed operation: ' + err.message);
-      throw err;
-    }
-  };
-
-  const markAllAsCompleted = async () => {
-    setError(null);
-    setSuccess(null);
-    
     try {
       const operationIds = executedOperations.map(op => op.id);
-      const response = await executedOperationService.markAllAsCompleted(vveId, operationIds);
-      
-      const executedOpsResponse = await executedOperationService.getByVVE(vveId);
-      setExecutedOperations(executedOpsResponse);
-      
-      setSuccess('All operations marked as completed');
-      
-      return response;
+      await executedOperationService.markAllAsCompleted(apiOemFetch, vveId, operationIds);
+      const updatedOps = await executedOperationService.getByVVE(apiOemFetch, vveId);
+      setExecutedOperations(updatedOps);
+      setSuccess("All operations marked as completed");
     } catch (err) {
-      setError('Failed to mark all operations as completed: ' + err.message);
+      setError("Failed to mark all operations as completed: " + err.message);
       throw err;
     }
-  };
+  }, [executedOperations, vveId, apiOemFetch]);
 
-  const completeVVE = async (departureData) => {
+  /** Sync executed operations with remaining planned operations */
+  const syncWithPlannedOperations = useCallback(async () => {
     setError(null);
     setSuccess(null);
-    
     try {
-      const response = await vesselVisitExecutionService.updateVVE(vveId, {
-        ...departureData,
-        status: 'completed'
-      });
-      
-      setVve(response);
-      setSuccess('VVE marked as completed successfully');
-      
-      return response;
-    } catch (err) {
-      setError('Failed to complete VVE: ' + err.message);
-      throw err;
-    }
-  };
-
-  const syncWithPlannedOperations = async () => {
-    setError(null);
-    setSuccess(null);
-    
-    try {
-      const executedOpIds = executedOperations.map(op => op.plannedOperationId);
-      const availablePlannedOps = plannedOperations.filter(
-        op => !executedOpIds.includes(op.id)
-      );
-      
-      if (availablePlannedOps.length === 0) {
-        setSuccess('All planned operations are already executed');
-        return { message: 'No new planned operations to sync' };
+      const executedPlannedIds = executedOperations.map(op => op.plannedOperationId);
+      const remainingPlanned = plannedOperations.filter(op => !executedPlannedIds.includes(op.id));
+      if (remainingPlanned.length === 0) {
+        setSuccess("All planned operations are already executed");
+        return;
       }
-      
-      const plannedOpIds = availablePlannedOps.map(op => op.id);
-      const response = await executedOperationService.batchCreateFromPlanned(vveId, plannedOpIds);
-
-      const executedOpsResponse = await executedOperationService.getByVVE(vveId);
-      setExecutedOperations(executedOpsResponse);
-      
-      setSuccess(`Synced ${response.operations.length} planned operations`);
-      
-      return response;
+      const plannedIds = remainingPlanned.map(op => op.id);
+      await executedOperationService.batchCreateFromPlanned(apiOemFetch, vveId, plannedIds);
+      const updatedOps = await executedOperationService.getByVVE(apiOemFetch, vveId);
+      setExecutedOperations(updatedOps);
+      setSuccess(`Synced ${plannedIds.length} planned operations`);
     } catch (err) {
-      setError('Failed to sync with planned operations: ' + err.message);
+      setError("Failed to sync with planned operations: " + err.message);
       throw err;
     }
-  };
+  }, [vveId, executedOperations, plannedOperations, apiOemFetch]);
 
   return {
     vve,
@@ -174,11 +135,10 @@ export const useUpdateVVEProgressVM = (vveId) => {
     error,
     success,
     fetchVVEAndOperations,
+    updateVVE,
     createExecutedOperation,
-    createMultipleExecutedOperations,
     updateExecutedOperation,
     markAllAsCompleted,
-    completeVVE,
     syncWithPlannedOperations,
     setError,
     setSuccess

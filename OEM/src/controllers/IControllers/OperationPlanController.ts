@@ -44,7 +44,7 @@ export default class OperationPlanController {
   // GET: /operationPlans/vve/:vveId
   public async getByVesselVisitExecution(req: Request, res: Response, next: NextFunction) {
     try {
-      const planDTO = await this.operationPlanServiceInstance.getByvesselVisitExecutionId(req.params.vveId);
+      const planDTO = await this.operationPlanServiceInstance.getByVesselVisitExecutionId(req.params.vveId);
 
       if (planDTO === null) {
         return res.status(404).send("There isn't operational plan for that visit");
