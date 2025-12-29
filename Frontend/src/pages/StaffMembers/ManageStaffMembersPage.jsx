@@ -90,6 +90,7 @@ const StaffManagementPage = () => {
                 <TableCell className="um-th">Email</TableCell>
                 <TableCell className="um-th">Phone number</TableCell>
                 <TableCell className="um-th">Operational Window</TableCell>
+                <TableCell className="um-th">Qualifications</TableCell>
                 <TableCell className="um-th">Status</TableCell>
                 <TableCell className="um-th" align="right">
                   Actions
@@ -109,10 +110,14 @@ const StaffManagementPage = () => {
                   <TableCell>{member.phone}</TableCell>
                   <TableCell>{member.operationalWindow}</TableCell>
                   <TableCell>
+                    {Array.isArray(member.qualifications) && member.qualifications.length > 0
+                      ? member.qualifications.map(q => q.name).join(", ")
+                      : "-"}
+                  </TableCell>
+                  <TableCell>
                     <span
-                      className={`um-chip ${
-                        member.status === "Active" ? "chip-active" : "chip-inactive"
-                      }`}
+                      className={`um-chip ${member.status === "Active" ? "chip-active" : "chip-inactive"
+                        }`}
                     >
                       {member.status}
                     </span>

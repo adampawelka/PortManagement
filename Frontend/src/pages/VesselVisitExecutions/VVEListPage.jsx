@@ -71,6 +71,7 @@ const VVEListPage = () => {
           <Table size="small" aria-label="vve table">
             <TableHead>
               <TableRow sx={{ backgroundColor: 'var(--color-background)' }}>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>VVE ID</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>VVN ID</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Dock</TableCell>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Status</TableCell>
@@ -82,7 +83,8 @@ const VVEListPage = () => {
             </TableHead>
             <TableBody>
               {vveList.map(vve => (
-                <TableRow key={vve.vvnId} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
+                <TableRow key={vve.vveId} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
+                  <TableCell>{vve.vveId}</TableCell>
                   <TableCell>{vve.vvnId}</TableCell>
                   <TableCell>{vve.dockId || "-"}</TableCell>
                   <TableCell>{vve.status}</TableCell>
@@ -92,7 +94,7 @@ const VVEListPage = () => {
                   <TableCell>
                     <Button
                       variant="contained"
-                      onClick={() => navigate(`/vve/${vve.vvnId}/update`)}
+                      onClick={() => navigate(`/vve/${vve.vveId}/update`)}
                     >
                       Update
                     </Button>

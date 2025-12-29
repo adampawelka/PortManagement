@@ -17,6 +17,7 @@ export const useVVEListVM = () => {
       try {
         const mockData = [
           {
+            vveId: "VVE001",
             vvnId: "VVN001",
             actualArrivalTime: new Date("2025-01-01T08:00:00Z"),
             actualBerthTime: new Date("2025-01-01T09:00:00Z"),
@@ -25,6 +26,7 @@ export const useVVEListVM = () => {
             createdBy: "system",
           },
           {
+            vveId: "VVE002",
             vvnId: "VVN002",
             actualArrivalTime: new Date("2025-01-02T10:30:00Z"),
             actualBerthTime: new Date("2025-01-02T11:00:00Z"),
@@ -33,6 +35,7 @@ export const useVVEListVM = () => {
             createdBy: "user1",
           },
           {
+            vveId: "VVE003",
             vvnId: "VVN003",
             actualArrivalTime: new Date("2025-01-03T14:00:00Z"),
             status: "SCHEDULED",
@@ -40,7 +43,6 @@ export const useVVEListVM = () => {
           },
         ];
 
-        // małe opóźnienie, żeby zobaczyć loading
         await new Promise((r) => setTimeout(r, 300));
         setVveList(mockData);
       } catch (err) {
