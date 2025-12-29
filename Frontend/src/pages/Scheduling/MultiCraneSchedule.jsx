@@ -274,7 +274,12 @@ const MultiCraneSchedule = () => {
                                                 <TableCell>{row.end}</TableCell>
                                                 <TableCell>{row.delay}</TableCell>
                                                 <TableCell>{row.craneCodes?.join(", ") ?? "Unassigned"}</TableCell>
-                                                <TableCell>{row.staff}</TableCell>
+                                                <TableCell>
+  {Array.isArray(row.staff) && row.staff.length > 0
+      ? row.staff.map(s => s.shortName).join(", ")
+      : "Unassigned"}
+</TableCell>
+
                                                 <TableCell>{row.area}</TableCell>
                                             </TableRow>
                                         ))}
@@ -353,7 +358,12 @@ const MultiCraneSchedule = () => {
                                                 <TableCell>{row.delay}</TableCell>
                                                 <TableCell>{row.cranes}</TableCell>
                                                 <TableCell>{row.craneCodes?.join(", ") ?? "Unassigned"}</TableCell>
-                                                <TableCell>{row.staff}</TableCell>
+                                               <TableCell>
+  {Array.isArray(row.staff) && row.staff.length > 0
+      ? row.staff.map(s => s.shortName).join(", ")
+      : "Unassigned"}
+</TableCell>
+
                                                 <TableCell>{row.area}</TableCell>
                                             </TableRow>
                                         ))}

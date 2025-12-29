@@ -381,6 +381,11 @@ namespace SchedulingAPI.Controllers
                 if (!activeCranes.Any())
                     return BadRequest(new { message = "No active cranes available" });
 
+                // only staff who are active and have STS-CRN qualification
+                var eligibleStaff = allStaff
+                    .Where(s => s.Status == "Active" && s.Qualifications.Any(q => q.Code == "STS-CRN"))
+                    .ToList();
+
                 var dockGroups = approvedVessels.GroupBy(v => v.AssignedDockId);
                 var dockSchedules = new Dictionary<string, object>();
 
@@ -434,29 +439,35 @@ namespace SchedulingAPI.Controllers
 
                     var firstCrane = activeCranes.First();
 
+                    // --- assign staff to single schedules ---
                     foreach (var s in parsed.SingleSchedules)
                     {
                         s.CranesUsed = 1;
+                        var staff = eligibleStaff.FirstOrDefault();
                         s.CraneCodes = new List<string> { firstCrane.Code };
-                        s.Warning = null;
+                        s.Staff = staff != null ? new List<StaffMemberDto> { staff } : new List<StaffMemberDto>();
+                        s.Warning = staff == null ? "No eligible staff available" : null;
                     }
 
+                    // --- assign staff to multi schedules ---
                     foreach (var s in parsed.MultiSchedules)
                     {
-                        if (s.CranesUsed <= 0)
-                            s.CranesUsed = 1;
+                        int cranesNeeded = s.CranesUsed > 0 ? s.CranesUsed : 1;
+                        var assignedStaff = new List<StaffMemberDto>();
 
-                        if (s.CranesUsed > activeCranes.Count)
+                        for (int i = 0; i < cranesNeeded; i++)
                         {
-                            s.CraneCodes = activeCranes.Select(c => c.Code).ToList();
-                            s.Warning = $"Only {activeCranes.Count} cranes available, requested {s.CranesUsed}";
-                            s.CranesUsed = activeCranes.Count;
+                            var staff = eligibleStaff.ElementAtOrDefault(i);
+                            if (staff != null)
+                                assignedStaff.Add(staff);
+                            else
+                            {
+                                s.Warning = $"Only {eligibleStaff.Count} staff members available, requested {cranesNeeded}";
+                            }
                         }
-                        else
-                        {
-                            s.CraneCodes = activeCranes.Take(s.CranesUsed).Select(c => c.Code).ToList();
-                            s.Warning = null;
-                        }
+
+                        s.CraneCodes = activeCranes.Take(cranesNeeded).Select(c => c.Code).ToList();
+                        s.Staff = assignedStaff;
                     }
 
                     // calculate delays
@@ -490,7 +501,6 @@ namespace SchedulingAPI.Controllers
                     {
                         dockName = dock.DockName,
                         craneCode = firstCrane.Code,
-                        staff = allStaff.Take(5),
                         area = allAreas.FirstOrDefault()?.StorageAreaType ?? "Unassigned",
                         singleCrane = new
                         {
@@ -526,6 +536,7 @@ namespace SchedulingAPI.Controllers
             }
         }
 
+
         // -------------------------
         // CLASSES
         // -------------------------
@@ -547,11 +558,12 @@ namespace SchedulingAPI.Controllers
             public string StartTime { get; set; }
             public string EndTime { get; set; }
             public int CranesUsed { get; set; }
-            public List<string> CraneCodes { get; set; } 
+            public List<string> CraneCodes { get; set; }
             public int StartSlot { get; set; }
             public int EndSlot { get; set; }
             public int Delay { get; set; }
-            public string Warning { get; set; } 
+            public List<StaffMemberDto> Staff { get; set; } = new();
+            public string Warning { get; set; }
         }
 
 
