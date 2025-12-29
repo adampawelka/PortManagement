@@ -26,6 +26,7 @@ import {
 } from "../Domain/PlannedOperations/PlannedOperationStatus";
 
 import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
+import { VvnId } from "../Domain/VesselVisitExecutions/VvnId";
 import { IVesselVisitExecutionRepo } from "./IRepos/IVesselVisitExecutionRepo";
 import { IOperationPlanRepo } from "./IRepos/IOperationPlanRepo";
 
@@ -110,7 +111,9 @@ export class PlannedOperationService
       throw new Error(`Vessel Visit Execution ${vesselVisitExecutionId} not found`);
     }
 
-    const operationPlans = await this.operationPlanRepo.findAllByVesselVisitExecutionId(vveId);
+    // Get VVN from VVE and find operation plans by VVN
+    const vvnId = vve.vvnId;
+    const operationPlans = await this.operationPlanRepo.findAllByVvnId(vvnId);
     
     if (operationPlans.length === 0) {
       return []; 
@@ -164,28 +167,17 @@ export class PlannedOperationService
     vvnId: string
   ): Promise<PlannedOperationDTO[]> {
     
-    const vves = await this.vveRepo.findByVVN(vvnId);
-    
-    if (vves.length === 0) {
-      return [];
-    }
+    // Directly find operation plans by VVN (no need to go through VVEs)
+    const vvnIdVO = VvnId.create(vvnId).getValue();
+    const operationPlans = await this.operationPlanRepo.findAllByVvnId(vvnIdVO);
 
-    const vveIds = vves.map(vve => vve.id.toString());
-    const allOperationPlans: OperationPlan[] = [];
-    
-    for (const vveId of vveIds) {
-      const vveEntityId = VesselVisitExecutionId.create(new UniqueEntityID(vveId));
-      const operationPlans = await this.operationPlanRepo.findAllByVesselVisitExecutionId(vveEntityId);
-      allOperationPlans.push(...operationPlans);
-    }
-
-    if (allOperationPlans.length === 0) {
+    if (operationPlans.length === 0) {
       return [];
     }
 
     const allPlannedOps: PlannedOperation[] = [];
     
-    for (const plan of allOperationPlans) {
+    for (const plan of operationPlans) {
       const planId = OperationPlanId.create(new UniqueEntityID(plan.id.toString()));
       const plannedOps = await this.plannedOperationRepo.findByOperationPlanId(planId);
       allPlannedOps.push(...plannedOps);
