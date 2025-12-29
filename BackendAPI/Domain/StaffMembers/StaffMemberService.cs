@@ -96,12 +96,12 @@ namespace DDDSample1.Domain.StaffMembers
                 Phone = s.Phone,
                 OperationalWindow = s.OperationalWindow.Value,
                 Status = s.Status.ToString(),
-                Qualifications = s.Qualifications.Select(q => new QualificationDto
-            {
-                Id = q.Id.AsGuid(),   
-                Code = q.Code.Value,
-                Name = q.Name.Value
-            }).ToList()
+                Qualifications = s.Qualifications?.Select(q => new QualificationDto
+                {
+                    Id = q.Id.AsGuid(),
+                    Code = q.Code.Value,
+                    Name = q.Name.Value
+                }).ToList() ?? new List<QualificationDto>()
             };
         }
 

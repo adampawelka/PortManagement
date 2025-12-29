@@ -32,26 +32,39 @@ export const addStaffMember = async (apiFetch, StaffMemberDto) => {
 // };
 
 export const activateStaffMember = async (apiFetch, staffMemberId) => {
-  const res = await apiFetch(`/api/StaffMembers/${staffMemberId}/activate`, {
+  const res = await apiFetch(`/api/StaffMembers/${staffMemberId}/reactivate`, {
     method: "PUT",
   });
+
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to activate staff member");
   }
-  return res.json();
+
+  try {
+    return await res.json();
+  } catch {
+    return {};
+  }
 };
 
 export const deactivateStaffMember = async (apiFetch, staffMemberId) => {
   const res = await apiFetch(`/api/StaffMembers/${staffMemberId}/deactivate`, {
     method: "PUT",
   });
+
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to deactivate staff member");
   }
-  return res.json();
+
+  try {
+    return await res.json();
+  } catch {
+    return {};
+  }
 };
+
 
 
 // no endpoint for deletion yet

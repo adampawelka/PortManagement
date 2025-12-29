@@ -57,6 +57,27 @@ namespace DDDSample1.Controllers
             }
         }
 
+        // PUT: api/staffmembers/{id}/reactivate
+        [HttpPut("{id}/reactivate")]
+        public async Task<ActionResult<StaffMemberDto>> ReactivateStaffMember(Guid id)
+        {
+            try
+            {
+                var staffId = new StaffMemberId(id.ToString());
+                var staffMemberDto = await _service.ReactivateStaffMemberAsync(staffId);
+                return Ok(staffMemberDto);
+            }
+            catch (EntityNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<StaffMemberDto>> GetStaffMemberById(Guid id)
         {

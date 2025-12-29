@@ -13,7 +13,8 @@ namespace DDDSample1.Domain.StaffMembers
         public string Phone { get; private set; }
         public OperationalWindow OperationalWindow { get; private set; } 
         public StaffStatus Status { get; private set; }
-        public ICollection<Qualification> Qualifications { get; private set; }
+        public ICollection<Qualification> Qualifications { get; private set; } = new List<Qualification>();
+
 
         private StaffMember() {} 
 

@@ -18,7 +18,6 @@ import { useAddStaffMemberVM } from "../../viewmodels/StaffMembers/useAddStaffMe
 const AddStaffMemberPage = () => {
   const vm = useAddStaffMemberVM();
 
-  // Krytyczny błąd API
   if (vm.criticalError) {
     return (
       <Container sx={{ mt: "var(--spacing-xl)" }}>
@@ -29,7 +28,6 @@ const AddStaffMemberPage = () => {
     );
   }
 
-  // Sprawdzenie czy wszystkie wymagane pola są wypełnione
   const isFormValid =
     vm.formData.mecanographicNumber &&
     vm.formData.shortName &&
