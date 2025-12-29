@@ -40,6 +40,11 @@ export default {
     prefix: '/api',
   }, // change this. is an example
 
+  /**
+   * BackendAPI URL for inter-module communication
+   */
+  backendApiUrl: process.env.BACKEND_API_URL || "http://localhost:5000/api",
+
   controllers: {
     complementaryTaskCategory: {
       name: "ComplementaryTaskCategoryController",

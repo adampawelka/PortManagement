@@ -20,17 +20,25 @@ import {
   VesselVisitExecutionStatusEnum
 } from "../Domain/VesselVisitExecutions/VesselVisitExecutionStatus";
 import { CreatedBy } from "../Domain/VesselVisitExecutions/CreatedBy";
+import { VvnClientService } from "./VvnClientService";
 
 export class VesselVisitExecutionService
   implements IVesselVisitExecutionService {
 
   constructor(
-    private readonly vveRepo: IVesselVisitExecutionRepo
+    private readonly vveRepo: IVesselVisitExecutionRepo,
+    private readonly vvnClient: VvnClientService
   ) { }
 
   async create(
     dto: CreateVesselVisitExecutionDTO
   ): Promise<VesselVisitExecutionDTO> {
+
+    // Validate that the referenced VVN exists (US 4.1.7)
+    const vvnExists = await this.vvnClient.vvnExists(dto.vvnId);
+    if (!vvnExists) {
+      throw new Error(`Vessel Visit Notification (VVN) with ID ${dto.vvnId} does not exist`);
+    }
 
     // VVE ID is automatically generated as UUID (matching VVN ID pattern)
     // No ID is passed to create(), so UniqueEntityID generates a new UUID

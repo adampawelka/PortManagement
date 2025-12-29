@@ -34,6 +34,11 @@ export default ({ mongoConnection, schemas, controllers, repos, services}: {
       Container.set(m.name, repoInstance);
     });
 
+    // Instantiate VvnClientService first (needed by VesselVisitExecutionService)
+    const VvnClientService = require('../services/VvnClientService').VvnClientService;
+    const vvnClientInstance = new VvnClientService();
+    Container.set('VvnClientService', vvnClientInstance);
+
     // Instantiate services manually with their repo dependencies
     services.forEach(m => {
       let serviceModule = require(m.path);
@@ -45,8 +50,15 @@ export default ({ mongoConnection, schemas, controllers, repos, services}: {
       // Services need repos injected - match service to repo by name pattern
       const repoName = m.name.replace('Service', 'Repo');
       const repoInstance = Container.get(repoName);
-      const serviceInstance = new serviceClass(repoInstance);
-      Container.set(m.name, serviceInstance);
+      
+      // Special case: VesselVisitExecutionService needs both repo and VvnClientService
+      if (m.name === 'VesselVisitExecutionService') {
+        const serviceInstance = new serviceClass(repoInstance, vvnClientInstance);
+        Container.set(m.name, serviceInstance);
+      } else {
+        const serviceInstance = new serviceClass(repoInstance);
+        Container.set(m.name, serviceInstance);
+      }
     });
 
     controllers.forEach(m => {
