@@ -4,7 +4,7 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:13-alpine
-    container_name: portmanagement-db
+    container_name: portmanagement-db-op
     environment:
       POSTGRES_DB: portmanagementdb
       POSTGRES_USER: portapp
@@ -22,7 +22,7 @@ services:
     build:
       context: ./BackendAPI
       dockerfile: Dockerfile
-    container_name: portmanagement-api
+    container_name: portmanagement-api-op
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5000
@@ -41,7 +41,7 @@ services:
     build:
       context: .
       dockerfile: Scheduling/SchedulingAPI/Dockerfile
-    container_name: portmanagement-scheduling
+    container_name: portmanagement-scheduling-op
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:5107
@@ -50,6 +50,22 @@ services:
       - "5107:5107"
     depends_on:
       - backend
+    networks:
+      - portmanagement-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=development
+    container_name: portmanagement-frontend-op
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+      - scheduling
     networks:
       - portmanagement-network
     restart: unless-stopped
