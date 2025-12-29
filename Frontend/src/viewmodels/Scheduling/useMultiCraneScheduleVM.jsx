@@ -73,7 +73,7 @@ export const useScheduleMultiCraneVM = () => {
           endSlot: s.endSlot ?? s.EndSlot,
           cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
           craneCodes: s.craneCodes ?? [],
-          staff: randomStaff(dockInfo.staff),
+          staff: s.staff ?? [],
           area: dockInfo.area,
           delay: s.delay ?? 0,
           warning: s.warning ?? null,

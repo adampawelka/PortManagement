@@ -14,7 +14,6 @@ export const useOptimalScheduleVM = () => {
   const [error, setError] = useState("");
   const [executionTime, setExecutionTime] = useState(null);
 
-  // Wyciąganie czasu wykonania z Prologa
   const extractExecutionTime = (raw) => {
     const patterns = [
       /Execution Time:\s*([\d.e-]+)/i,
@@ -27,7 +26,6 @@ export const useOptimalScheduleVM = () => {
     return null;
   };
 
-  // Suma delay
   const totalDelay = useMemo(() => {
     return scheduleResults.reduce((acc, item) => acc + (item.delay || 0), 0);
   }, [scheduleResults]);
