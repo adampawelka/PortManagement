@@ -1,53 +1,79 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
-  Container, Paper, Typography, Button, Table, TableBody,
-  TableCell, TableContainer, TableHead, TableRow, Chip,
-  Alert, CircularProgress, Box, Dialog, DialogTitle,
-  DialogContent, DialogActions, TextField, MenuItem, Grid
-} from '@mui/material';
-import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { useUpdateVVEProgressVM } from '../../viewmodels/VesselVisitExecutions/useUpdateVVEProgressVM';
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  Alert,
+  CircularProgress,
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Grid,
+} from "@mui/material";
+import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { useUpdateVVEProgressVM } from
+  "../../viewmodels/VesselVisitExecutions/useUpdateVVEProgressVM";
 
 const UpdateVVEProgressPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const vm = useUpdateVVEProgressVM(id);
 
-  const [newOperation, setNewOperation] = useState({
-    plannedOperationId: '', resourceId: '', staffId: '',
-    actualStart: new Date(), actualEnd: null, status: 'STARTED'
+  const [newOp, setNewOp] = useState({
+    plannedOperationId: "",
+    resourceId: "",
+    actualStart: new Date(),
+    status: "STARTED",
   });
 
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedOp, setSelectedOp] = useState(null);
+  const [editOp, setEditOp] = useState(null);
 
-  useEffect(() => { vm.fetchVVEAndOperations(); }, [id]);
+  useEffect(() => {
+    vm.fetchVVEAndOperations();
+  }, [vm, id]);
+
 
   if (vm.loading) return <CircularProgress />;
   if (vm.error) return <Alert severity="error">{vm.error}</Alert>;
-  if (!vm.vve) return <Alert severity="error">VVE not found</Alert>;
+  if (!vm.vve) return null;
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container maxWidth="lg">
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h5">Update VVE Progress: {vm.vve.vvnId}</Typography>
+        <Box display="flex" justifyContent="space-between" mb={2}>
+          <Typography variant="h5">
+            Update VVE: {vm.vve.vvnId}
+          </Typography>
           <Button onClick={() => navigate(-1)}>Back</Button>
         </Box>
 
         {vm.success && <Alert severity="success">{vm.success}</Alert>}
-        {vm.error && <Alert severity="error">{vm.error}</Alert>}
 
-        {/* Executed Operations Table */}
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        {/* Executed operations */}
+        <Paper sx={{ p: 2, mb: 3 }}>
+          <Box display="flex" justifyContent="space-between" mb={1}>
             <Typography variant="h6">Executed Operations</Typography>
-            <Button variant="contained" color="success"
+            <Button
+              variant="contained"
+              color="success"
               onClick={vm.markAllAsCompleted}
-              disabled={vm.executedOperations.length === 0}>
-              Mark All Completed
+              disabled={!vm.executedOperations.length}
+            >
+              Mark all completed
             </Button>
           </Box>
 
@@ -55,29 +81,28 @@ const UpdateVVEProgressPage = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Planned Op ID</TableCell>
+                  <TableCell>Planned</TableCell>
                   <TableCell>Resource</TableCell>
-                  <TableCell>Start Time</TableCell>
-                  <TableCell>End Time</TableCell>
+                  <TableCell>Start</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell />
                 </TableRow>
               </TableHead>
               <TableBody>
-                {vm.executedOperations.map(op => (
+                {vm.executedOperations.map((op) => (
                   <TableRow key={op.id}>
-                    <TableCell>{op.plannedOperationId.substring(0, 8)}...</TableCell>
+                    <TableCell>{op.plannedOperationId}</TableCell>
                     <TableCell>{op.resourceId}</TableCell>
-                    <TableCell>{new Date(op.actualStart).toLocaleTimeString()}</TableCell>
-                    <TableCell>{op.actualEnd ? new Date(op.actualEnd).toLocaleTimeString() : '-'}</TableCell>
                     <TableCell>
-                      <Chip label={op.status} color={
-                        op.status === 'COMPLETED' ? 'success' :
-                        op.status === 'STARTED' ? 'primary' : 'default'
-                      } />
+                      {new Date(op.actualStart).toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      <Button size="small" onClick={() => { setSelectedOp(op); setOpenDialog(true); }}>Edit</Button>
+                      <Chip label={op.status} />
+                    </TableCell>
+                    <TableCell>
+                      <Button size="small" onClick={() => setEditOp(op)}>
+                        Edit
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -86,80 +111,79 @@ const UpdateVVEProgressPage = () => {
           </TableContainer>
         </Paper>
 
-        {/* Add New Operation Form */}
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h6">Add New Executed Operation</Typography>
+        {/* Create operation */}
+        <Paper sx={{ p: 2 }}>
+          <Typography variant="h6">Add Executed Operation</Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
-              <TextField label="Planned Operation ID" fullWidth
-                value={newOperation.plannedOperationId}
-                onChange={e => setNewOperation({...newOperation, plannedOperationId: e.target.value})}/>
+            <Grid item xs={4}>
+              <TextField
+                label="Planned Operation ID"
+                fullWidth
+                value={newOp.plannedOperationId}
+                onChange={(e) =>
+                  setNewOp({ ...newOp, plannedOperationId: e.target.value })
+                }
+              />
             </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField label="Resource ID" fullWidth
-                value={newOperation.resourceId}
-                onChange={e => setNewOperation({...newOperation, resourceId: e.target.value})}/>
+            <Grid item xs={4}>
+              <TextField
+                label="Resource ID"
+                fullWidth
+                value={newOp.resourceId}
+                onChange={(e) =>
+                  setNewOp({ ...newOp, resourceId: e.target.value })
+                }
+              />
             </Grid>
-            <Grid item xs={12} sm={4}>
-              <TextField select fullWidth label="Status"
-                value={newOperation.status}
-                onChange={e => setNewOperation({...newOperation, status: e.target.value})}>
-                <MenuItem value="STARTED">Started</MenuItem>
-                <MenuItem value="COMPLETED">Completed</MenuItem>
-                <MenuItem value="DELAYED">Delayed</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={4}>
               <DateTimePicker
-                label="Start Time"
-                value={newOperation.actualStart}
-                onChange={newValue => setNewOperation({...newOperation, actualStart: newValue})}
+                label="Start time"
+                value={newOp.actualStart}
+                onChange={(v) => setNewOp({ ...newOp, actualStart: v })}
                 renderInput={(params) => <TextField {...params} fullWidth />}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Button fullWidth variant="contained"
-                disabled={!newOperation.plannedOperationId || !newOperation.resourceId}
-                onClick={() => vm.createExecutedOperation(newOperation)}>
-                Add Operation
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                onClick={() => vm.createExecutedOperation(newOp)}
+              >
+                Add
               </Button>
             </Grid>
           </Grid>
         </Paper>
 
-        {/* Edit Dialog */}
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-          {selectedOp && (
+        {/* Edit dialog */}
+        <Dialog open={!!editOp} onClose={() => setEditOp(null)}>
+          {editOp && (
             <>
-              <DialogTitle>Edit Operation</DialogTitle>
+              <DialogTitle>Edit operation</DialogTitle>
               <DialogContent>
-                <Grid container spacing={2} sx={{ mt: 1 }}>
-                  <Grid item xs={12}>
-                    <TextField select fullWidth label="Status"
-                      value={selectedOp.status}
-                      onChange={e => setSelectedOp({...selectedOp, status: e.target.value})}>
-                      <MenuItem value="STARTED">Started</MenuItem>
-                      <MenuItem value="COMPLETED">Completed</MenuItem>
-                      <MenuItem value="DELAYED">Delayed</MenuItem>
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <DateTimePicker
-                      label="End Time"
-                      value={selectedOp.actualEnd ? new Date(selectedOp.actualEnd) : null}
-                      onChange={newValue => setSelectedOp({...selectedOp, actualEnd: newValue ? newValue.toISOString() : null})}
-                      renderInput={params => <TextField {...params} fullWidth />}
-                    />
-                  </Grid>
-                </Grid>
+                <TextField
+                  select
+                  fullWidth
+                  label="Status"
+                  value={editOp.status}
+                  onChange={(e) =>
+                    setEditOp({ ...editOp, status: e.target.value })
+                  }
+                >
+                  <MenuItem value="STARTED">STARTED</MenuItem>
+                  <MenuItem value="COMPLETED">COMPLETED</MenuItem>
+                  <MenuItem value="DELAYED">DELAYED</MenuItem>
+                </TextField>
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                <Button variant="contained"
-                  onClick={() => vm.updateExecutedOperation(selectedOp.id, {
-                    status: selectedOp.status,
-                    actualEnd: selectedOp.actualEnd
-                  })}>
+                <Button onClick={() => setEditOp(null)}>Cancel</Button>
+                <Button
+                  variant="contained"
+                  onClick={() =>
+                    vm.updateExecutedOperation(editOp.id, {
+                      status: editOp.status,
+                    })
+                  }
+                >
                   Save
                 </Button>
               </DialogActions>
