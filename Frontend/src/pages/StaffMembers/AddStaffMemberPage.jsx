@@ -10,6 +10,7 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  FormHelperText,
 } from "@mui/material";
 
 import { useAddStaffMemberVM } from "../../viewmodels/StaffMembers/useAddStaffMemberVM";
@@ -27,6 +28,15 @@ const AddStaffMemberPage = () => {
       </Container>
     );
   }
+
+  // Sprawdzenie czy wszystkie wymagane pola są wypełnione
+  const isFormValid =
+    vm.formData.mecanographicNumber &&
+    vm.formData.shortName &&
+    vm.formData.email &&
+    vm.formData.phone &&
+    vm.formData.operationalWindow &&
+    vm.formData.qualificationIds.length > 0;
 
   return (
     <Container
@@ -108,11 +118,12 @@ const AddStaffMemberPage = () => {
           value={vm.formData.operationalWindow}
           onChange={vm.handleChange}
           fullWidth
+          required
           margin="normal"
           placeholder="e.g. 08:00–16:00"
         />
 
-        <FormControl fullWidth margin="normal">
+        <FormControl fullWidth margin="normal" required>
           <InputLabel id="qualification-label">Qualifications</InputLabel>
           <Select
             labelId="qualification-label"
@@ -132,12 +143,13 @@ const AddStaffMemberPage = () => {
               </MenuItem>
             ))}
           </Select>
+          <FormHelperText>Select at least one qualification</FormHelperText>
         </FormControl>
 
         <Button
           type="submit"
           variant="contained"
-          disabled={vm.submitting || vm.criticalError}
+          disabled={vm.submitting || vm.criticalError || !isFormValid}
           fullWidth
           sx={{
             mt: "var(--spacing-lg)",
