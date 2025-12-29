@@ -62,5 +62,21 @@
   "vve": "Execuções de Visita de Embarcação",
   "vve_list": "Lista de Execuções de Visita de Embarcação",
   "add_vve": "Adicionar Nova Execução de Visita de Embarcação",
-  "update_vve": "Atualizar Execução de Visita de Embarcação"
+  "update_vve": "Atualizar Execução de Visita de Embarcação",
+  "complementary_tasks": "Tarefas Complementares",
+  "complementary_tasks_list": "Lista de Tarefas Complementares",
+  "log_complementary_task": "Registar Tarefa Complementar",
+  "update_complementary_task": "Atualizar Tarefa Complementar",
+  "complementary_task_categories": "Categorias de Tarefas Complementares",
+  "complementary_task_category_list": "Lista de Categorias de Tarefas Complementares",
+  "add_complementary_task_category": "Adicionar Categoria de Tarefa Complementar",
+  "update_complementary_task_category": "Atualizar Categoria de Tarefa Complementar",
+  "incidents": "Incidentes",
+  "incidents_list": "Lista de Incidentes",
+  "report_incident": "Reportar Incidente",
+  "update_incident": "Atualizar Incidente",
+  "incident_types": "Tipos de Incidente",
+  "incident_type_list": "Lista de Tipos de Incidente",
+  "add_incident_type": "Adicionar Tipo de Incidente",
+  "edit_incident_type": "Editar Tipo de Incidente"
 }

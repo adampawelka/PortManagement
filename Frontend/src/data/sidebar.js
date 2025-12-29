@@ -64,6 +64,110 @@ export const sidebarMenuItems = [
     ],
   },
   {
+    name: "Incidents",
+    key: "incidents", 
+    path: "/incidents",
+    roles: ["LogisticsOperator"],
+    subMenu: [
+      {
+        name: "List Incidents",
+        key: "incidents_list",
+        path: "/incidents/list",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Report Incident",
+        key: "report_incident",
+        path: "/incidents/report",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Update Incident",
+        key: "update_incident",
+        path: "/incidents/update",
+        roles: ["LogisticsOperator"],
+      }
+    ],
+  },
+  {
+    name: "Incident Types",
+    key: "incident_types",
+    path: "/incident-types",
+    roles: ["PortAuthorityOfficer"],
+    subMenu: [
+      {
+        name: "Incident Types List",
+        key: "incident_types_list",
+        path: "/incident-types/list",
+        roles: ["PortAuthorityOfficer"],
+      },
+      {
+        name: "Add Incident Type",
+        key: "add_incident_type",
+        path: "/incident-types/add",
+        roles: ["PortAuthorityOfficer"],
+      },
+      {
+        name: "Edit Incident Type",
+        key: "edit_incident_type",
+        path: "/incident-types/edit",
+        roles: ["PortAuthorityOfficer"],
+      }
+    ],
+  },
+  {
+    name: "Complementary Tasks",
+    key: "complementary_tasks",
+    path: "/complementary-tasks",
+    roles: ["LogisticsOperator"],
+    subMenu: [
+      {
+        name: "Complementary Tasks List",
+        key: "complementary_tasks_list",
+        path: "/complementary-tasks/list",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Log Complementary Task",
+        key: "log_complementary_task",
+        path: "/complementary-tasks/log",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Update Complementary Task",
+        key: "update_complementary_task",
+        path: "/complementary-tasks/update",
+        roles: ["LogisticsOperator"],
+      }
+    ],
+  },
+  {
+    name: "Complementary Task Categories",
+    key: "complementary_task_categories",
+    path: "/complementary-task-categoies",
+    roles: ["OperationsSupervisor"],
+    subMenu: [
+      {
+        name: "Complementary Task Categories List",
+        key: "complementary_task_categories_list",
+        path: "/complementary-task-categories/list",
+        roles: ["OperationsSupervisor"],
+      },
+      {
+        name: "Add Complementary Task Category",
+        key: "add_complementary_task_category",
+        path: "/complementary-task-categories/add",
+        roles: ["OperationsSupervisor"],
+      },
+      {
+        name: "Update Complementary Task Category",
+        key: "update_complementary_task_category",
+        path: "/complementary-task-categories/update",
+        roles: ["OperationsSupervisor"],
+      }
+    ],
+  },
+  {
     name: "Operational Plans",
     key: "operational_plans",
     path: "/operational-plans",
