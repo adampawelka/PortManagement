@@ -32,6 +32,8 @@ export class VesselVisitExecutionService
     dto: CreateVesselVisitExecutionDTO
   ): Promise<VesselVisitExecutionDTO> {
 
+    // VVE ID is automatically generated as UUID (matching VVN ID pattern)
+    // No ID is passed to create(), so UniqueEntityID generates a new UUID
     const vveOrError = VesselVisitExecution.create({
       vvnId: VvnId.create(dto.vvnId).getValue(),
       actualArrivalTime: ActualArrivalTime.create(new Date(dto.actualArrivalTime)).getValue(),
