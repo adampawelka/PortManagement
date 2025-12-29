@@ -4,14 +4,14 @@ import { Result } from "../../core/logic/Result";
 import { Guard } from "../../core/logic/Guard";
 
 import { OperationPlanId } from "./OperationPlanId";
-import { VesselVisitExecutionId } from "../VesselVisitExecutions/VesselVisitExecutionId";
+import { VvnId } from "../VesselVisitExecutions/VvnId";
 import { CreatedAt } from "./CreatedAt";
 import { CreatedBy } from "./CreatedBy";
 import { AlgorithmUsed } from "./AlgorithmUsed";
 import { ScheduledOperation } from "./ScheduledOperation";
 
 interface OperationPlanProps {
-  vesselVisitExecutionId: VesselVisitExecutionId;
+  vvnId: VvnId;
   createdAt: CreatedAt;
   createdBy: CreatedBy;
   algorithmUsed: AlgorithmUsed;
@@ -24,8 +24,8 @@ export class OperationPlan extends AggregateRoot<OperationPlanProps> {
     return OperationPlanId.create(this.id);
   }
 
-  get vesselVisitExecutionId(): VesselVisitExecutionId {
-    return this.props.vesselVisitExecutionId;
+  get vvnId(): VvnId {
+    return this.props.vvnId;
   }
 
   get createdAt(): CreatedAt {
@@ -54,7 +54,7 @@ export class OperationPlan extends AggregateRoot<OperationPlanProps> {
   ): Result<OperationPlan> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
-      { argument: props.vesselVisitExecutionId, argumentName: "vesselVisitExecutionId" },
+      { argument: props.vvnId, argumentName: "vvnId" },
       { argument: props.createdAt, argumentName: "createdAt" },
       { argument: props.createdBy, argumentName: "createdBy" },
       { argument: props.algorithmUsed, argumentName: "algorithmUsed" },

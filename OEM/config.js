@@ -129,7 +129,7 @@ export default {
     },
     operationPlan: {
       name: "OperationPlanService",
-      path: "../services/OperationalPlanService"
+      path: "../services/OperationPlanService"
     },
     incidentType: {
       name: "IncidentTypeService",

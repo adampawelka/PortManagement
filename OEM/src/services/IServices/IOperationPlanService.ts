@@ -1,4 +1,4 @@
-import { CreateOperationPlanDTO, OperationPlanDTO } from "../../dto/OperationPlanDTO";
+import { CreateOperationPlanDTO, OperationPlanDTO, SearchOperationPlanDTO } from "../../dto/OperationPlanDTO";
 
 export interface IOperationPlanService {
   create(
@@ -9,8 +9,8 @@ export interface IOperationPlanService {
     id: string
   ): Promise<OperationPlanDTO | null>;
 
-  getByVesselVisitExecutionId(
-    vesselVisitExecutionId: string
+  getByVvnId(
+    vvnId: string
   ): Promise<OperationPlanDTO | null>;
 
   getAll(): Promise<OperationPlanDTO[]>;
@@ -19,4 +19,8 @@ export interface IOperationPlanService {
     id: string,
     dto: Partial<CreateOperationPlanDTO>
   ): Promise<OperationPlanDTO | null>;
+
+  search(
+    dto: SearchOperationPlanDTO
+  ): Promise<OperationPlanDTO[]>;
 }

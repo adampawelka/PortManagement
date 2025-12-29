@@ -10,7 +10,7 @@ export interface ScheduledOperationDTO {
 
 export interface OperationPlanDTO {
   id: string;
-  vesselVisitExecutionId: string;
+  vvnId: string;
   createdAt: string;
   createdBy: string;
   algorithmUsed: string;
@@ -19,7 +19,7 @@ export interface OperationPlanDTO {
 
 
 export interface CreateOperationPlanDTO {
-  vesselVisitExecutionId: string;
+  vvnId: string;
   createdAt: string;
   createdBy: string;
   algorithmUsed: string;
@@ -31,4 +31,15 @@ export interface UpdateOperationPlanDTO {
   createdBy?: string;
   algorithmUsed?: string;
   schedule?: ScheduledOperationDTO[];
+}
+
+export interface SearchOperationPlanDTO {
+  dateStart?: string;      // ISO date string for plan creation date range start
+  dateEnd?: string;        // ISO date string for plan creation date range end
+  operationDateStart?: string;  // ISO date string for schedule operation start date
+  operationDateEnd?: string;    // ISO date string for schedule operation end date
+  vesselName?: string;     // Filter by vessel name in schedule
+  vvnId?: string;          // Filter by VVN ID
+  sortBy?: 'startTime' | 'vesselName' | 'delay' | 'createdAt';  // Sort field
+  sortOrder?: 'asc' | 'desc';  // Sort direction
 }

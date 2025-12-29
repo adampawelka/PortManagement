@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Inject, Service } from 'typedi';
 import config from "../../../config";
 import { IOperationPlanService } from "../../services/IServices/IOperationPlanService";
-import { CreateOperationPlanDTO, UpdateOperationPlanDTO } from "../../dto/OperationPlanDTO";
+import { CreateOperationPlanDTO, UpdateOperationPlanDTO, SearchOperationPlanDTO } from "../../dto/OperationPlanDTO";
 
 @Service()
 export default class OperationPlanController {
@@ -41,10 +41,10 @@ export default class OperationPlanController {
     }
   };
 
-  // GET: /operationPlans/vve/:vveId
-  public async getByVesselVisitExecution(req: Request, res: Response, next: NextFunction) {
+  // GET: /operationPlans/vvn/:vvnId
+  public async getByVvn(req: Request, res: Response, next: NextFunction) {
     try {
-      const planDTO = await this.operationPlanServiceInstance.getByVesselVisitExecutionId(req.params.vveId);
+      const planDTO = await this.operationPlanServiceInstance.getByVvnId(req.params.vvnId);
 
       if (planDTO === null) {
         return res.status(404).send("There isn't operational plan for that visit");
@@ -81,18 +81,35 @@ export default class OperationPlanController {
     }
   };
 
-  // GET: /operationPlans/search  SERVICE MUST BE IMPLEMENTED FIRST
-  // public async search(req: Request, res: Response, next: NextFunction) {
-  //   try {
-  //     const { dateStart, dateEnd, vesselId } = req.query;
-  //     const plansDTO = await this.operationPlanServiceInstance.search({
-  //       dateStart: dateStart as string,
-  //       dateEnd: dateEnd as string,
-  //       vesselId: vesselId as string
-  //     });
-  //     return res.status(200).json(plansDTO);
-  //   } catch (e) {
-  //     return next(e);
-  //   }
-  // }
+  // GET: /operationPlans/search
+  public async search(req: Request, res: Response, next: NextFunction) {
+    try {
+      const {
+        dateStart,
+        dateEnd,
+        operationDateStart,
+        operationDateEnd,
+        vesselName,
+        vvnId,
+        sortBy,
+        sortOrder
+      } = req.query;
+
+      const searchDTO: SearchOperationPlanDTO = {
+        dateStart: dateStart as string | undefined,
+        dateEnd: dateEnd as string | undefined,
+        operationDateStart: operationDateStart as string | undefined,
+        operationDateEnd: operationDateEnd as string | undefined,
+        vesselName: vesselName as string | undefined,
+        vvnId: vvnId as string | undefined,
+        sortBy: sortBy as 'startTime' | 'vesselName' | 'delay' | 'createdAt' | undefined,
+        sortOrder: (sortOrder as 'asc' | 'desc') || 'asc'
+      };
+
+      const plansDTO = await this.operationPlanServiceInstance.search(searchDTO);
+      return res.status(200).json(plansDTO);
+    } catch (e) {
+      return next(e);
+    }
+  }
 }

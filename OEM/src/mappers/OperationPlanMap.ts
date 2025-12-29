@@ -2,7 +2,7 @@ import { OperationPlan } from "../Domain/OperationPlans/OperationPlan";
 import { UniqueEntityID } from "../core/domain/UniqueEntityID";
 import { ScheduledOperation } from "../Domain/OperationPlans/ScheduledOperation";
 
-import { VesselVisitExecutionId } from "../Domain/VesselVisitExecutions/VesselVisitExecutionId";
+import { VvnId } from "../Domain/VesselVisitExecutions/VvnId";
 import { CreatedAt } from "../Domain/OperationPlans/CreatedAt";
 import { CreatedBy } from "../Domain/OperationPlans/CreatedBy";
 import { AlgorithmUsed } from "../Domain/OperationPlans/AlgorithmUsed";
@@ -13,7 +13,7 @@ export class OperationPlanMap {
   static toPersistence(operationPlan: OperationPlan): any {
     return {
       domainId: operationPlan.id.toString(),
-      vveId: operationPlan.props.vesselVisitExecutionId.id.toString(),
+      vvnId: operationPlan.props.vvnId.value,
       createdAt: operationPlan.props.createdAt.value,
       createdBy: operationPlan.props.createdBy.value,
       algorithmUsed: operationPlan.props.algorithmUsed.value,
@@ -50,8 +50,8 @@ export class OperationPlanMap {
       return scheduledOpOrError.getValue();
     });
 
-    const vesselVisitExecutionId =
-      VesselVisitExecutionId.create(raw.vveId);
+    const vvnIdOrError =
+      VvnId.create(raw.vvnId);
 
     const createdAtOrError =
       CreatedAt.create(raw.createdAt);
@@ -63,6 +63,7 @@ export class OperationPlanMap {
       AlgorithmUsed.create(raw.algorithmUsed);
 
     if (
+      vvnIdOrError.isFailure ||
       createdAtOrError.isFailure ||
       createdByOrError.isFailure ||
       algorithmUsedOrError.isFailure
@@ -70,12 +71,17 @@ export class OperationPlanMap {
       throw new Error("Invalid OperationPlan persistence data");
     }
 
+    const vvnId = vvnIdOrError.getValue();
+    const createdAt = createdAtOrError.getValue();
+    const createdBy = createdByOrError.getValue();
+    const algorithmUsed = algorithmUsedOrError.getValue();
+
     const operationPlanOrError = OperationPlan.create(
       {
-        vesselVisitExecutionId: raw.vveId,
-        createdAt: raw.createdAt,
-        createdBy: raw.createdBy,
-        algorithmUsed: raw.algorithmUsed,
+        vvnId: vvnId,
+        createdAt: createdAt,
+        createdBy: createdBy,
+        algorithmUsed: algorithmUsed,
         schedule
       },
       new UniqueEntityID(raw.domainId)
