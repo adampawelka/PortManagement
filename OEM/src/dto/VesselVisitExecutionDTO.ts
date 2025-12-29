@@ -13,7 +13,7 @@ export interface CreateVesselVisitExecutionDTO {
   actualArrivalTime: string;
   actualBerthTime?: string;
   dockId?: string;
-  status: string;
+  status?: string;
   createdBy: string;
 }
 

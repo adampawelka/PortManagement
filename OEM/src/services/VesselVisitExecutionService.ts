@@ -34,6 +34,8 @@ export class VesselVisitExecutionService
 
     // VVE ID is automatically generated as UUID (matching VVN ID pattern)
     // No ID is passed to create(), so UniqueEntityID generates a new UUID
+    // Status is automatically set to IN_PROGRESS when VVE is created (US 4.1.7)
+    // dto.status is ignored - VVE is always created with IN_PROGRESS status
     const vveOrError = VesselVisitExecution.create({
       vvnId: VvnId.create(dto.vvnId).getValue(),
       actualArrivalTime: ActualArrivalTime.create(new Date(dto.actualArrivalTime)).getValue(),
@@ -44,8 +46,8 @@ export class VesselVisitExecutionService
         ? DockId.create(dto.dockId).getValue()
         : undefined,
       status: VesselVisitExecutionStatus.create(
-        dto.status as VesselVisitExecutionStatusEnum
-      ).getValue(),
+        VesselVisitExecutionStatusEnum.IN_PROGRESS
+      ).getValue(),  // Always set to IN_PROGRESS on creation, ignoring dto.status (US 4.1.7)
       createdBy: CreatedBy.create(dto.createdBy).getValue()
     });
 

@@ -14,6 +14,7 @@ export default class VesselVisitExecutionController {
   public async createVVE(req: Request, res: Response, next: NextFunction) {
     try {
       // El sistema debe asignar automáticamente un identificador de VVE (US 4.1.7)
+      // Status is automatically set to IN_PROGRESS on creation 
       const vveDTO = await this.vveServiceInstance.create(req.body as CreateVesselVisitExecutionDTO);
 
       if (vveDTO === null) {
