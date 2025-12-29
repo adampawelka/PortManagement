@@ -1,47 +1,108 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Typography, Alert } from "@mui/material";
+import { 
+  Container, Typography, CircularProgress, Alert, 
+  Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Button 
+} from "@mui/material";
 import { useVVEListVM } from "../../viewmodels/VesselVisitExecutions/useVVEListVM";
 
 const VVEListPage = () => {
-  const vm = useVVEListVM();
+  const { vveList, loading, error } = useVVEListVM();
   const navigate = useNavigate();
 
-  if (vm.loading) return <Typography>Loading VVE list...</Typography>;
-  if (vm.error) return <Alert severity="error">{vm.error}</Alert>;
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    try {
+      return new Date(dateString).toLocaleString();
+    } catch (e) {
+      return "Invalid Date";
+    }
+  };
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h5" mb={2}>Vessel Visit Executions</Typography>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>VVN ID</TableCell>
-              <TableCell>Vessel Name</TableCell>
-              <TableCell>Dock</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {vm.vveList.map(vve => (
-              <TableRow key={vve.id}>
-                <TableCell>{vve.vvnId}</TableCell>
-                <TableCell>{vve.vesselName}</TableCell>
-                <TableCell>{vve.dock}</TableCell>
-                <TableCell>
-                  <Button 
-                    variant="contained" 
-                    onClick={() => navigate(`/vve/${vve.id}/update`)}
-                  >
-                    Update
-                  </Button>
-                </TableCell>
+    <Container 
+      maxWidth="xl" 
+      sx={{ 
+        mt: 4, 
+        backgroundColor: 'var(--color-surface)', 
+        p: 4, 
+        borderRadius: 'var(--radius-md)', 
+        boxShadow: 3,
+        fontFamily: 'var(--font-family-base)',
+      }}
+    >
+      <Typography 
+        variant="h4" 
+        gutterBottom 
+        sx={{ 
+          color: 'var(--color-primary-light)', 
+          fontWeight: 600, 
+          mb: 3,
+          fontSize: 'var(--font-size-heading)', 
+        }}
+      >
+        Vessel Visit Executions ({vveList.length})
+      </Typography>
+
+      {loading && <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />}
+
+      {error && (
+        <Alert 
+          severity="error" 
+          sx={{ mb: 2, color: 'var(--color-text-light)', backgroundColor: 'var(--color-error)' }}
+          aria-live="assertive"
+        >
+          {error}
+        </Alert>
+      )}
+
+      {!loading && vveList.length === 0 && !error && (
+        <Alert 
+          severity="info" 
+          sx={{ mb: 2, backgroundColor: 'var(--color-info)', color: 'var(--color-text-dark)' }}
+          aria-live="polite"
+        >
+          No vessel visit executions found.
+        </Alert>
+      )}
+
+      {vveList.length > 0 && (
+        <TableContainer component={Paper} sx={{ mt: 3 }}>
+          <Table size="small" aria-label="vve table">
+            <TableHead>
+              <TableRow sx={{ backgroundColor: 'var(--color-background)' }}>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>VVN ID</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Dock</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Created By</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Actual Arrival</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Actual Berth</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {vveList.map(vve => (
+                <TableRow key={vve.vvnId} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
+                  <TableCell>{vve.vvnId}</TableCell>
+                  <TableCell>{vve.dockId || "-"}</TableCell>
+                  <TableCell>{vve.status}</TableCell>
+                  <TableCell>{vve.createdBy}</TableCell>
+                  <TableCell>{formatDate(vve.actualArrivalTime)}</TableCell>
+                  <TableCell>{formatDate(vve.actualBerthTime)}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      onClick={() => navigate(`/vve/${vve.vvnId}/update`)}
+                    >
+                      Update
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </Container>
   );
 };
