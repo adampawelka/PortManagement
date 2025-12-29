@@ -107,6 +107,21 @@ const UpdateVVEPage = () => {
             sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
           />
 
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 2,
+              py: 1.5,
+              backgroundColor: 'var(--color-primary)',
+              color: 'var(--color-text-light)',
+              '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+            }}
+          >
+            Load VVE
+          </Button>
+
 
           {isVveLoaded && (
             <>
@@ -126,10 +141,6 @@ const UpdateVVEPage = () => {
                 renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
               />
 
-
-            </>
-          )}
-
           <Button
             type="submit"
             variant="contained"
@@ -141,11 +152,12 @@ const UpdateVVEPage = () => {
               color: 'var(--color-text-light)',
               '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
             }}
-
             disabled={!isVveLoaded || vm.loading}
           >
             {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Update VVE'}
           </Button>
+          </>
+          )}
         </Box>
 
         {/* =======================

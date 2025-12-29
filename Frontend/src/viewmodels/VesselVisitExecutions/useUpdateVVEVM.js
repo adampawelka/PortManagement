@@ -112,7 +112,6 @@ export const useUpdateVVEVM = (initialVveId = "") => {
 
         setExecutedOperations((prev) => [...prev, created]);
 
-        // opcjonalnie: usuń planned op z listy
         setPlannedOperations((prev) =>
           prev.filter(
             (p) => p.id !== data.plannedOperationId
@@ -161,9 +160,7 @@ export const useUpdateVVEVM = (initialVveId = "") => {
     [apiOemFetch]
   );
 
-  /* =======================
-     BULK COMPLETE (OPTIONAL)
-  ======================= */
+
   const markAllOperationsCompleted = useCallback(
     async () => {
       setError(null);
