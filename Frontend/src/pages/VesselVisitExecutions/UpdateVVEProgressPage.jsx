@@ -27,6 +27,7 @@ import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useUpdateVVEProgressVM } from
   "../../viewmodels/VesselVisitExecutions/useUpdateVVEProgressVM";
+import { LoadingManager } from "three/src/Three.Core.js";
 
 const UpdateVVEProgressPage = () => {
   const { id } = useParams();
@@ -47,7 +48,7 @@ const UpdateVVEProgressPage = () => {
   }, [vm, id]);
 
 
-  if (vm.loading) return <CircularProgress />;
+  if (vm.loading) return <Typography>Loading Vessel Visit Notifications... </Typography>;
   if (vm.error) return <Alert severity="error">{vm.error}</Alert>;
   if (!vm.vve) return null;
 

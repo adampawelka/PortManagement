@@ -39,6 +39,7 @@ import AddVNNPage from "../pages/VesselVisitNotifications/AddVVNPage.jsx";
 import SubmitVVNPage from "../pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 
 //VVE
+import VVEListPage from "../pages/VesselVisitExecutions/VVEListPage.jsx";
 import UpdateVVEProgressPage from "../pages/VesselVisitExecutions/UpdateVVEProgressPage.jsx";
 
 // Operational Plans
@@ -110,6 +111,7 @@ export const protectedRoutes = {
   ],
 
   vve: [
+    { path: "/vve/list", element: <VVEListPage />, roles: ["LogisticsOperator"] },
     { path: "/vve/update", element: <UpdateVVEProgressPage />, roles: ["LogisticsOperator"] }
   ],
 

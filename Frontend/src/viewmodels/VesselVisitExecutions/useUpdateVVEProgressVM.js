@@ -22,26 +22,19 @@ export const useUpdateVVEProgressVM = (vveId) => {
     setLoading(true);
     setError(null);
     try {
-      const vveData =
-        await vesselVisitExecutionService.getVVE(apiOemFetch, vveId);
+      const vveData = await vesselVisitExecutionService.getVVE(apiOemFetch, vveId);
       setVve(vveData);
-
-      const execOps =
-        await executedOperationService.getByVVE(apiOemFetch, vveId);
+      const execOps = await executedOperationService.getByVVE(apiOemFetch, vveId);
       setExecutedOperations(execOps);
-
-      const plannedOps =
-        await executedOperationService.getAvailablePlannedOperations(
-          apiOemFetch,
-          vveId
-        );
+      const plannedOps = await executedOperationService.getAvailablePlannedOperations(apiOemFetch, vveId);
       setPlannedOperations(plannedOps);
     } catch (err) {
-      setError(err.message || "Failed to load VVE data");
+      setError("Failed to fetch");
     } finally {
       setLoading(false);
     }
   }, [apiOemFetch, vveId]);
+
 
   /** Create executed operation */
   const createExecutedOperation = useCallback(

@@ -62,8 +62,6 @@ export default class VesselVisitExecutionController {
         return res.status(404).send("Execution register not found");
       }
 
-      // El sistema debe alertar si el dock asignado difiere del planeado (US 4.1.8)
-      // Esta lógica de comparación debería residir en el Servicio o Dominio.
       return res.status(200).json(vveDTO);
     } catch (e) {
       return next(e);
