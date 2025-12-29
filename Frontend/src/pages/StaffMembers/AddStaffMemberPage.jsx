@@ -6,6 +6,10 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 import { useAddStaffMemberVM } from "../../viewmodels/StaffMembers/useAddStaffMemberVM";
@@ -107,6 +111,28 @@ const AddStaffMemberPage = () => {
           margin="normal"
           placeholder="e.g. 08:00–16:00"
         />
+
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="qualification-label">Qualifications</InputLabel>
+          <Select
+            labelId="qualification-label"
+            multiple
+            value={vm.formData.qualificationIds}
+            onChange={vm.handleQualificationsChange}
+            renderValue={(selected) =>
+              vm.availableQualifications
+                .filter((q) => selected.includes(q.id))
+                .map((q) => q.code)
+                .join(", ")
+            }
+          >
+            {vm.availableQualifications.map((q) => (
+              <MenuItem key={q.id} value={q.id}>
+                {q.code} - {q.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <Button
           type="submit"
