@@ -33,6 +33,7 @@ namespace DDDSample1.Domain.Qualifications
             var qualificationCode = new QualificationCode(code);
             var qualificationName = new QualificationName(name);
 
+            // Poprawnie przekazujemy string do repo
             var existing = await _repo.GetByCodeAsync(qualificationCode.Value);
             if (existing != null)
                 throw new BusinessRuleValidationException($"A qualification with code '{code}' already exists.");
@@ -48,8 +49,7 @@ namespace DDDSample1.Domain.Qualifications
         public async Task<QualificationDto?> UpdateAsync(QualificationId id, string code, string name)
         {
             var qualification = await _repo.GetByIdAsync(id);
-            if (qualification == null)
-                return null;
+            if (qualification == null) return null;
 
             var qualificationCode = new QualificationCode(code);
             var qualificationName = new QualificationName(name);
@@ -71,7 +71,6 @@ namespace DDDSample1.Domain.Qualifications
             var qualifications = await _repo.SearchAsync(code, name);
             return qualifications.Select(MapToDto).ToList();
         }
-
 
         private QualificationDto MapToDto(Qualification qualification)
         {

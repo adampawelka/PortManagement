@@ -19,46 +19,58 @@ namespace DDDSample1.Infrastructure.Qualifications
 
         public async Task<List<Qualification>> GetAllQualificationsAsync()
         {
-            return await _context.Qualifications.ToListAsync();
+            return await _context.Qualifications.AsNoTracking().ToListAsync();
         }
 
         public async Task<Qualification?> GetByCodeAsync(string code)
         {
-            if (string.IsNullOrWhiteSpace(code))
-                return null;
+            if (string.IsNullOrWhiteSpace(code)) return null;
 
             var normalizedCode = code.Trim().ToUpperInvariant();
-            return await _context.Qualifications.AsNoTracking()
-                .FirstOrDefaultAsync(q => q.Code.Value.ToUpper() == normalizedCode);
+
+            // Pobieramy wszystko do pamięci i filtrujemy po ValueObject
+            return (await _context.Qualifications.AsNoTracking().ToListAsync())
+                   .FirstOrDefault(q => q.Code.Value == normalizedCode);
         }
 
         public async Task<List<Qualification>> GetByNameAsync(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                return new List<Qualification>();
+            if (string.IsNullOrWhiteSpace(name)) return new List<Qualification>();
 
-            return await _context.Qualifications
-                .Where(q => EF.Functions.Like(q.Name.Value, $"%{name.Trim()}%"))
-                .ToListAsync();
+            var trimmedName = name.Trim();
+
+            // Filtrujemy w pamięci po ValueObject
+            return (await _context.Qualifications.AsNoTracking().ToListAsync())
+                   .Where(q => q.Name.Value.Contains(trimmedName, StringComparison.OrdinalIgnoreCase))
+                   .ToList();
         }
 
         public async Task<List<Qualification>> SearchAsync(string? code, string? name)
         {
-            var query = _context.Qualifications.AsQueryable();
+            var qualifications = await _context.Qualifications.AsNoTracking().ToListAsync();
 
             if (!string.IsNullOrWhiteSpace(code))
-                query = query.Where(q => EF.Functions.Like(q.Code.Value, $"%{code.Trim()}%"));
+            {
+                var trimmedCode = code.Trim().ToUpperInvariant();
+                qualifications = qualifications
+                                 .Where(q => q.Code.Value.Contains(trimmedCode))
+                                 .ToList();
+            }
 
             if (!string.IsNullOrWhiteSpace(name))
-                query = query.Where(q => EF.Functions.Like(q.Name.Value, $"%{name.Trim()}%"));
+            {
+                var trimmedName = name.Trim();
+                qualifications = qualifications
+                                 .Where(q => q.Name.Value.Contains(trimmedName, StringComparison.OrdinalIgnoreCase))
+                                 .ToList();
+            }
 
-            return await query.ToListAsync();
+            return qualifications;
         }
 
         public async Task AddQualificationAsync(Qualification qualification)
         {
-            if (qualification == null) 
-                throw new ArgumentNullException(nameof(qualification));
+            if (qualification == null) throw new ArgumentNullException(nameof(qualification));
 
             await _context.Qualifications.AddAsync(qualification);
         }
