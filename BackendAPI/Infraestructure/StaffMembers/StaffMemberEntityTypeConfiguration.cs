@@ -10,42 +10,49 @@ namespace DDDSample1.Infrastructure.StaffMembers
         {
             builder.ToTable("StaffMembers", SchemaNames.DDDSample1);
 
+            // Klucz główny
             builder.HasKey(s => s.Id);
             builder.Property(s => s.Id)
-                .HasConversion(id => id.Value, value => new StaffMemberId(value))
-                .HasColumnName("Id");
+                   .HasConversion(id => id.Value, value => new StaffMemberId(value))
+                   .HasColumnName("Id");
 
+            // MecanographicNumber jako Value Object, unikalny
             builder.Property(s => s.MecanographicNumber)
-                .IsRequired()
-                .HasMaxLength(50)
-                .HasConversion(
-                    num => num.Value,
-                    value => new MecanographicNumber(value)
-                )
-                .HasColumnName("MecanographicNumber");
+                   .IsRequired()
+                   .HasMaxLength(50)
+                   .HasConversion(
+                       num => num.Value,            // zapis do DB
+                       value => new MecanographicNumber(value) // odczyt z DB
+                   )
+                   .HasColumnName("MecanographicNumber");
 
             builder.HasIndex(s => s.MecanographicNumber)
-                   .IsUnique(); 
+                   .IsUnique();
 
+            // ShortName
             builder.Property(s => s.ShortName)
                    .IsRequired()
                    .HasMaxLength(100);
 
+            // Email
             builder.Property(s => s.Email)
                    .IsRequired()
                    .HasMaxLength(255);
 
+            // Phone (opcjonalne)
             builder.Property(s => s.Phone)
                    .HasMaxLength(50);
 
+            // OperationalWindow jako Value Object
             builder.Property(s => s.OperationalWindow)
                    .IsRequired()
                    .HasMaxLength(500)
                    .HasConversion(
-                       ow => ow.Value,                   
-                       value => new OperationalWindow(value) 
+                       ow => ow.Value,                   // zapis do DB
+                       value => new OperationalWindow(value) // odczyt z DB
                    );
 
+            // Status
             builder.Property(s => s.Status)
                    .IsRequired()
                    .HasConversion<string>()

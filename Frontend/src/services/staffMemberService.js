@@ -19,17 +19,17 @@ export const addStaffMember = async (apiFetch, StaffMemberDto) => {
   return res.json();
 };
 
-export const updateStaffMember = async (apiFetch, staffMemberId, StaffMemberDto) => {
-  const res = await apiFetch(`/api/StaffMembers/${staffMemberId}`, {
-    method: "PUT",
-    body: JSON.stringify(StaffMemberDto),
-  });
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to update staff member");
-  }
-  return res.json();
-};
+// export const updateStaffMember = async (apiFetch, staffMemberId, StaffMemberDto) => {
+//   const res = await apiFetch(`/api/StaffMembers/${staffMemberId}`, {
+//     method: "PUT",
+//     body: JSON.stringify(StaffMemberDto),
+//   });
+//   if (!res.ok) {
+//     const errorData = await res.json().catch(() => ({}));
+//     throw new Error(errorData.message || "Failed to update staff member");
+//   }
+//   return res.json();
+// };
 
 export const activateStaffMember = async (apiFetch, staffMemberId) => {
   const res = await apiFetch(`/api/StaffMembers/${staffMemberId}/activate`, {

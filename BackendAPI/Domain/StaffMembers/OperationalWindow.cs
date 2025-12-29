@@ -14,8 +14,8 @@ namespace DDDSample1.Domain.StaffMembers
             if (string.IsNullOrWhiteSpace(value))
                 throw new BusinessRuleValidationException("Operational window cannot be empty.", nameof(value));
 
-            // Sprawdzenie formatu HH:mm–HH:mm
-            var regex = new Regex(@"^([01]\d|2[0-3]):([0-5]\d)–([01]\d|2[0-3]):([0-5]\d)$");
+            var regex = new Regex(@"^([01]\d|2[0-3]):([0-5]\d)[–-]([01]\d|2[0-3]):([0-5]\d)$");
+
             if (!regex.IsMatch(value))
                 throw new BusinessRuleValidationException("Operational window must be in format HH:mm–HH:mm.", nameof(value));
 

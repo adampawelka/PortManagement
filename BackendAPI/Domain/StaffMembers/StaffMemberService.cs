@@ -22,19 +22,16 @@ namespace DDDSample1.Domain.StaffMembers
 
         public async Task<StaffMemberDto> CreateStaffMemberAsync(CreateStaffMemberDto dto)
         {
-            // Tworzymy VO
             var mecNumber = new MecanographicNumber(dto.MecanographicNumber);
             var operationalWindow = new OperationalWindow(dto.OperationalWindow);
-            var staffId = new StaffMemberId(Guid.NewGuid()); // Guid zamiast string
+            var staffId = new StaffMemberId(Guid.NewGuid()); 
 
-            // Sprawdzenie duplikatu
             var existing = await _staffRepo.GetByMecanographicNumberAsync(mecNumber);
             if (existing != null)
             {
                 throw new InvalidOperationException("A staff member with this mecanographic number already exists.");
             }
 
-            // Mapowanie kwalifikacji na VO
             var qualIds = dto.QualificationIds.Select(id => new QualificationId(id)).ToList();
             var qualifications = await _qualRepo.GetByIdsAsync(qualIds);
             if (qualifications.Count != dto.QualificationIds.Count)
@@ -42,7 +39,6 @@ namespace DDDSample1.Domain.StaffMembers
                 throw new ArgumentException("One or more qualification IDs are invalid.");
             }
 
-            // Tworzenie encji
             var staffMember = new StaffMember(
                 staffId,
                 mecNumber,
