@@ -1,56 +1,46 @@
-import { useState, useEffect } from "react";
-import { getQualificationById, updateQualification } from "../../services/qualificationService";
+import { useState, useEffect, useCallback } from "react";
+import { getQualifications } from "../../services/qualificationService";
+import { useApi } from "../../services/api";
 
-export const useUpdateQualificationVM = (apiFetch, qualificationId) => {
+export const useUpdateQualificationVM = (apiFetch) => {
+  const [availableCodes, setAvailableCodes] = useState([]);
   const [formData, setFormData] = useState({ code: "", name: "" });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const [criticalError, setCriticalError] = useState(false);
-  const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    const fetchQualification = async () => {
-      try {
-        const data = await getQualificationById(apiFetch, qualificationId);
-
-        if (!data || Object.keys(data).length === 0) {
-          setNotFound(true);
-        } else {
-          setFormData({ code: data.code || "", name: data.name || "" });
-        }
-      } catch (err) {
-        if (err.message.includes("404")) {
-          setNotFound(true);
-        } else {
-          setCriticalError(true);
-          setMessage({ type: "error", text: err.message || "Failed to load qualification" });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (qualificationId) {
-      fetchQualification();
-    } else {
-      setNotFound(true);
+  const fetchQualifications = useCallback(async () => {
+    setLoading(true);
+    setCriticalError(false);
+    try {
+      const data = await getQualifications(apiFetch);
+      setAvailableCodes(data.map(q => q.code));
+    } catch (err) {
+      setCriticalError(true);
+      setMessage({ type: "error", text: err.message || "Failed to fetch qualifications" });
+    } finally {
       setLoading(false);
     }
-  }, [apiFetch, qualificationId]);
+  }, [apiFetch]);
+
+  useEffect(() => {
+    fetchQualifications();
+  }, [fetchQualifications]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, onSubmit) => {
     e.preventDefault();
+    if (!onSubmit) return;
     setSubmitting(true);
     setMessage(null);
 
     try {
-      await updateQualification(apiFetch, qualificationId, formData);
+      await onSubmit(formData);
       setMessage({ type: "success", text: "Qualification updated successfully!" });
     } catch (err) {
       setMessage({ type: "error", text: err.message || "Failed to update qualification" });
@@ -60,13 +50,13 @@ export const useUpdateQualificationVM = (apiFetch, qualificationId) => {
   };
 
   return {
+    availableCodes,
     formData,
+    handleChange,
+    handleSubmit,
     loading,
     submitting,
     message,
     criticalError,
-    notFound,
-    handleChange,
-    handleSubmit,
   };
 };

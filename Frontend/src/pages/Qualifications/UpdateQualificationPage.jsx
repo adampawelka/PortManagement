@@ -7,15 +7,17 @@ import {
   CircularProgress,
   Alert,
   Paper,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl
 } from "@mui/material";
 import { useApi } from "../../services/api";
 import { useUpdateQualificationVM } from "../../viewmodels/Qualifications/useUpdateQualificationVM";
-import { useParams } from "react-router-dom";
 
-const UpdateQualificationPage = () => {
+const UpdateQualificationPage = ({ onSubmit }) => {
   const { apiFetch } = useApi();
-  const { id } = useParams();
-  const vm = useUpdateQualificationVM(apiFetch, id);
+  const vm = useUpdateQualificationVM(apiFetch);
 
   return (
     <Container
@@ -44,7 +46,6 @@ const UpdateQualificationPage = () => {
         Update Qualification
       </Typography>
 
-      {/* Loading */}
       {vm.loading && (
         <CircularProgress
           sx={{
@@ -55,60 +56,34 @@ const UpdateQualificationPage = () => {
         />
       )}
 
-      {/* Critical Error */}
       {vm.criticalError && (
         <Alert
           severity="error"
-          sx={{
-            mb: 2,
-            color: "var(--color-text-light)",
-            backgroundColor: "var(--color-error)",
-          }}
+          sx={{ mb: 2, color: "var(--color-text-light)", backgroundColor: "var(--color-error)" }}
         >
-          {vm.message?.text || "Cannot load qualification."}
+          {vm.message?.text || "Cannot load qualifications."}
         </Alert>
       )}
 
-      {/* Not Found */}
-      {!vm.loading && vm.notFound && (
-        <Alert
-          severity="info"
-          sx={{
-            mb: 2,
-            backgroundColor: "var(--color-info)",
-            color: "var(--color-text-dark)",
-          }}
-        >
-          No qualification found.
-        </Alert>
-      )}
+      {!vm.loading && !vm.criticalError && (
+        <Paper sx={{ p: 3, mt: 2, boxShadow: "var(--shadow-sm)", borderRadius: "var(--radius-sm)" }}>
+          {vm.message && <Alert severity={vm.message.type} sx={{ mb: 2 }}>{vm.message.text}</Alert>}
 
-      {/* Form */}
-      {!vm.loading && !vm.criticalError && !vm.notFound && (
-        <Paper
-          sx={{
-            p: 3,
-            mt: 2,
-            boxShadow: "var(--shadow-sm)",
-            borderRadius: "var(--radius-sm)",
-          }}
-        >
-          {vm.message && (
-            <Alert severity={vm.message.type} sx={{ mb: 2 }}>
-              {vm.message.text}
-            </Alert>
-          )}
-
-          <form onSubmit={vm.handleSubmit}>
-            <TextField
-              label="Code"
-              name="code"
-              value={vm.formData.code}
-              onChange={vm.handleChange}
-              fullWidth
-              required
-              margin="normal"
-            />
+          <form onSubmit={(e) => vm.handleSubmit(e, onSubmit)}>
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="code-label">Code</InputLabel>
+              <Select
+                labelId="code-label"
+                name="code"
+                value={vm.formData.code}
+                onChange={vm.handleChange}
+                required
+              >
+                {vm.availableCodes.map((code) => (
+                  <MenuItem key={code} value={code}>{code}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             <TextField
               label="Name"
