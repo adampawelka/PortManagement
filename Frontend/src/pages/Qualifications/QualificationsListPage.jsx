@@ -49,18 +49,26 @@ const QualificationsListPage = () => {
       </Typography>
 
       {/* --- Search Filters --- */}
-      <Stack direction="row" spacing={2} mb={3}>
+      <Stack 
+        direction="row" 
+        spacing={2} 
+        mb={3} 
+        justifyContent="center" 
+        alignItems="center"
+      >
         <TextField 
           label="Code" 
           value={codeFilter} 
           onChange={(e) => setCodeFilter(e.target.value)}
           size="small"
+          inputProps={{ style: { textAlign: 'center' } }}
         />
         <TextField 
           label="Name" 
           value={nameFilter} 
           onChange={(e) => setNameFilter(e.target.value)}
           size="small"
+          inputProps={{ style: { textAlign: 'center' } }}
         />
         <Button 
           variant="contained" 
@@ -116,16 +124,16 @@ const QualificationsListPage = () => {
             <TableHead>
               <TableRow sx={{ backgroundColor: 'var(--color-background)' }}>
                 <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Code</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)' }}>Name</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)', textAlign: 'center' }}>Code</TableCell>
+                <TableCell sx={{ fontWeight: 'bold', fontSize: 'var(--font-size-table-header)', textAlign: 'center' }}>Name</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {qualifications.map((q, index) => (
                 <TableRow key={q.id || index} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
                   <TableCell>{q.id || 'N/A'}</TableCell>
-                  <TableCell>{q.code || 'N/A'}</TableCell>
-                  <TableCell>{q.name || 'N/A'}</TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>{q.code || 'N/A'}</TableCell>
+                  <TableCell sx={{ textAlign: 'center' }}>{q.name || 'N/A'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
