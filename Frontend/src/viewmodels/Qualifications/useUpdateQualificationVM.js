@@ -1,25 +1,27 @@
 import { useState, useEffect, useCallback } from "react";
-import { getQualifications } from "../../services/qualificationService";
-import { useApi } from "../../services/api";
+import { getQualifications, getQualificationById, updateQualification } from "../../services/qualificationService";
 
 export const useUpdateQualificationVM = (apiFetch) => {
-  const [availableCodes, setAvailableCodes] = useState([]);
+  const [availableQualifications, setAvailableQualifications] = useState([]);
+  const [selectedId, setSelectedId] = useState("");
   const [formData, setFormData] = useState({ code: "", name: "" });
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const [criticalError, setCriticalError] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
+  // Pobranie wszystkich kwalifikacji przy ładowaniu VM
   const fetchQualifications = useCallback(async () => {
     setLoading(true);
     setCriticalError(false);
     try {
       const data = await getQualifications(apiFetch);
-      setAvailableCodes(data.map(q => q.code));
+      setAvailableQualifications(data || []);
+      setLoading(false);
     } catch (err) {
       setCriticalError(true);
       setMessage({ type: "error", text: err.message || "Failed to fetch qualifications" });
-    } finally {
       setLoading(false);
     }
   }, [apiFetch]);
@@ -28,20 +30,48 @@ export const useUpdateQualificationVM = (apiFetch) => {
     fetchQualifications();
   }, [fetchQualifications]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  // Obsługa wyboru kwalifikacji z listy
+  const handleSelectChange = async (id) => {
+    setSelectedId(id);
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const data = await getQualificationById(apiFetch, id);
+      if (!data) {
+        setNotFound(true);
+        setFormData({ code: "", name: "" });
+      } else {
+        setNotFound(false);
+        setFormData({ code: data.code, name: data.name });
+      }
+    } catch (err) {
+      setCriticalError(true);
+      setMessage({ type: "error", text: err.message || "Failed to load qualification" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = async (e, onSubmit) => {
+  // Obsługa zmian w formularzu (nowy kod lub nazwa)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Obsługa wysyłki formularza
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!onSubmit) return;
+    if (!selectedId) return;
+
     setSubmitting(true);
     setMessage(null);
 
     try {
-      await onSubmit(formData);
+      await updateQualification(apiFetch, selectedId, formData);
       setMessage({ type: "success", text: "Qualification updated successfully!" });
+      // Odśwież listę kodów
+      await fetchQualifications();
     } catch (err) {
       setMessage({ type: "error", text: err.message || "Failed to update qualification" });
     } finally {
@@ -50,13 +80,16 @@ export const useUpdateQualificationVM = (apiFetch) => {
   };
 
   return {
-    availableCodes,
+    availableQualifications,
+    selectedId,
     formData,
-    handleChange,
-    handleSubmit,
     loading,
     submitting,
     message,
     criticalError,
+    notFound,
+    handleSelectChange,
+    handleChange,
+    handleSubmit,
   };
 };
