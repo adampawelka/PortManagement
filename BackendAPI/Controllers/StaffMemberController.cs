@@ -25,16 +25,15 @@ namespace DDDSample1.Controllers
             try
             {
                 var staffMemberDto = await _service.CreateStaffMemberAsync(dto);
-                // (Necesitarás un endpoint 'GetById' para que CreatedAtAction funcione)
                 return CreatedAtAction(nameof(GetStaffMemberById), new { id = staffMemberDto.Id }, staffMemberDto);
             }
-            catch (ArgumentException ex) // Ej. ID de cualificación inválido
+            catch (ArgumentException ex) 
             {
                 return BadRequest(new { message = ex.Message });
             }
-            catch (InvalidOperationException ex) // Ej. Número mecanográfico duplicado
+            catch (InvalidOperationException ex) 
             {
-                return Conflict(new { message = ex.Message }); // 409 Conflict
+                return Conflict(new { message = ex.Message }); 
             }
         }
 
@@ -52,17 +51,36 @@ namespace DDDSample1.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
-            catch (InvalidOperationException ex) // Ej. "Ya está inactivo"
+            catch (InvalidOperationException ex)
             {
                 return Conflict(new { message = ex.Message });
             }
         }
 
-        // (Aquí iría el endpoint GET para que funcione CreatedAtAction)
+        // PUT: api/staffmembers/{id}/reactivate
+        [HttpPut("{id}/reactivate")]
+        public async Task<ActionResult<StaffMemberDto>> ReactivateStaffMember(Guid id)
+        {
+            try
+            {
+                var staffId = new StaffMemberId(id.ToString());
+                var staffMemberDto = await _service.ReactivateStaffMemberAsync(staffId);
+                return Ok(staffMemberDto);
+            }
+            catch (EntityNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<StaffMemberDto>> GetStaffMemberById(Guid id)
         {
-            // (Esta lógica deberías implementarla en tu servicio)
             return Ok(new { Message = "Endpoint 'GetById' no implementado, pero necesario para CreatedAtAction." });
         }
 

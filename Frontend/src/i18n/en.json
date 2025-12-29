@@ -49,5 +49,14 @@
   "pending_users": "Pending Users",
   "operational_plans": "Operational Plans",
   "generate_operational_plan": "Generate Operational Plan",
-  "search_operational_plans": "Search Operational Plans"
+  "search_operational_plans": "Search Operational Plans",
+  "staff_members": "Staff Members",
+  "manage_staff_members": "Manage Staff Members",
+  "add_staff_member": "Add Staff Member",
+  "manage": "Manage",
+  "qualifications": "Qualifications",
+  "qualifications_list": "Qualifications List",
+  "add_qualification": "Add Qualification",
+  "update_qualification": "Update Qualification",
+  "update": "Update"
 }

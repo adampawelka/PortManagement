@@ -84,6 +84,52 @@ export const primaryNavigationItems = [
     ],
   },
   {
+    name: "Staff Members",
+    key: "staff_members",
+    path: "/staff-members",
+    roles: ["LogisticsOperator"],
+    subMenu: [
+      {
+        name: "Manage Staff Members",
+        key: "manage_staff_members",
+        path: "/staff-members/manage",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Add Staff Member",
+        key: "add_staff_member",
+        path: "/staff-members/add",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Qualifications",
+        key: "qualifications",
+        //path: "/qualifications",
+        roles: ["LogisticsOperator"],
+        subMenu: [
+          {
+            name: "Qualifications List",
+            key: "qualifications_list",
+            path: "/qualifications/list",
+            roles: ["LogisticsOperator"],
+          },
+          {
+            name: "Add Qualification",
+            key: "add_qualification",
+            path: "/qualifications/add",
+            roles: ["LogisticsOperator"],
+          },
+          {
+            name: "Qualification Update",
+            key: "update_qualification",
+            path: "/qualifications/update",
+            roles: ["LogisticsOperator"],
+          }
+        ],
+      }
+    ],
+  },
+  {
     name: "Docks",
     key: "docks",
     path: "/docks",
