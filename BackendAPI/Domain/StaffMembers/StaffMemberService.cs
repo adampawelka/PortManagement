@@ -15,30 +15,44 @@ namespace DDDSample1.Domain.StaffMembers
 
         public StaffMemberService(IUnitOfWork unitOfWork, IStaffMemberRepository staffRepo, IQualificationRepository qualRepo)
         {
-            _unitOfWork = unitOfWork;
-            _staffRepo = staffRepo;
-            _qualRepo = qualRepo;
+            _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+            _staffRepo = staffRepo ?? throw new ArgumentNullException(nameof(staffRepo));
+            _qualRepo = qualRepo ?? throw new ArgumentNullException(nameof(qualRepo));
         }
 
         public async Task<StaffMemberDto> CreateStaffMemberAsync(CreateStaffMemberDto dto)
         {
+            // Tworzymy VO
             var mecNumber = new MecanographicNumber(dto.MecanographicNumber);
-            var staffId = new StaffMemberId(Guid.NewGuid().ToString());
+            var operationalWindow = new OperationalWindow(dto.OperationalWindow);
+            var staffId = new StaffMemberId(Guid.NewGuid()); // Guid zamiast string
 
+            // Sprawdzenie duplikatu
             var existing = await _staffRepo.GetByMecanographicNumberAsync(mecNumber);
             if (existing != null)
             {
                 throw new InvalidOperationException("A staff member with this mecanographic number already exists.");
             }
 
-            var qualIds = dto.QualificationIds.Select(id => new QualificationId(id.ToString()));
-            var qualifications = await _qualRepo.GetByIdsAsync(qualIds.ToList());
+            // Mapowanie kwalifikacji na VO
+            var qualIds = dto.QualificationIds.Select(id => new QualificationId(id)).ToList();
+            var qualifications = await _qualRepo.GetByIdsAsync(qualIds);
             if (qualifications.Count != dto.QualificationIds.Count)
             {
                 throw new ArgumentException("One or more qualification IDs are invalid.");
             }
 
-            var staffMember = new StaffMember(staffId, mecNumber, dto.ShortName, dto.Email, dto.Phone, dto.OperationalWindow, qualifications);
+            // Tworzenie encji
+            var staffMember = new StaffMember(
+                staffId,
+                mecNumber,
+                dto.ShortName,
+                dto.Email,
+                dto.Phone,
+                operationalWindow,
+                qualifications
+            );
+
             staffMember.SetQualifications(qualifications);
 
             await _staffRepo.AddAsync(staffMember);
@@ -71,28 +85,29 @@ namespace DDDSample1.Domain.StaffMembers
 
         public async Task<IEnumerable<StaffMemberDto>> GetAllStaffMembersAsync()
         {
-            var docks = await _staffRepo.GetAllStaffAsync();
-            return docks.Select(ToDto).ToList();
+            var staffMembers = await _staffRepo.GetAllStaffAsync();
+            return staffMembers.Select(ToDto).ToList();
         }
 
         private StaffMemberDto ToDto(StaffMember s)
         {
             return new StaffMemberDto
             {
-                Id = s.Id.AsString(),
+                Id = s.Id.AsGuid(),   
                 MecanographicNumber = s.MecanographicNumber.Value,
                 ShortName = s.ShortName,
                 Email = s.Email,
                 Phone = s.Phone,
-                OperationalWindow = s.OperationalWindow,
+                OperationalWindow = s.OperationalWindow.Value,
                 Status = s.Status.ToString(),
                 Qualifications = s.Qualifications.Select(q => new QualificationDto
-                {
-                    Id = q.Id.AsString(),
-                    Code = q.Code.Value,
-                    Name = q.Name.Value
-                }).ToList()
+            {
+                Id = q.Id.AsGuid(),   
+                Code = q.Code.Value,
+                Name = q.Name.Value
+            }).ToList()
             };
         }
+
     }
 }

@@ -76,7 +76,7 @@ namespace DDDSample1.Domain.Qualifications
         {
             return new QualificationDto
             {
-                Id = qualification.Id.AsString(),
+                Id = qualification.Id.AsGuid(),
                 Code = qualification.Code.Value,
                 Name = qualification.Name.Value
             };
