@@ -19,10 +19,10 @@ namespace DDDSample1.Infrastructure.StaffMembers
         }
 
         public async Task<StaffMember> GetByMecanographicNumberAsync(MecanographicNumber mecNumber)
-{
-    return await _context.StaffMembers
-        .FirstOrDefaultAsync(s => s.MecanographicNumber.Equals(mecNumber));
-}
+        {
+            return await _context.StaffMembers
+                .FirstOrDefaultAsync(s => s.MecanographicNumber.Equals(mecNumber));
+        }
 
 
         public async Task<StaffMember> GetByIdWithQualificationsAsync(StaffMemberId id)
