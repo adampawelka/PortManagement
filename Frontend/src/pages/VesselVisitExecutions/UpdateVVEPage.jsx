@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom'; // <-- importujemy useParams
 import {
   Container,
   TextField,
@@ -17,11 +18,12 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useUpdateVVEVM } from '../../viewmodels/VesselVisitExecutions/useUpdateVVEVM';
 
 const UpdateVVEPage = () => {
-  const vm = useUpdateVVEVM();
+  const { vveId: paramVveId } = useParams(); 
+  const vm = useUpdateVVEVM(paramVveId || ''); 
 
   const isVveLoaded = !!vm.vve;
 
-  const [vveIdInput, setVveIdInput] = useState('');
+  const [vveIdInput, setVveIdInput] = useState(paramVveId || '');
   const [dockInput, setDockInput] = useState('');
   const [berthTimeInput, setBerthTimeInput] = useState(null);
 
@@ -37,7 +39,12 @@ const UpdateVVEPage = () => {
   const [editOpId, setEditOpId] = useState(null);
   const [editStatus, setEditStatus] = useState('');
 
-  useEffect(() => { if (vm.vveId) vm.fetchVVE(); }, [vm.vveId]);
+  useEffect(() => {
+    if (paramVveId) {
+      vm.fetchVVE();
+    }
+  }, [paramVveId]);
+
   useEffect(() => {
     if (vm.vve) {
       setDockInput(vm.vve.dockId || '');
@@ -47,9 +54,10 @@ const UpdateVVEPage = () => {
 
   const handleUpdateVVE = async (e) => {
     e.preventDefault();
-    vm.setVveId(vveIdInput);
+    if (!paramVveId) vm.setVveId(vveIdInput); 
     await vm.updateVVEInfo({ dockId: dockInput, actualBerthTime: berthTimeInput });
   };
+
 
   const handleAddOperation = async () => {
     if (!newOp.plannedOperationId || !newOp.resourceId) return;

@@ -62,58 +62,60 @@ import PendingUsersManagementPage from "../pages/Users/PendingUsersManagementPag
 // ---------------------------
 export const protectedRoutes = {
   home: [
-    { path: "/", element: <Home />, roles: ["Administrator","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"], index: true },
-    { path: "visualisation", element: <Visualisation />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] }
+    { path: "/", element: <Home />, roles: ["Administrator", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"], index: true },
+    { path: "visualisation", element: <Visualisation />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
   ],
 
   storageAreas: [
-    { path: "storage-areas/list", element: <StorageAreasPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "storage-areas/add", element: <AddStorageAreaPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] }
+    { path: "storage-areas/list", element: <StorageAreasPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "storage-areas/add", element: <AddStorageAreaPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
   ],
 
   resources: [
-    { path: "resources/list", element: <AvailableResourcesPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "resources/allocate", element: <AddResourcePage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] }
+    { path: "resources/list", element: <AvailableResourcesPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "resources/allocate", element: <AddResourcePage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
   ],
 
   staffMembers: [
-    { path: "staff-members/manage", element: <ManageStaffMembersPage />, roles: ["Administrator","LogisticsOperator"] },
-    { path: "staff-members/add", element: <AddStaffMemberPage />, roles: ["Administrator","LogisticsOperator"] }
+    { path: "staff-members/manage", element: <ManageStaffMembersPage />, roles: ["Administrator", "LogisticsOperator"] },
+    { path: "staff-members/add", element: <AddStaffMemberPage />, roles: ["Administrator", "LogisticsOperator"] }
   ],
 
   qualifications: [
-    { path: "qualifications/list", element: <QualificationsListPage />, roles: ["Administrator","LogisticsOperator"] },
-    { path: "qualifications/add", element: <AddQualificationPage />, roles: ["Administrator","LogisticsOperator"] },
-    { path: "qualifications/update", element: <UpdateQualificationPage />, roles: ["Administrator","LogisticsOperator"] }
+    { path: "qualifications/list", element: <QualificationsListPage />, roles: ["Administrator", "LogisticsOperator"] },
+    { path: "qualifications/add", element: <AddQualificationPage />, roles: ["Administrator", "LogisticsOperator"] },
+    { path: "qualifications/update", element: <UpdateQualificationPage />, roles: ["Administrator", "LogisticsOperator"] }
   ],
 
   docks: [
-    { path: "docks/list", element: <DocksListPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "docks/add", element: <AddDockPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "docks/search", element: <SearchDockPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] }
+    { path: "docks/list", element: <DocksListPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "docks/add", element: <AddDockPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "docks/search", element: <SearchDockPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
   ],
 
   vessels: [
-    { path: "/vessels/list", element: <VesselsListPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vessels/search", element: <SearchVesselPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vessels/types/list", element: <VesselTypePage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vessels/add", element: <AddVesselPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vessels/types/add", element: <AddVesselTypePage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vessels/types/search", element: <SearchVesselTypePage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] }
+    { path: "/vessels/list", element: <VesselsListPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vessels/search", element: <SearchVesselPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vessels/types/list", element: <VesselTypePage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vessels/add", element: <AddVesselPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vessels/types/add", element: <AddVesselTypePage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vessels/types/search", element: <SearchVesselTypePage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
   ],
 
   vvn: [
-    { path: "/vvn/approve", element: <ApproveVVNPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vvn/list", element: <ListNotificationsPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vvn/reject", element: <RejectVVNPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vvn/submit", element: <SubmitVVNPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] },
-    { path: "/vvn/add", element: <AddVNNPage />, roles: ["Administrator","user","PortAuthorityOfficer","ShippingAgentRepresentative","LogisticsOperator"] }
+    { path: "/vvn/approve", element: <ApproveVVNPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vvn/list", element: <ListNotificationsPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vvn/reject", element: <RejectVVNPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vvn/submit", element: <SubmitVVNPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] },
+    { path: "/vvn/add", element: <AddVNNPage />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
   ],
 
   vve: [
     { path: "/vve/list", element: <VVEListPage />, roles: ["LogisticsOperator"] },
-    { path: "/vve/update", element: <UpdateVVEPage />, roles: ["LogisticsOperator"] }
+    { path: "/vve/update", element: <UpdateVVEPage />, roles: ["LogisticsOperator"] },          // without ID
+    { path: "/vve/:vveId/update", element: <UpdateVVEPage />, roles: ["LogisticsOperator"] }   // with ID -> reditect from VVE list
   ],
+
 
   operationalPlans: [
     { path: "/operational-plans/generate", element: <OperationalPlansGenerate />, roles: ["LogisticsOperator"] },
@@ -129,7 +131,7 @@ export const protectedRoutes = {
   ],
 
   userManagement: [
-    { path: "user-management/users", element: <UsersManagementPage />, roles: ["Administrator","LogisticsOperator"] },
-    { path: "user-management/pending-users", element: <PendingUsersManagementPage />, roles: ["Administrator","LogisticsOperator"] }
+    { path: "user-management/users", element: <UsersManagementPage />, roles: ["Administrator", "LogisticsOperator"] },
+    { path: "user-management/pending-users", element: <PendingUsersManagementPage />, roles: ["Administrator", "LogisticsOperator"] }
   ]
 };
