@@ -39,9 +39,15 @@ export default (): Router => {
   router.put('/operationPlans/:id', (req, res, next) => 
     (operationPlanController as any).updateOperationPlan(req, res, next));
 
-  // Add routes for other controllers as needed
-  // You'll need to check each controller to see what methods they expose
-  // and add routes accordingly
+  // Vessel Visit Executions
+  router.post('/vesselVisitExecutions', (req, res, next) => 
+    (vesselVisitExecutionController as any).createVVE(req, res, next));
+  router.get('/vesselVisitExecutions', (req, res, next) => 
+    (vesselVisitExecutionController as any).getAll(req, res, next));
+  router.get('/vesselVisitExecutions/:id', (req, res, next) => 
+    (vesselVisitExecutionController as any).getVVE(req, res, next));
+  router.put('/vesselVisitExecutions/:id', (req, res, next) => 
+    (vesselVisitExecutionController as any).updateVVE(req, res, next));
 
   return router;
 };
