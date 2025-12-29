@@ -57,6 +57,8 @@ import MultiCraneSchedule from "../pages/Scheduling/MultiCraneSchedule.jsx";
 import UsersManagementPage from "../pages/Users/UsersManagement.jsx";
 import PendingUsersManagementPage from "../pages/Users/PendingUsersManagementPage.jsx";
 
+import ThumbRaiserComponent from "../pages/Visualisation.jsx";
+
 // ---------------------------
 // Grouped Routes
 // ---------------------------
@@ -133,5 +135,11 @@ export const protectedRoutes = {
   userManagement: [
     { path: "user-management/users", element: <UsersManagementPage />, roles: ["Administrator", "LogisticsOperator"] },
     { path: "user-management/pending-users", element: <PendingUsersManagementPage />, roles: ["Administrator", "LogisticsOperator"] }
+  ],
+
+  visualisation: [ 
+    { path: "/visualisation", element: <ThumbRaiserComponent />, roles: ["LogisticsOperator"] 
+
+    }
   ]
 };
