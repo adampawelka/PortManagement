@@ -85,9 +85,11 @@ const StaffManagementPage = () => {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
-                <TableCell className="um-th">Name</TableCell>
+                <TableCell className="um-th">Mecanographic Number</TableCell>
+                <TableCell className="um-th">Short Name</TableCell>
                 <TableCell className="um-th">Email</TableCell>
-                <TableCell className="um-th">Role</TableCell>
+                <TableCell className="um-th">Phone number</TableCell>
+                <TableCell className="um-th">Operational Window</TableCell>
                 <TableCell className="um-th">Status</TableCell>
                 <TableCell className="um-th" align="right">
                   Actions
@@ -101,9 +103,11 @@ const StaffManagementPage = () => {
                   key={member.id}
                   sx={{ "&:hover": { backgroundColor: "var(--color-background)" } }}
                 >
-                  <TableCell>{member.name}</TableCell>
+                  <TableCell>{member.mecanographicNumber}</TableCell>
+                  <TableCell>{member.shortName}</TableCell>
                   <TableCell>{member.email}</TableCell>
-                  <TableCell>{member.role}</TableCell>
+                  <TableCell>{member.phone}</TableCell>
+                  <TableCell>{member.operationalWindow}</TableCell>
                   <TableCell>
                     <span
                       className={`um-chip ${
@@ -123,7 +127,7 @@ const StaffManagementPage = () => {
                         Deactivate
                       </Button>
                     )}
-                    {member.status === "Deactivated" && (
+                    {member.status === "Inactive" && (
                       <Button
                         variant="contained"
                         className="um-btn success"
