@@ -58,5 +58,9 @@
   "qualifications_list": "Qualifications List",
   "add_qualification": "Add Qualification",
   "update_qualification": "Update Qualification",
-  "update": "Update"
+  "update": "Update",
+  "vve": "Vessel Visit Executions",
+  "vve_list": "Vessel Visit Execution List",
+  "add_vve": "Add New Vessel Visit Execution",
+  "update_vve": "Update Vessel Visit Execution"
 }

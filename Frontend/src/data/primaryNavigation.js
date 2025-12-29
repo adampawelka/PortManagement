@@ -6,44 +6,6 @@ export const primaryNavigationItems = [
     roles: null
   },
   {
-    name: "Vessel Visit Notifications",
-    key: "vessel_visit_notifications",
-    path: "/vvn",
-    roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
-    subMenu: [
-      {
-        name: "List Notifications",
-        key: "list_notifications",
-        path: "/vvn/list",
-        roles: ["PortAuthorityOfficer", "LogisticsOperator"],
-      },
-      {
-        name: "Approve Notifications",
-        key: "approve_notifications",
-        path: "/vvn/approve",
-        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
-      },
-      {
-        name: "Reject Notifications",
-        key: "reject_notifications",
-        path: "/vvn/reject",
-        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
-      },
-      {
-        name: "Submit Notifications",
-        key: "submit_notifications",
-        path: "/vvn/submit",
-        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
-      },
-      {
-        name: "Add Notification",
-        key: "add_new_notification",
-        path: "/vvn/add",
-        roles: ["PortAuthorityOfficer", "LogisticsOperator"],
-      },
-    ],
-  },
-  {
     name: "Storage Areas",
     key: "storage_areas",
     path: "/storage-areas",

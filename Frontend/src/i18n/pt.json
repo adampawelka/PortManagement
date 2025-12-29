@@ -58,5 +58,9 @@
   "qualifications_list": "Lista de Qualificações",
   "add_qualification": "Adicionar Qualificação",
   "update_qualification": "Atualizar Qualificação",
-  "update": "Atualizar"
+  "update": "Atualizar",
+  "vve": "Execuções de Visita de Embarcação",
+  "vve_list": "Lista de Execuções de Visita de Embarcação",
+  "add_vve": "Adicionar Nova Execução de Visita de Embarcação",
+  "update_vve": "Atualizar Execução de Visita de Embarcação"
 }

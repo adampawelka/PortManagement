@@ -1,4 +1,69 @@
-export const sidebarMenuItems = [{
+export const sidebarMenuItems = [
+  {
+    name: "Vessel Visit Notifications",
+    key: "vessel_visit_notifications",
+    path: "/vvn",
+    roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
+    subMenu: [
+      {
+        name: "List Notifications",
+        key: "list_notifications",
+        path: "/vvn/list",
+        roles: ["PortAuthorityOfficer", "LogisticsOperator"],
+      },
+      {
+        name: "Approve Notifications",
+        key: "approve_notifications",
+        path: "/vvn/approve",
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
+      },
+      {
+        name: "Reject Notifications",
+        key: "reject_notifications",
+        path: "/vvn/reject",
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
+      },
+      {
+        name: "Submit Notifications",
+        key: "submit_notifications",
+        path: "/vvn/submit",
+        roles: ["PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
+      },
+      {
+        name: "Add Notification",
+        key: "add_new_notification",
+        path: "/vvn/add",
+        roles: ["PortAuthorityOfficer", "LogisticsOperator"],
+      },
+    ],
+  },
+  {
+    name: "Vessel Visit Executions",
+    key: "vve",
+    path: "/vve",
+    roles: ["LogisticsOperator"],
+    subMenu: [
+      {
+        name: "List Executions",
+        key: "vve_list",
+        path: "/vve/list",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Add Vessel Visit Execution",
+        key: "add_vve",
+        path: "/vve/add",
+        roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Update Vessel Visit Execution",
+        key: "update_vve",   
+        path: "/vve/update",
+        roles: ["LogisticsOperator"],
+      }
+    ],
+  },
+  {
     name: "Operational Plans",
     key: "operational_plans",
     path: "/operational-plans",
@@ -65,5 +130,5 @@ export const sidebarMenuItems = [{
     path: "/visualisation",
     roles: ["admin", "user", "guest", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"],
   },
-  
+
 ]
