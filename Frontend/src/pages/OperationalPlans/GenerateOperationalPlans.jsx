@@ -214,11 +214,11 @@ const OperationalPlansGenerate = () => {
                                         <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.crane || "Unassigned"}</Box>
 
                                         <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Staff</Box>
-<Box sx={{ fontWeight: 600, opacity: 0.9 }}>
-  {Array.isArray(plan.staff) && plan.staff.length > 0
-    ? plan.staff.join(", ")
-    : "Unassigned"}
-</Box>
+                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>
+                                            {Array.isArray(plan.staff) && plan.staff.length > 0
+                                                ? plan.staff.join(", ")
+                                                : "Unassigned"}
+                                        </Box>
 
 
                                     </Box>

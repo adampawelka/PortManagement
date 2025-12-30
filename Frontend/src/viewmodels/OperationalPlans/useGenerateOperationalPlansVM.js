@@ -16,13 +16,6 @@ export const useOperationalPlansVM = () => {
   const [mode, setMode] = useState("single");
   const [algorithm, setAlgorithm] = useState("");
 
-  const calculateDelay = (endSlot, etd) => {
-    if (endSlot == null || !etd) return 0;
-    const etdHour = new Date(etd).getHours();
-    const delay = endSlot - etdHour;
-    return delay > 0 ? delay : 0;
-  };
-
   const generate = async () => {
     setLoading(true);
     setError("");
@@ -49,51 +42,59 @@ export const useOperationalPlansVM = () => {
 
       const aggregated = {};
 
-      Object.values(scheduleResponse || {}).forEach(dockSchedule => {
-        (dockSchedule.parsedSchedule || []).forEach(item => {
-          const vvnId = item.vesselId || item.VVN || item.vesselName;
-          if (!vvnId) return;
+      Object.values(scheduleResponse || {}).forEach(dock => {
+        const schedules =
+          mode === "single"
+            ? dock.singleCrane?.schedules || []
+            : dock.multiCrane?.schedules || [];
 
-          if (!aggregated[vvnId]) {
-            aggregated[vvnId] = {
-              vvnId,
-              vesselId: item.vesselId || null,
-              vesselName: item.vesselName || "Unknown",
-              dock: dockSchedule.dock,
-              crane: dockSchedule.crane,
-              area: dockSchedule.area,
+        schedules.forEach(item => {
+          const vesselKey = item.vesselName;
+          if (!vesselKey) return;
+
+          if (!aggregated[vesselKey]) {
+            aggregated[vesselKey] = {
+              vvnId: vesselKey,
+              vesselName: vesselKey,
+              dock: dock.dockName,
+              crane: item.craneCodes?.join(", "),
+              area: dock.area,
               operations: [],
             };
           }
 
-          aggregated[vvnId].operations.push({
-            start: item.start || item.Start,
-            end: item.end || item.End,
-            delay: item.delay ?? calculateDelay(item.endSlot, item.ETD),
-            staff: Array.isArray(item.staff) && item.staff.length > 0
+          aggregated[vesselKey].operations.push({
+            start: item.startTime,
+            end: item.endTime,
+            delay: item.delay ?? 0,
+            staff: Array.isArray(item.staff)
               ? item.staff.map(s => s.shortName)
-              : []
+              : [],
+            warning: item.warning || null
           });
         });
       });
 
-      /** ✅ AGREGACJA STAFFU NA POZIOMIE PLANU */
+      /** ✅ AGREGACJA STAFFU */
       const plansWithStaff = Object.values(aggregated).map(plan => {
-        const allStaff = plan.operations.flatMap(op => op.staff || []);
+        const allStaff = plan.operations.flatMap(op => op.staff);
         const uniqueStaff = [...new Set(allStaff)];
 
         return {
           ...plan,
-          staff: uniqueStaff.length > 0 ? uniqueStaff : ["Unassigned"]
+          staff: uniqueStaff.length ? uniqueStaff : ["Unassigned"]
         };
       });
 
       setPlans(plansWithStaff);
 
-      if (plansWithStaff.length > 0) {
-        const firstDockSchedule = Object.values(scheduleResponse)[0];
-        setExecutionTime(firstDockSchedule?.executionTime ?? null);
-      }
+      const firstDock = Object.values(scheduleResponse)[0];
+      const execTime =
+        mode === "single"
+          ? firstDock?.singleCrane?.executionTime
+          : firstDock?.multiCrane?.executionTime;
+
+      setExecutionTime(execTime ?? null);
 
     } catch (err) {
       setError(err?.message || "Failed to generate schedule.");
@@ -116,16 +117,12 @@ export const useOperationalPlansVM = () => {
     plans,
     executionTime,
     totalDelay,
-
     date,
     setDate,
-
     mode,
     setMode,
-
     algorithm,
     setAlgorithm,
-
     generate,
   };
 };
