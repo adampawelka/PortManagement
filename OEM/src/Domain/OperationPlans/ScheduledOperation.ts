@@ -8,8 +8,8 @@ interface ScheduledOperationProps {
   end: Date;
   delay: number;
   dock: string;
-  crane: string;
-  staff: string;
+  cranes: string[]; // ⬅️ TABLICA
+  staff: string[];  // ⬅️ TABLICA
 }
 
 export class ScheduledOperation extends ValueObject<ScheduledOperationProps> {
@@ -34,11 +34,11 @@ export class ScheduledOperation extends ValueObject<ScheduledOperationProps> {
     return this.props.dock;
   }
 
-  get crane(): string {
-    return this.props.crane;
+  get cranes(): string[] {
+    return this.props.cranes;
   }
 
-  get staff(): string {
+  get staff(): string[] {
     return this.props.staff;
   }
 
@@ -47,28 +47,41 @@ export class ScheduledOperation extends ValueObject<ScheduledOperationProps> {
   }
 
   public static create(props: ScheduledOperationProps): Result<ScheduledOperation> {
-    const guardResult = Guard.againstNullOrUndefinedBulk([
-      { argument: props.vesselName, argumentName: "vesselName" },
-      { argument: props.start, argumentName: "start" },
-      { argument: props.end, argumentName: "end" },
-      { argument: props.delay, argumentName: "delay" },
-      { argument: props.dock, argumentName: "dock" },
-      { argument: props.crane, argumentName: "crane" },
-      { argument: props.staff, argumentName: "staff" },
-    ]);
+  const guardResult = Guard.againstNullOrUndefinedBulk([
+    { argument: props.vesselName, argumentName: "vesselName" },
+    { argument: props.start, argumentName: "start" },
+    { argument: props.end, argumentName: "end" },
+    { argument: props.delay, argumentName: "delay" },
+    { argument: props.dock, argumentName: "dock" },
+  ]);
 
-    if (!guardResult.succeeded) {
-      return Result.fail<ScheduledOperation>(guardResult.message);
-    }
-
-    if (props.start >= props.end) {
-      return Result.fail<ScheduledOperation>("Start time must be before end time");
-    }
-
-    if (props.delay < 0) {
-      return Result.fail<ScheduledOperation>("Delay cannot be negative");
-    }
-
-    return Result.ok<ScheduledOperation>(new ScheduledOperation(props));
+  if (!guardResult.succeeded) {
+    return Result.fail(guardResult.message);
   }
+
+  if (!Array.isArray(props.cranes)) {
+    return Result.fail<ScheduledOperation>("Cranes must be an array");
+  }
+
+  if (!Array.isArray(props.staff)) {
+    return Result.fail<ScheduledOperation>("Staff must be an array");
+  }
+
+  if (props.start >= props.end) {
+    return Result.fail<ScheduledOperation>("Start time must be before end time");
+  }
+
+  if (props.delay < 0) {
+    return Result.fail<ScheduledOperation>("Delay cannot be negative");
+  }
+
+  return Result.ok(
+    new ScheduledOperation({
+      ...props,
+      cranes: [...props.cranes],
+      staff: [...props.staff],
+    })
+  );
+}
+
 }

@@ -23,7 +23,7 @@ export class OperationPlanMap {
         end: op.end,
         delay: op.delay,
         dock: op.dock,
-        crane: op.crane,
+        cranes: op.cranes,
         staff: op.staff
       }))
     };
@@ -34,33 +34,25 @@ export class OperationPlanMap {
     const schedule: ScheduledOperation[] = (raw.schedule || []).map((op: any) => {
       const scheduledOpOrError = ScheduledOperation.create({
         vesselName: op.vesselName,
-        start: op.start,
-        end: op.end,
+        start: new Date(op.start),
+        end: new Date(op.end),
         delay: op.delay,
         dock: op.dock,
-        crane: op.crane,
-        staff: op.staff
+        cranes: Array.isArray(op.cranes) ? op.cranes : [],
+        staff: Array.isArray(op.staff) ? op.staff : []
       });
 
       if (scheduledOpOrError.isFailure) {
         throw new Error("Invalid ScheduledOperation data");
       }
 
-
       return scheduledOpOrError.getValue();
     });
 
-    const vvnIdOrError =
-      VvnId.create(raw.vvnId);
-
-    const createdAtOrError =
-      CreatedAt.create(raw.createdAt);
-
-    const createdByOrError =
-      CreatedBy.create(raw.createdBy);
-
-    const algorithmUsedOrError =
-      AlgorithmUsed.create(raw.algorithmUsed);
+    const vvnIdOrError = VvnId.create(raw.vvnId);
+    const createdAtOrError = CreatedAt.create(raw.createdAt);
+    const createdByOrError = CreatedBy.create(raw.createdBy);
+    const algorithmUsedOrError = AlgorithmUsed.create(raw.algorithmUsed);
 
     if (
       vvnIdOrError.isFailure ||
@@ -71,17 +63,12 @@ export class OperationPlanMap {
       throw new Error("Invalid OperationPlan persistence data");
     }
 
-    const vvnId = vvnIdOrError.getValue();
-    const createdAt = createdAtOrError.getValue();
-    const createdBy = createdByOrError.getValue();
-    const algorithmUsed = algorithmUsedOrError.getValue();
-
     const operationPlanOrError = OperationPlan.create(
       {
-        vvnId: vvnId,
-        createdAt: createdAt,
-        createdBy: createdBy,
-        algorithmUsed: algorithmUsed,
+        vvnId: vvnIdOrError.getValue(),
+        createdAt: createdAtOrError.getValue(),
+        createdBy: createdByOrError.getValue(),
+        algorithmUsed: algorithmUsedOrError.getValue(),
         schedule
       },
       new UniqueEntityID(raw.domainId)
@@ -91,7 +78,7 @@ export class OperationPlanMap {
       throw new Error("Invalid OperationPlan data");
     }
 
-
     return operationPlanOrError.getValue();
   }
+
 }
