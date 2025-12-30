@@ -50,34 +50,26 @@ export const useOperationalPlansVM = () => {
       const aggregated = {};
 
       Object.values(scheduleResponse || {}).forEach(dockSchedule => {
-
-        /** 🔹 SINGLE (optimal / heuristic) – JAK BYŁO */
-        const singleItems =
-          mode === "single"
-            ? dockSchedule.parsedSchedule || []
-            : [];
-
-        /** 🔹 MULTI – NOWA OBSŁUGA */
-        const multiItems =
-          mode === "multi"
-            ? dockSchedule.multiCrane?.schedules || []
-            : [];
-
+        const singleItems = mode === "single" ? dockSchedule.parsedSchedule || [] : [];
+        const multiItems = mode === "multi" ? dockSchedule.multiCrane?.schedules || [] : [];
         const items = mode === "single" ? singleItems : multiItems;
 
         items.forEach(item => {
-          const vvnId = item.vesselId || item.VVN || item.vesselName;
+          // Znajdź odpowiadający VVN po nazwie
+          const matchingVVN = vvnForDate.find(v =>
+            v.VesselName && v.VesselName.toLower().replace(/\s+/g, "_") === (item.vesselName || "").toLowerCase()
+          );
+
+          const vvnId = item.vesselId || (matchingVVN && matchingVVN.VesselId) || item.vesselName;
           if (!vvnId) return;
 
           if (!aggregated[vvnId]) {
             aggregated[vvnId] = {
               vvnId,
-              vesselId: item.vesselId || null,
-              vesselName: item.vesselName || "Unknown",
+              vesselId: (item.vesselId || (matchingVVN && matchingVVN.VesselId)) || null,
+              vesselName: item.vesselName || (matchingVVN && matchingVVN.VesselName) || "Unknown",
               dock: dockSchedule.dock || dockSchedule.dockName,
-              crane: item.craneCodes
-                ? item.craneCodes.join(", ")
-                : dockSchedule.crane,
+              crane: item.craneCodes ? item.craneCodes.join(", ") : dockSchedule.crane,
               area: dockSchedule.area,
               operations: [],
             };
@@ -87,15 +79,13 @@ export const useOperationalPlansVM = () => {
             start: item.start || item.Start || item.startTime,
             end: item.end || item.End || item.endTime,
             delay: item.delay ?? calculateDelay(item.endSlot, item.ETD),
-            staff: Array.isArray(item.staff)
-              ? item.staff.map(s => s.shortName)
-              : [],
+            staff: Array.isArray(item.staff) ? item.staff.map(s => s.shortName) : [],
             warning: item.warning || null
           });
         });
       });
 
-      /** ✅ AGREGACJA STAFFU (DZIAŁA DLA SINGLE + MULTI) */
+      // Agregacja staffu
       const plansWithStaff = Object.values(aggregated).map(plan => {
         const allStaff = plan.operations.flatMap(op => op.staff || []);
         const uniqueStaff = [...new Set(allStaff)];
@@ -108,13 +98,13 @@ export const useOperationalPlansVM = () => {
 
       setPlans(plansWithStaff);
 
-      /** executionTime */
+      // Execution time
       if (plansWithStaff.length > 0) {
         const firstDock = Object.values(scheduleResponse)[0];
         setExecutionTime(
           mode === "single"
-            ? firstDock?.executionTime ?? null
-            : firstDock?.multiCrane?.executionTime ?? null
+            ? firstDock?.executionTime || null
+            : firstDock?.multiCrane?.executionTime || null
         );
       }
 
