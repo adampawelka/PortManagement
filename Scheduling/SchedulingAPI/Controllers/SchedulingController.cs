@@ -439,9 +439,6 @@ namespace SchedulingAPI.Controllers
 
                     var firstCrane = activeCranes.First();
 
-                    // Helper: sprawdza, czy pracownik jest dostępny w danej godzinie (slot)
-
-
                     foreach (var s in parsed.SingleSchedules)
                     {
                         s.CranesUsed = 1;
@@ -976,12 +973,11 @@ namespace SchedulingAPI.Controllers
             return days > 0 ? $"{timeStr} (+{days}d)" : timeStr;
         }
 
-        private (List<StaffMemberDto> staff, string warning)
-AssignStaffForSchedule(
-    List<StaffMemberDto> eligibleStaff,
-    int startSlot,
-    int endSlot,
-    int cranesNeeded)
+        private (List<StaffMemberDto> staff, string warning) AssignStaffForSchedule(
+            List<StaffMemberDto> eligibleStaff,
+            int startSlot,
+            int endSlot,
+            int cranesNeeded)
         {
             var slots = Enumerable.Range(startSlot, endSlot - startSlot).ToList();
             var slotCoverage = new Dictionary<int, List<StaffMemberDto>>();
@@ -1008,15 +1004,12 @@ AssignStaffForSchedule(
             {
                 var available = slotCoverage[slot];
 
-                // jeśli ktoś już wybrany pokrywa ten slot – OK
                 if (selectedStaff.Any(st => available.Contains(st)))
                     continue;
 
-                // trzeba dobrać nowego
                 selectedStaff.Add(available.First());
             }
 
-            // walidacja – czy każdy slot ma wystarczającą liczbę ludzi
             foreach (var slot in slots)
             {
                 int covering =
@@ -1033,7 +1026,6 @@ AssignStaffForSchedule(
 
             return (selectedStaff.ToList(), null);
         }
-
 
         bool IsStaffAvailableForSlot(StaffMemberDto staff, int slotHour)
         {
