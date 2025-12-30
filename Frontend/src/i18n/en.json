@@ -78,5 +78,6 @@
   "incident_types": "Incident Types",
   "incident_types_list": "Incident Type List",
   "add_incident_type": "Add Incident Type",
-  "edit_incident_type": "Edit Incident Type"
+  "edit_incident_type": "Edit Incident Type",
+  "edit": "Edit"
 }

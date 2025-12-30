@@ -134,7 +134,8 @@ export const protectedRoutes = {
   incidentTypes: [
     { path: "/incident-types/list", element: <IncidentTypesListPage />, roles: ["PortAuthorityOfficer"] },
     { path: "/incident-types/add", element: <AddIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
-    { path: "/incident-types/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] }
+    { path: "/incident-types/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
+    { path: "/incident-types/:id/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] }
   ],
 
   scheduling: [

@@ -3,12 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   Container, Typography, TextField, Button, CircularProgress, Alert, MenuItem
 } from "@mui/material";
-import { useIncidentTypeEditVM } from "../../viewmodels/IncidentTypes/useEditIncidentTypeVM";
+import { useEditIncidentTypeVM } from "../../viewmodels/IncidentTypes/useEditIncidentTypeVM";
 
-const IncidentTypeEditPage = () => {
+const EditIncidentTypePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { incidentType, setIncidentType, parentOptions, loading, error, saveIncidentType } = useIncidentTypeEditVM(id);
+  const { incidentType, setIncidentType, parentOptions, loading, error, saveIncidentType } = useEditIncidentTypeVM(id);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,4 +56,4 @@ const IncidentTypeEditPage = () => {
   );
 };
 
-export default IncidentTypeEditPage;
+export default EditIncidentTypePage;

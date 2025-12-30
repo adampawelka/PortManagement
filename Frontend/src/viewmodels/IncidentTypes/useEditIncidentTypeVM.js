@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import * as IncidentTypeService from "../../services/incidentTypeService";
 
-export const useIncidentTypeEditVM = (id) => {
+export const useEditIncidentTypeVM = (id) => {
   const [incidentType, setIncidentType] = useState({
     code: "",
     name: "",
@@ -13,7 +13,6 @@ export const useIncidentTypeEditVM = (id) => {
   const [error, setError] = useState(null);
   const [parentOptions, setParentOptions] = useState([]);
 
-  // Pobranie istniejącego typu incydentu
   const fetchIncidentType = async () => {
     setLoading(true);
     setError(null);
@@ -33,18 +32,15 @@ export const useIncidentTypeEditVM = (id) => {
     }
   };
 
-  // Pobranie opcji rodziców (dla hierarchii)
   const fetchParentOptions = async () => {
     try {
       const data = await IncidentTypeService.getIncidentTypes(fetch);
-      // Opcja: nie pokazywać samego siebie w liście rodziców
       setParentOptions(data.filter(t => t.id !== id));
     } catch (e) {
       console.error(e);
     }
   };
 
-  // Aktualizacja typu incydentu
   const saveIncidentType = async () => {
     setLoading(true);
     setError(null);
