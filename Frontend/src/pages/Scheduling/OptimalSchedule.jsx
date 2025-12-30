@@ -65,6 +65,7 @@ const OptimalSchedule = () => {
                 Optimal Schedule ({scheduleResults.length})
             </Typography>
 
+            {/* Controls */}
             <Paper
                 sx={{
                     p: 2,
@@ -116,6 +117,7 @@ const OptimalSchedule = () => {
                 </Button>
             </Paper>
 
+            {/* Execution Time */}
             {executionTime && (
                 <Alert
                     severity="info"
@@ -129,12 +131,12 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
+            {/* Loading */}
             {loading && (
-                <CircularProgress
-                    sx={{ display: "block", margin: "20px auto" }}
-                />
+                <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
             )}
 
+            {/* Error */}
             {error && (
                 <Alert
                     severity="error"
@@ -148,6 +150,21 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
+            {/* Global info about Unassigned */}
+            {hasGenerated && !loading && scheduleResults.length > 0 && (
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: 2,
+                        backgroundColor: "var(--color-info)",
+                        color: "var(--color-text-dark)",
+                    }}
+                >
+                    <strong>Note:</strong> "Unassigned" means that the staff, crane, or dock could not be assigned due to insufficient resources.
+                </Alert>
+            )}
+
+            {/* No schedule results */}
             {hasGenerated && !loading && scheduleResults.length === 0 && !error && (
                 <Alert
                     severity="info"
@@ -161,6 +178,7 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
+            {/* Schedule Table */}
             {scheduleResults.length > 0 && (
                 <TableContainer component={Paper} sx={{ mt: 3 }}>
                     <Table size="small">
@@ -180,9 +198,7 @@ const OptimalSchedule = () => {
                                 <TableRow
                                     key={i}
                                     sx={{
-                                        "&:hover": {
-                                            backgroundColor: "var(--color-background)",
-                                        }
+                                        "&:hover": { backgroundColor: "var(--color-background)" },
                                     }}
                                 >
                                     <TableCell>{row.vessel}</TableCell>
@@ -190,7 +206,9 @@ const OptimalSchedule = () => {
                                     <TableCell
                                         sx={{
                                             backgroundColor:
-                                                row.start == null || row.start === "Unassigned" ? "var(--color-warning-bg)" : "inherit"
+                                                row.start == null || row.start === "Unassigned"
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
                                         }}
                                     >
                                         {row.start ?? "Unassigned"}
@@ -199,7 +217,9 @@ const OptimalSchedule = () => {
                                     <TableCell
                                         sx={{
                                             backgroundColor:
-                                                row.end == null || row.end === "Unassigned" ? "var(--color-warning-bg)" : "inherit"
+                                                row.end == null || row.end === "Unassigned"
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
                                         }}
                                     >
                                         {row.end ?? "Unassigned"}
@@ -207,12 +227,23 @@ const OptimalSchedule = () => {
 
                                     <TableCell>{row.delay}</TableCell>
 
-                                    <TableCell>{row.dock ?? "Unassigned"}</TableCell>
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                !row.dock || row.dock === "Unassigned"
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
+                                        }}
+                                    >
+                                        {row.dock ?? "Unassigned"}
+                                    </TableCell>
 
                                     <TableCell
                                         sx={{
                                             backgroundColor:
-                                                !row.crane || row.crane.length === 0 ? "var(--color-warning-bg)" : "inherit"
+                                                !row.crane || row.crane.length === 0
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
                                         }}
                                     >
                                         {row.crane ?? "Unassigned"}
@@ -221,7 +252,9 @@ const OptimalSchedule = () => {
                                     <TableCell
                                         sx={{
                                             backgroundColor:
-                                                !row.staff || row.staff.length === 0 ? "var(--color-warning-bg)" : "inherit"
+                                                !row.staff || row.staff.length === 0
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
                                         }}
                                     >
                                         {Array.isArray(row.staff) && row.staff.length > 0
@@ -231,7 +264,6 @@ const OptimalSchedule = () => {
                                 </TableRow>
                             ))}
                         </TableBody>
-
                     </Table>
                 </TableContainer>
             )}
