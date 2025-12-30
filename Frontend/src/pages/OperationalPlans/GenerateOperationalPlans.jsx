@@ -240,14 +240,15 @@ const OperationalPlansGenerate = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-  {(plan.operations || []).map((op, i) => (
-    <TableRow key={i} sx={{ backgroundColor: "var(--color-surface)", "& td": { borderBottom: "none", textAlign: "center", padding: "10px 0" } }}>
-      <TableCell>{op.start}</TableCell>
-      <TableCell>{op.end}</TableCell>
-      <TableCell>{op.delay ?? 0}</TableCell>
-    </TableRow>
-  ))}
-</TableBody>
+                                        {(plan.operations || []).map((op, i) => (
+                                            <TableRow key={i} sx={{ backgroundColor: "var(--color-surface)", "& td": { borderBottom: "none", textAlign: "center", padding: "10px 0" } }}>
+                                                <TableCell>{op.start?.toLocaleString()}</TableCell>
+                                                <TableCell>{op.end?.toLocaleString()}</TableCell>
+
+                                                <TableCell>{op.delay ?? 0}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
 
                                 </Table>
                             </Box>

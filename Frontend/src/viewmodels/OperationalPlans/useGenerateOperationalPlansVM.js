@@ -3,6 +3,23 @@ import { useSchedulingService } from "../../services/schedulingService";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 import { useApi } from "../../services/api";
 
+const formatDateTime = (date) => {
+  if (!date) return "N/A";
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${day}.${month}.${year} ${hours}:${minutes}`;
+};
+
+const addDays = (date, days) => {
+  const d = new Date(date);
+  d.setDate(d.getDate() + days);
+  return d;
+};
+
 export const useOperationalPlansVM = () => {
   const { apiFetch } = useApi();
   const { calculateSchedule, calculateMultiCraneSchedule } = useSchedulingService();
@@ -16,18 +33,6 @@ export const useOperationalPlansVM = () => {
   const [mode, setMode] = useState("single");
   const [algorithm, setAlgorithm] = useState("");
 
-  // Heuristic delay calculation
-  const heuristicDelay = (endSlot, etd) => {
-    if (typeof endSlot !== "number" || !etd) return 0;
-    const etdDate = new Date(etd);
-    const endDate = new Date(etdDate.getTime());
-    endDate.setHours(0, 0, 0, 0);
-    endDate.setHours(endDate.getHours() + endSlot);
-    const diffHours = Math.round((endDate - etdDate) / (1000 * 60 * 60));
-    return diffHours > 0 ? diffHours : 0;
-  };
-
-  // Normalize vessel name for comparison
   const normalizeName = (name) => name?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") || "";
 
   const generate = async () => {
@@ -40,6 +45,7 @@ export const useOperationalPlansVM = () => {
       if (!date) throw new Error("Please select a date.");
       if (mode === "single" && !algorithm) throw new Error("Please select an algorithm.");
 
+      const selectedDate = new Date(date);
       const allVVN = await getVesselVisitNotifications(apiFetch);
       const vvnForDate = allVVN.filter(v => v.status === "Approved" && v.eta?.split("T")[0] === date);
 
@@ -60,9 +66,7 @@ export const useOperationalPlansVM = () => {
         const items = mode === "single" ? singleItems : multiItems;
 
         items.forEach(item => {
-          // Find matching VVN by normalized vessel name
           const matchingVVN = vvnForDate.find(v => normalizeName(v.VesselName) === normalizeName(item.vesselName));
-
           const vvnId = item.vesselId || (matchingVVN && matchingVVN.VesselId) || item.vesselName;
           if (!vvnId) return;
 
@@ -78,14 +82,31 @@ export const useOperationalPlansVM = () => {
             };
           }
 
-          // Delay: heuristic for heuristic algorithm, otherwise use backend delay
-          const delay = algorithm === "heuristic" && matchingVVN && typeof item.endSlot === "number"
-            ? heuristicDelay(item.endSlot, matchingVVN.ETD || matchingVVN.etd)
-            : item.delay || 0;
+          const delay = item.delay || 0;
+
+          let startDateTime, endDateTime;
+
+          if (typeof item.startSlot === "number") {
+            const extraDays = Math.floor(item.startSlot / 24);
+            const hour = item.startSlot % 24;
+            startDateTime = addDays(selectedDate, extraDays);
+            startDateTime.setHours(hour, 0, 0, 0);
+          } else {
+            startDateTime = item.start ? new Date(item.start) : new Date(selectedDate);
+          }
+
+          if (typeof item.endSlot === "number") {
+            const extraDays = Math.floor(item.endSlot / 24);
+            const hour = item.endSlot % 24;
+            endDateTime = addDays(selectedDate, extraDays);
+            endDateTime.setHours(hour, 0, 0, 0);
+          } else {
+            endDateTime = item.end ? new Date(item.end) : new Date(selectedDate);
+          }
 
           aggregated[vvnId].operations.push({
-            start: item.start || item.Start || item.startTime || "N/A",
-            end: item.end || item.End || item.endTime || "N/A",
+            start: formatDateTime(startDateTime),
+            end: formatDateTime(endDateTime),
             delay,
             staff: Array.isArray(item.staff) ? item.staff.map(s => s.shortName) : [],
             warning: item.warning || null,
@@ -93,11 +114,9 @@ export const useOperationalPlansVM = () => {
         });
       });
 
-      // Aggregate staff
       const plansWithStaff = Object.values(aggregated).map(plan => {
         const allStaff = plan.operations.flatMap(op => op.staff || []);
         const uniqueStaff = [...new Set(allStaff)];
-
         return {
           ...plan,
           staff: uniqueStaff.length > 0 ? uniqueStaff : ["Unassigned"],
@@ -106,7 +125,6 @@ export const useOperationalPlansVM = () => {
 
       setPlans(plansWithStaff);
 
-      // Execution time
       if (plansWithStaff.length > 0) {
         const firstDock = Object.values(scheduleResponse)[0];
         setExecutionTime(
