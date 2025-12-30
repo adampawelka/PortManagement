@@ -12,10 +12,12 @@ export const useSchedulingService = () => {
             method: "GET",
         });
 
-        const text = await res.text();
-        if (!res.ok) throw new Error(text);
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text);
+        }
 
-        return text;
+        return await res.json();
     };
 
     
