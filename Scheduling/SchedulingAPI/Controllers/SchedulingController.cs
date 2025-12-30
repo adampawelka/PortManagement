@@ -439,36 +439,45 @@ namespace SchedulingAPI.Controllers
 
                     var firstCrane = activeCranes.First();
 
-                    // --- assign staff to single schedules ---
+                    // Helper: sprawdza, czy pracownik jest dostępny w danej godzinie (slot)
+
+
                     foreach (var s in parsed.SingleSchedules)
                     {
                         s.CranesUsed = 1;
-                        var staff = eligibleStaff.FirstOrDefault();
+
+                        var (staff, warning) = AssignStaffForSchedule(
+                            eligibleStaff,
+                            s.StartSlot,
+                            s.EndSlot,
+                            1
+                        );
+
                         s.CraneCodes = new List<string> { firstCrane.Code };
-                        s.Staff = staff != null ? new List<StaffMemberDto> { staff } : new List<StaffMemberDto>();
-                        s.Warning = staff == null ? "No eligible staff available" : null;
+                        s.Staff = staff;
+                        s.Warning = warning;
                     }
 
-                    // --- assign staff to multi schedules ---
                     foreach (var s in parsed.MultiSchedules)
                     {
                         int cranesNeeded = s.CranesUsed > 0 ? s.CranesUsed : 1;
-                        var assignedStaff = new List<StaffMemberDto>();
 
-                        for (int i = 0; i < cranesNeeded; i++)
-                        {
-                            var staff = eligibleStaff.ElementAtOrDefault(i);
-                            if (staff != null)
-                                assignedStaff.Add(staff);
-                            else
-                            {
-                                s.Warning = $"Only {eligibleStaff.Count} staff members available, requested {cranesNeeded}";
-                            }
-                        }
+                        var (staff, warning) = AssignStaffForSchedule(
+                            eligibleStaff,
+                            s.StartSlot,
+                            s.EndSlot,
+                            cranesNeeded
+                        );
 
-                        s.CraneCodes = activeCranes.Take(cranesNeeded).Select(c => c.Code).ToList();
-                        s.Staff = assignedStaff;
+                        s.CraneCodes = activeCranes
+                            .Take(cranesNeeded)
+                            .Select(c => c.Code)
+                            .ToList();
+
+                        s.Staff = staff;
+                        s.Warning = warning;
                     }
+
 
                     // calculate delays
                     foreach (var vesselSchedule in parsed.SingleSchedules)
@@ -965,6 +974,87 @@ namespace SchedulingAPI.Controllers
             int days = slot / 24;
             string timeStr = $"{hours:00}:00";
             return days > 0 ? $"{timeStr} (+{days}d)" : timeStr;
+        }
+
+        private (List<StaffMemberDto> staff, string warning)
+AssignStaffForSchedule(
+    List<StaffMemberDto> eligibleStaff,
+    int startSlot,
+    int endSlot,
+    int cranesNeeded)
+        {
+            var slots = Enumerable.Range(startSlot, endSlot - startSlot).ToList();
+            var slotCoverage = new Dictionary<int, List<StaffMemberDto>>();
+
+            foreach (var slot in slots)
+            {
+                slotCoverage[slot] = eligibleStaff
+                    .Where(st => IsStaffAvailableForSlot(st, slot))
+                    .ToList();
+            }
+
+            var uncoveredSlots = slotCoverage.Where(x => !x.Value.Any()).Select(x => x.Key).ToList();
+            if (uncoveredSlots.Any())
+            {
+                return (
+                    new List<StaffMemberDto>(),
+                    $"No staff available for hours: {string.Join(", ", uncoveredSlots)}"
+                );
+            }
+
+            var selectedStaff = new HashSet<StaffMemberDto>();
+
+            foreach (var slot in slots)
+            {
+                var available = slotCoverage[slot];
+
+                // jeśli ktoś już wybrany pokrywa ten slot – OK
+                if (selectedStaff.Any(st => available.Contains(st)))
+                    continue;
+
+                // trzeba dobrać nowego
+                selectedStaff.Add(available.First());
+            }
+
+            // walidacja – czy każdy slot ma wystarczającą liczbę ludzi
+            foreach (var slot in slots)
+            {
+                int covering =
+                    selectedStaff.Count(st => slotCoverage[slot].Contains(st));
+
+                if (covering < cranesNeeded)
+                {
+                    return (
+                        new List<StaffMemberDto>(),
+                        $"Insufficient staff for {cranesNeeded} cranes at hour {slot}"
+                    );
+                }
+            }
+
+            return (selectedStaff.ToList(), null);
+        }
+
+
+        bool IsStaffAvailableForSlot(StaffMemberDto staff, int slotHour)
+        {
+            if (string.IsNullOrEmpty(staff.OperationalWindow))
+                return false;
+
+            var parts = staff.OperationalWindow.Split('-');
+            if (parts.Length != 2)
+                return false;
+
+            int startHour = int.Parse(parts[0].Split(':')[0]);
+            int endHour = int.Parse(parts[1].Split(':')[0]);
+
+            int hourOfDay = slotHour % 24;
+
+            if (endHour <= startHour)
+            {
+                return hourOfDay >= startHour || hourOfDay < endHour;
+            }
+
+            return hourOfDay >= startHour && hourOfDay < endHour;
         }
 
 
