@@ -105,9 +105,7 @@ const OperationalPlansGenerate = () => {
                         InputLabelProps={{ shrink: true }}
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        sx={{
-                            backgroundColor: "var(--color-surface)"
-                        }}
+                        sx={{ backgroundColor: "var(--color-surface)" }}
                     />
                 </FormControl>
 
@@ -115,7 +113,6 @@ const OperationalPlansGenerate = () => {
                     <InputLabel size="small">Mode</InputLabel>
                     <Select
                         size="small"
-                        label="Mode"
                         value={mode}
                         onChange={handleModeChange}
                         sx={{ backgroundColor: "var(--color-surface)" }}
@@ -129,16 +126,13 @@ const OperationalPlansGenerate = () => {
                     <InputLabel size="small">Algorithm</InputLabel>
                     <Select
                         size="small"
-                        label="Algorithm"
                         value={algorithm}
                         onChange={(e) => setAlgorithm(e.target.value)}
                         sx={{ backgroundColor: "var(--color-surface)" }}
                     >
                         {mode === "single"
                             ? singleCraneAlgorithms.map(a => (
-                                <MenuItem key={a.value} value={a.value}>
-                                    {a.label}
-                                </MenuItem>
+                                <MenuItem key={a.value} value={a.value}>{a.label}</MenuItem>
                             ))
                             : <MenuItem value="multi_crane">Multi-Crane Scheduler</MenuItem>
                         }
@@ -162,15 +156,7 @@ const OperationalPlansGenerate = () => {
             </Paper>
 
             {executionTime && (
-                <Alert
-                    severity="info"
-                    sx={{
-                        mb: "var(--spacing-lg)",
-                        backgroundColor: "var(--color-info-bg)",
-                        color: "var(--color-text-dark)",
-                        fontWeight: 500
-                    }}
-                >
+                <Alert severity="info" sx={{ mb: "var(--spacing-lg)", backgroundColor: "var(--color-info-bg)", color: "var(--color-text-dark)", fontWeight: 500 }}>
                     Execution Time: {executionTime}s
                 </Alert>
             )}
@@ -178,43 +164,19 @@ const OperationalPlansGenerate = () => {
             {loading && <CircularProgress sx={{ display: "block", mx: "auto", my: 2 }} />}
 
             {error && (
-                <Alert
-                    severity="error"
-                    sx={{
-                        mb: "var(--spacing-lg)",
-                        backgroundColor: "var(--color-error-bg)",
-                        color: "var(--color-text-dark)",
-                        fontWeight: 500
-                    }}
-                >
+                <Alert severity="error" sx={{ mb: "var(--spacing-lg)", backgroundColor: "var(--color-error-bg)", color: "var(--color-text-dark)", fontWeight: 500 }}>
                     {error}
                 </Alert>
             )}
 
             {hasGenerated && !loading && plans.length === 0 && !error && (
-                <Alert
-                    severity="info"
-                    sx={{
-                        mb: "var(--spacing-lg)",
-                        backgroundColor: "var(--color-info-bg)",
-                        color: "var(--color-text-dark)",
-                        fontWeight: 500
-                    }}
-                >
+                <Alert severity="info" sx={{ mb: "var(--spacing-lg)", backgroundColor: "var(--color-info-bg)", color: "var(--color-text-dark)", fontWeight: 500 }}>
                     No operation plans found.
                 </Alert>
             )}
 
             {plans.length > 0 && (
-                <Box
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        width: "100%",
-                        mt: "var(--spacing-xl)"
-                    }}
-                >
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", mt: "var(--spacing-xl)" }}>
                     {plans.map((plan, index) => (
                         <Paper
                             key={index}
@@ -229,115 +191,59 @@ const OperationalPlansGenerate = () => {
                                 boxShadow: "0 6px 22px rgba(46,13,122,0.08)"
                             }}
                         >
-                            <Typography
-                                sx={{
-                                    fontWeight: 600,
-                                    color: "var(--color-primary)",
-                                    fontSize: "var(--font-size-large)",
-                                    mb: "var(--spacing-xs)"
-                                }}
-                            >
+                            <Typography sx={{ fontWeight: 600, color: "var(--color-primary)", fontSize: "var(--font-size-large)", mb: "var(--spacing-xs)" }}>
                                 {plan.vesselName}
                             </Typography>
 
-                            <Typography
-                                sx={{
-                                    fontSize: "var(--font-size-small)",
-                                    opacity: 0.65,
-                                    mb: "var(--spacing-md)"
-                                }}
-                            >
-                                VVN {plan.vvnId}
+                            <Typography sx={{ fontSize: "var(--font-size-small)", opacity: 0.65, mb: "var(--spacing-md)" }}>
+                                VVN {plan.vvnId || "N/A"}
                             </Typography>
 
-                            {/* -------- RESOURCES -------- */}
+                            {/* RESOURCES */}
                             <Box sx={{ mb: "var(--spacing-lg)" }}>
-                                <Typography
-                                    sx={{
-                                        fontWeight: 600,
-                                        mb: "var(--spacing-sm)",
-                                        textAlign: "center",
-                                        color: "var(--color-primary-light)",
-                                        fontSize: "var(--font-size-base)"
-                                    }}
-                                >
+                                <Typography sx={{ fontWeight: 600, mb: "var(--spacing-sm)", textAlign: "center", color: "var(--color-primary-light)", fontSize: "var(--font-size-base)" }}>
                                     Resources
                                 </Typography>
 
-                                <Box
-                                    sx={{
-                                        background: "var(--color-surface)",
-                                        borderRadius: "var(--radius-md)",
-                                        padding: "var(--spacing-md)",
-                                        border: "1px solid rgba(46,13,122,0.12)",
-                                        boxShadow: "0 2px 8px rgba(46,13,122,0.06)"
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            display: "grid",
-                                            gridTemplateColumns: "1fr 1fr",
-                                            rowGap: "16px",
-                                            columnGap: "12px",
-                                            alignItems: "center",
-                                            textAlign: "center",
-                                            fontSize: "var(--font-size-base)"
-                                        }}
-                                    >
+                                <Box sx={{ background: "var(--color-surface)", borderRadius: "var(--radius-md)", padding: "var(--spacing-md)", border: "1px solid rgba(46,13,122,0.12)", boxShadow: "0 2px 8px rgba(46,13,122,0.06)" }}>
+                                    <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", rowGap: "16px", columnGap: "12px", alignItems: "center", textAlign: "center", fontSize: "var(--font-size-base)" }}>
                                         <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Dock</Box>
-                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.dock}</Box>
+                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.dock || "Unassigned"}</Box>
 
                                         <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Cranes</Box>
-                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.crane}</Box>
+                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.crane || "Unassigned"}</Box>
 
-                                        {/*<Box sx={{ opacity: 0.7, fontWeight: 600 }}>Staff</Box>
-                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>{plan.staff}</Box>*/}
+                                        <Box sx={{ opacity: 0.7, fontWeight: 600 }}>Staff</Box>
+                                        <Box sx={{ fontWeight: 600, opacity: 0.9 }}>
+                                            {Array.isArray(plan.staff) && plan.staff.length > 0
+                                                ? plan.staff.join(", ")
+                                                : "Unassigned"}
+                                        </Box>
 
                                     </Box>
                                 </Box>
                             </Box>
 
-                            {/* -------- OPERATIONS -------- */}
+                            {/* OPERATIONS */}
                             <Box>
-                                <Typography
-                                    sx={{
-                                        fontWeight: 600,
-                                        mb: "var(--spacing-sm)",
-                                        color: "var(--color-primary-light)"
-                                    }}
-                                >
+                                <Typography sx={{ fontWeight: 600, mb: "var(--spacing-sm)", color: "var(--color-primary-light)" }}>
                                     Operations
                                 </Typography>
 
                                 <Table size="small">
                                     <TableHead>
-                                        <TableRow
-                                            sx={{
-                                                backgroundColor: "var(--color-background)"
-                                            }}
-                                        >
+                                        <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
                                             <TableCell sx={{ fontWeight: 600, textAlign: "center" }}>Start</TableCell>
                                             <TableCell sx={{ fontWeight: 600, textAlign: "center" }}>End</TableCell>
                                             <TableCell sx={{ fontWeight: 600, textAlign: "center" }}>Delay [h]</TableCell>
                                         </TableRow>
                                     </TableHead>
-
                                     <TableBody>
-                                        {plan.operations.map((op, i) => (
-                                            <TableRow
-                                                key={i}
-                                                sx={{
-                                                    backgroundColor: "var(--color-surface)",
-                                                    "& td": {
-                                                        borderBottom: "none",
-                                                        textAlign: "center",
-                                                        padding: "10px 0"
-                                                    }
-                                                }}
-                                            >
-                                                <TableCell>{op.start}</TableCell>
-                                                <TableCell>{op.end}</TableCell>
-                                                <TableCell>{op.delay}</TableCell>
+                                        {(plan.operations || []).map((op, i) => (
+                                            <TableRow key={i} sx={{ backgroundColor: "var(--color-surface)", "& td": { borderBottom: "none", textAlign: "center", padding: "10px 0" } }}>
+                                                <TableCell>{op.Start || op.start}</TableCell>
+                                                <TableCell>{op.End || op.end}</TableCell>
+                                                <TableCell>{op.Delay ?? op.delay ?? 0}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
