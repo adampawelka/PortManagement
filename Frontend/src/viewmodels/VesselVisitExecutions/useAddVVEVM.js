@@ -1,11 +1,13 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApiOEM } from "../../services/api";
+import { useApiOEM, useApi } from "../../services/api";
 import { useUser } from "../../App";
 import * as vesselVisitExecutionService from "../../services/vesselVisitExecutionService";
+import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 
 export const useAddVVEVM = () => {
   const { apiOemFetch } = useApiOEM();
+  const { apiFetch } = useApi(); // For Backend API (VVNs)
   const navigate = useNavigate();
   const user = useUser();
 
@@ -20,10 +22,44 @@ export const useAddVVEVM = () => {
     createdBy: user?.sub || "", // Get user ID from context
   });
 
+  const [vvns, setVvns] = useState([]);
+  const [selectedVvn, setSelectedVvn] = useState(null);
+  const [loadingVvns, setLoadingVvns] = useState(true);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  /* =======================
+     FETCH VVNs
+  ======================= */
+  useEffect(() => {
+    const loadVvns = async () => {
+      try {
+        setLoadingVvns(true);
+        const vvnList = await getVesselVisitNotifications(apiFetch);
+        setVvns(Array.isArray(vvnList) ? vvnList : []);
+      } catch (err) {
+        console.error("Failed to fetch VVNs:", err);
+        setError(`Failed to load VVNs: ${err.message}`);
+      } finally {
+        setLoadingVvns(false);
+      }
+    };
+
+    loadVvns();
+  }, [apiFetch]);
+
+  /* =======================
+     HANDLERS
+  ======================= */
+  const handleVvnChange = useCallback((e) => {
+    const selectedId = e.target.value;
+    const vvn = vvns.find((v) => v.id === selectedId);
+    setSelectedVvn(vvn || null);
+    setFormData((prev) => ({ ...prev, vvnId: selectedId }));
+    if (error) setError(null);
+  }, [vvns, error]);
 
   /* =======================
      HANDLERS
@@ -106,11 +142,15 @@ export const useAddVVEVM = () => {
   ======================= */
   return {
     formData,
+    vvns,
+    selectedVvn,
+    loadingVvns,
     loading,
     submitting,
     error,
     success,
     handleChange,
+    handleVvnChange,
     handleTimeChange,
     handleSubmit,
     setError,

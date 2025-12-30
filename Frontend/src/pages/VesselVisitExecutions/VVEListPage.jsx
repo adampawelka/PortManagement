@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Container, Typography, CircularProgress, Alert, 
-  Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Button 
+  Paper, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Button, Box
 } from "@mui/material";
 import { useVVEListVM } from "../../viewmodels/VesselVisitExecutions/useVVEListVM";
 
@@ -31,18 +31,29 @@ const VVEListPage = () => {
         fontFamily: 'var(--font-family-base)',
       }}
     >
-      <Typography 
-        variant="h4" 
-        gutterBottom 
-        sx={{ 
-          color: 'var(--color-primary-light)', 
-          fontWeight: 600, 
-          mb: 3,
-          fontSize: 'var(--font-size-heading)', 
-        }}
-      >
-        Vessel Visit Executions ({vveList.length})
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+        <Typography 
+          variant="h4" 
+          sx={{ 
+            color: 'var(--color-primary-light)', 
+            fontWeight: 600,
+            fontSize: 'var(--font-size-heading)', 
+          }}
+        >
+          Vessel Visit Executions ({vveList.length})
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => navigate("/vve/add")}
+          sx={{
+            backgroundColor: 'var(--color-primary)',
+            color: 'var(--color-text-light)',
+            '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+          }}
+        >
+          Create VVE
+        </Button>
+      </Box>
 
       {loading && <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />}
 
