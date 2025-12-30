@@ -311,17 +311,17 @@ namespace SchedulingAPI.Controllers
                     var scheduleItems = new List<dynamic>();
                     if (!string.IsNullOrEmpty(rawResult))
                     {
-                        var cleaned = rawResult
-                            .Replace("Execution Time:", "")
-                            .Replace("Heuristic Execution Time:", "")
-                            .Replace("Brute Force Execution Time:", "")
-                            .Replace("[", "")
-                            .Replace("]", "")
-                            .Trim();
+                        var lines = rawResult.Split('\n')
+                            .Where(l => !l.Contains("Execution Time") && !string.IsNullOrWhiteSpace(l))
+                            .ToList();
 
-                        if (!string.IsNullOrEmpty(cleaned))
+                        if (lines.Count > 0)
                         {
-                            // Split uwzględniający format: (vessel,start,end,delay)
+                            var cleaned = string.Join("", lines)
+                                .Replace("[", "")
+                                .Replace("]", "")
+                                .Trim();
+
                             var tokens = cleaned.Split(new[] { "),(" }, StringSplitOptions.RemoveEmptyEntries);
                             foreach (var token in tokens)
                             {
@@ -354,6 +354,7 @@ namespace SchedulingAPI.Controllers
                             }
                         }
                     }
+
 
                     var staffShortNames = scheduleItems
                         .SelectMany(s => ((List<StaffMemberDto>)s.Staff))
