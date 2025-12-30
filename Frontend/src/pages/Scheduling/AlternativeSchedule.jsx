@@ -53,10 +53,17 @@ const AlternativeSchedule = () => {
     generateSchedule();
   };
 
-  const getNotificationFor = (vesselName) =>
-    vesselNotifications.find(n =>
-      n.vesselName && n.vesselName.toLowerCase().replace(/\s+/g, "_") === vesselName.toLowerCase()
-    );
+  // Tworzymy mapę vesselName -> notification
+  const vesselMap = React.useMemo(() => {
+    const map = {};
+    vesselNotifications.forEach(n => {
+      if (n.vesselName) {
+        const key = n.vesselName.toLowerCase().replace(/\s+/g, "_");
+        map[key] = n;
+      }
+    });
+    return map;
+  }, [vesselNotifications]);
 
   return (
     <Container
@@ -83,6 +90,7 @@ const AlternativeSchedule = () => {
         Heuristic Scheduling ({scheduleResults.length})
       </Typography>
 
+      {/* Controls */}
       <Paper
         sx={{
           p: 2,
@@ -147,6 +155,7 @@ const AlternativeSchedule = () => {
         </Button>
       </Paper>
 
+      {/* Execution Time */}
       {executionTime !== null && (
         <Alert
           severity="info"
@@ -160,8 +169,10 @@ const AlternativeSchedule = () => {
         </Alert>
       )}
 
+      {/* Loading */}
       {loading && <CircularProgress sx={{ display: "block", margin: "20px auto" }} />}
 
+      {/* Error */}
       {error && (
         <Alert
           severity="error"
@@ -171,6 +182,21 @@ const AlternativeSchedule = () => {
         </Alert>
       )}
 
+      {/* Global info about Unassigned (crane/staff only) */}
+      {hasGenerated && !loading && scheduleResults.length > 0 && (
+        <Alert
+          severity="info"
+          sx={{
+            mb: 2,
+            backgroundColor: "var(--color-info)",
+            color: "var(--color-text-dark)"
+          }}
+        >
+          <strong>Note:</strong> "Unassigned" means that the crane or staff could not be assigned due to insufficient resources.
+        </Alert>
+      )}
+
+      {/* No schedule results */}
       {hasGenerated && !loading && scheduleResults.length === 0 && !error && (
         <Alert
           severity="info"
@@ -180,6 +206,7 @@ const AlternativeSchedule = () => {
         </Alert>
       )}
 
+      {/* Schedule Table */}
       {scheduleResults.length > 0 && (
         <TableContainer component={MuiPaper} sx={{ mt: 3 }}>
           <Table size="small">
@@ -199,23 +226,50 @@ const AlternativeSchedule = () => {
 
             <TableBody>
               {scheduleResults.map((item, idx) => {
-                const note = getNotificationFor(item.vessel);
-                const eta = note ? new Date(note.eta).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "N/A";
-                const etd = note ? new Date(note.etd).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "N/A";
-                const delay = note && item.endSlot != null ? (item.endSlot - new Date(note.etd).getHours()) : null;
+                const vesselKey = item.vesselName; // iarti_container_X
+                const note = vesselMap[vesselKey];
+
+                const eta = note?.eta ? new Date(note.eta).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "N/A";
+                const etd = note?.etd ? new Date(note.etd).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "N/A";
+
+                let delay = null;
+                if (note?.etd && item?.endSlot != null) {
+                  const etdDate = new Date(note.etd);
+                  const endDate = new Date(etdDate.getTime());
+                  endDate.setHours(0, 0, 0, 0);
+                  endDate.setHours(endDate.getHours() + item.endSlot);
+                  delay = Math.max(0, Math.round((endDate - etdDate) / (1000 * 60 * 60)));
+                }
+
                 const delayDisplay = delay != null ? (delay > 0 ? `${delay}h` : "On time") : "N/A";
 
                 return (
                   <TableRow key={idx} sx={{ "&:hover": { backgroundColor: "var(--color-background)" } }}>
-                    <TableCell>{item.vessel}</TableCell>
+                    <TableCell>{note?.vesselName ?? "N/A"}</TableCell>
                     <TableCell>{eta}</TableCell>
                     <TableCell>{etd}</TableCell>
-                    <TableCell>{item.start}</TableCell>
-                    <TableCell>{item.end}</TableCell>
+                    <TableCell>{item.start ?? "N/A"}</TableCell>
+                    <TableCell>{item.end ?? "N/A"}</TableCell>
                     <TableCell>{delayDisplay}</TableCell>
-                    <TableCell>{item.dock}</TableCell>
-                    <TableCell>{item.crane}</TableCell>
-                    <TableCell>{item.staff}</TableCell>
+                    <TableCell>{item.dock ?? "N/A"}</TableCell>
+
+                    <TableCell
+                      sx={{
+                        backgroundColor: !item?.craneCodes || item.craneCodes.length === 0 ? "var(--color-warning-bg)" : "inherit"
+                      }}
+                    >
+                      {item?.craneCodes?.join(", ") ?? "Unassigned"}
+                    </TableCell>
+
+                    <TableCell
+                      sx={{
+                        backgroundColor: !item?.staff || item.staff.length === 0 ? "var(--color-warning-bg)" : "inherit"
+                      }}
+                    >
+                      {Array.isArray(item?.staff) && item.staff.length > 0
+                        ? item.staff.map(s => s?.shortName ?? s).join(", ")
+                        : "Unassigned"}
+                    </TableCell>
                   </TableRow>
                 );
               })}

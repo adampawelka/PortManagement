@@ -3,10 +3,9 @@ import { useSchedulingService } from "../../services/schedulingService";
 import { useApi } from "../../services/api";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 
-
 export const useAlternativeScheduleVM = () => {
-  const { calculateSchedule } = useSchedulingService(); 
-  const { apiFetch } = useApi(); 
+  const { calculateSchedule } = useSchedulingService();
+  const { apiFetch } = useApi();
 
   const [targetDate, setTargetDate] = useState("");
   const [selectedAlgorithm, setSelectedAlgorithm] = useState("heuristic");
@@ -26,58 +25,10 @@ export const useAlternativeScheduleVM = () => {
     return days > 0 ? `${timeStr} (+${days}d)` : timeStr;
   };
 
-  const extractExecutionTime = (resultString) => {
-    if (!resultString) return null;
-    const patterns = [
-      /Heuristic Execution Time:\s*([\d.e-]+)/i,
-      /SPT Execution Time:\s*([\d.e-]+)/i,
-      /Dynamic MST Execution Time:\s*([\d.e-]+)/i,
-      /Execution Time:\s*([\d.e-]+)/i
-    ];
-    for (const pattern of patterns) {
-      const match = resultString.match(pattern);
-      if (match) return parseFloat(match[1]);
-    }
-    return null;
-  };
-
-  const parsePrologResult = (resultString, dockName, craneCode, staffID, areaID) => {
-    if (!resultString) return [];
-
-    let cleaned = resultString
-      .replace(/Heuristic Execution Time:.*?\n/i, "")
-      .replace(/SPT Execution Time:.*?\n/i, "")
-      .replace(/Dynamic MST Execution Time:.*?\n/i, "")
-      .replace(/Execution Time:.*?\n/i, "")
-      .replace(/\[|\]/g, "")
-      .trim();
-
-    if (!cleaned) return [];
-
-    return cleaned.split(/\),/).map((item) => {
-      const clean = item.replace(/\(|\)/g, "").trim();
-      const parts = clean.split(",");
-
-      const startSlot = parts[1]?.trim() || "";
-      const endSlot = parts[2]?.trim() || "";
-
-      return {
-        vessel: parts[0]?.trim() || "",
-        start: slotToTime(startSlot),
-        end: slotToTime(endSlot),
-        startSlot: parseInt(startSlot) || null,
-        endSlot: parseInt(endSlot) || null,
-        dock: dockName || "Unknown Dock",
-        crane: craneCode || "Unassigned",
-        staff: staffID || "Unassigned",
-        area: areaID || "Unassigned"
-      };
-    });
-  };
-
   const calculateDelay = (endSlot, etd) => {
+    if (endSlot == null || !etd) return null;
     const endSlotNum = parseInt(endSlot);
-    if (isNaN(endSlotNum) || !etd) return null;
+    if (isNaN(endSlotNum)) return null;
     const etdDate = new Date(etd);
     const etdHour = etdDate.getHours();
     const delay = endSlotNum - etdHour;
@@ -85,17 +36,14 @@ export const useAlternativeScheduleVM = () => {
   };
 
   const totalDelay = useMemo(() => {
-    let total = 0;
-    scheduleResults.forEach((item) => {
+    return scheduleResults.reduce((total, item) => {
+      if (!item?.vesselName) return total; 
       const notification = vesselNotifications.find(n =>
-        n.vesselName && n.vesselName.toLowerCase().replace(/\s+/g, "_") === item.vessel.toLowerCase()
+        n.vesselName?.toLowerCase().replace(/\s+/g, "_") === item.vesselName.toLowerCase()
       );
-      if (notification && item.endSlot != null) {
-        const d = calculateDelay(item.endSlot, notification.etd);
-        if (d) total += d;
-      }
-    });
-    return total;
+      const d = notification && item.endSlot != null ? calculateDelay(item.endSlot, notification.etd) : 0;
+      return total + (d || 0);
+    }, 0);
   }, [scheduleResults, vesselNotifications]);
 
   const generateSchedule = async () => {
@@ -113,26 +61,32 @@ export const useAlternativeScheduleVM = () => {
     setVesselNotifications([]);
 
     try {
+      // Pobranie powiadomień o statkach
       const allNotifs = await getVesselVisitNotifications(apiFetch);
       const filtered = allNotifs.filter(
-        (n) =>
-          n.status === "Approved" &&
-          new Date(n.eta).toISOString().split("T")[0] === isoDate
+        n => n.status === "Approved" && new Date(n.eta).toISOString().split("T")[0] === isoDate
       );
       setVesselNotifications(filtered);
 
-      const raw = await calculateSchedule(isoDate, selectedAlgorithm);
+      // Pobranie harmonogramu z backendu
+      const result = await calculateSchedule(isoDate, selectedAlgorithm);
+      if (!result) throw new Error("Empty schedule result from backend");
 
-      const exec = extractExecutionTime(raw);
-      if (exec !== null) setExecutionTime(exec);
-
-      const json = JSON.parse(raw || "{}");
-
-      const parsed = Object.entries(json).flatMap(([dockId, dockInfo]) =>
-        parsePrologResult(dockInfo.schedule, dockInfo.dock || dockId, dockInfo.crane, dockInfo.staff, dockInfo.area)
+      // Dodanie pola 'dock' do każdego elementu parsedSchedule
+      const parsedSchedules = Object.values(result).flatMap(dockObj =>
+        (dockObj.parsedSchedule || []).map(item => ({
+          ...item,
+          dock: dockObj.dock || "N/A"
+        }))
       );
+      setScheduleResults(parsedSchedules);
 
-      setScheduleResults(parsed);
+      // Ustawienie czasu wykonania (pierwszy dock)
+      const execTimes = Object.values(result)
+        .map(dock => dock.executionTime)
+        .filter(Boolean);
+      if (execTimes.length) setExecutionTime(execTimes[0]);
+
     } catch (err) {
       console.error(err);
       setError(`Scheduling failed: ${err.message || err}`);
@@ -153,6 +107,8 @@ export const useAlternativeScheduleVM = () => {
     executionTime,
     hasGenerated,
     totalDelay,
-    generateSchedule
+    generateSchedule,
+    slotToTime,
+    calculateDelay
   };
 };
