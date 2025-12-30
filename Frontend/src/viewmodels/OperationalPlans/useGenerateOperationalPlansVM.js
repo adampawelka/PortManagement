@@ -16,6 +16,13 @@ export const useOperationalPlansVM = () => {
   const [mode, setMode] = useState("single");
   const [algorithm, setAlgorithm] = useState("");
 
+  const calculateDelay = (endSlot, etd) => {
+    if (endSlot == null || !etd) return 0;
+    const etdHour = new Date(etd).getHours();
+    const delay = endSlot - etdHour;
+    return delay > 0 ? delay : 0;
+  };
+
   const generate = async () => {
     setLoading(true);
     setError("");
@@ -42,31 +49,44 @@ export const useOperationalPlansVM = () => {
 
       const aggregated = {};
 
-      Object.values(scheduleResponse || {}).forEach(dock => {
-        const schedules =
+      Object.values(scheduleResponse || {}).forEach(dockSchedule => {
+
+        /** 🔹 SINGLE (optimal / heuristic) – JAK BYŁO */
+        const singleItems =
           mode === "single"
-            ? dock.singleCrane?.schedules || []
-            : dock.multiCrane?.schedules || [];
+            ? dockSchedule.parsedSchedule || []
+            : [];
 
-        schedules.forEach(item => {
-          const vesselKey = item.vesselName;
-          if (!vesselKey) return;
+        /** 🔹 MULTI – NOWA OBSŁUGA */
+        const multiItems =
+          mode === "multi"
+            ? dockSchedule.multiCrane?.schedules || []
+            : [];
 
-          if (!aggregated[vesselKey]) {
-            aggregated[vesselKey] = {
-              vvnId: vesselKey,
-              vesselName: vesselKey,
-              dock: dock.dockName,
-              crane: item.craneCodes?.join(", "),
-              area: dock.area,
+        const items = mode === "single" ? singleItems : multiItems;
+
+        items.forEach(item => {
+          const vvnId = item.vesselId || item.VVN || item.vesselName;
+          if (!vvnId) return;
+
+          if (!aggregated[vvnId]) {
+            aggregated[vvnId] = {
+              vvnId,
+              vesselId: item.vesselId || null,
+              vesselName: item.vesselName || "Unknown",
+              dock: dockSchedule.dock || dockSchedule.dockName,
+              crane: item.craneCodes
+                ? item.craneCodes.join(", ")
+                : dockSchedule.crane,
+              area: dockSchedule.area,
               operations: [],
             };
           }
 
-          aggregated[vesselKey].operations.push({
-            start: item.startTime,
-            end: item.endTime,
-            delay: item.delay ?? 0,
+          aggregated[vvnId].operations.push({
+            start: item.start || item.Start || item.startTime,
+            end: item.end || item.End || item.endTime,
+            delay: item.delay ?? calculateDelay(item.endSlot, item.ETD),
             staff: Array.isArray(item.staff)
               ? item.staff.map(s => s.shortName)
               : [],
@@ -75,26 +95,28 @@ export const useOperationalPlansVM = () => {
         });
       });
 
-      /** ✅ AGREGACJA STAFFU */
+      /** ✅ AGREGACJA STAFFU (DZIAŁA DLA SINGLE + MULTI) */
       const plansWithStaff = Object.values(aggregated).map(plan => {
-        const allStaff = plan.operations.flatMap(op => op.staff);
+        const allStaff = plan.operations.flatMap(op => op.staff || []);
         const uniqueStaff = [...new Set(allStaff)];
 
         return {
           ...plan,
-          staff: uniqueStaff.length ? uniqueStaff : ["Unassigned"]
+          staff: uniqueStaff.length > 0 ? uniqueStaff : ["Unassigned"]
         };
       });
 
       setPlans(plansWithStaff);
 
-      const firstDock = Object.values(scheduleResponse)[0];
-      const execTime =
-        mode === "single"
-          ? firstDock?.singleCrane?.executionTime
-          : firstDock?.multiCrane?.executionTime;
-
-      setExecutionTime(execTime ?? null);
+      /** executionTime */
+      if (plansWithStaff.length > 0) {
+        const firstDock = Object.values(scheduleResponse)[0];
+        setExecutionTime(
+          mode === "single"
+            ? firstDock?.executionTime ?? null
+            : firstDock?.multiCrane?.executionTime ?? null
+        );
+      }
 
     } catch (err) {
       setError(err?.message || "Failed to generate schedule.");
