@@ -29,7 +29,6 @@ export const useOptimalScheduleVM = () => {
     setExecutionTime(null);
 
     try {
-      // Pobierz wszystkie powiadomienia o statkach
       const allNotifs = await getVesselVisitNotifications(apiFetch);
       const filtered = allNotifs.filter(n =>
         n.status === "Approved" &&
@@ -37,27 +36,26 @@ export const useOptimalScheduleVM = () => {
       );
       setVesselNotifications(filtered);
 
-      // Pobierz harmonogram z kontrolera
       const json = await calculateSchedule(isoDate, "optimal");
 
       // Flatten parsedSchedule ze wszystkich docków
-      const parsed = Object.values(json).flatMap(dockInfo => 
-  (dockInfo.parsedSchedule ?? []).map(item => ({
-    vessel: item.vesselName,           // lowercase jak w backendzie
-    vesselId: item.vesselId,
-    startSlot: item.startSlot,
-    endSlot: item.endSlot,
-    start: item.start,
-    end: item.end,
-    dock: dockInfo.dock,               // TU bierzemy dock z dockInfo
-    crane: item.craneCodes?.[0] || null,
-    staff: Array.isArray(item.staff)
-      ? item.staff.map(s => s.shortName)
-      : [],
-    warning: item.warning || null,
-    delay: item.delay || 0
-  }))
-);
+      const parsed = Object.values(json).flatMap(dockInfo =>
+        (dockInfo.parsedSchedule ?? []).map(item => ({
+          vessel: item.vesselName,           // lowercase jak w backendzie
+          vesselId: item.vesselId,
+          startSlot: item.startSlot,
+          endSlot: item.endSlot,
+          start: item.start,
+          end: item.end,
+          dock: dockInfo.dock,               // TU bierzemy dock z dockInfo
+          crane: item.craneCodes?.[0] || null,
+          staff: Array.isArray(item.staff)
+            ? item.staff.map(s => s.shortName)
+            : [],
+          warning: item.warning || null,
+          delay: item.delay || 0
+        }))
+      );
 
 
 

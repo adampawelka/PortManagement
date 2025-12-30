@@ -5,7 +5,7 @@ import { useApi } from "../../services/api";
 
 export const useRecommendedScheduleVM = () => {
   const { apiFetch } = useApi();
-  const { calculateSchedule, parsePrologResult } = useSchedulingService();
+  const { calculateSchedule } = useSchedulingService();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,28 +21,29 @@ export const useRecommendedScheduleVM = () => {
     return { algo: "genetic", reason: "Large or time-constrained instance" };
   };
 
-  const extractExecutionTime = (txt) => {
-    const patterns = [
-      /Execution Time:\s*([\d.e-]+)/i,
-      /Heuristic Execution Time:\s*([\d.e-]+)/i,
-      /Brute Force Execution Time:\s*([\d.e-]+)/i,
-      /Genetic Execution Time:\s*([\d.e-]+)/i,
-    ];
-    for (const p of patterns) {
-      const match = txt.match(p);
-      if (match) return parseFloat(match[1]);
-    }
-    return null;
+  const slotToTime = (slot) => {
+    const slotNum = parseInt(slot);
+    if (isNaN(slotNum)) return slot;
+    const hours = slotNum % 24;
+    const days = Math.floor(slotNum / 24);
+    const timeStr = `${hours.toString().padStart(2, "0")}:00`;
+    return days > 0 ? `${timeStr} (+${days}d)` : timeStr;
   };
 
   const calculateDelay = (endSlot, etd) => {
-    if (endSlot == null || !etd) return 0;
-    const etdHour = new Date(etd).getHours();
-    const delay = endSlot - etdHour;
-    return delay > 0 ? delay : 0;
+    if (!endSlot || !etd) return 0;
+    const etdDate = new Date(etd);
+    const endDate = new Date(etdDate.getTime());
+    endDate.setHours(0, 0, 0, 0);
+    endDate.setHours(endDate.getHours() + endSlot);
+    const diffHours = Math.round((endDate - etdDate) / (1000 * 60 * 60));
+    return diffHours > 0 ? diffHours : 0;
   };
 
-  const totalDelay = useMemo(() => results.reduce((acc, item) => acc + (item.delay || 0), 0), [results]);
+  const totalDelay = useMemo(
+    () => results.reduce((acc, item) => acc + (item.delay || 0), 0),
+    [results]
+  );
 
   const generate = async (isoDate, overrideAlgorithm = "") => {
     setLoading(true);
@@ -53,9 +54,8 @@ export const useRecommendedScheduleVM = () => {
 
     try {
       const allNotifs = await getVesselVisitNotifications(apiFetch);
-      const filtered = allNotifs.filter(n =>
-        n.status === "Approved" &&
-        new Date(n.eta).toISOString().split("T")[0] === isoDate
+      const filtered = allNotifs.filter(
+        (n) => n.status === "Approved" && new Date(n.eta).toISOString().split("T")[0] === isoDate
       );
       setVesselNotifications(filtered);
 
@@ -63,7 +63,6 @@ export const useRecommendedScheduleVM = () => {
       const { algo, reason: autoReason } = chooseAlgorithm(vesselsCount);
       const finalAlgo = overrideAlgorithm || algo;
       const finalReason = overrideAlgorithm ? "User override" : autoReason;
-
       setAlgorithm(finalAlgo);
       setReason(finalReason);
 
@@ -73,41 +72,48 @@ export const useRecommendedScheduleVM = () => {
       }
 
       const raw = await calculateSchedule(isoDate, finalAlgo);
-      const exec = extractExecutionTime(raw);
-      if (exec !== null) setExecutionTime(exec);
 
-      const json = JSON.parse(raw || "{}");
+      // Pobranie executionTime (pierwszy dock)
+      const execTimes = Object.values(raw)
+        .map((dock) => dock.executionTime)
+        .filter(Boolean);
+      if (execTimes.length > 0) setExecutionTime(execTimes[0]);
 
-      const parsed = Object.entries(json).flatMap(([dockId, dockInfo]) => {
-        const lines = dockInfo.schedule.split(/\),/);
-
-        return parsePrologResult(
-          dockInfo.schedule,
-          dockInfo.vessels ?? [],
-          dockInfo.dock || dockId,
-          dockInfo.crane,
-          dockInfo.staff ?? [],
-          dockInfo.areas ?? []
-        ).map((item, index) => {
-          const note = filtered.find(n =>
-            n.vesselName && n.vesselName.toLowerCase().replace(/\s+/g, "_") === item.vessel.toLowerCase()
+      // Mapowanie wyników backendu na format prosty dla Reacta
+      const parsedResults = Object.values(raw).flatMap((dockInfo) =>
+        (dockInfo.parsedSchedule ?? []).map((item) => {
+          const note = filtered.find(
+            (n) =>
+              n.vesselName &&
+              n.vesselName.toLowerCase().replace(/\s+/g, "_") ===
+                (item.vesselName || item.vessel)?.toLowerCase()
           );
+          const delay =
+            finalAlgo === "heuristic"
+              ? note && item.endSlot != null
+                ? calculateDelay(item.endSlot, note.etd)
+                : 0
+              : item.delay || 0;
 
-          let delay = 0;
-          if (finalAlgo === "optimal") {
-            // Delay z Prologa – z 4 elementu linii harmonogramu
-            const parts = lines[index]?.replace(/[()]/g, "").split(",");
-            delay = parts && parts[3] ? parseInt(parts[3].trim(), 10) : 0;
-          } else {
-            // Heurystyki: licz dynamicznie względem ETD
-            delay = note && item.endSlot != null ? calculateDelay(item.endSlot, note.etd) : 0;
-          }
+          return {
+            vessel: item.vesselName || item.vessel || "Unknown",
+            vesselId: item.vesselId || null,
+            startSlot: item.startSlot,
+            endSlot: item.endSlot,
+            start: slotToTime(item.startSlot),
+            end: slotToTime(item.endSlot),
+            dock: dockInfo.dock || "N/A",
+            crane: item.craneCodes?.[0] || dockInfo.crane || "Unassigned",
+            staff: Array.isArray(item.staff)
+              ? item.staff.map((s) => s.shortName ?? s)
+              : [], // <- staff jako tablica
+            warning: item.warning || null,
+            delay,
+          };
+        })
+      );
 
-          return { ...item, delay };
-        });
-      });
-
-      setResults(parsed);
+      setResults(parsedResults);
     } catch (err) {
       console.error(err);
       setError(err.message || "Unknown error");
@@ -124,6 +130,6 @@ export const useRecommendedScheduleVM = () => {
     algorithm,
     reason,
     totalDelay,
-    generate
+    generate,
   };
 };

@@ -204,38 +204,21 @@ const OptimalSchedule = () => {
                                     <TableCell>{row.vessel}</TableCell>
 
                                     <TableCell
-                                        sx={{
-                                            backgroundColor:
-                                                row.start == null || row.start === "Unassigned"
-                                                    ? "var(--color-warning-bg)"
-                                                    : "inherit"
-                                        }}
+                                        
                                     >
-                                        {row.start ?? "Unassigned"}
+                                        {row.start}
                                     </TableCell>
 
                                     <TableCell
-                                        sx={{
-                                            backgroundColor:
-                                                row.end == null || row.end === "Unassigned"
-                                                    ? "var(--color-warning-bg)"
-                                                    : "inherit"
-                                        }}
+                                        
                                     >
-                                        {row.end ?? "Unassigned"}
+                                        {row.end}
                                     </TableCell>
 
                                     <TableCell>{row.delay}</TableCell>
 
                                     <TableCell
-                                        sx={{
-                                            backgroundColor:
-                                                !row.dock || row.dock === "Unassigned"
-                                                    ? "var(--color-warning-bg)"
-                                                    : "inherit"
-                                        }}
-                                    >
-                                        {row.dock ?? "Unassigned"}
+                                        >{row.dock}
                                     </TableCell>
 
                                     <TableCell
