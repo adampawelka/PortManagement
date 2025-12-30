@@ -73,13 +73,11 @@ export const useRecommendedScheduleVM = () => {
 
       const raw = await calculateSchedule(isoDate, finalAlgo);
 
-      // Pobranie executionTime (pierwszy dock)
       const execTimes = Object.values(raw)
         .map((dock) => dock.executionTime)
         .filter(Boolean);
       if (execTimes.length > 0) setExecutionTime(execTimes[0]);
 
-      // Mapowanie wyników backendu na format prosty dla Reacta
       const parsedResults = Object.values(raw).flatMap((dockInfo) =>
         (dockInfo.parsedSchedule ?? []).map((item) => {
           const note = filtered.find(

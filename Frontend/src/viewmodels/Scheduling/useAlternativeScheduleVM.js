@@ -61,18 +61,15 @@ export const useAlternativeScheduleVM = () => {
     setVesselNotifications([]);
 
     try {
-      // Pobranie powiadomień o statkach
       const allNotifs = await getVesselVisitNotifications(apiFetch);
       const filtered = allNotifs.filter(
         n => n.status === "Approved" && new Date(n.eta).toISOString().split("T")[0] === isoDate
       );
       setVesselNotifications(filtered);
 
-      // Pobranie harmonogramu z backendu
       const result = await calculateSchedule(isoDate, selectedAlgorithm);
       if (!result) throw new Error("Empty schedule result from backend");
 
-      // Dodanie pola 'dock' do każdego elementu parsedSchedule
       const parsedSchedules = Object.values(result).flatMap(dockObj =>
         (dockObj.parsedSchedule || []).map(item => ({
           ...item,
@@ -81,7 +78,6 @@ export const useAlternativeScheduleVM = () => {
       );
       setScheduleResults(parsedSchedules);
 
-      // Ustawienie czasu wykonania (pierwszy dock)
       const execTimes = Object.values(result)
         .map(dock => dock.executionTime)
         .filter(Boolean);

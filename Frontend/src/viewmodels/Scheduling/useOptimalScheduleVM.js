@@ -38,16 +38,16 @@ export const useOptimalScheduleVM = () => {
 
       const json = await calculateSchedule(isoDate, "optimal");
 
-      // Flatten parsedSchedule ze wszystkich docków
+      // Flatten parsedSchedule 
       const parsed = Object.values(json).flatMap(dockInfo =>
         (dockInfo.parsedSchedule ?? []).map(item => ({
-          vessel: item.vesselName,           // lowercase jak w backendzie
+          vessel: item.vesselName,           
           vesselId: item.vesselId,
           startSlot: item.startSlot,
           endSlot: item.endSlot,
           start: item.start,
           end: item.end,
-          dock: dockInfo.dock,               // TU bierzemy dock z dockInfo
+          dock: dockInfo.dock,               
           crane: item.craneCodes?.[0] || null,
           staff: Array.isArray(item.staff)
             ? item.staff.map(s => s.shortName)
