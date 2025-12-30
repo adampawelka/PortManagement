@@ -217,7 +217,7 @@ const AlternativeSchedule = () => {
                 <TableCell sx={{ fontWeight: "bold" }}>Expected Departure</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Start Time</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>End Time</TableCell>
-                <TableCell sx={{ fontWeight: "bold" }}>Delay</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Delay[h]</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Assigned Crane</TableCell>
                 <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
@@ -241,7 +241,7 @@ const AlternativeSchedule = () => {
                   delay = Math.max(0, Math.round((endDate - etdDate) / (1000 * 60 * 60)));
                 }
 
-                const delayDisplay = delay != null ? (delay > 0 ? `${delay}h` : "On time") : "N/A";
+                const delayDisplay = delay != null ? (delay > 0 ? `${delay}` : "On time") : "N/A";
 
                 return (
                   <TableRow key={idx} sx={{ "&:hover": { backgroundColor: "var(--color-background)" } }}>
@@ -278,7 +278,7 @@ const AlternativeSchedule = () => {
 
           <div style={{ padding: 12, textAlign: "center", color: "var(--color-text-muted)" }}>
             <div>
-              <strong>Total Delay:</strong> {totalDelay}h
+              <strong>Total Delay:</strong> {totalDelay}
             </div>
           </div>
         </TableContainer>

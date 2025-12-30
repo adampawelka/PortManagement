@@ -16,12 +16,19 @@ export const useOperationalPlansVM = () => {
   const [mode, setMode] = useState("single");
   const [algorithm, setAlgorithm] = useState("");
 
-  const calculateDelay = (endSlot, etd) => {
-    if (endSlot == null || !etd) return 0;
-    const etdHour = new Date(etd).getHours();
-    const delay = endSlot - etdHour;
-    return delay > 0 ? delay : 0;
+  // Heuristic delay calculation
+  const heuristicDelay = (endSlot, etd) => {
+    if (typeof endSlot !== "number" || !etd) return 0;
+    const etdDate = new Date(etd);
+    const endDate = new Date(etdDate.getTime());
+    endDate.setHours(0, 0, 0, 0);
+    endDate.setHours(endDate.getHours() + endSlot);
+    const diffHours = Math.round((endDate - etdDate) / (1000 * 60 * 60));
+    return diffHours > 0 ? diffHours : 0;
   };
+
+  // Normalize vessel name for comparison
+  const normalizeName = (name) => name?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") || "";
 
   const generate = async () => {
     setLoading(true);
@@ -34,9 +41,7 @@ export const useOperationalPlansVM = () => {
       if (mode === "single" && !algorithm) throw new Error("Please select an algorithm.");
 
       const allVVN = await getVesselVisitNotifications(apiFetch);
-      const vvnForDate = allVVN.filter(
-        v => v.status === "Approved" && v.eta?.split("T")[0] === date
-      );
+      const vvnForDate = allVVN.filter(v => v.status === "Approved" && v.eta?.split("T")[0] === date);
 
       if (vvnForDate.length === 0) {
         throw new Error("No approved Vessel Visit Notifications found for this date.");
@@ -55,10 +60,8 @@ export const useOperationalPlansVM = () => {
         const items = mode === "single" ? singleItems : multiItems;
 
         items.forEach(item => {
-          // Znajdź odpowiadający VVN po nazwie
-          const matchingVVN = vvnForDate.find(v =>
-            v.VesselName && v.VesselName.toLower().replace(/\s+/g, "_") === (item.vesselName || "").toLowerCase()
-          );
+          // Find matching VVN by normalized vessel name
+          const matchingVVN = vvnForDate.find(v => normalizeName(v.VesselName) === normalizeName(item.vesselName));
 
           const vvnId = item.vesselId || (matchingVVN && matchingVVN.VesselId) || item.vesselName;
           if (!vvnId) return;
@@ -67,32 +70,37 @@ export const useOperationalPlansVM = () => {
             aggregated[vvnId] = {
               vvnId,
               vesselId: (item.vesselId || (matchingVVN && matchingVVN.VesselId)) || null,
-              vesselName: item.vesselName || (matchingVVN && matchingVVN.VesselName) || "Unknown",
-              dock: dockSchedule.dock || dockSchedule.dockName,
-              crane: item.craneCodes ? item.craneCodes.join(", ") : dockSchedule.crane,
-              area: dockSchedule.area,
+              vesselName: matchingVVN?.VesselName || item.vesselName || "Unknown",
+              dock: dockSchedule.dock || dockSchedule.dockName || "Unassigned",
+              crane: item.craneCodes ? item.craneCodes.join(", ") : dockSchedule.crane || "Unassigned",
+              area: dockSchedule.area || "Unassigned",
               operations: [],
             };
           }
 
+          // Delay: heuristic for heuristic algorithm, otherwise use backend delay
+          const delay = algorithm === "heuristic" && matchingVVN && typeof item.endSlot === "number"
+            ? heuristicDelay(item.endSlot, matchingVVN.ETD || matchingVVN.etd)
+            : item.delay || 0;
+
           aggregated[vvnId].operations.push({
-            start: item.start || item.Start || item.startTime,
-            end: item.end || item.End || item.endTime,
-            delay: item.delay ?? calculateDelay(item.endSlot, item.ETD),
+            start: item.start || item.Start || item.startTime || "N/A",
+            end: item.end || item.End || item.endTime || "N/A",
+            delay,
             staff: Array.isArray(item.staff) ? item.staff.map(s => s.shortName) : [],
-            warning: item.warning || null
+            warning: item.warning || null,
           });
         });
       });
 
-      // Agregacja staffu
+      // Aggregate staff
       const plansWithStaff = Object.values(aggregated).map(plan => {
         const allStaff = plan.operations.flatMap(op => op.staff || []);
         const uniqueStaff = [...new Set(allStaff)];
 
         return {
           ...plan,
-          staff: uniqueStaff.length > 0 ? uniqueStaff : ["Unassigned"]
+          staff: uniqueStaff.length > 0 ? uniqueStaff : ["Unassigned"],
         };
       });
 
@@ -117,8 +125,7 @@ export const useOperationalPlansVM = () => {
 
   const totalDelay = useMemo(() => {
     return plans.reduce(
-      (acc, plan) =>
-        acc + plan.operations.reduce((sum, op) => sum + (op.delay || 0), 0),
+      (acc, plan) => acc + plan.operations.reduce((sum, op) => sum + (op.delay || 0), 0),
       0
     );
   }, [plans]);

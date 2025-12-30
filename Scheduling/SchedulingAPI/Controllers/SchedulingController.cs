@@ -314,54 +314,65 @@ namespace SchedulingAPI.Controllers
                     if (!string.IsNullOrEmpty(rawResult))
                     {
                         if (algorithm.Equals("heuristic", StringComparison.OrdinalIgnoreCase))
-                        {
-                            // --- Extract execution time first ---
-                            var execMatch = Regex.Match(rawResult, @"Heuristic Execution Time:\s*([\d.e-]+)", RegexOptions.IgnoreCase);
-                            if (execMatch.Success && double.TryParse(execMatch.Groups[1].Value, out var exec))
-                            {
-                                executionTime = exec;
-                            }
+{
+    // --- Extract execution time first ---
+    var execMatch = Regex.Match(rawResult, @"Heuristic Execution Time:\s*([\d.e-]+)", RegexOptions.IgnoreCase);
+    if (execMatch.Success && double.TryParse(execMatch.Groups[1].Value, out var exec))
+    {
+        executionTime = exec;
+    }
 
-                            // --- Clean rawResult from execution time lines ---
-                            var cleaned = Regex.Replace(rawResult, @"Heuristic Execution Time:.*?\n", "", RegexOptions.IgnoreCase);
-                            cleaned = Regex.Replace(cleaned, @"SPT Execution Time:.*?\n", "", RegexOptions.IgnoreCase);
-                            cleaned = Regex.Replace(cleaned, @"Dynamic MST Execution Time:.*?\n", "", RegexOptions.IgnoreCase);
-                            cleaned = Regex.Replace(cleaned, @"Execution Time:.*?\n", "", RegexOptions.IgnoreCase);
-                            cleaned = cleaned.Replace("[", "").Replace("]", "").Trim();
+    // --- Clean rawResult from execution time lines ---
+    var cleaned = Regex.Replace(rawResult, @"Heuristic Execution Time:.*?\n", "", RegexOptions.IgnoreCase);
+    cleaned = Regex.Replace(cleaned, @"SPT Execution Time:.*?\n", "", RegexOptions.IgnoreCase);
+    cleaned = Regex.Replace(cleaned, @"Dynamic MST Execution Time:.*?\n", "", RegexOptions.IgnoreCase);
+    cleaned = Regex.Replace(cleaned, @"Execution Time:.*?\n", "", RegexOptions.IgnoreCase);
+    cleaned = cleaned.Replace("[", "").Replace("]", "").Trim();
 
-                            if (!string.IsNullOrEmpty(cleaned))
-                            {
-                                var tokens = cleaned.Split(new[] { ")," }, StringSplitOptions.RemoveEmptyEntries);
-                                foreach (var token in tokens)
-                                {
-                                    var parts = token.Replace("(", "").Replace(")", "").Split(",");
-                                    if (parts.Length < 3) continue;
+    if (!string.IsNullOrEmpty(cleaned))
+    {
+        var tokens = cleaned.Split(new[] { ")," }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var token in tokens)
+        {
+            var parts = token.Replace("(", "").Replace(")", "").Split(",");
+            if (parts.Length < 3) continue;
 
-                                    string vesselKey = parts[0].Trim();
-                                    int startSlot = int.TryParse(parts[1]?.Trim(), out var s) ? s : 0;
-                                    int endSlot = int.TryParse(parts[2]?.Trim(), out var e) ? e : 0;
+            string vesselKey = parts[0].Trim();
+            int startSlot = int.TryParse(parts[1]?.Trim(), out var s) ? s : 0;
+            int endSlot = int.TryParse(parts[2]?.Trim(), out var e) ? e : 0;
 
-                                    var vessel = vesselsForDate.FirstOrDefault(v => v.VesselName.ToLower().Replace(" ", "_") == vesselKey);
-                                    if (vessel == null) continue;
+            var vessel = vesselsForDate.FirstOrDefault(v => v.VesselName.ToLower().Replace(" ", "_") == vesselKey);
+            if (vessel == null) continue;
 
-                                    var (assignedStaff, warning) = AssignStaffForSchedule(eligibleStaff, startSlot, endSlot, 1);
+            var (assignedStaff, warning) = AssignStaffForSchedule(eligibleStaff, startSlot, endSlot, 1);
 
-                                    scheduleItems.Add(new
-                                    {
-                                        VesselName = vesselKey,
-                                        VesselId = vessel?.VesselId,
-                                        StartSlot = startSlot,
-                                        EndSlot = endSlot,
-                                        Start = SlotToTime(startSlot),
-                                        End = SlotToTime(endSlot),
-                                        CraneCodes = new List<string> { selectedCrane?.Code ?? "Unassigned" },
-                                        Staff = assignedStaff,
-                                        Warning = warning,
-                                        Delay = 0 // tutaj frontend może policzyć delay
-                                    });
-                                }
-                            }
-                        }
+            // --- Calculate delay based on ETD ---
+            int delay = 0;
+            if (vessel.ETD != default)
+            {
+                var etdDate = vessel.ETD;
+                var endDate = etdDate.Date.AddHours(endSlot);
+                delay = (int)Math.Round((endDate - etdDate).TotalHours);
+                if (delay < 0) delay = 0;
+            }
+
+            scheduleItems.Add(new
+            {
+                VesselName = vesselKey,
+                VesselId = vessel?.VesselId,
+                StartSlot = startSlot,
+                EndSlot = endSlot,
+                Start = SlotToTime(startSlot),
+                End = SlotToTime(endSlot),
+                CraneCodes = new List<string> { selectedCrane?.Code ?? "Unassigned" },
+                Staff = assignedStaff,
+                Warning = warning,
+                Delay = delay
+            });
+        }
+    }
+}
+
                         else
                         {
                             // --- Existing bruteforce parsing ---
