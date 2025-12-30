@@ -354,7 +354,7 @@ namespace SchedulingAPI.Controllers
 
                                     scheduleItems.Add(new
                                     {
-                                        VesselName = vesselKey,
+                                        VesselName = vessel.VesselName,
                                         VesselId = vessel?.VesselId,
                                         StartSlot = startSlot,
                                         EndSlot = endSlot,
@@ -401,7 +401,7 @@ namespace SchedulingAPI.Controllers
 
                                     scheduleItems.Add(new
                                     {
-                                        VesselName = vesselKey,
+                                        VesselName = vessel.VesselName,
                                         VesselId = vessel?.VesselId,
                                         StartSlot = startSlot,
                                         EndSlot = endSlot,

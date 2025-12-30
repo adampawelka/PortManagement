@@ -16,35 +16,15 @@ export const useAlternativeScheduleVM = () => {
   const [executionTime, setExecutionTime] = useState(null);
   const [hasGenerated, setHasGenerated] = useState(false);
 
+  // Zamiana slotu na godzinę/dni
   const slotToTime = (slot) => {
-    const slotNum = parseInt(slot);
+    const slotNum = parseInt(slot, 10);
     if (isNaN(slotNum)) return slot;
     const hours = slotNum % 24;
     const days = Math.floor(slotNum / 24);
     const timeStr = `${hours.toString().padStart(2, "0")}:00`;
     return days > 0 ? `${timeStr} (+${days}d)` : timeStr;
   };
-
-  const calculateDelay = (endSlot, etd) => {
-    if (endSlot == null || !etd) return null;
-    const endSlotNum = parseInt(endSlot);
-    if (isNaN(endSlotNum)) return null;
-    const etdDate = new Date(etd);
-    const etdHour = etdDate.getHours();
-    const delay = endSlotNum - etdHour;
-    return delay > 0 ? delay : 0;
-  };
-
-  const totalDelay = useMemo(() => {
-    return scheduleResults.reduce((total, item) => {
-      if (!item?.vesselName) return total; 
-      const notification = vesselNotifications.find(n =>
-        n.vesselName?.toLowerCase().replace(/\s+/g, "_") === item.vesselName.toLowerCase()
-      );
-      const d = notification && item.endSlot != null ? calculateDelay(item.endSlot, notification.etd) : 0;
-      return total + (d || 0);
-    }, 0);
-  }, [scheduleResults, vesselNotifications]);
 
   const generateSchedule = async () => {
     setHasGenerated(true);
@@ -61,23 +41,36 @@ export const useAlternativeScheduleVM = () => {
     setVesselNotifications([]);
 
     try {
+      // Pobranie powiadomień
       const allNotifs = await getVesselVisitNotifications(apiFetch);
       const filtered = allNotifs.filter(
         n => n.status === "Approved" && new Date(n.eta).toISOString().split("T")[0] === isoDate
       );
       setVesselNotifications(filtered);
 
+      // Obliczenie harmonogramu
       const result = await calculateSchedule(isoDate, selectedAlgorithm);
       if (!result) throw new Error("Empty schedule result from backend");
 
+      // Parsowanie schedule – backend zwraca już wszystkie potrzebne pola w parsedSchedule
       const parsedSchedules = Object.values(result).flatMap(dockObj =>
         (dockObj.parsedSchedule || []).map(item => ({
-          ...item,
-          dock: dockObj.dock || "N/A"
+          vesselName: item.vesselName ?? "N/A",
+          vesselId: item.vesselId ?? null,
+          startSlot: item.startSlot,
+          endSlot: item.endSlot,
+          Start: item.start ?? slotToTime(item.startSlot),
+          End: item.end ?? slotToTime(item.endSlot),
+          craneCodes: item.craneCodes ?? [],
+          staff: item.staff ?? [],
+          warning: item.warning ?? null,
+          delay: item.delay ?? 0,
+          dock: dockObj.dock ?? "N/A",
         }))
       );
       setScheduleResults(parsedSchedules);
 
+      // Execution time
       const execTimes = Object.values(result)
         .map(dock => dock.executionTime)
         .filter(Boolean);
@@ -90,6 +83,11 @@ export const useAlternativeScheduleVM = () => {
       setLoading(false);
     }
   };
+
+  // Total delay obliczamy w VM
+  const totalDelay = useMemo(() => {
+    return scheduleResults.reduce((sum, item) => sum + (item.delay || 0), 0);
+  }, [scheduleResults]);
 
   return {
     targetDate,
@@ -105,6 +103,5 @@ export const useAlternativeScheduleVM = () => {
     totalDelay,
     generateSchedule,
     slotToTime,
-    calculateDelay
   };
 };
