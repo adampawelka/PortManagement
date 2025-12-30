@@ -191,7 +191,13 @@ const OptimalSchedule = () => {
                                     <TableCell>{row.delay}</TableCell>
                                     <TableCell>{row.dock}</TableCell>
                                     <TableCell>{row.crane}</TableCell>
-                                    <TableCell>{row.staff}</TableCell>
+                                    <TableCell>
+    {Array.isArray(row.staff) && row.staff.length > 0
+        ? row.staff.join(", ")
+        : "Unassigned"}
+</TableCell>
+
+
                                 </TableRow>
                             ))}
                         </TableBody>

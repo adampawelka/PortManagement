@@ -203,151 +203,188 @@ namespace SchedulingAPI.Controllers
             }
         }
 
-        [HttpGet("calculate-schedule")]
-        public async Task<IActionResult> CalculateSchedule(
-            [FromQuery] string date,
-            [FromQuery] string algorithm = "bruteforce")
+[HttpGet("calculate-schedule")]
+public async Task<IActionResult> CalculateSchedule(
+    [FromQuery] string date,
+    [FromQuery] string algorithm = "bruteforce")
+{
+    if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
+        return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
+
+    try
+    {
+        var authHeader = Request.Headers["Authorization"].ToString();
+        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            return Unauthorized(new { message = "Missing or invalid token." });
+
+        var tokenStr = authHeader.Substring("Bearer ".Length).Trim();
+
+        var client = _httpClientFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokenStr);
+
+        var vessels = await client.GetFromJsonAsync<List<VesselVisitNotificationDto>>($"{_backendApiUrl}/api/VesselVisitNotifications") ?? new();
+        var approvedVessels = vessels.Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue).ToList();
+        if (!approvedVessels.Any())
+            return BadRequest(new { message = "No approved vessels assigned to any dock." });
+
+        var dockGroups = approvedVessels.GroupBy(v => v.AssignedDockId).ToList();
+
+        var allResources = await client.GetFromJsonAsync<List<ResourceDto>>($"{_backendApiUrl}/api/Resources") ?? new();
+        var availableCranes = allResources.Where(r => r.Type == "Crane" && r.Status == "active").ToList();
+
+        var allStaff = await client.GetFromJsonAsync<List<StaffMemberDto>>($"{_backendApiUrl}/api/StaffMembers") ?? new();
+        var eligibleStaff = allStaff
+            .Where(s => s.Status == "Active" && s.Qualifications.Any(q => q.Code == "STS-CRN"))
+            .ToList();
+
+        var allAreas = await client.GetFromJsonAsync<List<StorageAreaDto>>($"{_backendApiUrl}/api/StorageAreas") ?? new();
+
+        var selectedCrane = availableCranes.FirstOrDefault();
+        if (selectedCrane != null) availableCranes.Remove(selectedCrane);
+
+        string SlotToTime(int slot)
         {
-            if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
-                return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
-
-            try
-            {
-                var authHeader = Request.Headers["Authorization"].ToString();
-                if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-                    return Unauthorized(new { message = "Missing or invalid token." });
-
-                var token = authHeader.Substring("Bearer ".Length).Trim();
-
-                var client = _httpClientFactory.CreateClient();
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-                var response = await client.GetAsync($"{_backendApiUrl}/api/VesselVisitNotifications");
-                response.EnsureSuccessStatusCode();
-
-                var vessels = await response.Content.ReadFromJsonAsync<List<VesselVisitNotificationDto>>();
-                if (vessels == null)
-                    return BadRequest(new { message = "No vessels received from the API." });
-
-                var approvedVessels = vessels
-                    .Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue)
-                    .ToList();
-
-                if (!approvedVessels.Any())
-                    return BadRequest(new { message = "No approved vessels assigned to any dock." });
-
-                var dockGroups = approvedVessels
-                    .GroupBy(v => v.AssignedDockId)
-                    .ToList();
-
-                var resourceResponse = await client.GetAsync($"{_backendApiUrl}/api/Resources");
-                resourceResponse.EnsureSuccessStatusCode();
-
-                var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
-                var availableCranes = allResources
-                    .Where(r => r.Type == "Crane" && r.Status == "active")
-                    .ToList();
-
-                var staffResponse = await client.GetAsync($"{_backendApiUrl}/api/StaffMembers");
-                staffResponse.EnsureSuccessStatusCode();
-
-                var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffMemberDto>>();
-
-                var areaResponse = await client.GetAsync($"{_backendApiUrl}/api/StorageAreas");
-                areaResponse.EnsureSuccessStatusCode();
-
-                var allAreas = await areaResponse.Content.ReadFromJsonAsync<List<StorageAreaDto>>();
-
-                var selectedCrane = availableCranes.FirstOrDefault();
-                if (selectedCrane != null) availableCranes.Remove(selectedCrane);
-
-                var dockSchedules = new Dictionary<string, object>();
-
-
-                foreach (var dockGroup in dockGroups)
-                {
-                    string dockId = dockGroup.Key.Value.ToString();
-
-                    var dockResponse = await client.GetAsync($"{_backendApiUrl}/api/Docks/{dockId}");
-                    dockResponse.EnsureSuccessStatusCode();
-                    var dock = await dockResponse.Content.ReadFromJsonAsync<DockDto>();
-
-                    var vesselsForDate = dockGroup
-                        .Where(v => v.ETA.Date == targetDate.Date)
-                        .ToList();
-
-                    if (!vesselsForDate.Any())
-                        continue;
-
-                    var closestArea = GetClosestArea(allAreas, dockGroup.Key.Value);
-
-                    // --- PROLOG FACTS ---
-                    string facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
-                    {
-                        int containerCount = v.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
-                        int loadTime = 2 + (containerCount * 2);
-                        int unloadTime = 2 + (containerCount * 2);
-
-                        int etaHour = v.ETA.Minute >= 30 ? v.ETA.Hour + 1 : v.ETA.Hour;
-                        int etdHour = v.ETD.Minute >= 30 ? v.ETD.Hour + 1 : v.ETD.Hour;
-
-                        string vesselKey = v.VesselName.ToLower().Replace(" ", "_");
-
-                        return $"asserta(vessel({vesselKey}, {etaHour}, {etdHour}, {unloadTime}, {loadTime})),";
-                    }));
-
-                    string scriptToUse;
-                    string query;
-
-                    switch (algorithm.ToLower())
-                    {
-                        case "heuristic":
-                        case "edt":
-                            scriptToUse = _alternativeScriptPath;
-                            query = $"{facts} solve_heuristic(Solution,_), format('~w~n',[Solution]), halt.";
-                            break;
-
-                        case "spt":
-                            scriptToUse = _sptScriptPath;
-                            query = $"{facts} solve_spt(Solution,_), format('~w~n',[Solution]), halt.";
-                            break;
-
-                        case "dynamic_mst":
-                        case "mst":
-                            scriptToUse = _dynamicMstScriptPath;
-                            query = $"{facts} solve_dynamic_mst(Solution,_), format('~w~n',[Solution]), halt.";
-                            break;
-
-                        default:
-                            scriptToUse = _scriptPath;
-                            query = $"{facts} obtain_seq_shortest_delay(Solution,_), format('~w~n',[Solution]), halt.";
-                            break;
-                    }
-
-                    string result = RunPrologQuery(query, scriptToUse);
-
-                    dockSchedules[dockId] = new
-                    {
-                        dock = dock.DockName,
-                        schedule = result,
-                        vessels = vesselsForDate,
-                        crane = selectedCrane?.Code,
-                        staff = allStaff,
-                        area = closestArea
-                    };
-                }
-
-                if (!dockSchedules.Any())
-                    return BadRequest(new { message = "No vessels arriving on that date." });
-
-                return Ok(dockSchedules);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error generating schedule: {ex.Message}");
-            }
+            int hours = slot % 24;
+            int days = slot / 24;
+            return days > 0
+                ? $"{hours.ToString().PadLeft(2, '0')}:00 (+{days}d)"
+                : $"{hours.ToString().PadLeft(2, '0')}:00";
         }
+
+        var dockSchedules = new Dictionary<string, object>();
+
+        foreach (var dockGroup in dockGroups)
+        {
+            string dockId = dockGroup.Key.Value.ToString();
+
+            var dock = await client.GetFromJsonAsync<DockDto>($"{_backendApiUrl}/api/Docks/{dockId}");
+            if (dock == null) continue;
+
+            var vesselsForDate = dockGroup.Where(v => v.ETA.Date == targetDate.Date).ToList();
+            if (!vesselsForDate.Any()) continue;
+
+            var closestArea = GetClosestArea(allAreas, dockGroup.Key.Value);
+
+            // --- Build Prolog facts ---
+            string facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
+            {
+                int containerCount = v.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
+                int loadTime = 2 + containerCount * 2;
+                int unloadTime = 2 + containerCount * 2;
+                int etaHour = v.ETA.Minute >= 30 ? v.ETA.Hour + 1 : v.ETA.Hour;
+                int etdHour = v.ETD.Minute >= 30 ? v.ETD.Hour + 1 : v.ETD.Hour;
+                string vesselKey = v.VesselName.ToLower().Replace(" ", "_");
+                return $"asserta(vessel({vesselKey}, {etaHour}, {etdHour}, {unloadTime}, {loadTime})),"; 
+            }));
+
+            // --- Select Prolog script & query ---
+            string scriptToUse;
+            string query;
+            switch (algorithm.ToLower())
+            {
+                case "heuristic":
+                case "edt":
+                    scriptToUse = _alternativeScriptPath;
+                    query = $"{facts} solve_heuristic(Solution,_), format('~w~n',[Solution]), halt.";
+                    break;
+                case "spt":
+                    scriptToUse = _sptScriptPath;
+                    query = $"{facts} solve_spt(Solution,_), format('~w~n',[Solution]), halt.";
+                    break;
+                case "dynamic_mst":
+                case "mst":
+                    scriptToUse = _dynamicMstScriptPath;
+                    query = $"{facts} solve_dynamic_mst(Solution,_), format('~w~n',[Solution]), halt.";
+                    break;
+                default:
+                    scriptToUse = _scriptPath;
+                    query = $"{facts} obtain_seq_shortest_delay(Solution,_), format('~w~n',[Solution]), halt.";
+                    break;
+            }
+
+            string rawResult = RunPrologQuery(query, scriptToUse);
+
+            // --- Parse Prolog output ---
+            var scheduleItems = new List<dynamic>();
+            if (!string.IsNullOrEmpty(rawResult))
+            {
+                var cleaned = rawResult
+                    .Replace("Execution Time:", "")
+                    .Replace("Heuristic Execution Time:", "")
+                    .Replace("Brute Force Execution Time:", "")
+                    .Replace("[", "")
+                    .Replace("]", "")
+                    .Trim();
+
+                if (!string.IsNullOrEmpty(cleaned))
+                {
+                    var tokens = cleaned.Split(new[] { "),(" }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var token in tokens)
+                    {
+                        var parts = token.Replace("(", "").Replace(")", "").Split(",");
+                        if (parts.Length < 3) continue;
+
+                        string vesselKey = parts[0].Trim();
+                        int startSlot = int.Parse(parts[1]);
+                        int endSlot = int.Parse(parts[2]);
+
+                        var vessel = vesselsForDate.FirstOrDefault(v => v.VesselName.ToLower().Replace(" ", "_") == vesselKey);
+                        if (vessel == null) continue;
+
+                        // Przydzielanie personelu dla jednego kranu
+                        var (assignedStaff, warning) = AssignStaffForSchedule(
+                            eligibleStaff,
+                            startSlot,
+                            endSlot,
+                            1
+                        );
+
+                        scheduleItems.Add(new
+                        {
+                            VesselName = vesselKey,
+                            VesselId = vessel?.VesselId,
+                            StartSlot = startSlot,
+                            EndSlot = endSlot,
+                            Start = SlotToTime(startSlot),
+                            End = SlotToTime(endSlot),
+                            CraneCodes = new List<string> { selectedCrane.Code },
+                            Staff = assignedStaff,
+                            Warning = warning
+                        });
+                    }
+                }
+            }
+
+            var staffShortNames = scheduleItems
+                .SelectMany(s => ((List<StaffMemberDto>)s.Staff))
+                .Select(st => st.ShortName)
+                .Distinct()
+                .ToList();
+
+            dockSchedules[dockId] = new
+            {
+                dock = dock.DockName,
+                schedule = rawResult,
+                vessels = vesselsForDate,
+                crane = selectedCrane?.Code,
+                staff = staffShortNames,
+                area = closestArea,
+                parsedSchedule = scheduleItems
+            };
+        }
+
+        if (!dockSchedules.Any())
+            return BadRequest(new { message = "No vessels arriving on that date." });
+
+        return Ok(dockSchedules);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Error generating schedule: {ex.Message}");
+    }
+}
+
 
         [HttpGet("calculate-schedule-multi-crane")]
         public async Task<IActionResult> CalculateScheduleMultiCrane([FromQuery] string date)
@@ -541,7 +578,6 @@ namespace SchedulingAPI.Controllers
                 return StatusCode(500, new { message = $"Error generating multi-crane schedule: {ex.Message}", details = ex.ToString() });
             }
         }
-
 
         // -------------------------
         // CLASSES

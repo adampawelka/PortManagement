@@ -4,94 +4,77 @@ import { useApi } from "../../services/api";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 
 export const useOptimalScheduleVM = () => {
-  const { calculateSchedule, parsePrologResult } = useSchedulingService();
-  const { apiFetch } = useApi();
+    const { calculateSchedule } = useSchedulingService();
+    const { apiFetch } = useApi();
 
-  const [targetDate, setTargetDate] = useState("");
-  const [scheduleResults, setScheduleResults] = useState([]);
-  const [vesselNotifications, setVesselNotifications] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [executionTime, setExecutionTime] = useState(null);
+    const [targetDate, setTargetDate] = useState("");
+    const [scheduleResults, setScheduleResults] = useState([]);
+    const [vesselNotifications, setVesselNotifications] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [executionTime, setExecutionTime] = useState(null);
 
-  const extractExecutionTime = (raw) => {
-    const patterns = [
-      /Execution Time:\s*([\d.e-]+)/i,
-      /Brute Force Execution Time:\s*([\d.e-]+)/i
-    ];
-    for (const p of patterns) {
-      const m = raw.match(p);
-      if (m) return parseFloat(m[1]);
-    }
-    return null;
-  };
+    const totalDelay = useMemo(() => scheduleResults.reduce((acc, item) => acc + (item.delay || 0), 0), [scheduleResults]);
 
-  const totalDelay = useMemo(() => {
-    return scheduleResults.reduce((acc, item) => acc + (item.delay || 0), 0);
-  }, [scheduleResults]);
+    const generateSchedule = async () => {
+        setError("");
+        if (!targetDate) {
+            setError("Please select a date");
+            return;
+        }
 
-  const generateSchedule = async () => {
-    setError("");
-    if (!targetDate) {
-      setError("Please select a date");
-      return;
-    }
+        const isoDate = new Date(targetDate).toISOString().split("T")[0];
+        setLoading(true);
+        setScheduleResults([]);
+        setExecutionTime(null);
 
-    const isoDate = new Date(targetDate).toISOString().split("T")[0];
-    setLoading(true);
-    setScheduleResults([]);
-    setExecutionTime(null);
+        try {
+            // Pobierz wszystkie powiadomienia o statkach
+            const allNotifs = await getVesselVisitNotifications(apiFetch);
+            const filtered = allNotifs.filter(n => 
+                n.status === "Approved" &&
+                new Date(n.eta).toISOString().split("T")[0] === isoDate
+            );
+            setVesselNotifications(filtered);
 
-    try {
-      const allNotifs = await getVesselVisitNotifications(apiFetch);
-      const filtered = allNotifs.filter(
-        (n) =>
-          n.status === "Approved" &&
-          new Date(n.eta).toISOString().split("T")[0] === isoDate
-      );
-      setVesselNotifications(filtered);
+            // Pobierz harmonogram z kontrolera
+            const json = await calculateSchedule(isoDate, "optimal");
 
-      const raw = await calculateSchedule(isoDate, "optimal");
+            // Flatten parsedSchedule ze wszystkich docków
+            const parsed = Object.values(json)
+    .flatMap(dockInfo => dockInfo.parsedSchedule ?? [])
+    .map(item => ({
+        vessel: item.VesselName,
+        vesselId: item.VesselId,
+        startSlot: item.StartSlot,
+        endSlot: item.EndSlot,
+        start: item.Start,
+        end: item.End,
+        dock: dockInfo.dock, // z dockInfo
+        crane: item.CraneCodes?.[0] || null,
+        staff: item.Staff?.map(s => s.ShortName) || [],
+        warning: item.Warning || null,
+        delay: item.Delay || 0
+    }));
+            setScheduleResults(parsed);
 
-      const exec = extractExecutionTime(raw);
-      if (exec !== null) setExecutionTime(exec);
+        } catch (err) {
+            console.error(err);
+            setError(`Scheduling failed: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      const json = JSON.parse(raw);
-
-      const parsed = Object.values(json).flatMap((dockInfo) => {
-        const lines = dockInfo.schedule.split(/\),/);
-        return parsePrologResult(
-          dockInfo.schedule,
-          dockInfo.vessels ?? [],
-          dockInfo.dock,
-          dockInfo.crane,
-          dockInfo.staff ?? [],
-          dockInfo.areas ?? []
-        ).map((item, index) => {
-          const parts = lines[index].replace(/[()]/g, "").split(",");
-          const delay = parts[3] ? parseInt(parts[3].trim(), 10) : 0;
-          return { ...item, delay };
-        });
-      });
-
-      setScheduleResults(parsed);
-    } catch (err) {
-      console.error(err);
-      setError(`Scheduling failed: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return {
-    targetDate,
-    setTargetDate,
-    scheduleResults,
-    vesselNotifications,
-    loading,
-    error,
-    executionTime,
-    totalDelay,
-    generateSchedule,
-  };
+    return {
+        targetDate,
+        setTargetDate,
+        scheduleResults,
+        vesselNotifications,
+        loading,
+        error,
+        executionTime,
+        totalDelay,
+        generateSchedule
+    };
 };
