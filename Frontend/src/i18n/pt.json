@@ -40,6 +40,7 @@
   "optimal_schedule": "Agendamento Ótimo",
   "alternative_schedule": "Agendamento Alternativo" ,
   "multi_crane_schedule": "Agendamento com Várias Gruas",
+  "genetic_schedule": "Agendamento Genético",
   "recommended_schedule": "Agendamento Recomendado",
   "operational_plans_generate": "Gerar Planos Operacionais",
   "operational_plans_list": "Pesquisar Planos Operacionais",

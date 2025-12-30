@@ -36,8 +36,29 @@ export const useSchedulingService = () => {
         return await res.json();
     };
 
+    const calculateGeneticSchedule = async (date, params = {}) => {
+        const queryParams = new URLSearchParams({
+        date: date,
+        populationSize: params.populationSize || 30,
+        generations: params.generations || 50,
+        crossoverRate: params.crossoverRate || 0.8,
+        mutationRate: params.mutationRate || 0.2,
+        cranes: params.cranes || 1
+        });
+
+        const response = await apiFetch(`/api/Scheduling/calculate-schedule-genetic?${queryParams}`);
+    
+        if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Genetic scheduling failed: ${errorText}`);
+        }
+    
+        return await response.json();
+    };
+
     return {
         calculateSchedule,
         calculateMultiCraneSchedule,
+        calculateGeneticSchedule,
     };
 };

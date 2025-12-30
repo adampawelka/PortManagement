@@ -52,6 +52,7 @@ import AlternativeSchedule from "../pages/Scheduling/AlternativeSchedule.jsx";
 import RecommendedSchedule from "../pages/Scheduling/RecommendedSchedule.jsx";
 import TestAlgorithms from "../pages/Scheduling/TestAlgorithms.jsx";
 import MultiCraneSchedule from "../pages/Scheduling/MultiCraneSchedule.jsx";
+import GeneticSchedule from "../pages/Scheduling/GeneticSchedule.jsx";
 
 // User Management
 import UsersManagementPage from "../pages/Users/UsersManagement.jsx";
@@ -129,7 +130,8 @@ export const protectedRoutes = {
     { path: "/alternative-schedule", element: <AlternativeSchedule />, roles: ["LogisticsOperator"] },
     { path: "/recommended-schedule", element: <RecommendedSchedule />, roles: ["LogisticsOperator"] },
     { path: "/test-algorithms", element: <TestAlgorithms />, roles: ["LogisticsOperator"] },
-    { path: "/multi-crane-schedule", element: <MultiCraneSchedule />, roles: ["LogisticsOperator"] }
+    { path: "/multi-crane-schedule", element: <MultiCraneSchedule />, roles: ["LogisticsOperator"] },
+    { path: "/genetic-schedule", element: <GeneticSchedule />, roles: ["LogisticsOperator"] }
   ],
 
   userManagement: [
