@@ -186,21 +186,52 @@ const OptimalSchedule = () => {
                                     }}
                                 >
                                     <TableCell>{row.vessel}</TableCell>
-                                    <TableCell>{row.start}</TableCell>
-                                    <TableCell>{row.end}</TableCell>
+
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                row.start == null || row.start === "Unassigned" ? "var(--color-warning-bg)" : "inherit"
+                                        }}
+                                    >
+                                        {row.start ?? "Unassigned"}
+                                    </TableCell>
+
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                row.end == null || row.end === "Unassigned" ? "var(--color-warning-bg)" : "inherit"
+                                        }}
+                                    >
+                                        {row.end ?? "Unassigned"}
+                                    </TableCell>
+
                                     <TableCell>{row.delay}</TableCell>
-                                    <TableCell>{row.dock}</TableCell>
-                                    <TableCell>{row.crane}</TableCell>
-                                    <TableCell>
-    {Array.isArray(row.staff) && row.staff.length > 0
-        ? row.staff.join(", ")
-        : "Unassigned"}
-</TableCell>
 
+                                    <TableCell>{row.dock ?? "Unassigned"}</TableCell>
 
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                !row.crane || row.crane.length === 0 ? "var(--color-warning-bg)" : "inherit"
+                                        }}
+                                    >
+                                        {row.crane ?? "Unassigned"}
+                                    </TableCell>
+
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                !row.staff || row.staff.length === 0 ? "var(--color-warning-bg)" : "inherit"
+                                        }}
+                                    >
+                                        {Array.isArray(row.staff) && row.staff.length > 0
+                                            ? row.staff.map(s => s.shortName ?? s).join(", ")
+                                            : "Unassigned"}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
+
                     </Table>
                 </TableContainer>
             )}
