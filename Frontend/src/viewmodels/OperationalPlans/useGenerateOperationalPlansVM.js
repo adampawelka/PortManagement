@@ -34,9 +34,13 @@ export const useOperationalPlansVM = () => {
       if (mode === "single" && !algorithm) throw new Error("Please select an algorithm.");
 
       const allVVN = await getVesselVisitNotifications(apiFetch);
-      const vvnForDate = allVVN.filter(v => v.status === "Approved" && v.eta?.split("T")[0] === date);
+      const vvnForDate = allVVN.filter(
+        v => v.status === "Approved" && v.eta?.split("T")[0] === date
+      );
 
-      if (vvnForDate.length === 0) throw new Error("No approved Vessel Visit Notifications found for this date.");
+      if (vvnForDate.length === 0) {
+        throw new Error("No approved Vessel Visit Notifications found for this date.");
+      }
 
       const scheduleResponse =
         mode === "single"
@@ -63,24 +67,34 @@ export const useOperationalPlansVM = () => {
           }
 
           aggregated[vvnId].operations.push({
-  start: item.start || item.Start,
-  end: item.end || item.End,
-  delay: item.delay ?? calculateDelay(item.endSlot, item.ETD),
-  staff: Array.isArray(item.staff) && item.staff.length > 0
-    ? item.staff.map(s => s.shortName) 
-    : ["Unassigned"]
-});
-
+            start: item.start || item.Start,
+            end: item.end || item.End,
+            delay: item.delay ?? calculateDelay(item.endSlot, item.ETD),
+            staff: Array.isArray(item.staff) && item.staff.length > 0
+              ? item.staff.map(s => s.shortName)
+              : []
+          });
         });
       });
 
-      const plansWithDelay = Object.values(aggregated);
-      setPlans(plansWithDelay);
+      /** ✅ AGREGACJA STAFFU NA POZIOMIE PLANU */
+      const plansWithStaff = Object.values(aggregated).map(plan => {
+        const allStaff = plan.operations.flatMap(op => op.staff || []);
+        const uniqueStaff = [...new Set(allStaff)];
 
-      if (plansWithDelay.length > 0) {
+        return {
+          ...plan,
+          staff: uniqueStaff.length > 0 ? uniqueStaff : ["Unassigned"]
+        };
+      });
+
+      setPlans(plansWithStaff);
+
+      if (plansWithStaff.length > 0) {
         const firstDockSchedule = Object.values(scheduleResponse)[0];
         setExecutionTime(firstDockSchedule?.executionTime ?? null);
       }
+
     } catch (err) {
       setError(err?.message || "Failed to generate schedule.");
     } finally {
