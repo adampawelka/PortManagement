@@ -1,5 +1,5 @@
 export const getVVE = async (apiOemFetch, vveId) => {
-  const res = await apiOemFetch(`/api/VesselVisitExecutions/${vveId}`);
+  const res = await apiOemFetch(`/api/vesselVisitExecutions/${vveId}`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || "Failed to fetch vessel visit execution");
@@ -8,7 +8,7 @@ export const getVVE = async (apiOemFetch, vveId) => {
 };
 
 export const getAllVVEs = async (apiOemFetch) => {
-  const res = await apiOemFetch(`/api/VesselVisitExecutions`);
+  const res = await apiOemFetch(`/api/vesselVisitExecutions`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || "Failed to fetch all vessel visit executions");
@@ -17,7 +17,7 @@ export const getAllVVEs = async (apiOemFetch) => {
 };
 
 export const createVVE = async (apiOemFetch, vveData) => {
-  const res = await apiOemFetch(`/api/VesselVisitExecutions`, {
+  const res = await apiOemFetch(`/api/vesselVisitExecutions`, {
     method: "POST",
     body: JSON.stringify(vveData),
   });
@@ -29,7 +29,7 @@ export const createVVE = async (apiOemFetch, vveData) => {
 };
 
 export const updateVVE = async (apiOemFetch, vveId, updates) => {
-  const res = await apiOemFetch(`/api/VesselVisitExecutions/${vveId}`, {
+  const res = await apiOemFetch(`/api/vesselVisitExecutions/${vveId}`, {
     method: "PUT",
     body: JSON.stringify(updates),
   });
