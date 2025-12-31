@@ -7,4 +7,5 @@ export interface IIncidentTypeRepo {
   findByCode(code: string): Promise<IncidentType | null>;
   findAll(): Promise<IncidentType[]>;
   exists(id: IncidentTypeId): Promise<boolean>;
+  findByParentId(parentId: IncidentTypeId | null): Promise<IncidentType[]>;
 }

@@ -77,7 +77,8 @@
   "report_incident": "Report Incident",
   "update_incident": "Update Incident",
   "incident_types": "Incident Types",
-  "incident_type_list": "Incident Type List",
+  "incident_types_list": "Incident Type List",
   "add_incident_type": "Add Incident Type",
-  "edit_incident_type": "Edit Incident Type"
+  "edit_incident_type": "Edit Incident Type",
+  "edit": "Edit"
 }

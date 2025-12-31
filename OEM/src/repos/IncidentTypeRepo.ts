@@ -1,5 +1,4 @@
 import { IIncidentTypeRepo } from "../services/IRepos/IIncidentTypeRepo";
-
 import { IncidentType } from "../Domain/IncidentTypes/IncidentType";
 import { IncidentTypeId } from "../Domain/IncidentTypes/IncidentTypeId";
 
@@ -18,44 +17,36 @@ export class IncidentTypeRepo implements IIncidentTypeRepo {
     );
   }
 
-  async findById(
-    id: IncidentTypeId
-  ): Promise<IncidentType | null> {
-
-    const doc = await IncidentTypeSchema.findOne({
-      domainId: id.toString()
-    });
-
+  async findById(id: IncidentTypeId): Promise<IncidentType | null> {
+    const doc = await IncidentTypeSchema.findOne({ domainId: id.toString() });
     if (!doc) return null;
 
     return IncidentTypeMap.toDomain(doc);
   }
 
-  async findByCode(
-    code: string
-  ): Promise<IncidentType | null> {
-
+  async findByCode(code: string): Promise<IncidentType | null> {
     const doc = await IncidentTypeSchema.findOne({ code });
-
     if (!doc) return null;
 
     return IncidentTypeMap.toDomain(doc);
   }
 
   async findAll(): Promise<IncidentType[]> {
-    const docs = await IncidentTypeSchema.find({});
-
+    const docs = await IncidentTypeSchema.find({}).sort({ name: 1 }); // opcjonalnie sortowanie
     return docs.map(doc => IncidentTypeMap.toDomain(doc));
   }
 
-  async exists(
-    id: IncidentTypeId
-  ): Promise<boolean> {
+  async findByParentId(parentId: IncidentTypeId | null): Promise<IncidentType[]> {
+    const query = parentId
+      ? { parentId: parentId.toString() }
+      : { parentId: null };
 
-    const count = await IncidentTypeSchema.countDocuments({
-      domainId: id.toString()
-    });
+    const docs = await IncidentTypeSchema.find(query).sort({ name: 1 });
+    return docs.map(doc => IncidentTypeMap.toDomain(doc));
+  }
 
+  async exists(id: IncidentTypeId): Promise<boolean> {
+    const count = await IncidentTypeSchema.countDocuments({ domainId: id.toString() });
     return count > 0;
   }
 }

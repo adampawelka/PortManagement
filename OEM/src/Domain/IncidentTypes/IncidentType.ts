@@ -14,6 +14,7 @@ interface IncidentTypeProps {
   name: IncidentTypeName;
   description: IncidentTypeDescription;
   severity: IncidentSeverity;
+  parentId?: UniqueEntityID; 
 }
 
 export class IncidentType extends AggregateRoot<IncidentTypeProps> {
@@ -26,31 +27,17 @@ export class IncidentType extends AggregateRoot<IncidentTypeProps> {
     return IncidentTypeId.create(this.id);
   }
 
-  get code(): IncidentTypeCode {
-    return this.props.code;
-  }
-
-  get name(): IncidentTypeName {
-    return this.props.name;
-  }
-
-  get description(): IncidentTypeDescription {
-    return this.props.description;
-  }
-
-  get severity(): IncidentSeverity {
-    return this.props.severity;
-  }
+  get code(): IncidentTypeCode { return this.props.code; }
+  get name(): IncidentTypeName { return this.props.name; }
+  get description(): IncidentTypeDescription { return this.props.description; }
+  get severity(): IncidentSeverity { return this.props.severity; }
+  get parentId(): UniqueEntityID | undefined { return this.props.parentId; }
 
   private constructor(props: IncidentTypeProps, id?: UniqueEntityID) {
     super(props, id);
   }
 
-  public static create(
-    props: IncidentTypeProps,
-    id?: UniqueEntityID
-  ): Result<IncidentType> {
-
+  public static create(props: IncidentTypeProps, id?: UniqueEntityID): Result<IncidentType> {
     const guardedProps = [
       { argument: props.code, argumentName: "code" },
       { argument: props.name, argumentName: "name" },
@@ -59,12 +46,13 @@ export class IncidentType extends AggregateRoot<IncidentTypeProps> {
     ];
 
     const guardResult = Guard.againstNullOrUndefinedBulk(guardedProps);
+    if (!guardResult.succeeded) return Result.fail<IncidentType>(guardResult.message);
 
-    if (!guardResult.succeeded) {
-      return Result.fail<IncidentType>(guardResult.message);
-    }
+    return Result.ok(new IncidentType({ ...props }, id));
+  }
 
-    const incidentType = new IncidentType({ ...props }, id);
-    return Result.ok<IncidentType>(incidentType);
+  public setParent(parentId?: UniqueEntityID): void {
+    this.props.parentId = parentId;
   }
 }
+

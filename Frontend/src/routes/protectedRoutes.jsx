@@ -46,6 +46,13 @@ import UpdateVVEPage from "../pages/VesselVisitExecutions/UpdateVVEPage.jsx";
 import OperationalPlansGenerate from "../pages/OperationalPlans/GenerateOperationalPlans.jsx";
 import SearchOperationalPlans from "../pages/OperationalPlans/SearchOperationalPlans.jsx";
 
+// Incident 
+
+// Incident Types
+import IncidentTypesListPage from "../pages/IncidentTypes/IncidentTypesListPage.jsx";
+import AddIncidentTypePage from "../pages/IncidentTypes/AddIncidentTypePage.jsx";
+import EditIncidentTypePage from "../pages/IncidentTypes/EditIncidentTypePage.jsx";
+
 // Scheduling
 import OptimalSchedule from "../pages/Scheduling/OptimalSchedule.jsx";
 import AlternativeSchedule from "../pages/Scheduling/AlternativeSchedule.jsx";
@@ -123,6 +130,13 @@ export const protectedRoutes = {
   operationalPlans: [
     { path: "/operational-plans/generate", element: <OperationalPlansGenerate />, roles: ["LogisticsOperator"] },
     { path: "operational-plans/search", element: <SearchOperationalPlans />, roles: ["LogisticsOperator"] }
+  ],
+
+  incidentTypes: [
+    { path: "/incident-types/list", element: <IncidentTypesListPage />, roles: ["PortAuthorityOfficer"] },
+    { path: "/incident-types/add", element: <AddIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
+    { path: "/incident-types/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
+    //{ path: "/incident-types/:id/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] }
   ],
 
   scheduling: [

@@ -9,7 +9,8 @@ export class IncidentTypeMap {
       code: type.code.value,
       name: type.name.value,
       description: type.description.value,
-      severity: type.severity.value
+      severity: type.severity.value,
+      parentId: type.parentId ? type.parentId.toString() : null,
     };
   }
 
@@ -21,7 +22,8 @@ export class IncidentTypeMap {
         code: data.code,
         name: data.name,
         description: data.description,
-        severity: data.severity
+        severity: data.severity,
+        parentId: data.parentId ? new UniqueEntityID(data.parentId) : undefined,
       },
       new UniqueEntityID(data.domainId)
     );
