@@ -42,6 +42,9 @@ const AddVVEPage = () => {
     );
   }
 
+  // Debug: Log VVNs state
+  console.log("AddVVEPage - VVNs count:", vvns.length, "VVNs:", vvns);
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Container
@@ -93,30 +96,72 @@ const AddVVEPage = () => {
             VVN Information:
           </Typography>
 
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel id="vvn-select-label">Select VVN</InputLabel>
-            <Select
-              labelId="vvn-select-label"
+          {vvns.length > 0 ? (
+            <>
+              <FormControl fullWidth margin="normal" required>
+                <InputLabel id="vvn-select-label">Select VVN</InputLabel>
+                <Select
+                  labelId="vvn-select-label"
+                  name="vvnId"
+                  value={formData.vvnId}
+                  onChange={handleVvnChange}
+                  label="Select VVN"
+                  sx={{
+                    "& .MuiInputBase-input": { color: "var(--color-text-dark)" },
+                    "& .MuiOutlinedInput-root": { borderColor: "var(--color-border)" },
+                  }}
+                >
+                  {vvns.map((vvn) => (
+                    <MenuItem key={vvn.id} value={vvn.id}>
+                      {vvn.id} - {vvn.vesselName || vvn.vessel?.name || "Unknown Vessel"}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {selectedVvn && (
+                <>
+                  <TextField
+                    label="Vessel Name"
+                    value={selectedVvn.vesselName || selectedVvn.vessel?.name || "N/A"}
+                    fullWidth
+                    margin="normal"
+                    disabled
+                    sx={{
+                      "& .MuiInputLabel-root": { color: "var(--color-text-dark)" },
+                      "& .MuiOutlinedInput-root": { borderColor: "var(--color-border)" },
+                    }}
+                  />
+                  <TextField
+                    label="Vessel IMO"
+                    value={selectedVvn.vesselIMO || selectedVvn.vessel?.imoNumber || "N/A"}
+                    fullWidth
+                    margin="normal"
+                    disabled
+                    sx={{
+                      "& .MuiInputLabel-root": { color: "var(--color-text-dark)" },
+                      "& .MuiOutlinedInput-root": { borderColor: "var(--color-border)" },
+                    }}
+                  />
+                </>
+              )}
+            </>
+          ) : (
+            <TextField
+              label="VVN ID"
               name="vvnId"
               value={formData.vvnId}
-              onChange={handleVvnChange}
-              label="Select VVN"
+              onChange={handleChange}
+              required
+              fullWidth
+              margin="normal"
+              helperText="Enter the Vessel Visit Notification ID (VVN dropdown unavailable - VVNs could not be loaded)"
               sx={{
-                "& .MuiInputBase-input": { color: "var(--color-text-dark)" },
+                "& .MuiInputLabel-root": { color: "var(--color-text-dark)" },
                 "& .MuiOutlinedInput-root": { borderColor: "var(--color-border)" },
               }}
-            >
-              {vvns.length === 0 ? (
-                <MenuItem disabled>No VVNs available</MenuItem>
-              ) : (
-                vvns.map((vvn) => (
-                  <MenuItem key={vvn.id} value={vvn.id}>
-                    {vvn.id} - {vvn.vesselName || vvn.vessel?.name || "Unknown Vessel"}
-                  </MenuItem>
-                ))
-              )}
-            </Select>
-          </FormControl>
+            />
+          )}
 
           {selectedVvn && (
             <>

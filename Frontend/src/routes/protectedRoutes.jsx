@@ -42,7 +42,6 @@ import SubmitVVNPage from "../pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 import VVEListPage from "../pages/VesselVisitExecutions/VVEListPage.jsx";
 import UpdateVVEPage from "../pages/VesselVisitExecutions/UpdateVVEPage.jsx";
 import AddVVEPage from "../pages/VesselVisitExecutions/AddVVEPage.jsx";
-import AddVVEPage from "../pages/VesselVisitExecutions/AddVVEPage.jsx";
 
 // Operational Plans
 import OperationalPlansGenerate from "../pages/OperationalPlans/GenerateOperationalPlans.jsx";
