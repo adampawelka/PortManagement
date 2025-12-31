@@ -90,7 +90,7 @@ const IncidentTypesListPage = () => {
                 <TableCell>Description</TableCell>
                 <TableCell>Severity</TableCell>
                 <TableCell>Parent Type</TableCell>
-                <TableCell>Actions</TableCell>
+                {/* <TableCell>Actions</TableCell> */}
               </TableRow>
             </TableHead>
 
@@ -113,11 +113,11 @@ const IncidentTypesListPage = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>{formatParent(type.parent)}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <Button variant="contained" onClick={() => navigate(`/incidentTypes/${type.id}/edit`)}>
                       Edit
                     </Button>
-                  </TableCell>
+                  </TableCell> */}
                 </TableRow>
               ))}
             </TableBody>
