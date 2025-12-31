@@ -1,24 +1,34 @@
 import { useState, useEffect } from 'react';
+import { useApiOEM } from '../../services/api';
 import { getComplementaryTaskCategoryById, editComplementaryTaskCategory } from '../../services/complementaryTaskCategoryService';
 
-export const useEditComplementaryTaskCategoryVM = (id) => {
-  const [formData, setFormData] = useState({ code: '', name: '', description: '' });
-  const [loading, setLoading] = useState(false);
+export const useEditComplementaryTaskCategoryVM = (categoryId) => {
+  const { apiOemFetch } = useApiOEM();
+  const [formData, setFormData] = useState({ code: '', name: '', description: '', defaultDuration: '' });
+  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
-  const [criticalError, setCriticalError] = useState(false);
 
-  const fetchCategory = async () => {
-    setLoading(true);
-    try {
-      const data = await getComplementaryTaskCategoryById(fetch, id);
-      setFormData({ code: data.code, name: data.name, description: data.description });
-    } catch (err) {
-      setCriticalError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchCategory = async () => {
+      setLoading(true);
+      try {
+        const data = await getComplementaryTaskCategoryById(apiOemFetch, categoryId);
+        setFormData({
+          code: data.code || '',
+          name: data.name || '',
+          description: data.description || '',
+          defaultDuration: data.defaultDuration || '',
+        });
+      } catch (err) {
+        setMessage({ type: 'error', text: err.message || 'Failed to fetch category data.' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategory();
+  }, [apiOemFetch, categoryId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,14 +40,24 @@ export const useEditComplementaryTaskCategoryVM = (id) => {
     setSubmitting(true);
     setMessage(null);
     try {
-      await editComplementaryTaskCategory(fetch, id, formData);
-      setMessage({ type: 'success', text: 'Category edited successfully' });
+      await editComplementaryTaskCategory(apiOemFetch, categoryId, formData);
+      setMessage({ type: 'success', text: 'Category updated successfully' });
     } catch (err) {
-      setMessage({ type: 'error', text: err.message });
+      setMessage({ type: 'error', text: err.message || 'Failed to update category' });
     } finally {
       setSubmitting(false);
     }
   };
 
-  return { formData, handleChange, handleSubmit, loading, submitting, message, criticalError, fetchCategory };
+  const isFormValid = formData.code && formData.name && formData.description;
+
+  return {
+    formData,
+    handleChange,
+    handleSubmit,
+    loading,
+    submitting,
+    message,
+    isFormValid,
+  };
 };

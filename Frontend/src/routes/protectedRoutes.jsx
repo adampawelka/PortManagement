@@ -59,9 +59,7 @@ import EditIncidentTypePage from "../pages/IncidentTypes/EditIncidentTypePage.js
 // Complementary Task Categories
 import ComplementaryTaskCategoriesList from "../pages/ComplementaryTaskCategories/ComplementaryTaskCategoriesListPage.jsx"
 import AddComplementaryTaskCategory from "../pages/ComplementaryTaskCategories/AddComplementaryTaskCategoryPage.jsx"
-// import EditComplementaryTaskCategory from "../pages/ComplementaryTaskCategories/EditComplementaryTaskCategoryPage.jsx"
-
-
+import EditComplementaryTaskCategory from "../pages/ComplementaryTaskCategories/EditComplementaryTaskCategoryPage.jsx"
 
 // Scheduling
 import OptimalSchedule from "../pages/Scheduling/OptimalSchedule.jsx";
@@ -152,7 +150,7 @@ export const protectedRoutes = {
   complementaryTaskCategories : [
     { path: "/complementary-task-categories/list", element: <ComplementaryTaskCategoriesList />, roles: ["OperationsSupervisor"]},
     { path: "/complementary-task-categories/add", element: <AddComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
-    //{ path: "/complementary-tasks/edit", element: <EditComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
+    { path: "/complementary-task-categories/edit", element: <EditComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
 
   ],
 
