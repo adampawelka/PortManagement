@@ -33,9 +33,17 @@ export class VvnClientService {
    */
   async vvnExists(vvnId: string): Promise<boolean> {
     try {
-      const response = await this.client.get(`/vesselVisitNotifications/${vvnId}`);
+      console.log(`[VvnClientService] Checking if VVN exists: ${vvnId}`);
+      console.log(`[VvnClientService] Backend API URL: ${this.baseUrl}`);
+      const response = await this.client.get(`/VesselVisitNotifications/${vvnId}`);
+      console.log(`[VvnClientService] VVN check response status: ${response.status}`);
       return response.status === 200 && response.data !== null;
     } catch (error: any) {
+      console.error(`[VvnClientService] Error checking VVN existence:`, error.message);
+      if (error.response) {
+        console.error(`[VvnClientService] Response status: ${error.response.status}`);
+        console.error(`[VvnClientService] Response data:`, error.response.data);
+      }
       if (error.response && error.response.status === 404) {
         return false;
       }
@@ -51,7 +59,7 @@ export class VvnClientService {
    */
   async getVvnById(vvnId: string): Promise<VvnDto | null> {
     try {
-      const response = await this.client.get(`/vesselVisitNotifications/${vvnId}`);
+      const response = await this.client.get(`/VesselVisitNotifications/${vvnId}`);
       if (response.status === 200 && response.data) {
         return response.data as VvnDto;
       }

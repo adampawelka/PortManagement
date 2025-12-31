@@ -30,14 +30,18 @@ export default class VesselVisitExecutionController {
   // GET: /vesselVisitExecutions/:id
   public async getVVE(req: Request, res: Response, next: NextFunction) {
     try {
+      console.log(`[VesselVisitExecutionController] getVVE called with ID: ${req.params.id}`);
       const vveDTO = await this.vveServiceInstance.getById(req.params.id);
 
       if (vveDTO === null) {
+        console.log(`[VesselVisitExecutionController] VVE not found for ID: ${req.params.id}`);
         return res.status(404).send("Execution register not found");
       }
 
+      console.log(`[VesselVisitExecutionController] Returning VVE DTO`);
       return res.status(200).json(vveDTO);
     } catch (e) {
+      console.error(`[VesselVisitExecutionController] Error in getVVE:`, e);
       return next(e);
     }
   };

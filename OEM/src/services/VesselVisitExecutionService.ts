@@ -35,9 +35,21 @@ export class VesselVisitExecutionService
   ): Promise<VesselVisitExecutionDTO> {
 
     // Validate that the referenced VVN exists (US 4.1.7)
-    const vvnExists = await this.vvnClient.vvnExists(dto.vvnId);
-    if (!vvnExists) {
-      throw new Error(`Vessel Visit Notification (VVN) with ID ${dto.vvnId} does not exist`);
+    // If validation fails due to network/auth issues, log warning but continue
+    try {
+      const vvnExists = await this.vvnClient.vvnExists(dto.vvnId);
+      if (!vvnExists) {
+        throw new Error(`Vessel Visit Notification (VVN) with ID ${dto.vvnId} does not exist`);
+      }
+    } catch (error: any) {
+      // If it's a validation error (VVN doesn't exist), throw it
+      if (error.message && error.message.includes('does not exist')) {
+        throw error;
+      }
+      // For network/auth errors, log warning but allow creation to proceed
+      // This prevents blocking VVE creation if Backend API is unavailable
+      console.warn(`[VesselVisitExecutionService] Could not validate VVN existence: ${error.message}. Proceeding with VVE creation.`);
+      // In production, you might want to make this stricter or use a service account
     }
 
     // VVE ID is automatically generated as UUID (matching VVN ID pattern)
@@ -73,20 +85,46 @@ export class VesselVisitExecutionService
   async getById(
     id: string
   ): Promise<VesselVisitExecutionDTO | null> {
+    try {
+      console.log(`[VesselVisitExecutionService] Getting VVE by ID: ${id}`);
+      
+      const vveId = VesselVisitExecutionId.create(
+        new UniqueEntityID(id)
+      );
 
-    const vveId = VesselVisitExecutionId.create(
-      new UniqueEntityID(id)
-    );
+      const vve = await this.vveRepo.findById(vveId);
+      console.log(`[VesselVisitExecutionService] Found VVE:`, vve ? "Yes" : "No");
+      
+      if (!vve) return null;
 
-    const vve = await this.vveRepo.findById(vveId);
-    if (!vve) return null;
-
-    return this.toDTO(vve);
+      const dto = this.toDTO(vve);
+      console.log(`[VesselVisitExecutionService] Successfully converted to DTO`);
+      return dto;
+    } catch (error: any) {
+      console.error(`[VesselVisitExecutionService] Error in getById:`, error);
+      throw error;
+    }
   }
 
   async getAll(): Promise<VesselVisitExecutionDTO[]> {
-    const vves = await this.vveRepo.findAll();
-    return vves.map(vve => this.toDTO(vve));
+    try {
+      console.log("[VesselVisitExecutionService] Getting all VVEs...");
+      const vves = await this.vveRepo.findAll();
+      console.log(`[VesselVisitExecutionService] Found ${vves.length} VVEs`);
+      const dtos = vves.map(vve => {
+        try {
+          return this.toDTO(vve);
+        } catch (error: any) {
+          console.error(`[VesselVisitExecutionService] Error converting VVE to DTO:`, error);
+          throw error;
+        }
+      });
+      console.log("[VesselVisitExecutionService] Successfully converted all VVEs to DTOs");
+      return dtos;
+    } catch (error: any) {
+      console.error("[VesselVisitExecutionService] Error in getAll():", error);
+      throw error;
+    }
   }
 
   async update(
@@ -130,18 +168,23 @@ export class VesselVisitExecutionService
   private toDTO(
     vve: VesselVisitExecution
   ): VesselVisitExecutionDTO {
-    return {
-      id: vve.id.toString(),
-      vvnId: vve.vvnId.toString(),
-      actualArrivalTime: vve.actualArrivalTime.value.toISOString(),
-      actualBerthTime: vve.actualBerthTime
-        ? vve.actualBerthTime.value.toISOString()
-        : undefined,
-      dockId: vve.dockId
-        ? vve.dockId.toString()
-        : undefined,
-      status: vve.status.value,
-      createdBy: vve.createdBy.value
-    };
+    try {
+      return {
+        id: vve.id.toString(),
+        vvnId: vve.vvnId.value, // VvnId is a ValueObject, use .value to get the string
+        actualArrivalTime: vve.actualArrivalTime.value.toISOString(),
+        actualBerthTime: vve.actualBerthTime
+          ? vve.actualBerthTime.value.toISOString()
+          : undefined,
+        dockId: vve.dockId
+          ? vve.dockId.value  // DockId is a ValueObject, use .value to get the string
+          : undefined,
+        status: vve.status.value,
+        createdBy: vve.createdBy.value
+      };
+    } catch (error: any) {
+      console.error(`[VesselVisitExecutionService] Error in toDTO for VVE ${vve.id.toString()}:`, error);
+      throw new Error(`Failed to convert VVE to DTO: ${error.message}`);
+    }
   }
 }

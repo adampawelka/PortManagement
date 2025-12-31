@@ -21,17 +21,23 @@ export class VesselVisitExecutionRepo {
   async findById(
     id: VesselVisitExecutionId
   ): Promise<VesselVisitExecution | null> {
-
+    const idString = id.id.toString();
+    console.log(`[VesselVisitExecutionRepo] findById called with:`, idString);
+    
     const doc = await VesselVisitExecutionSchema.findOne({
-      domainId: id.toString()
+      domainId: idString
     });
 
+    console.log(`[VesselVisitExecutionRepo] Found document:`, doc ? "Yes" : "No");
+    if (doc) {
+      console.log(`[VesselVisitExecutionRepo] Document domainId:`, doc.domainId);
+    }
     if (!doc) return null;
 
     return VesselVisitExecutionMap.toDomain(doc);
   }
 
-  async findall(): Promise<VesselVisitExecution[]> {
+  async findAll(): Promise<VesselVisitExecution[]> {
     const docs = await VesselVisitExecutionSchema.find({});
 
     return docs.map(doc => VesselVisitExecutionMap.toDomain(doc));
