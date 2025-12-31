@@ -1,0 +1,23 @@
+/* IncidentTypes.css */
+.it-chip {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+  min-width: 50px;
+}
+
+/* Severity text colors */
+.chip-high {
+  color: var(--color-error); /* red for high */
+}
+
+.chip-medium {
+  color: var(--color-warning); /* yellow/orange for medium */
+}
+
+.chip-low {
+  color: var(--color-success); /* green for low */
+}

@@ -40,6 +40,7 @@
   "optimal_schedule": "Agendamento Ótimo",
   "alternative_schedule": "Agendamento Alternativo" ,
   "multi_crane_schedule": "Agendamento com Várias Gruas",
+  "genetic_schedule": "Agendamento Genético",
   "recommended_schedule": "Agendamento Recomendado",
   "operational_plans_generate": "Gerar Planos Operacionais",
   "operational_plans_list": "Pesquisar Planos Operacionais",
@@ -76,7 +77,8 @@
   "report_incident": "Reportar Incidente",
   "update_incident": "Atualizar Incidente",
   "incident_types": "Tipos de Incidente",
-  "incident_type_list": "Lista de Tipos de Incidente",
+  "incident_types_list": "Lista de Tipos de Incidente",
   "add_incident_type": "Adicionar Tipo de Incidente",
-  "edit_incident_type": "Editar Tipo de Incidente"
+  "edit_incident_type": "Editar Tipo de Incidente",
+  "edit": "Editar"
 }

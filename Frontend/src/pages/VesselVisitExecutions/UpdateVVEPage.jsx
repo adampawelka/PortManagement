@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // <-- importujemy useParams
+import { useParams } from 'react-router-dom';
 import {
   Container,
   TextField,
@@ -67,7 +67,6 @@ const UpdateVVEPage = () => {
     if (!isVveLoaded) return;
     await vm.updateVVEInfo({ dockId: dockInput, actualBerthTime: berthTimeInput });
   };
-
 
   const handleAddOperation = async () => {
     if (!newOp.plannedOperationId || !newOp.resourceId) return;
@@ -147,8 +146,6 @@ const UpdateVVEPage = () => {
 
         {isVveLoaded && (
           <Box component="form" onSubmit={handleUpdateVVE}>
-
-
             <FormControl fullWidth margin="normal">
               <InputLabel id="dock-select-label">Dock</InputLabel>
               <Select
@@ -200,7 +197,6 @@ const UpdateVVEPage = () => {
         {/* =======================
             ADD / EDIT BUTTONS
         ======================= */}
-
         {isVveLoaded && (
           <Box mt={4} display="flex" gap={2}>
             {['add', 'edit'].map((section) => (
@@ -238,7 +234,8 @@ const UpdateVVEPage = () => {
                 fontSize: 'var(--font-size-heading)',
               }}
             >
-              Add Executed Operation</Typography>
+              Add Executed Operation
+            </Typography>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Planned Operation</InputLabel>
@@ -312,7 +309,9 @@ const UpdateVVEPage = () => {
                 mb: 3,
                 fontSize: 'var(--font-size-heading)',
               }}
-            > Existing Executed Operations</Typography>
+            >
+              Existing Executed Operations
+            </Typography>
 
             {vm.executedOperations.length === 0 ? (
               <Alert severity="info">No executed operations found. Add one to continue.</Alert>

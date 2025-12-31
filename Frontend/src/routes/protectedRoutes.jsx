@@ -47,12 +47,20 @@ import AddVVEPage from "../pages/VesselVisitExecutions/AddVVEPage.jsx";
 import OperationalPlansGenerate from "../pages/OperationalPlans/GenerateOperationalPlans.jsx";
 import SearchOperationalPlans from "../pages/OperationalPlans/SearchOperationalPlans.jsx";
 
+// Incident 
+
+// Incident Types
+import IncidentTypesListPage from "../pages/IncidentTypes/IncidentTypesListPage.jsx";
+import AddIncidentTypePage from "../pages/IncidentTypes/AddIncidentTypePage.jsx";
+import EditIncidentTypePage from "../pages/IncidentTypes/EditIncidentTypePage.jsx";
+
 // Scheduling
 import OptimalSchedule from "../pages/Scheduling/OptimalSchedule.jsx";
 import AlternativeSchedule from "../pages/Scheduling/AlternativeSchedule.jsx";
 import RecommendedSchedule from "../pages/Scheduling/RecommendedSchedule.jsx";
 import TestAlgorithms from "../pages/Scheduling/TestAlgorithms.jsx";
 import MultiCraneSchedule from "../pages/Scheduling/MultiCraneSchedule.jsx";
+import GeneticSchedule from "../pages/Scheduling/GeneticSchedule.jsx";
 
 // User Management
 import UsersManagementPage from "../pages/Users/UsersManagement.jsx";
@@ -126,12 +134,20 @@ export const protectedRoutes = {
     { path: "operational-plans/search", element: <SearchOperationalPlans />, roles: ["LogisticsOperator"] }
   ],
 
+  incidentTypes: [
+    { path: "/incident-types/list", element: <IncidentTypesListPage />, roles: ["PortAuthorityOfficer"] },
+    { path: "/incident-types/add", element: <AddIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
+    { path: "/incident-types/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
+    //{ path: "/incident-types/:id/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] }
+  ],
+
   scheduling: [
     { path: "/optimal-schedule", element: <OptimalSchedule />, roles: ["LogisticsOperator"] },
     { path: "/alternative-schedule", element: <AlternativeSchedule />, roles: ["LogisticsOperator"] },
     { path: "/recommended-schedule", element: <RecommendedSchedule />, roles: ["LogisticsOperator"] },
     { path: "/test-algorithms", element: <TestAlgorithms />, roles: ["LogisticsOperator"] },
-    { path: "/multi-crane-schedule", element: <MultiCraneSchedule />, roles: ["LogisticsOperator"] }
+    { path: "/multi-crane-schedule", element: <MultiCraneSchedule />, roles: ["LogisticsOperator"] },
+    { path: "/genetic-schedule", element: <GeneticSchedule />, roles: ["LogisticsOperator"] }
   ],
 
   userManagement: [

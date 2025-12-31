@@ -10,4 +10,5 @@ export interface IIncidentTypeService {
   getByCode(code: string): Promise<IncidentTypeDTO | null>;
   getAll(): Promise<IncidentTypeDTO[]>;
   update(id: string, dto: UpdateIncidentTypeDTO): Promise<IncidentTypeDTO | null>;
+  getByParentId(parentId: string): Promise<IncidentTypeDTO[]>; 
 }
