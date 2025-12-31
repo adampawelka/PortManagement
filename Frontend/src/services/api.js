@@ -32,7 +32,7 @@ export const useApi = (baseUrl = "http://localhost:5000") => { //to be changed l
     return { apiFetch };
 };
 
-export const useApiOEM = (baseUrl = "http://localhost:5161") => { 
+export const useApiOEM = (baseUrl = "http://localhost:4000") => { 
     const { getAccessTokenSilently, logout } = useAuth0();
 
     const apiOemFetch = useCallback(async (path, options = {}) => {
