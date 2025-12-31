@@ -93,25 +93,28 @@ const VVEListPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {vveList.map(vve => (
-                <TableRow key={vve.vveId} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
-                  <TableCell>{vve.vveId}</TableCell>
-                  <TableCell>{vve.vvnId}</TableCell>
-                  <TableCell>{vve.dockId || "-"}</TableCell>
-                  <TableCell>{vve.status}</TableCell>
-                  <TableCell>{vve.createdBy}</TableCell>
-                  <TableCell>{formatDate(vve.actualArrivalTime)}</TableCell>
-                  <TableCell>{formatDate(vve.actualBerthTime)}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      onClick={() => navigate(`/vve/${vve.vveId}/update`)}
-                    >
-                      Update
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {vveList.map(vve => {
+                const vveId = vve.id || vve.vveId; // Support both id and vveId for compatibility
+                return (
+                  <TableRow key={vveId} sx={{ '&:hover': { backgroundColor: 'var(--color-background)' } }}>
+                    <TableCell>{vveId}</TableCell>
+                    <TableCell>{vve.vvnId}</TableCell>
+                    <TableCell>{vve.dockId || "-"}</TableCell>
+                    <TableCell>{vve.status}</TableCell>
+                    <TableCell>{vve.createdBy}</TableCell>
+                    <TableCell>{formatDate(vve.actualArrivalTime)}</TableCell>
+                    <TableCell>{formatDate(vve.actualBerthTime)}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="contained"
+                        onClick={() => navigate(`/vve/${vveId}/update`)}
+                      >
+                        Update
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>

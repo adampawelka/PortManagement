@@ -12,7 +12,7 @@ export const useVVEListVM = () => {
     setLoading(true);
     setError(null);
 
-    const useMock = true; // ustaw false, żeby użyć prawdziwego API
+    const useMock = false; // ustaw false, żeby użyć prawdziwego API
     if (useMock) {
       try {
         const mockData = [

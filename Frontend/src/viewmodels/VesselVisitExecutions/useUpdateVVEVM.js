@@ -1,10 +1,12 @@
-import { useState, useCallback } from "react";
-import { useApiOEM } from "../../services/api";
+import { useState, useCallback, useEffect } from "react";
+import { useApiOEM, useApi } from "../../services/api";
 import * as executedOperationService from "../../services/executedOperationService";
 import * as vesselVisitExecutionService from "../../services/vesselVisitExecutionService";
+import * as dockService from "../../services/dockService";
 
 export const useUpdateVVEVM = (initialVveId = "") => {
   const { apiOemFetch } = useApiOEM();
+  const { apiFetch } = useApi(); // For Backend API (docks)
 
   /* =======================
      STATE
@@ -14,10 +16,32 @@ export const useUpdateVVEVM = (initialVveId = "") => {
 
   const [executedOperations, setExecutedOperations] = useState([]);
   const [plannedOperations, setPlannedOperations] = useState([]);
+  const [docks, setDocks] = useState([]);
+  const [loadingDocks, setLoadingDocks] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
+  /* =======================
+     FETCH DOCKS
+  ======================= */
+  useEffect(() => {
+    const loadDocks = async () => {
+      try {
+        setLoadingDocks(true);
+        const docksList = await dockService.getDocks(apiFetch);
+        setDocks(Array.isArray(docksList) ? docksList : []);
+      } catch (err) {
+        console.warn("Failed to load docks:", err.message);
+        setDocks([]); // Set empty array if fetch fails
+      } finally {
+        setLoadingDocks(false);
+      }
+    };
+
+    loadDocks();
+  }, [apiFetch]);
 
   /* =======================
      FETCH VVE + OPS
@@ -38,19 +62,31 @@ export const useUpdateVVEVM = (initialVveId = "") => {
           );
         setVve(vveData);
 
-        const execOps =
-          await executedOperationService.getByVVE(
-            apiOemFetch,
-            targetId
-          );
-        setExecutedOperations(execOps);
+        // Try to fetch executed operations, but don't fail if endpoint doesn't exist yet
+        try {
+          const execOps =
+            await executedOperationService.getByVVE(
+              apiOemFetch,
+              targetId
+            );
+          setExecutedOperations(execOps);
+        } catch (execErr) {
+          console.warn("Executed operations not available:", execErr.message);
+          setExecutedOperations([]); // Set empty array instead of failing
+        }
 
-        const plannedOps =
-          await executedOperationService.getAvailablePlannedOperations(
-            apiOemFetch,
-            targetId
-          );
-        setPlannedOperations(plannedOps);
+        // Try to fetch planned operations, but don't fail if endpoint doesn't exist yet
+        try {
+          const plannedOps =
+            await executedOperationService.getAvailablePlannedOperations(
+              apiOemFetch,
+              targetId
+            );
+          setPlannedOperations(plannedOps);
+        } catch (plannedErr) {
+          console.warn("Planned operations not available:", plannedErr.message);
+          setPlannedOperations([]); // Set empty array instead of failing
+        }
       } catch (err) {
         setError(err?.message || "Failed to fetch VVE");
       } finally {
@@ -199,6 +235,8 @@ export const useUpdateVVEVM = (initialVveId = "") => {
     vve,
     executedOperations,
     plannedOperations,
+    docks,
+    loadingDocks,
 
     /* ui */
     loading,

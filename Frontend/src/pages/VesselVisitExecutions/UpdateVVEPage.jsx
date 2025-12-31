@@ -52,9 +52,19 @@ const UpdateVVEPage = () => {
     }
   }, [vm.vve]);
 
+  const handleLoadVVE = async (e) => {
+    e.preventDefault();
+    if (!paramVveId) {
+      vm.setVveId(vveIdInput);
+      await vm.fetchVVE(vveIdInput);
+    } else {
+      await vm.fetchVVE();
+    }
+  };
+
   const handleUpdateVVE = async (e) => {
     e.preventDefault();
-    if (!paramVveId) vm.setVveId(vveIdInput); 
+    if (!isVveLoaded) return;
     await vm.updateVVEInfo({ dockId: dockInput, actualBerthTime: berthTimeInput });
   };
 
@@ -104,69 +114,88 @@ const UpdateVVEPage = () => {
         {/* =======================
             VVE DETAILS FORM
         ======================= */}
-        <Box component="form" onSubmit={handleUpdateVVE}>
-          <TextField
-            label="VVE ID"
-            value={vveIdInput}
-            onChange={(e) => setVveIdInput(e.target.value)}
-            fullWidth
-            required
-            margin="normal"
-            sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
-          />
+        {!isVveLoaded && (
+          <Box component="form" onSubmit={handleLoadVVE}>
+            <TextField
+              label="VVE ID"
+              value={vveIdInput}
+              onChange={(e) => setVveIdInput(e.target.value)}
+              fullWidth
+              required
+              margin="normal"
+              disabled={!!paramVveId}
+              sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
+            />
 
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{
-              mt: 2,
-              py: 1.5,
-              backgroundColor: 'var(--color-primary)',
-              color: 'var(--color-text-light)',
-              '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
-            }}
-          >
-            Load VVE
-          </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={vm.loading}
+              sx={{
+                mt: 2,
+                py: 1.5,
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-text-light)',
+                '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+              }}
+            >
+              {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Load VVE'}
+            </Button>
+          </Box>
+        )}
+
+        {isVveLoaded && (
+          <Box component="form" onSubmit={handleUpdateVVE}>
 
 
-          {isVveLoaded && (
-            <>
-              <TextField
-                label="Dock ID"
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="dock-select-label">Dock</InputLabel>
+              <Select
+                labelId="dock-select-label"
                 value={dockInput}
                 onChange={(e) => setDockInput(e.target.value)}
-                fullWidth
-                margin="normal"
-                sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
-              />
+                label="Dock"
+                sx={{
+                  "& .MuiInputBase-input": { color: "var(--color-text-dark)" },
+                  "& .MuiOutlinedInput-root": { borderColor: "var(--color-border)" },
+                }}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {vm.docks.map((dock) => (
+                  <MenuItem key={dock.id} value={dock.id}>
+                    {dock.name || dock.id} {dock.location ? `- ${dock.location}` : ''}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-              <DateTimePicker
-                label="Actual Berth Time"
-                value={berthTimeInput ? new Date(berthTimeInput) : null}
-                onChange={(v) => setBerthTimeInput(v ? v.toISOString() : null)}
-                renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-              />
+            <DateTimePicker
+              label="Actual Berth Time"
+              value={berthTimeInput ? new Date(berthTimeInput) : null}
+              onChange={(v) => setBerthTimeInput(v ? v.toISOString() : null)}
+              renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+            />
 
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{
-              mt: 2,
-              py: 1.5,
-              backgroundColor: 'var(--color-primary)',
-              color: 'var(--color-text-light)',
-              '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
-            }}
-            disabled={!isVveLoaded || vm.loading}
-          >
-            {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Update VVE'}
-          </Button>
-          </>
-          )}
-        </Box>
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{
+                mt: 2,
+                py: 1.5,
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-text-light)',
+                '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+              }}
+              disabled={vm.loading}
+            >
+              {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Update VVE'}
+            </Button>
+          </Box>
+        )}
 
         {/* =======================
             ADD / EDIT BUTTONS
@@ -217,7 +246,11 @@ const UpdateVVEPage = () => {
                 value={newOp.plannedOperationId}
                 onChange={(e) => setNewOp({ ...newOp, plannedOperationId: e.target.value })}
               >
-                {vm.plannedOperations.map((p) => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
+                {vm.plannedOperations.map((p) => (
+                  <MenuItem key={p.id} value={p.id}>
+                    {p.name || p.id}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 
