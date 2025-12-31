@@ -1,58 +1,57 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useApiOEM } from "../../services/api";
 import * as IncidentTypeService from "../../services/incidentTypeService";
 
 export const useIncidentTypesListVM = () => {
+  const { apiOemFetch } = useApiOEM();
+
   const [incidentTypes, setIncidentTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filterParent, setFilterParent] = useState("");
 
-  const fetchIncidentTypes = async () => {
+  const fetchIncidentTypes = useCallback(async () => {
     setLoading(true);
     setError(null);
+
     try {
-      const data = await IncidentTypeService.getIncidentTypes(fetch);
+      const data = await IncidentTypeService.getIncidentTypes(apiOemFetch);
       setIncidentTypes(data);
     } catch (e) {
-      console.warn("Failed to fetch from API, using mock data.", e);
-      setError("Failed to fetch incident types from server. Displaying mock data.");
-      setIncidentTypes(IncidentTypeService.generateMockIncidentTypes(15)); // realistic mock
-    } finally {
+      console.error(e);
+
+      setError(
+        e?.message
+          ? `${e.message},  using mock data`
+          : "Failed to fetch incident types,  using mock data"
+      );
+
+      setIncidentTypes(
+        IncidentTypeService.generateMockIncidentTypes(15)
+      );
+    }
+    finally {
       setLoading(false);
     }
-  };
+  }, [apiOemFetch]);
 
-  const deleteIncidentType = async (id) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`/api/incidentTypes/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error(`Failed to delete (status ${res.status})`);
-      setIncidentTypes(prev => prev.filter(t => t.id !== id));
-    } catch (e) {
-      setError("Failed to delete incident type");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Apply parent filter
   const filteredIncidentTypes = filterParent
-    ? incidentTypes.filter(t => t.parent?.name === filterParent)
+    ? incidentTypes.filter((t) => t.parent?.name === filterParent)
     : incidentTypes;
 
   useEffect(() => {
     fetchIncidentTypes();
-  }, []);
+  }, [fetchIncidentTypes]);
 
   return {
     incidentTypes: filteredIncidentTypes,
     loading,
     error,
     fetchIncidentTypes,
-    deleteIncidentType,
     filterParent,
     setFilterParent,
-    allParents: Array.from(new Set(incidentTypes.map(t => t.parent?.name).filter(Boolean)))
+    allParents: Array.from(
+      new Set(incidentTypes.map((t) => t.parent?.name).filter(Boolean))
+    ),
   };
 };

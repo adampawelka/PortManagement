@@ -8,7 +8,7 @@ import {
 import { useIncidentTypesListVM } from "../../viewmodels/IncidentTypes/useIncidentTypesListVM";
 
 const IncidentTypesListPage = () => {
-  const { incidentTypes, loading, error, deleteIncidentType } = useIncidentTypesListVM();
+  const { incidentTypes, loading, error } = useIncidentTypesListVM();
   const navigate = useNavigate();
 
   const formatParent = (parent) => parent?.name || "-";
@@ -116,9 +116,6 @@ const IncidentTypesListPage = () => {
                   <TableCell>
                     <Button variant="contained" onClick={() => navigate(`/incidentTypes/${type.id}/edit`)}>
                       Edit
-                    </Button>
-                    <Button variant="outlined" color="error" sx={{ ml: 1 }} onClick={() => deleteIncidentType(type.id)}>
-                      Delete
                     </Button>
                   </TableCell>
                 </TableRow>
