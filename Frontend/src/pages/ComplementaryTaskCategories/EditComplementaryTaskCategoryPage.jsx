@@ -45,6 +45,13 @@ const EditComplementaryTaskCategoryPage = () => {
         <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />
       )}
 
+      {/* Wyświetlamy komunikat błędu fetch, ale formularz jest widoczny */}
+      {vm.criticalError && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Failed to fetch category data. You can still edit fields manually.
+        </Alert>
+      )}
+
       {vm.message && (
         <Alert severity={vm.message.type} sx={{ mb: 2 }}>
           {vm.message.text}
@@ -57,7 +64,6 @@ const EditComplementaryTaskCategoryPage = () => {
           name="code"
           value={vm.formData.code}
           onChange={vm.handleChange}
-          required
           fullWidth
           margin="normal"
         />
@@ -66,7 +72,6 @@ const EditComplementaryTaskCategoryPage = () => {
           name="name"
           value={vm.formData.name}
           onChange={vm.handleChange}
-          required
           fullWidth
           margin="normal"
         />
@@ -75,7 +80,6 @@ const EditComplementaryTaskCategoryPage = () => {
           name="description"
           value={vm.formData.description}
           onChange={vm.handleChange}
-          required
           fullWidth
           margin="normal"
         />
@@ -104,6 +108,7 @@ const EditComplementaryTaskCategoryPage = () => {
         >
           {vm.submitting ? <CircularProgress size={24} color="inherit" /> : 'Update Category'}
         </Button>
+
         <Button
           variant="outlined"
           fullWidth
