@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // <-- importujemy useParams
+import { useParams } from 'react-router-dom';
 import {
   Container,
   TextField,
@@ -58,7 +58,6 @@ const UpdateVVEPage = () => {
     await vm.updateVVEInfo({ dockId: dockInput, actualBerthTime: berthTimeInput });
   };
 
-
   const handleAddOperation = async () => {
     if (!newOp.plannedOperationId || !newOp.resourceId) return;
     await vm.createExecutedOperation(newOp);
@@ -104,32 +103,31 @@ const UpdateVVEPage = () => {
         {/* =======================
             VVE DETAILS FORM
         ======================= */}
-        <Box component="form" onSubmit={handleUpdateVVE}>
-          <TextField
-            label="VVE ID"
-            value={vveIdInput}
-            onChange={(e) => setVveIdInput(e.target.value)}
-            fullWidth
-            required
-            margin="normal"
-            sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
-          />
-
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{
-              mt: 2,
-              py: 1.5,
-              backgroundColor: 'var(--color-primary)',
-              color: 'var(--color-text-light)',
-              '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
-            }}
-          >
-            Load VVE
-          </Button>
-
+        <Box component="form" onSubmit={handleUpdateVVE} mb={3}>
+          <Box display="flex" gap={2} alignItems="center" mb={2}>
+            <TextField
+              label="VVE ID"
+              value={vveIdInput}
+              onChange={(e) => setVveIdInput(e.target.value)}
+              fullWidth
+              required
+              sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                py: 1.5,
+                minWidth: 120,
+                backgroundColor: 'var(--color-primary)',
+                color: 'var(--color-text-light)',
+                '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+              }}
+              disabled={!vveIdInput || vm.loading}
+            >
+              {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Load'}
+            </Button>
+          </Box>
 
           {isVveLoaded && (
             <>
@@ -149,29 +147,28 @@ const UpdateVVEPage = () => {
                 renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
               />
 
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{
-              mt: 2,
-              py: 1.5,
-              backgroundColor: 'var(--color-primary)',
-              color: 'var(--color-text-light)',
-              '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
-            }}
-            disabled={!isVveLoaded || vm.loading}
-          >
-            {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Update VVE'}
-          </Button>
-          </>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                sx={{
+                  mt: 2,
+                  py: 1.5,
+                  backgroundColor: 'var(--color-primary)',
+                  color: 'var(--color-text-light)',
+                  '&:hover': { backgroundColor: 'var(--color-primary-dark)' },
+                }}
+                disabled={!isVveLoaded || vm.loading}
+              >
+                {vm.loading ? <CircularProgress size={24} color="inherit" /> : 'Update VVE'}
+              </Button>
+            </>
           )}
         </Box>
 
         {/* =======================
             ADD / EDIT BUTTONS
         ======================= */}
-
         {isVveLoaded && (
           <Box mt={4} display="flex" gap={2}>
             {['add', 'edit'].map((section) => (
@@ -209,7 +206,8 @@ const UpdateVVEPage = () => {
                 fontSize: 'var(--font-size-heading)',
               }}
             >
-              Add Executed Operation</Typography>
+              Add Executed Operation
+            </Typography>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Planned Operation</InputLabel>
@@ -279,7 +277,9 @@ const UpdateVVEPage = () => {
                 mb: 3,
                 fontSize: 'var(--font-size-heading)',
               }}
-            > Existing Executed Operations</Typography>
+            >
+              Existing Executed Operations
+            </Typography>
 
             {vm.executedOperations.length === 0 ? (
               <Alert severity="info">No executed operations found. Add one to continue.</Alert>
