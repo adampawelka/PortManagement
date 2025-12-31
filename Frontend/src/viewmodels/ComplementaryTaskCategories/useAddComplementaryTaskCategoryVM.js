@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { useApiOEM } from '../../services/api';
 import { addComplementaryTaskCategory } from '../../services/complementaryTaskCategoryService';
 
 export const useAddComplementaryTaskCategoryVM = () => {
+  const { apiOemFetch } = useApiOEM(); 
   const [formData, setFormData] = useState({ code: '', name: '', description: '' });
-  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
   const [criticalError, setCriticalError] = useState(false);
@@ -18,15 +19,18 @@ export const useAddComplementaryTaskCategoryVM = () => {
     setSubmitting(true);
     setMessage(null);
     try {
-      await addComplementaryTaskCategory(fetch, formData);
+      await addComplementaryTaskCategory(apiOemFetch, formData); 
       setMessage({ type: 'success', text: 'Category created successfully' });
       setFormData({ code: '', name: '', description: '' });
     } catch (err) {
-      setMessage({ type: 'error', text: err.message });
+      if (err.message?.includes('Failed to fetch')) {
+        setCriticalError(true); 
+      }
+      setMessage({ type: 'error', text: err.message || 'Failed to create category' });
     } finally {
       setSubmitting(false);
     }
   };
 
-  return { formData, handleChange, handleSubmit, loading, submitting, message, criticalError };
+  return { formData, handleChange, handleSubmit, submitting, message, criticalError };
 };
