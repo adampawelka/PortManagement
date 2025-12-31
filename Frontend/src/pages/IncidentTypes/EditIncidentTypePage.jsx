@@ -1,59 +1,96 @@
-import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import {
-  Container, Typography, TextField, Button, CircularProgress, Alert, MenuItem
-} from "@mui/material";
-import { useEditIncidentTypeVM } from "../../viewmodels/IncidentTypes/useEditIncidentTypeVM";
+import { useState, useEffect, useCallback } from "react";
+import { useApiOEM } from "../../services/api";
+import * as IncidentTypeService from "../../services/incidentTypeService";
 
-const EditIncidentTypePage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { incidentType, setIncidentType, parentOptions, loading, error, saveIncidentType } = useEditIncidentTypeVM(id);
+export const useEditIncidentTypeVM = (id) => {
+  const { apiOemFetch } = useApiOEM();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setIncidentType(prev => ({ ...prev, [name]: value }));
-  };
+  const [incidentType, setIncidentType] = useState({
+    code: "",
+    name: "",
+    description: "",
+    severity: "",
+    parentId: null,
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const [parentOptions, setParentOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const fetchIncidentType = useCallback(
+    async (incidentId = id) => {
+      if (!incidentId) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const data = await IncidentTypeService.getIncidentTypeById(
+          apiOemFetch,
+          incidentId
+        );
+
+        setIncidentType({
+          code: data.code,
+          name: data.name,
+          description: data.description,
+          severity: data.severity,
+          parentId: data.parent?.id || null,
+        });
+      } catch (e) {
+        console.error(e);
+        setError(e?.message || "Failed to fetch incident type");
+        throw e;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [apiOemFetch, id]
+  );
+
+  const fetchParentOptions = useCallback(async () => {
     try {
-      await saveIncidentType();
-      navigate("/incidentTypes");
+      const data = await IncidentTypeService.getIncidentTypes(apiOemFetch);
+      setParentOptions(data.filter((t) => t.id !== id));
     } catch (e) {
       console.error(e);
+      // celowo bez setError – to nie blokuje edycji
     }
+  }, [apiOemFetch, id]);
+
+  const saveIncidentType = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await IncidentTypeService.updateIncidentType(
+        apiOemFetch,
+        id,
+        incidentType
+      );
+    } catch (e) {
+      console.error(e);
+      setError(e?.message || "Failed to save incident type");
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiOemFetch, id, incidentType]);
+
+  useEffect(() => {
+    fetchParentOptions();
+    if (id) {
+      fetchIncidentType(id);
+    }
+  }, [id, fetchIncidentType, fetchParentOptions]);
+
+  return {
+    incidentType,
+    setIncidentType,
+    parentOptions,
+    loading,
+    error,
+    fetchIncidentType,
+    saveIncidentType,
   };
-
-  return (
-    <Container maxWidth="sm" sx={{ mt: 4, p: 4, borderRadius: 'var(--radius-md)', boxShadow: 3, backgroundColor: 'var(--color-surface)' }}>
-      <Typography variant="h4" gutterBottom sx={{ color: 'var(--color-primary-light)', mb: 3 }}>
-        Edit Incident Type
-      </Typography>
-
-      {loading && <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />}
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-      {!loading && (
-        <form onSubmit={handleSubmit}>
-          <TextField fullWidth label="Code" name="code" value={incidentType.code} onChange={handleChange} sx={{ mb: 2 }} required />
-          <TextField fullWidth label="Name" name="name" value={incidentType.name} onChange={handleChange} sx={{ mb: 2 }} required />
-          <TextField fullWidth label="Description" name="description" value={incidentType.description} onChange={handleChange} sx={{ mb: 2 }} multiline rows={3} />
-          <TextField fullWidth select label="Severity" name="severity" value={incidentType.severity} onChange={handleChange} sx={{ mb: 2 }} required>
-            <MenuItem value="Minor">Minor</MenuItem>
-            <MenuItem value="Major">Major</MenuItem>
-            <MenuItem value="Critical">Critical</MenuItem>
-          </TextField>
-          <TextField fullWidth select label="Parent Type" name="parentId" value={incidentType.parentId || ""} onChange={handleChange} sx={{ mb: 3 }}>
-            <MenuItem value="">None</MenuItem>
-            {parentOptions.map(p => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
-          </TextField>
-          <Button type="submit" variant="contained">Save Changes</Button>
-          <Button variant="outlined" sx={{ ml: 2 }} onClick={() => navigate("/incidentTypes")}>Cancel</Button>
-        </form>
-      )}
-    </Container>
-  );
 };
-
-export default EditIncidentTypePage;
