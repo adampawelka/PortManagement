@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import {
   Container, Typography, CircularProgress, Alert,
-  Paper, TableContainer, Table, TableHead, TableRow,
-  TableCell, TableBody, IconButton, FormControl, InputLabel, Select, MenuItem
+  Paper, IconButton, FormControl, InputLabel, Select, MenuItem, Box
 } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { useIncidentTypesListVM } from "../../viewmodels/IncidentTypes/useIncidentTypesListVM";
@@ -20,10 +19,7 @@ const IncidentTypesListPage = () => {
   const [expandedParents, setExpandedParents] = useState({});
 
   const toggleParent = (parentId) => {
-    setExpandedParents(prev => ({
-      ...prev,
-      [parentId]: !prev[parentId]
-    }));
+    setExpandedParents(prev => ({ ...prev, [parentId]: !prev[parentId] }));
   };
 
   const getSeverityColor = (severity) => {
@@ -35,9 +31,6 @@ const IncidentTypesListPage = () => {
     }
   };
 
-  const formatParent = (parentName) => parentName || "-";
-
-  // Grupa: rodzice i ich dzieci
   const groupedData = incidentTypes.reduce((acc, type) => {
     if (!type.parentId) {
       acc[type.id] = { parent: type, children: [] };
@@ -50,11 +43,11 @@ const IncidentTypesListPage = () => {
 
   return (
     <Container
-      maxWidth="xl"
+      maxWidth="md"
       sx={{
         mt: 4,
         backgroundColor: "var(--color-surface)",
-        p: 4,
+        p: 3,
         borderRadius: "var(--radius-md)",
         boxShadow: 3,
         fontFamily: "var(--font-family-base)",
@@ -74,7 +67,7 @@ const IncidentTypesListPage = () => {
       </Typography>
 
       {/* Filter by Parent */}
-      <FormControl sx={{ mb: 3, minWidth: 250 }}>
+      <FormControl sx={{ mb: 3, minWidth: 200 }}>
         <InputLabel>Filter by Parent</InputLabel>
         <Select
           value={filterParentId || ""}
@@ -88,117 +81,104 @@ const IncidentTypesListPage = () => {
         </Select>
       </FormControl>
 
-      {/* Loading */}
       {loading && <CircularProgress sx={{ display: "block", margin: "20px auto" }} />}
-
-      {/* Error */}
       {error && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-            color: "var(--color-text-light)",
-            backgroundColor: "var(--color-error)",
-          }}
-          aria-live="assertive"
-        >
+        <Alert severity="error" sx={{ mb: 2, color: "var(--color-text-light)", backgroundColor: "var(--color-error)" }}>
           {error}
         </Alert>
       )}
-
-      {/* No data */}
       {!loading && incidentTypes.length === 0 && !error && (
-        <Alert
-          severity="info"
-          sx={{
-            mb: 2,
-            backgroundColor: "var(--color-info)",
-            color: "var(--color-text-dark)"
-          }}
-          aria-live="polite"
-        >
+        <Alert severity="info" sx={{ mb: 2, backgroundColor: "var(--color-info)", color: "var(--color-text-dark)" }}>
           No incident types found.
         </Alert>
       )}
 
-      {/* Table */}
-      {incidentTypes.length > 0 && (
-        <TableContainer component={Paper} sx={{ mt: 3 }}>
-          <Table size="small" aria-label="incident types table">
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
-                <TableCell />
-                <TableCell>ID</TableCell>
-                <TableCell>Code</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Severity</TableCell>
-                <TableCell>Parent Type</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.values(groupedData).map(({ parent, children }) => {
-                if (!parent) return null;
-                const isExpanded = expandedParents[parent.id] || false;
+      {/* List view */}
+      {Object.values(groupedData).map(({ parent, children }) => {
+        if (!parent) return null;
+        const isExpanded = expandedParents[parent.id] || false;
 
-                return (
-                  <React.Fragment key={parent.id}>
-                    {/* Parent row */}
-                    <TableRow sx={{ "&:hover": { backgroundColor: "var(--color-background)" } }}>
-                      <TableCell>
-                        {children.length > 0 && (
-                          <IconButton size="small" onClick={() => toggleParent(parent.id)}>
-                            {isExpanded ? <ExpandLess /> : <ExpandMore />}
-                          </IconButton>
-                        )}
-                      </TableCell>
-                      <TableCell>{parent.id}</TableCell>
-                      <TableCell>{parent.code}</TableCell>
-                      <TableCell>{parent.name}</TableCell>
-                      <TableCell>{parent.description}</TableCell>
-                      <TableCell>
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: "bold", color: getSeverityColor(parent.severity) }}
-                        >
-                          {parent.severity || "N/A"}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{formatParent(parent.parentName)}</TableCell>
-                    </TableRow>
+        return (
+          <Box key={parent.id} sx={{ mb: 1 }}>
+            {/* Parent row */}
+            <Paper
+              elevation={1}
+              sx={{
+                p: 2,
+                display: "flex",
+                alignItems: "center",
+                cursor: children.length ? "pointer" : "default",
+                backgroundColor: "var(--color-surface-alt)",
+                borderRadius: "var(--radius-sm)",
+                mb: 0.5
+              }}
+            >
+              {children.length > 0 && (
+                <IconButton size="small" onClick={() => toggleParent(parent.id)}>
+                  {isExpanded ? <ExpandLess /> : <ExpandMore />}
+                </IconButton>
+              )}
+              <Box sx={{ ml: children.length ? 1 : 0, flexGrow: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/* Left: Basic info */}
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>{parent.name}</Typography>
+                  <Typography variant="body2">ID: {parent.id} | Code: {parent.code}</Typography>
+                  {parent.parentName && <Typography variant="body2">Parent: {parent.parentName}</Typography>}
+                </Box>
+                {/* Right: Description */}
+                <Box sx={{ ml: 2, maxWidth: '50%' }}>
+                  <Typography variant="body2" sx={{ fontStyle: 'italic' }}>Description:</Typography>
+                  <Typography variant="body2">{parent.description}</Typography>
+                </Box>
+                {/* Severity */}
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "bold", color: getSeverityColor(parent.severity), ml: 2 }}
+                >
+                  {parent.severity || "N/A"}
+                </Typography>
+              </Box>
+            </Paper>
 
-                    {/* Child rows */}
-                    {isExpanded && children.map((child) => (
-                      <TableRow
-                        key={child.id}
-                        sx={{
-                          "&:hover": { backgroundColor: "var(--color-background)" },
-                          backgroundColor: "var(--color-surface-alt)"
-                        }}
-                      >
-                        <TableCell />
-                        <TableCell>{child.id}</TableCell>
-                        <TableCell>{child.code}</TableCell>
-                        <TableCell sx={{ pl: 4 }}>{child.name}</TableCell>
-                        <TableCell>{child.description}</TableCell>
-                        <TableCell>
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: "bold", color: getSeverityColor(child.severity) }}
-                          >
-                            {child.severity || "N/A"}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>{formatParent(child.parentName)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </React.Fragment>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+            {/* Children */}
+            {isExpanded && children.map((child) => (
+              <Paper
+                key={child.id}
+                elevation={0}
+                sx={{
+                  ml: 4,
+                  mb: 0.5,
+                  p: 1.5,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  backgroundColor: "var(--color-surface)",
+                  borderRadius: "var(--radius-sm)",
+                  borderLeft: "3px solid var(--color-primary-light)"
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>{child.name}</Typography>
+                    <Typography variant="body2">ID: {child.id} | Code: {child.code}</Typography>
+                    {child.parentName && <Typography variant="body2">Parent: {child.parentName}</Typography>}
+                  </Box>
+                  <Box sx={{ ml: 2, maxWidth: '50%' }}>
+                    <Typography variant="body2" sx={{ fontStyle: 'italic' }}>Description:</Typography>
+                    <Typography variant="body2">{child.description}</Typography>
+                  </Box>
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: "bold", color: getSeverityColor(child.severity), ml: 2 }}
+                  >
+                    {child.severity || "N/A"}
+                  </Typography>
+                </Box>
+              </Paper>
+            ))}
+          </Box>
+        );
+      })}
     </Container>
   );
 };
