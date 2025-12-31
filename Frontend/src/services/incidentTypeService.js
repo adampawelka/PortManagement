@@ -1,5 +1,9 @@
-export const getIncidentTypes = async (apiOemFetch) => {
-  const res = await apiOemFetch("/api/incidentTypes");
+// FETCH ALL INCIDENT TYPES
+export const getIncidentTypes = async (apiOemFetch, parentId) => {
+  let url = "/api/incidentTypes";
+  if (parentId) url += `?parentId=${parentId}`;
+
+  const res = await apiOemFetch(url);
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to fetch incident types");
@@ -7,6 +11,7 @@ export const getIncidentTypes = async (apiOemFetch) => {
   return res.json();
 };
 
+// FETCH INCIDENT TYPE BY ID
 export const getIncidentTypeById = async (apiOemFetch, id) => {
   const res = await apiOemFetch(`/api/incidentTypes/${id}`);
   if (!res.ok) {
@@ -16,6 +21,7 @@ export const getIncidentTypeById = async (apiOemFetch, id) => {
   return res.json();
 };
 
+// ADD INCIDENT TYPE
 export const addIncidentType = async (apiOemFetch, incidentTypeDto) => {
   const res = await apiOemFetch("/api/incidentTypes", {
     method: "POST",
@@ -28,6 +34,7 @@ export const addIncidentType = async (apiOemFetch, incidentTypeDto) => {
   return res.json();
 };
 
+// UPDATE INCIDENT TYPE
 export const updateIncidentType = async (apiOemFetch, id, incidentTypeDto) => {
   const res = await apiOemFetch(`/api/incidentTypes/${id}`, {
     method: "PUT",
@@ -41,24 +48,41 @@ export const updateIncidentType = async (apiOemFetch, id, incidentTypeDto) => {
 };
 
 // MOCK DATA GENERATOR
-export const generateMockIncidentTypes = (count = 5) => {
+export const generateMockIncidentTypes = () => {
   const types = [
-    { name: "Safety", description: "Safety related incidents", severity: "High" },
-    { name: "Security", description: "Security breaches", severity: "Medium" },
-    { name: "Technical", description: "Technical failures", severity: "High" },
-    { name: "Operational", description: "Operational issues", severity: "Low" },
-    { name: "Environmental", description: "Environmental hazards", severity: "Medium" },
+    { name: "Safety", description: "Safety related incidents", severity: "Minor" },
+    { name: "Security", description: "Security breaches", severity: "Major" },
+    { name: "Technical", description: "Technical failures", severity: "Critical" },
+    { name: "Operational", description: "Operational issues", severity: "Minor" },
+    { name: "Environmental", description: "Environmental hazards", severity: "Major" },
   ];
 
-  return Array.from({ length: count }, (_, i) => {
-    const type = types[i % types.length]; // loop if count > types.length
-    return {
-      id: i + 1,
-      code: `INC-${i + 1}`,
-      name: type.name,
-      description: type.description,
-      severity: type.severity,
-      parent: i % 2 === 0 ? null : { id: Math.floor(Math.random() * 5) + 1, name: "Parent Type Example" } // optional parent
-    };
+  const parents = types.map((t, i) => ({
+    id: i + 1,
+    code: `INC-P${i + 1}`,
+    name: t.name,
+    description: t.description,
+    severity: t.severity,
+    parentId: null,
+    parentName: null,
+  }));
+
+  const children = [];
+  parents.forEach((p, i) => {
+    const childCount = Math.floor(Math.random() * 2) + 1;
+    for (let j = 0; j < childCount; j++) {
+      const type = types[(i + j + 1) % types.length];
+      children.push({
+        id: parents.length + children.length + 1,
+        code: `INC-C${parents.length + children.length + 1}`,
+        name: type.name + " Child",
+        description: type.description,
+        severity: type.severity,
+        parentId: p.id,
+        parentName: p.name,
+      });
+    }
   });
+
+  return [...parents, ...children];
 };
