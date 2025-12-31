@@ -54,6 +54,14 @@ import IncidentTypesListPage from "../pages/IncidentTypes/IncidentTypesListPage.
 import AddIncidentTypePage from "../pages/IncidentTypes/AddIncidentTypePage.jsx";
 import EditIncidentTypePage from "../pages/IncidentTypes/EditIncidentTypePage.jsx";
 
+// Complementary Tasks
+
+
+// Complementary Task Categories
+import ComplementaryTaskCategoriesList from "../pages/ComplementaryTaskCategories/ComplementaryTaskCategoriesListPage.jsx"
+import AddComplementaryTaskCategory from "../pages/ComplementaryTaskCategories/AddComplementaryTaskCategoryPage.jsx"
+import EditComplementaryTaskCategory from "../pages/ComplementaryTaskCategories/EditComplementaryTaskCategoryPage.jsx"
+
 // Scheduling
 import OptimalSchedule from "../pages/Scheduling/OptimalSchedule.jsx";
 import AlternativeSchedule from "../pages/Scheduling/AlternativeSchedule.jsx";
@@ -73,7 +81,7 @@ import ThumbRaiserComponent from "../pages/Visualisation.jsx";
 // ---------------------------
 export const protectedRoutes = {
   home: [
-    { path: "/", element: <Home />, roles: ["Administrator", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"], index: true },
+    { path: "/", element: <Home />, roles: ["Administrator", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator", "OperationsSupervisor"], index: true },
     { path: "visualisation", element: <Visualisation />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
   ],
 
@@ -139,6 +147,13 @@ export const protectedRoutes = {
     { path: "/incident-types/add", element: <AddIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
     { path: "/incident-types/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
     //{ path: "/incident-types/:id/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] }
+  ],
+
+  complementaryTaskCategories : [
+    { path: "/complementary-task-categories/list", element: <ComplementaryTaskCategoriesList />, roles: ["OperationsSupervisor"]},
+    { path: "/complementary-task-categories/add", element: <AddComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
+    { path: "/complementary-task-categories/edit", element: <EditComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
+
   ],
 
   scheduling: [

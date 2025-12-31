@@ -160,9 +160,9 @@ export const sidebarMenuItems = [
         roles: ["OperationsSupervisor"],
       },
       {
-        name: "Update Complementary Task Category",
-        key: "update_complementary_task_category",
-        path: "/complementary-task-categories/update",
+        name: "Edit Complementary Task Category",
+        key: "edit_complementary_task_category",
+        path: "/complementary-task-categories/edit",
         roles: ["OperationsSupervisor"],
       }
     ],
