@@ -1,53 +1,151 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import {
-  Container, Typography, TextField, Button, CircularProgress, Alert, MenuItem
+  Container,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+  Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormHelperText,
 } from "@mui/material";
 import { useIncidentTypeAddVM } from "../../viewmodels/IncidentTypes/useAddIncidentTypeVM";
 
 const IncidentTypeAddPage = () => {
-  const navigate = useNavigate();
-  const { incidentType, setIncidentType, parentOptions, loading, error, addIncidentType } = useIncidentTypeAddVM();
+  const vm = useIncidentTypeAddVM();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setIncidentType(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await addIncidentType();
-      navigate("/incidentTypes");
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  // proste sprawdzenie czy formularz wypełniony
+  const isFormValid =
+    vm.incidentType.code &&
+    vm.incidentType.name &&
+    vm.incidentType.severity;
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4, p: 4, borderRadius: 'var(--radius-md)', boxShadow: 3, backgroundColor: 'var(--color-surface)' }}>
-      <Typography variant="h4" gutterBottom sx={{ color: 'var(--color-primary-light)', mb: 3 }}>
+    <Container
+      maxWidth="sm"
+      sx={{
+        mt: "var(--spacing-xl)",
+        p: "var(--spacing-lg)",
+        backgroundColor: "var(--color-surface)",
+        borderRadius: "var(--radius-md)",
+        boxShadow: 3,
+        fontFamily: "var(--font-family-base)",
+      }}
+    >
+      <Typography
+        variant="h4"
+        gutterBottom
+        align="center"
+        sx={{
+          color: "var(--color-primary-light)",
+          fontWeight: 600,
+          fontSize: "var(--font-size-large)",
+          mb: "var(--spacing-lg)",
+        }}
+      >
         Add New Incident Type
       </Typography>
 
-      {loading && <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />}
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {vm.error && (
+        <Alert severity="error" sx={{ mb: "var(--spacing-md)" }}>
+          {vm.error}
+        </Alert>
+      )}
 
-      <form onSubmit={handleSubmit}>
-        <TextField fullWidth label="Code" name="code" value={incidentType.code} onChange={handleChange} sx={{ mb: 2 }} required />
-        <TextField fullWidth label="Name" name="name" value={incidentType.name} onChange={handleChange} sx={{ mb: 2 }} required />
-        <TextField fullWidth label="Description" name="description" value={incidentType.description} onChange={handleChange} sx={{ mb: 2 }} multiline rows={3} />
-        <TextField fullWidth select label="Severity" name="severity" value={incidentType.severity} onChange={handleChange} sx={{ mb: 2 }} required>
-          <MenuItem value="Minor">Minor</MenuItem>
-          <MenuItem value="Major">Major</MenuItem>
-          <MenuItem value="Critical">Critical</MenuItem>
-        </TextField>
-        <TextField fullWidth select label="Parent Type" name="parentId" value={incidentType.parentId || ""} onChange={handleChange} sx={{ mb: 3 }}>
-          <MenuItem value="">None</MenuItem>
-          {parentOptions.map(p => <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>)}
-        </TextField>
-        <Button type="submit" variant="contained">Add Incident Type</Button>
-        <Button variant="outlined" sx={{ ml: 2 }} onClick={() => navigate("/incidentTypes")}>Cancel</Button>
+      <form onSubmit={vm.handleSubmit}>
+        <TextField
+          label="Code"
+          name="code"
+          value={vm.incidentType.code}
+          onChange={vm.handleChange}
+          required
+          fullWidth
+          margin="normal"
+        />
+
+        <TextField
+          label="Name"
+          name="name"
+          value={vm.incidentType.name}
+          onChange={vm.handleChange}
+          required
+          fullWidth
+          margin="normal"
+        />
+
+        <TextField
+          label="Description"
+          name="description"
+          value={vm.incidentType.description}
+          onChange={vm.handleChange}
+          fullWidth
+          multiline
+          rows={3}
+          margin="normal"
+        />
+
+        <FormControl fullWidth margin="normal" required>
+          <InputLabel id="severity-label">Severity</InputLabel>
+          <Select
+            labelId="severity-label"
+            name="severity"
+            value={vm.incidentType.severity}
+            onChange={vm.handleChange}
+          >
+            <MenuItem value="Minor">Minor</MenuItem>
+            <MenuItem value="Major">Major</MenuItem>
+            <MenuItem value="Critical">Critical</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="parent-label">Parent Type</InputLabel>
+          <Select
+            labelId="parent-label"
+            name="parentId"
+            value={vm.incidentType.parentId || ""}
+            onChange={vm.handleChange}
+          >
+            <MenuItem value="">None</MenuItem>
+            {vm.parentOptions.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={vm.loading || !isFormValid}
+          fullWidth
+          sx={{
+            mt: "var(--spacing-lg)",
+            py: 1.5,
+            backgroundColor: "var(--color-primary)",
+            color: "var(--color-text-light)",
+            "&:hover": { backgroundColor: "var(--color-primary-light)" },
+          }}
+        >
+          {vm.loading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Add Incident Type"
+          )}
+        </Button>
+
+        <Button
+          variant="outlined"
+          fullWidth
+          sx={{ mt: "var(--spacing-md)" }}
+          onClick={() => vm.navigateBack()}
+        >
+          Cancel
+        </Button>
       </form>
     </Container>
   );
