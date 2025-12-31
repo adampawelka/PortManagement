@@ -4,6 +4,8 @@ export interface IncidentTypeDTO {
   name: string;
   description: string;
   severity: string;
+  parentId?: string | null; 
+  parentName?: string;      
 }
 
 export interface CreateIncidentTypeDTO {
@@ -11,6 +13,7 @@ export interface CreateIncidentTypeDTO {
   name: string;
   description: string;
   severity: string;
+  parentId?: string | null; 
 }
 
 export interface UpdateIncidentTypeDTO {
@@ -18,4 +21,5 @@ export interface UpdateIncidentTypeDTO {
   name?: string;
   description?: string;
   severity?: string;
+  parentId?: string | null; 
 }
