@@ -52,6 +52,39 @@ export class OperationPlanService implements IOperationPlanService {
     return this.toDTO(plan);
   }
 
+
+  async savePlans(plans: CreateOperationPlanDTO[], metadata: { algorithmUsed: string; createdBy: string }): Promise<OperationPlanDTO[]> {
+    const savedPlans: OperationPlanDTO[] = [];
+    
+    for (const planDto of plans) {
+      if (!planDto.algorithmUsed && metadata.algorithmUsed) {
+        planDto.algorithmUsed = metadata.algorithmUsed;
+      }
+      if (!planDto.createdBy && metadata.createdBy) {
+        planDto.createdBy = metadata.createdBy;
+      }
+      if (!planDto.createdAt) {
+        planDto.createdAt = new Date();
+      }
+      
+      const planOrError = OperationPlan.create({
+        vvnId: VvnId.create(planDto.vvnId).getValue(),
+        createdAt: CreatedAt.create(planDto.createdAt).getValue(),
+        createdBy: CreatedBy.create(planDto.createdBy).getValue(),
+        algorithmUsed: AlgorithmUsed.create(planDto.algorithmUsed).getValue(),
+        schedule: this.mapScheduleDTOtoVO(planDto.schedule)
+      }, new UniqueEntityID());  
+
+      if (planOrError.isFailure) throw new Error(planOrError.errorValue().toString());  
+
+      const plan = planOrError.getValue();
+      await this.operationPlanRepo.save(plan);
+      savedPlans.push(this.toDTO(plan));
+    }
+    
+    return savedPlans;
+  }
+
   async getById(id: string): Promise<OperationPlanDTO | null> {
     const plan = await this.operationPlanRepo.findById(OperationPlanId.create(new UniqueEntityID(id)));
     return plan ? this.toDTO(plan) : null;

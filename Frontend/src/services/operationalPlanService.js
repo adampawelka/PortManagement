@@ -19,6 +19,22 @@ export const addOperationalPlan = async (apiOemFetch, OperationalPlanDto) => {
   return res.json();
 };
 
+export const savePlans = async (apiOemFetch, plans, metadata) => {
+  const res = await apiOemFetch("/api/OperationalPlans/save-generated", {
+    method: "POST",
+    body: JSON.stringify({
+      plans: plans,
+      metadata: metadata
+    }),
+  });
+  
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to save operational plans");
+  }
+  return res.json();
+};
+
 export const searchOperationalPlans = async (apiOemFetch, { dateStart, dateEnd, vesselId } = {}) => {
   const params = new URLSearchParams();
   if (dateStart) params.append('dateStart', dateStart);

@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSchedulingService } from "../../services/schedulingService";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
-import { useApi } from "../../services/api";
+import { useApi, useApiOEM } from "../../services/api";
 
 const formatDateTime = (date) => {
   if (!date) return "N/A";
@@ -22,6 +22,7 @@ const addDays = (date, days) => {
 
 export const useOperationalPlansVM = () => {
   const { apiFetch } = useApi();
+  const { apiOemFetch } = useApiOem();
   const { calculateSchedule, calculateMultiCraneSchedule } = useSchedulingService();
 
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,9 @@ export const useOperationalPlansVM = () => {
   const [date, setDate] = useState("");
   const [mode, setMode] = useState("single");
   const [algorithm, setAlgorithm] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveResult, setSaveResult] = useState(null);
+  const [saveError, setSaveError] = useState("");  
 
   const normalizeName = (name) => name?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") || "";
 
@@ -148,6 +152,60 @@ export const useOperationalPlansVM = () => {
     );
   }, [plans]);
 
+  const savePlans = async (userId) => {
+    if (plans.length === 0) {
+      setSaveError("No plans to save");
+      return;
+    }
+
+    setSaving(true);
+    setSaveError("");
+    setSaveResult(null);
+
+    try {
+      // Transform plans to DTO format
+      const plansToSave = plans.map(plan => ({
+        vvnId: plan.vvnId,
+        createdAt: new Date(),
+        createdBy: userId || "system",
+        algorithmUsed: algorithm || (mode === "multi" ? "multi_crane" : algorithm),
+        schedule: plan.operations.map(op => ({
+          vesselName: plan.vesselName,
+          start: new Date(op.start), // Convert string back to Date
+          end: new Date(op.end),
+          delay: op.delay || 0,
+          dock: plan.dock,
+          cranes: plan.crane ? [plan.crane] : [],
+          staff: plan.staff || []
+        }))
+      }));
+
+      const metadata = {
+        algorithmUsed: algorithm || (mode === "multi" ? "multi_crane" : algorithm),
+        createdBy: userId || "system",
+        generatedAt: new Date().toISOString(),
+        mode: mode,
+        date: date
+      };
+
+      const result = await saveGeneratedPlans(apiOemFetch, plansToSave, metadata);
+      setSaveResult({
+        success: true,
+        count: result.length,
+        message: `Successfully saved ${result.length} operation plans`
+      });
+
+    } catch (error) {
+      setSaveError(error.message || "Failed to save plans");
+      setSaveResult({
+        success: false,
+        message: "Failed to save plans"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return {
     loading,
     error,
@@ -161,5 +219,9 @@ export const useOperationalPlansVM = () => {
     algorithm,
     setAlgorithm,
     generate,
+    saving,
+    saveResult,
+    saveError,
+    savePlans
   };
 };

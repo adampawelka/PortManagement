@@ -33,10 +33,15 @@ const OperationalPlansGenerate = () => {
         loading,
         error,
         executionTime,
-        generate
+        generate,
+        saving,
+        saveResult,
+        saveError,
+        savePlans
     } = useOperationalPlansVM();
 
     const [hasGenerated, setHasGenerated] = useState(false);
+    const [userId] = useState("current_user_id"); 
 
     const handleGenerate = () => {
         if (!date) return alert("Please select a date");
@@ -56,6 +61,10 @@ const OperationalPlansGenerate = () => {
         { value: "optimal", label: "Optimal" },
         { value: "heuristic", label: "Heuristic" },
     ];
+
+    const handleSave = async () => {
+        await savePlans(userId);
+    };
 
     return (
         <Container
@@ -153,6 +162,23 @@ const OperationalPlansGenerate = () => {
                 >
                     Generate
                 </Button>
+
+                <Button
+                     variant="contained"
+                     onClick={handleSave}
+                     disabled={plans.length === 0 || saving}
+                     sx={{
+                         ml: 2,
+                         px: "var(--spacing-md)",
+                         height: 40,
+                         whiteSpace: "nowrap",
+                         backgroundColor: "var(--color-success)",
+                         ":hover": { backgroundColor: "var(--color-success-light)" },
+                         color: "var(--color-text-light)",
+                    }}
+                 >
+                     {saving ? "Saving..." : "Save Plans"}
+                 </Button>
             </Paper>
 
             {executionTime && (
@@ -255,6 +281,19 @@ const OperationalPlansGenerate = () => {
                         </Paper>
                     ))}
                 </Box>
+            )}
+            {saving && <CircularProgress size={20} sx={{ ml: 2 }} />}
+            
+            {saveResult && (
+                <Alert severity={saveResult.success ? "success" : "error"} sx={{ mt: 2 }}>
+                    {saveResult.message}
+                </Alert>
+            )}
+            
+            {saveError && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                    {saveError}
+                </Alert>
             )}
         </Container>
     );

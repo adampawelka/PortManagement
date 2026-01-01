@@ -18,6 +18,37 @@ export default class OperationPlanController {
     } catch (e) { return next(e); }
   }
 
+  public async saveOperationPlans(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { plans, metadata } = req.body;
+      
+      if (!Array.isArray(plans) || plans.length === 0) {
+        return res.status(400).json({ message: "Plans array is required and cannot be empty" });
+      }  
+
+      const savedPlans = [];
+      for (const planDto of plans) {
+        const enhancedDto = {
+          ...planDto,
+          algorithmUsed: planDto.algorithmUsed || metadata?.algorithmUsed || "unknown",
+          createdBy: planDto.createdBy || metadata?.createdBy || "system",
+          createdAt: planDto.createdAt || new Date()
+        };
+        
+        const plan = await this.operationPlanServiceInstance.create(enhancedDto);
+        savedPlans.push(plan);
+      }
+      
+      return res.status(201).json({
+        message: `Successfully saved ${savedPlans.length} operation plans`,
+        count: savedPlans.length,
+        plans: savedPlans
+      });
+    } catch (e) { 
+      return next(e); 
+    }
+  }
+
   public async getOperationPlan(req: Request, res: Response, next: NextFunction) {
     try {
       const plan = await this.operationPlanServiceInstance.getById(req.params.id);
