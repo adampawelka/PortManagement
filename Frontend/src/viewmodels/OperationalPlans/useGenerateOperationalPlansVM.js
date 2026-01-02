@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { useSchedulingService } from "../../services/schedulingService";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
-import { useApi } from "../../services/api";
+import { useApi, useApiOEM } from "../../services/api";
+import { addOperationalPlan } from "../../services/operationalPlanService";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const formatDateTime = (date) => {
   if (!date) return "N/A";
@@ -22,12 +24,16 @@ const addDays = (date, days) => {
 
 export const useOperationalPlansVM = () => {
   const { apiFetch } = useApi();
+  const { apiOemFetch } = useApiOEM();
+  const { user } = useAuth0();
   const { calculateSchedule, calculateMultiCraneSchedule } = useSchedulingService();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [plans, setPlans] = useState([]);
   const [executionTime, setExecutionTime] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [date, setDate] = useState("");
   const [mode, setMode] = useState("single");
@@ -148,6 +154,81 @@ export const useOperationalPlansVM = () => {
     );
   }, [plans]);
 
+  const savePlans = async () => {
+    if (plans.length === 0) {
+      setError("No plans to save. Please generate plans first.");
+      return;
+    }
+
+    setSaving(true);
+    setError("");
+    setSaveSuccess(false);
+
+    try {
+      const createdBy = user?.sub || user?.email || "unknown";
+      const createdAt = new Date().toISOString();
+      const algorithmUsed = mode === "single" ? algorithm : "multi_crane";
+
+      // Save each plan separately
+      const savePromises = plans.map(async (plan) => {
+        // Transform operations to schedule format
+        const schedule = plan.operations.map(op => {
+          // Parse the formatted date strings back to ISO dates
+          const parseFormattedDate = (dateStr) => {
+            if (!dateStr) return new Date().toISOString();
+            // Format: "23.11.2025 07:00"
+            const parts = dateStr.split(" ");
+            if (parts.length !== 2) return new Date().toISOString();
+            
+            const [datePart, timePart] = parts;
+            const [day, month, year] = datePart.split(".");
+            const [hour, minute] = timePart.split(":");
+            
+            return new Date(
+              parseInt(year),
+              parseInt(month) - 1,
+              parseInt(day),
+              parseInt(hour),
+              parseInt(minute || 0)
+            ).toISOString();
+          };
+
+          return {
+            vesselName: plan.vesselName,
+            start: parseFormattedDate(op.start),
+            end: parseFormattedDate(op.end),
+            delay: op.delay || 0,
+            dock: plan.dock || "Unassigned",
+            cranes: plan.crane ? plan.crane.split(", ") : [],
+            staff: Array.isArray(plan.staff) ? plan.staff : []
+          };
+        });
+
+        const createDto = {
+          vvnId: plan.vvnId,
+          createdAt: createdAt,
+          createdBy: createdBy,
+          algorithmUsed: algorithmUsed,
+          schedule: schedule
+        };
+
+        return addOperationalPlan(apiOemFetch, createDto);
+      });
+
+      await Promise.all(savePromises);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000); // Hide success message after 3 seconds
+    } catch (err) {
+      console.error("Error saving plans:", err);
+      const errorMessage = err?.message || "Failed to save operation plans.";
+      setError(errorMessage);
+      // Clear error after 5 seconds
+      setTimeout(() => setError(""), 5000);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return {
     loading,
     error,
@@ -161,5 +242,8 @@ export const useOperationalPlansVM = () => {
     algorithm,
     setAlgorithm,
     generate,
+    savePlans,
+    saving,
+    saveSuccess,
   };
 };

@@ -33,7 +33,10 @@ const OperationalPlansGenerate = () => {
         loading,
         error,
         executionTime,
-        generate
+        generate,
+        savePlans,
+        saving,
+        saveSuccess
     } = useOperationalPlansVM();
 
     const [hasGenerated, setHasGenerated] = useState(false);
@@ -161,6 +164,12 @@ const OperationalPlansGenerate = () => {
                 </Alert>
             )}
 
+            {saveSuccess && (
+                <Alert severity="success" sx={{ mb: "var(--spacing-lg)", backgroundColor: "var(--color-success-bg)", color: "var(--color-text-dark)", fontWeight: 500 }}>
+                    Operation plans saved successfully! You can now search for them.
+                </Alert>
+            )}
+
             {loading && <CircularProgress sx={{ display: "block", mx: "auto", my: 2 }} />}
 
             {error && (
@@ -177,6 +186,22 @@ const OperationalPlansGenerate = () => {
 
             {plans.length > 0 && (
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", mt: "var(--spacing-xl)" }}>
+                    <Box sx={{ width: "100%", maxWidth: 760, mb: "var(--spacing-md)", display: "flex", justifyContent: "flex-end" }}>
+                        <Button
+                            variant="contained"
+                            onClick={savePlans}
+                            disabled={saving || plans.length === 0}
+                            sx={{
+                                px: "var(--spacing-md)",
+                                height: 40,
+                                backgroundColor: "var(--color-primary)",
+                                ":hover": { backgroundColor: "var(--color-primary-light)" },
+                                color: "var(--color-text-light)",
+                            }}
+                        >
+                            {saving ? "Saving..." : "Save Plans"}
+                        </Button>
+                    </Box>
                     {plans.map((plan, index) => (
                         <Paper
                             key={index}
