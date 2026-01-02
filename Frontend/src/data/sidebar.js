@@ -160,9 +160,9 @@ export const sidebarMenuItems = [
         roles: ["OperationsSupervisor"],
       },
       {
-        name: "Update Complementary Task Category",
-        key: "update_complementary_task_category",
-        path: "/complementary-task-categories/update",
+        name: "Edit Complementary Task Category",
+        key: "edit_complementary_task_category",
+        path: "/complementary-task-categories/edit",
         roles: ["OperationsSupervisor"],
       }
     ],
@@ -184,6 +184,12 @@ export const sidebarMenuItems = [
           name: "Generate Operational Plans",
           key: "operational_plans_generate",
           path: "/operational-plans/generate",
+          roles: ["LogisticsOperator"],
+        },
+        {
+          name: "Missing Plans from VVNs",
+          key: "operational_plans_missing",
+          path: "/operational-plans/missing",
           roles: ["LogisticsOperator"],
         },
       ]

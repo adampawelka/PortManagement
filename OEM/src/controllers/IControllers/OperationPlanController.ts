@@ -18,6 +18,37 @@ export default class OperationPlanController {
     } catch (e) { return next(e); }
   }
 
+  public async saveOperationPlans(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { plans, metadata } = req.body;
+      
+      if (!Array.isArray(plans) || plans.length === 0) {
+        return res.status(400).json({ message: "Plans array is required and cannot be empty" });
+      }  
+
+      const savedPlans = [];
+      for (const planDto of plans) {
+        const enhancedDto = {
+          ...planDto,
+          algorithmUsed: planDto.algorithmUsed || metadata?.algorithmUsed || "unknown",
+          createdBy: planDto.createdBy || metadata?.createdBy || "system",
+          createdAt: planDto.createdAt || new Date()
+        };
+        
+        const plan = await this.operationPlanServiceInstance.create(enhancedDto);
+        savedPlans.push(plan);
+      }
+      
+      return res.status(201).json({
+        message: `Successfully saved ${savedPlans.length} operation plans`,
+        count: savedPlans.length,
+        plans: savedPlans
+      });
+    } catch (e) { 
+      return next(e); 
+    }
+  }
+
   public async getOperationPlan(req: Request, res: Response, next: NextFunction) {
     try {
       const plan = await this.operationPlanServiceInstance.getById(req.params.id);
@@ -68,4 +99,21 @@ export default class OperationPlanController {
       return res.status(200).json(plans);
     } catch (e) { return next(e); }
   }
+  
+  public async getMissingPlans(req: Request, res: Response, next: NextFunction) {
+    try {
+      // Esperamos la fecha como query param: /missing?date=2025-12-23
+      const date = req.query.date as string;
+      
+      if (!date) {
+        return res.status(400).send("Date query parameter is required");
+      }
+
+      const result = await this.operationPlanServiceInstance.getMissingPlans(date);
+      return res.status(200).json(result);
+    } catch (e) {
+      return next(e);
+    }
+  }
+
 }

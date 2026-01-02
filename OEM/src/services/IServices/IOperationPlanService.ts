@@ -1,4 +1,4 @@
-import { CreateOperationPlanDTO, OperationPlanDTO, SearchOperationPlanDTO } from "../../dto/OperationPlanDTO";
+import { CreateOperationPlanDTO, OperationPlanDTO, SearchOperationPlanDTO, MissingPlanDTO } from "../../dto/OperationPlanDTO";
 
 export interface IOperationPlanService {
   create(
@@ -23,4 +23,6 @@ export interface IOperationPlanService {
   search(
     dto: SearchOperationPlanDTO
   ): Promise<OperationPlanDTO[]>;
+
+  getMissingPlans(date: string): Promise<MissingPlanDTO[]>;
 }

@@ -39,7 +39,7 @@ const OperationalPlansGenerate = () => {
         saveSuccess
     } = useOperationalPlansVM();
 
-    const [hasGenerated, setHasGenerated] = useState(false);
+    const [hasGenerated, setHasGenerated] = useState(false); 
 
     const handleGenerate = () => {
         if (!date) return alert("Please select a date");
@@ -156,6 +156,7 @@ const OperationalPlansGenerate = () => {
                 >
                     Generate
                 </Button>
+
             </Paper>
 
             {executionTime && (

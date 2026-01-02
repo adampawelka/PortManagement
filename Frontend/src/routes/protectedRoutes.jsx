@@ -46,6 +46,7 @@ import AddVVEPage from "../pages/VesselVisitExecutions/AddVVEPage.jsx";
 // Operational Plans
 import OperationalPlansGenerate from "../pages/OperationalPlans/GenerateOperationalPlans.jsx";
 import SearchOperationalPlans from "../pages/OperationalPlans/SearchOperationalPlans.jsx";
+import MissingOperationalPlans from "../pages/OperationalPlans/MissingOperationalPlans.jsx";
 
 // Incident 
 
@@ -53,6 +54,14 @@ import SearchOperationalPlans from "../pages/OperationalPlans/SearchOperationalP
 import IncidentTypesListPage from "../pages/IncidentTypes/IncidentTypesListPage.jsx";
 import AddIncidentTypePage from "../pages/IncidentTypes/AddIncidentTypePage.jsx";
 import EditIncidentTypePage from "../pages/IncidentTypes/EditIncidentTypePage.jsx";
+
+// Complementary Tasks
+
+
+// Complementary Task Categories
+import ComplementaryTaskCategoriesList from "../pages/ComplementaryTaskCategories/ComplementaryTaskCategoriesListPage.jsx"
+import AddComplementaryTaskCategory from "../pages/ComplementaryTaskCategories/AddComplementaryTaskCategoryPage.jsx"
+import EditComplementaryTaskCategory from "../pages/ComplementaryTaskCategories/EditComplementaryTaskCategoryPage.jsx"
 
 // Scheduling
 import OptimalSchedule from "../pages/Scheduling/OptimalSchedule.jsx";
@@ -73,7 +82,7 @@ import ThumbRaiserComponent from "../pages/Visualisation.jsx";
 // ---------------------------
 export const protectedRoutes = {
   home: [
-    { path: "/", element: <Home />, roles: ["Administrator", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"], index: true },
+    { path: "/", element: <Home />, roles: ["Administrator", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator", "OperationsSupervisor"], index: true },
     { path: "visualisation", element: <Visualisation />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
   ],
 
@@ -131,7 +140,8 @@ export const protectedRoutes = {
 
   operationalPlans: [
     { path: "/operational-plans/generate", element: <OperationalPlansGenerate />, roles: ["LogisticsOperator"] },
-    { path: "operational-plans/search", element: <SearchOperationalPlans />, roles: ["LogisticsOperator"] }
+    { path: "operational-plans/search", element: <SearchOperationalPlans />, roles: ["LogisticsOperator"] },
+    { path: "operational-plans/missing", element: <MissingOperationalPlans />, roles: ["LogisticsOperator"] }
   ],
 
   incidentTypes: [
@@ -139,6 +149,13 @@ export const protectedRoutes = {
     { path: "/incident-types/add", element: <AddIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
     { path: "/incident-types/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
     //{ path: "/incident-types/:id/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] }
+  ],
+
+  complementaryTaskCategories : [
+    { path: "/complementary-task-categories/list", element: <ComplementaryTaskCategoriesList />, roles: ["OperationsSupervisor"]},
+    { path: "/complementary-task-categories/add", element: <AddComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
+    { path: "/complementary-task-categories/edit", element: <EditComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
+
   ],
 
   scheduling: [

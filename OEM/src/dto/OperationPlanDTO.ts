@@ -42,3 +42,10 @@ export interface SearchOperationPlanDTO {
   sortBy?: 'startTime' | 'vesselName' | 'delay' | 'createdAt';
   sortOrder?: 'asc' | 'desc';
 }
+
+export interface MissingPlanDTO {
+  vvnId: string;
+  vesselName: string;
+  eta: string;
+  status: string;
+}

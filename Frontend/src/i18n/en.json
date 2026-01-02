@@ -65,9 +65,9 @@
   "add_vve": "Add New Vessel Visit Execution",
   "update_vve": "Update Vessel Visit Execution",
   "complementary_task_categories": "Complementary Task Categories",
-  "complementary_task_category_list": "Complementary Task Category List",
+  "complementary_task_categories_list": "Complementary Task Category List",
   "add_complementary_task_category": "Add Complementary Task Category",
-  "update_complementary_task_category": "Update Complementary Task Category",
+  "edit_complementary_task_category": "Update Complementary Task Category",
   "complementary_tasks": "Complementary Tasks",
   "complementary_tasks_list": "Complementary Task List",
   "log_complementary_task": "Log Complementary Task",
@@ -80,5 +80,6 @@
   "incident_types_list": "Incident Type List",
   "add_incident_type": "Add Incident Type",
   "edit_incident_type": "Edit Incident Type",
-  "edit": "Edit"
+  "edit": "Edit",
+  "operational_plans_missing": "Missing Plans from VVNs"
 }

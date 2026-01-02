@@ -37,7 +37,7 @@ export const useOperationalPlansVM = () => {
 
   const [date, setDate] = useState("");
   const [mode, setMode] = useState("single");
-  const [algorithm, setAlgorithm] = useState("");
+  const [algorithm, setAlgorithm] = useState("");  
 
   const normalizeName = (name) => name?.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "") || "";
 
