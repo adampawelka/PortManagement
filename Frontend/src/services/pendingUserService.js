@@ -13,7 +13,7 @@ export const deletePendingUser = async (id, apiFetch) => {
 };
 
 export const createPendingUser = async (user, role, apiFetch) => {
-  const response = await apiFetch("/api/PendingUsers", {
+  const response = await apiFetch("/api/Users/create", {
     method: "POST",
     body: JSON.stringify({
       name: user.name,
