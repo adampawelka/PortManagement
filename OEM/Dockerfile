@@ -1,56 +1,42 @@
-# Multi-stage build for optimized image size
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
+# 1. Install build tools
+RUN apk add --no-cache python3 make g++
 
-# Install ALL dependencies (including dev deps for building)
+# 2. Copy package files
+COPY package*.json ./
+
+# 3. Install dependencies
 RUN npm ci
 
-# Copy source code
+# 4. Copy source code
+COPY . ./
 COPY src/ ./src/
-COPY .env.example ./
+COPY tsconfig.json ./
 
-# Build TypeScript to JavaScript
-RUN npm run build
+# 5. Check what files exist
+RUN ls -la src/
 
-# Production stage
-FROM node:18-alpine AS runner
+# 6. Find the correct entry point
+RUN find src/ -name "*.ts" | head -5
 
-WORKDIR /app
+# 7. Build TypeScript
+RUN npx tsc --skipLibCheck
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+# 8. Check build output
+RUN ls -la build/
 
-# Environment variables
-ENV NODE_ENV=production
+# 9. Set environment
 ENV PORT=5161
+ENV NODE_ENV=production
+ENV MONGODB_URI=mongodb://oem_admin:PORTMANAGEMENT3DLE04@10.9.20.216:27017/portoemdb?authSource=admin
+ENV JWT_SECRET=LVAR2f6MoYTtL+GiitLI5Eos5y4ws7N3zXT6/1HwNvs=
+ENV CORS_ORIGINS=http://localhost:5173
 
-# Install production dependencies only
-COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
-
-# Copy built files from builder
-COPY --from=builder --chown=nodejs:nodejs /app/build ./build
-COPY --from=builder --chown=nodejs:nodejs /app/src ./src
-COPY --from=builder /app/.env.example ./.env.example
-COPY --chown=nodejs:nodejs tsconfig.json ./
-
-# Set proper permissions
-RUN chown -R nodejs:nodejs /app
-
-USER nodejs
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:5161/health', (r) => {if(r.statusCode===200)process.exit(0);process.exit(1)}).on('error',()=>process.exit(1))"
-
-# Expose port
+# 10. Expose port
 EXPOSE 5161
 
-# Start the application
-CMD ["node", "build/app.js"]
+# 11. Find and use correct entry point
+CMD ["sh", "-c", "if [ -f 'build/app.js' ]; then node build/app.js; elif [ -f 'build/src/app.js' ]; then node build/src/app.js; elif [ -f 'app.js' ]; then node app.js; else find . -name 'app.js' | head -1 | xargs node; fi"]

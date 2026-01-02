@@ -6,8 +6,8 @@ export class ExecutedOperationMap {
   static toPersistence(operation: ExecutedOperation): any {
     return {
       domainId: operation.id.toString(),
-      vesselVisitExecutionId: operation.vesselVisitExecutionId.id.toString(),
-      plannedOperationId: operation.plannedOperationId.id.toString(),
+      vesselVisitExecutionId: operation.vesselVisitExecutionId.valueOf.toString(),
+      plannedOperationId: operation.plannedOperationId.valueOf.toString(),
       resourceId: operation.resourceId.value,
       staffId: operation.staffId.value,
       actualStart: operation.actualStart.value,

@@ -1,434 +1,119 @@
-name: Deploy to DEINET Server
+name: Deploy OEM Module
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:  # Manual trigger
+    paths:
+      - 'OEM/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        module: [frontend, backend, scheduling, oem]
     
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
     
-    - name: Setup environment
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Build OEM module
+      working-directory: ./OEM
       run: |
-        echo "RELEASE_VERSION=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
-        echo "DEPLOY_PATH=/opt/port-management" >> $GITHUB_ENV
+        npm ci
+        npm run build
     
     - name: Create deployment package
       run: |
-        # Create deployment directory structure
         mkdir -p deployment
+        cp -r OEM/build deployment/
+        cp OEM/package*.json deployment/
+        cp OEM/Dockerfile deployment/
+        cp OEM/.env.example deployment/
         
-        # Copy relevant files for each module
-        case "${{ matrix.module }}" in
-          frontend)
-            if [ -d "Frontend" ]; then
-              mkdir -p deployment/frontend
-              cp -r Frontend/* deployment/frontend/
-              echo "Frontend module packaged"
-            else
-              echo "WARNING: Frontend directory not found, skipping"
-              exit 0  # Continue workflow but skip this module
-            fi
-            ;;
-          backend)
-            if [ -d "BackendAPI" ]; then
-              mkdir -p deployment/backend
-              cp -r BackendAPI/* deployment/backend/
-              echo "Backend module packaged"
-            else
-              echo "WARNING: BackendAPI directory not found, skipping"
-              exit 0
-            fi
-            ;;
-          scheduling)
-            if [ -d "Scheduling" ]; then
-              mkdir -p deployment/scheduling
-              cp -r Scheduling/* deployment/scheduling/
-              echo "Scheduling module packaged"
-            else
-              echo "WARNING: Scheduling directory not found, skipping"
-              exit 0
-            fi
-            ;;
-          oem)
-            if [ -d "OEM" ]; then
-              mkdir -p deployment/oem
-              cp -r OEM/* deployment/oem/
-              echo "OEM module packaged"
-            else
-              echo "WARNING: OEM directory not found, skipping"
-              exit 0
-            fi
-            ;;
-        esac
-        
-        # Create deployment manifest
-        echo "{
-          \"version\": \"${{ env.RELEASE_VERSION }}\",
-          \"module\": \"${{ matrix.module }}\",
-          \"timestamp\": \"$(date -Iseconds)\",
-          \"commit\": \"${{ github.sha }}\",
-          \"branch\": \"${{ github.ref_name }}\"
-        }" > deployment/deploy.json
-        
-        # Create deployment archive
-        tar -czf deployment-${{ matrix.module }}-${{ env.RELEASE_VERSION }}.tar.gz -C deployment .
-        
-        # List created files
-        ls -la *.tar.gz
-    
-    - name: Upload deployment artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: ${{ matrix.module }}-deployment
-        path: deployment-${{ matrix.module }}-${{ env.RELEASE_VERSION }}.tar.gz
-    
-    - name: Deploy via SSH over VPN
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        script: |
-          # Wait for VPN to be active (if needed)
-          sleep 10
-          
-          # Create deployment directory
-          DEPLOY_DIR="${{ env.DEPLOY_PATH }}/releases/${{ env.RELEASE_VERSION }}"
-          mkdir -p $DEPLOY_DIR
-          
-          # Extract deployment package
-          cd $DEPLOY_DIR
-          
-          # Create module directory
-          mkdir -p ${{ matrix.module }}
-          cd ${{ matrix.module }}
-          
-          # Extract the uploaded file (this would be done on the server)
-          echo "Preparing to deploy ${{ matrix.module }} module"
-          
-          # Check if module should be deployed
-          MODULE_PATH="${{ github.workspace }}/deployment-${{ matrix.module }}-${{ env.RELEASE_VERSION }}.tar.gz"
-          if [ -f "$MODULE_PATH" ]; then
-            echo "Deploying ${{ matrix.module }} module..."
-            
-            # Stop existing service
-            if systemctl is-active --quiet portmanagement-${{ matrix.module }}; then
-              sudo systemctl stop portmanagement-${{ matrix.module }}
-            fi
-            
-            # Backup current version
-            CURRENT_DIR="${{ env.DEPLOY_PATH }}/current/${{ matrix.module }}"
-            if [ -d "$CURRENT_DIR" ]; then
-              BACKUP_DIR="${{ env.DEPLOY_PATH }}/backups/${{ env.RELEASE_VERSION }}/${{ matrix.module }}"
-              mkdir -p $BACKUP_DIR
-              cp -r $CURRENT_DIR/* $BACKUP_DIR/ || true
-            fi
-            
-            # Deploy new version
-            mkdir -p $CURRENT_DIR
-            # In real scenario, you would copy the actual files here
-            # For GitHub Actions, we use the artifact upload/download approach
-            
-            echo "${{ matrix.module }} module prepared for deployment"
-            
-            # Keep track of successful deployment
-            echo "SUCCESS:${{ matrix.module }}" >> /tmp/deploy-status.txt
-          else
-            echo "Skipping ${{ matrix.module }} module (no files to deploy)"
-          fi
-
-  final-deploy:
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-    steps:
-    - name: Download all artifacts
-      uses: actions/download-artifact@v3
-      with:
-        path: artifacts
-    
-    - name: Setup SSH for final deployment
-      run: |
-        # Prepare all artifacts for deployment
-        mkdir -p final-deployment
-        
-        # Combine all module artifacts
-        for artifact in artifacts/*; do
-          if [ -d "$artifact" ]; then
-            tar -xzf "$artifact"/*.tar.gz -C final-deployment --strip-components=1 || true
-          fi
-        done
-        
-        # Create final deployment package
-        tar -czf final-deployment.tar.gz -C final-deployment .
-        
-        # Generate deployment script
-        cat > deploy.sh << 'EOF'
+        # Create deployment script
+        cat > deployment/deploy.sh << 'EOF'
         #!/bin/bash
         set -e
         
-        echo "=== Starting Deployment ==="
-        date
+        echo "=== Deploying OEM Module ==="
         
-        # Variables
-        DEPLOY_PATH="/opt/port-management"
-        RELEASE_VERSION="$1"
-        DEPLOYMENT_FILE="$2"
+        # Stop existing container
+        docker stop portmanagement-oem-op || true
+        docker rm portmanagement-oem-op || true
         
-        # Create release directory
-        RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
-        mkdir -p $RELEASE_DIR
+        # Build new image
+        cd /opt/port-management/oem
+        docker build -t portmanagement-oem:latest .
         
-        # Extract deployment
-        cd $RELEASE_DIR
-        tar -xzf "$DEPLOYMENT_FILE"
+        # Run container with environment variables
+        docker run -d \
+          --name portmanagement-oem-op \
+          --network portmanagement-network \
+          -p 5161:5161 \
+          -e NODE_ENV=production \
+          -e PORT=5161 \
+          -e MONGODB_URI="$MONGODB_URI" \
+          -e JWT_SECRET="$JWT_SECRET" \
+          -e CORS_ORIGINS="$CORS_ORIGINS" \
+          -e BACKEND_API_URL=http://backend:5000 \
+          -e SCHEDULING_API_URL=http://scheduling:5107 \
+          --restart unless-stopped \
+          portmanagement-oem:latest
         
-        # Deploy each module
-        deploy_module() {
-          local module=$1
-          local module_dir="$RELEASE_DIR/$module"
-          
-          if [ ! -d "$module_dir" ]; then
-            echo "Module $module not found, skipping..."
-            return 0
-          fi
-          
-          echo "Deploying $module..."
-          
-          # Stop service if running
-          if systemctl is-active --quiet "portmanagement-$module"; then
-            sudo systemctl stop "portmanagement-$module"
-            echo "Stopped $module service"
-          fi
-          
-          # Backup current
-          CURRENT_DIR="$DEPLOY_PATH/current/$module"
-          if [ -d "$CURRENT_DIR" ]; then
-            BACKUP_DIR="$DEPLOY_PATH/backups/$RELEASE_VERSION/$module"
-            mkdir -p $(dirname "$BACKUP_DIR")
-            cp -r "$CURRENT_DIR" "$BACKUP_DIR" || true
-            echo "Backed up $module to $BACKUP_DIR"
-          fi
-          
-          # Deploy new version
-          mkdir -p "$(dirname "$CURRENT_DIR")"
-          rm -rf "$CURRENT_DIR"
-          cp -r "$module_dir" "$CURRENT_DIR"
-          
-          echo "Deployed $module to $CURRENT_DIR"
-          return 0
-        }
-        
-        # Deploy modules
-        deploy_module "frontend"
-        deploy_module "backend" 
-        deploy_module "scheduling"
-        deploy_module "oem"
-        
-        # Set up services
-        setup_services() {
-          echo "Setting up services..."
-          
-          # Frontend service
-          cat > /etc/systemd/system/portmanagement-frontend.service << 'SERVICE_EOF'
-        [Unit]
-        Description=Port Management Frontend
-        After=network.target
-        
-        [Service]
-        Type=simple
-        User=portapp
-        WorkingDirectory=/opt/port-management/current/frontend
-        ExecStart=/usr/bin/docker-compose -f docker-compose.prod.yml up frontend
-        Restart=always
-        RestartSec=10
-        
-        [Install]
-        WantedBy=multi-user.target
-        SERVICE_EOF
-        
-          # Backend service  
-          cat > /etc/systemd/system/portmanagement-backend.service << 'SERVICE_EOF'
-        [Unit]
-        Description=Port Management Backend API
-        After=network.target postgresql.service
-        
-        [Service]
-        Type=simple
-        User=portapp
-        WorkingDirectory=/opt/port-management/current/backend
-        ExecStart=/usr/bin/docker-compose -f docker-compose.prod.yml up backend
-        Restart=always
-        RestartSec=10
-        
-        [Install]
-        WantedBy=multi-user.target
-        SERVICE_EOF
-        
-          # OEM service
-          cat > /etc/systemd/system/portmanagement-oem.service << 'SERVICE_EOF'
-        [Unit]
-        Description=Port Management OEM Module
-        After=network.target mongod.service
-        
-        [Service]
-        Type=simple
-        User=portapp
-        WorkingDirectory=/opt/port-management/current/oem
-        ExecStart=/usr/bin/docker-compose -f docker-compose.prod.yml up oem
-        Restart=always
-        RestartSec=10
-        
-        [Install]
-        WantedBy=multi-user.target
-        SERVICE_EOF
-        
-          # Reload systemd
-          systemctl daemon-reload
-        }
-        
-        # Start services
-        start_services() {
-          echo "Starting services..."
-          
-          for service in portmanagement-frontend portmanagement-backend portmanagement-scheduling portmanagement-oem; do
-            if systemctl is-enabled --quiet "$service" 2>/dev/null; then
-              sudo systemctl start "$service"
-              echo "Started $service"
-              sleep 5
-              
-              # Check status
-              if systemctl is-active --quiet "$service"; then
-                echo "$service is running"
-              else
-                echo "WARNING: $service failed to start"
-                systemctl status "$service" --no-pager || true
-              fi
-            fi
-          done
-        }
-        
-        # Run deployment steps
-        setup_services
-        start_services
-        
-        # Update symlink
-        ln -sfn "$RELEASE_DIR" "$DEPLOY_PATH/current"
-        
-        # Cleanup old releases (keep last 5)
-        cd "$DEPLOY_PATH/releases"
-        ls -t | tail -n +6 | xargs -I {} rm -rf {}
-        
-        echo "=== Deployment Completed ==="
-        date
+        echo "OEM module deployed successfully"
         EOF
         
-        chmod +x deploy.sh
+        chmod +x deployment/deploy.sh
+        
+        tar -czf oem-deployment.tar.gz deployment/
     
-    - name: Deploy final package
+    - name: Deploy to server
       uses: appleboy/ssh-action@v0.1.5
       with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
+        host: 10.9.20.216
+        username: root
+        password: ${{ secrets.SERVER_PASSWORD }}
         script: |
-          # Setup VPN connection
-          echo "Setting up VPN connection..."
+          # Set environment variables
+          export MONGODB_URI="mongodb://oem_admin:PORTMANAGEMENT3DLE04@10.9.20.216:27017/portoemdb?authSource=admin"
+          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+          export CORS_ORIGINS="${{ secrets.CORS_ORIGINS }}"
           
-          # Create VPN config
-          sudo mkdir -p /etc/openvpn
-          cat > /tmp/deinet.ovpn << 'VPN_EOF'
-          ${{ secrets.VPN_CONFIG }}
-          VPN_EOF
+          # Create deployment directory
+          mkdir -p /opt/port-management/oem
           
-          # Connect to VPN (if not already connected)
-          if ! pgrep -x openvpn > /dev/null; then
-            sudo openvpn --config /tmp/deinet.ovpn --auth-user-pass <(echo -e "${{ secrets.VPN_USER }}\n${{ secrets.VPN_PASSWORD }}") --daemon
-            sleep 10
-          fi
-          
-          # Wait for VPN
-          echo "Waiting for VPN connection..."
-          for i in {1..30}; do
-            if ping -c 1 -W 1 ${{ secrets.DEPLOY_HOST_INTERNAL }} &> /dev/null; then
-              echo "VPN connection established"
-              break
-            fi
-            sleep 2
-          done
-          
-          # Create directory structure
-          sudo mkdir -p /opt/port-management/{releases,backups,current,logs}
-          sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} /opt/port-management
-          
-          # Prepare for file transfer
+          # Extract and deploy
           cd /tmp
-
-  transfer-and-execute:
-    needs: final-deploy
-    runs-on: ubuntu-latest
-    steps:
-    - name: Transfer files and execute deployment
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        source: "deploy.sh,final-deployment.tar.gz"
-        target: "/tmp"
-    
-    - name: Execute deployment script
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        script: |
-          set -e
+          # The deployment package would be transferred here
+          # For now, we'll create it from existing code
           
-          RELEASE_VERSION=$(date +'%Y%m%d-%H%M%S')
+          cd /opt/port-management/oem
           
-          # Make deployment script executable
-          chmod +x /tmp/deploy.sh
+          # Stop and remove old container
+          docker stop portmanagement-oem-op 2>/dev/null || true
+          docker rm portmanagement-oem-op 2>/dev/null || true
           
-          # Execute deployment
-          /tmp/deploy.sh "$RELEASE_VERSION" "/tmp/final-deployment.tar.gz"
+          # Build new image
+          docker build -t portmanagement-oem:latest .
           
-          # Verify deployment
-          echo "=== Deployment Verification ==="
+          # Run new container
+          docker run -d \
+            --name portmanagement-oem-op \
+            -p 5161:5161 \
+            -e NODE_ENV=production \
+            -e PORT=5161 \
+            -e MONGODB_URI="$MONGODB_URI" \
+            -e JWT_SECRET="$JWT_SECRET" \
+            -e CORS_ORIGINS="$CORS_ORIGINS" \
+            -e BACKEND_API_URL=http://10.9.20.216:5000 \
+            -e SCHEDULING_API_URL=http://10.9.20.216:5107 \
+            --restart unless-stopped \
+            portmanagement-oem:latest
           
-          # Check services
-          for service in portmanagement-frontend portmanagement-backend portmanagement-scheduling portmanagement-oem; do
-            if systemctl is-enabled --quiet "$service" 2>/dev/null; then
-              if systemctl is-active --quiet "$service"; then
-                echo "✓ $service is running"
-              else
-                echo "✗ $service is not running"
-                exit 1
-              fi
-            fi
-          done
-          
-          # Check web accessibility
-          echo "Testing frontend accessibility..."
-          if curl -s -f http://localhost:5173/ > /dev/null; then
-            echo "✓ Frontend is accessible"
-          else
-            echo "✗ Frontend is not accessible"
-          fi
-          
-          echo "=== Deployment Successful ==="
+          echo "OEM module deployed!"
+          echo "Access at: http://10.9.20.216:5161"
