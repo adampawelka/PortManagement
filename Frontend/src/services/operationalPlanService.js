@@ -1,5 +1,5 @@
 export const getOperationalPlans = async (apiOemFetch) => {
-  const res = await apiOemFetch("/api/OperationalPlans");
+  const res = await apiOemFetch("/api/operationPlans");
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to fetch operational plans");
@@ -8,7 +8,7 @@ export const getOperationalPlans = async (apiOemFetch) => {
 };
 
 export const addOperationalPlan = async (apiOemFetch, OperationalPlanDto) => {
-  const res = await apiOemFetch("/api/OperationalPlans", {
+  const res = await apiOemFetch("/api/operationPlans", {
     method: "POST",
     body: JSON.stringify(OperationalPlanDto),
   });
@@ -19,14 +19,31 @@ export const addOperationalPlan = async (apiOemFetch, OperationalPlanDto) => {
   return res.json();
 };
 
-export const searchOperationalPlans = async (apiOemFetch, { dateStart, dateEnd, vesselId } = {}) => {
+export const searchOperationalPlans = async (apiOemFetch, { 
+  dateStart, 
+  dateEnd,
+  operationDateStart,
+  operationDateEnd,
+  vesselName,
+  vvnId,
+  sortBy,
+  sortOrder 
+} = {}) => {
   const params = new URLSearchParams();
   if (dateStart) params.append('dateStart', dateStart);
   if (dateEnd) params.append('dateEnd', dateEnd);
-  if (vesselId) params.append('vesselId', vesselId);
+  if (operationDateStart) params.append('operationDateStart', operationDateStart);
+  if (operationDateEnd) params.append('operationDateEnd', operationDateEnd);
+  if (vesselName) params.append('vesselName', vesselName);
+  if (vvnId) params.append('vvnId', vvnId);
+  if (sortBy) params.append('sortBy', sortBy);
+  if (sortOrder) params.append('sortOrder', sortOrder);
 
-  const res = await apiOemFetch(`/api/OperationalPlans/search?${params.toString()}`);
-  if (!res.ok) throw new Error('Failed to search operational plans');
+  const res = await apiOemFetch(`/api/operationPlans/search?${params.toString()}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Failed to search operational plans');
+  }
   return res.json();
 };
 
