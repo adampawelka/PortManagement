@@ -3,8 +3,7 @@ import { Container, TextField, Button, Typography, CircularProgress, Alert, Sele
 import { useAddVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useAddVesselVisitNotificationVM';
 
 const AddVVNPage = () => {
-  const { formData, vessels, representatives, loading, submitting, message, handleChange, handleSubmit } = useAddVesselVisitNotificationVM();
-
+    const { formData, vessels, loading, submitting, message, handleChange, handleSubmit } = useAddVesselVisitNotificationVM();
   if (loading) return <Container sx={{ mt: 4 }}><CircularProgress /> Loading vessels...</Container>;
 
   return (
@@ -46,30 +45,27 @@ const AddVVNPage = () => {
           Agent & Vessel Details:
         </Typography>
 
-       <FormControl fullWidth margin="normal" required disabled={submitting} sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}>
-          <InputLabel id="representative-select-label">Agent Representative</InputLabel>
-          <Select
-            labelId="representative-select-label"
-            name="submittedById"
-            value={formData.submittedById}
-            label="Agent Representative"
-            onChange={handleChange}
-            sx={{
-              '& .MuiInputBase-input': {
-                color: 'var(--color-text-dark)', 
-              },
-              '& .MuiOutlinedInput-root': {
-                borderColor: 'var(--color-border)', 
-              },
-            }}
-          >
-            {representatives.map((rep) => (
-              <MenuItem key={rep.id} value={rep.id}>
-                {rep.name} - {rep.email}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+       <TextField
+          label="Submitted By (Agent Representative ID)"
+          name="submittedById"
+          value={formData.submittedById}
+          onChange={handleChange}
+          required
+          fullWidth
+          margin="normal"
+          helperText="Enter the Agent Representative's GUID/ID manually (99d3d3a0-fdc2-47b2-8ee5-32aecc525efe)."
+          sx={{
+            '& .MuiInputLabel-root': {
+              color: 'var(--color-text-dark)',
+            },
+            '& .MuiOutlinedInput-root': {
+              borderColor: 'var(--color-border)', 
+            },
+            '& .MuiInputBase-input': {
+              color: 'var(--color-text-dark)', 
+            },
+          }}
+        />
 
         <FormControl fullWidth margin="normal" required disabled={submitting} sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}>
           <InputLabel id="vessel-select-label">Vessel IMO/ID</InputLabel>
