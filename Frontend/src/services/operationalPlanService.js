@@ -46,6 +46,15 @@ export const searchOperationalPlans = async (apiOemFetch, { dateStart, dateEnd, 
   return res.json();
 };
 
+export const getMissingPlans = async (apiOemFetch, date) => {
+  const res = await apiOemFetch(`/api/OperationalPlans/missing?date=${date}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to fetch missing plans");
+  }
+  return res.json();
+};
+
 
 
 // MOCK DATA GENERATOR

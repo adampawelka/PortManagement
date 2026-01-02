@@ -99,4 +99,21 @@ export default class OperationPlanController {
       return res.status(200).json(plans);
     } catch (e) { return next(e); }
   }
+  
+  public async getMissingPlans(req: Request, res: Response, next: NextFunction) {
+    try {
+      // Esperamos la fecha como query param: /missing?date=2025-12-23
+      const date = req.query.date as string;
+      
+      if (!date) {
+        return res.status(400).send("Date query parameter is required");
+      }
+
+      const result = await this.operationPlanServiceInstance.getMissingPlans(date);
+      return res.status(200).json(result);
+    } catch (e) {
+      return next(e);
+    }
+  }
+
 }

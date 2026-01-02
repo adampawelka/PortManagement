@@ -5,8 +5,11 @@ import {
   CreateOperationPlanDTO,
   UpdateOperationPlanDTO,
   ScheduledOperationDTO,
-  SearchOperationPlanDTO
+  SearchOperationPlanDTO,
+  MissingPlanDTO
 } from "../dto/OperationPlanDTO";
+
+import axios from 'axios';
 
 import { OperationPlan } from "../Domain/OperationPlans/OperationPlan";
 import { OperationPlanId } from "../Domain/OperationPlans/OperationPlanId";
@@ -149,6 +152,46 @@ export class OperationPlanService implements IOperationPlanService {
     }
 
     return results;
+  }
+
+  async getMissingPlans(date: string): Promise<MissingPlanDTO[]> {
+    try {
+      // 1. Obtener todas las VVNs del sistema externo (Port Authority)
+      // Ajusta la URL al puerto correcto de tu backend de .NET (generalmente 5000 o 5001)
+      const response = await axios.get('http://localhost:5000/api/VesselVisitNotifications');
+      const allVvns = response.data;
+
+      // 2. Filtrar VVNs: 
+      //    - Que estén 'Approved'
+      //    - Que sean para la fecha solicitada (comparamos la parte de la fecha YYYY-MM-DD)
+      const targetDate = new Date(date).toISOString().split('T')[0];
+      
+      const approvedVvnsForDate = allVvns.filter((vvn: any) => {
+        const vvnDate = vvn.eta ? new Date(vvn.eta).toISOString().split('T')[0] : null;
+        return vvn.status === 'Approved' && vvnDate === targetDate;
+      });
+
+      // 3. Obtener todos los planes que TÚ tienes en tu BD
+      const existingPlans = await this.operationPlanRepo.findAll();
+
+      // 4. Extraer los IDs de VVNs que ya tienen plan
+      const plannedVvnIds = existingPlans.map(p => p.vvnId.toString());
+
+      // 5. Encontrar los "Missing": VVNs aprobadas que NO están en tus planes
+      const missingVvns = approvedVvnsForDate.filter((vvn: any) => !plannedVvnIds.includes(vvn.id));
+
+      // 6. Mapear a DTO
+      return missingVvns.map((vvn: any) => ({
+        vvnId: vvn.id,
+        vesselName: vvn.vesselName,
+        eta: vvn.eta,
+        status: vvn.status
+      }));
+
+    } catch (error) {
+      console.error("Error in getMissingPlans:", error);
+      throw new Error("Failed to fetch missing plans from Port Authority.");
+    }
   }
 
   private toDTO(plan: OperationPlan): OperationPlanDTO {

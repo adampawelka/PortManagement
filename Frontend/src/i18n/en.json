@@ -80,5 +80,6 @@
   "incident_types_list": "Incident Type List",
   "add_incident_type": "Add Incident Type",
   "edit_incident_type": "Edit Incident Type",
-  "edit": "Edit"
+  "edit": "Edit",
+  "operational_plans_missing": "Missing Plans from VVNs"
 }

@@ -186,6 +186,12 @@ export const sidebarMenuItems = [
           path: "/operational-plans/generate",
           roles: ["LogisticsOperator"],
         },
+        {
+          name: "Missing Plans from VVNs",
+          key: "operational_plans_missing",
+          path: "/operational-plans/missing",
+          roles: ["LogisticsOperator"],
+        },
       ]
   },
   {
