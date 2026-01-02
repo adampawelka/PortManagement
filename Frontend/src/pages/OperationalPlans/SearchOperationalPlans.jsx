@@ -119,7 +119,7 @@ const OperationalPlanSearch = () => {
                     <TextField
                         type="date"
                         size="small"
-                        label="Start Date"
+                        label="Operation Start Date"
                         InputLabelProps={{ shrink: true }}
                         value={dateStart}
                         onChange={(e) => setDateStart(e.target.value)}
@@ -135,7 +135,7 @@ const OperationalPlanSearch = () => {
                     <TextField
                         type="date"
                         size="small"
-                        label="End Date"
+                        label="Operation End Date"
                         InputLabelProps={{ shrink: true }}
                         value={dateEnd}
                         onChange={(e) => setDateEnd(e.target.value)}

@@ -1,10 +1,11 @@
+import { useApiOEM } from "../../services/api";
+import { searchOperationalPlans } from "../../services/operationalPlanService";
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { generateMockOperationalPlans } from "../../services/operationalPlanService";
 import { useApi } from "../../services/api";
-import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 import { getVessels } from "../../services/vesselService";
 
 export const useOperationalPlanSearchVM = () => {
+  const { apiOemFetch } = useApiOEM();
   const { apiFetch } = useApi();
 
   const [plans, setPlans] = useState([]);
@@ -28,35 +29,63 @@ export const useOperationalPlanSearchVM = () => {
     fetchAll();
   }, [apiFetch]);
 
-  // Map vvnId → vesselName
-  const mapIdToVVNName = useCallback(async (plans) => {
-    try {
-      const vvnData = await getVesselVisitNotifications(apiFetch);
-      const vvnMap = Object.fromEntries(vvnData.map(vvn => [vvn.vvnId, vvn.vesselName]));
-      return plans.map(plan => ({
-        ...plan,
-        vesselName: vvnMap[plan.vvnId] || "Unknown Vessel"
+  // Transform API response to match UI structure
+  const transformApiResponse = useCallback((apiPlans) => {
+    if (!Array.isArray(apiPlans)) return [];
+    
+    return apiPlans.map(plan => {
+      // Get vesselName from first schedule item (API provides it there)
+      const vesselName = plan.schedule && plan.schedule.length > 0 
+        ? plan.schedule[0].vesselName 
+        : "Unknown Vessel";
+      
+      // Transform schedule array to operations array
+      const operations = (plan.schedule || []).map(op => ({
+        start: op.start, // Already ISO string from API
+        end: op.end,     // Already ISO string from API
+        expectedDelay: op.delay || 0, // Map 'delay' to 'expectedDelay'
+        dock: op.dock || "N/A",
+        crane: (op.cranes && op.cranes.length > 0) ? op.cranes[0] : "N/A", // UI shows single crane
+        staff: op.staff || []
       }));
-    } catch (err) {
-      console.error("Failed to map VVN names", err);
-      return plans;
-    }
-  }, [apiFetch]);
+      
+      return {
+        id: plan.id,
+        vvnId: plan.vvnId,
+        vesselName: vesselName,
+        createdAt: plan.createdAt,
+        createdBy: plan.createdBy,
+        algorithmUsed: plan.algorithmUsed,
+        operations: operations
+      };
+    });
+  }, []);
 
   const search = useCallback(async ({ dateStart, dateEnd } = {}) => {
     setLoading(true);
     setError(null);
     setPlans([]);
     try {
-      const data = generateMockOperationalPlans(8);
-      const mapped = await mapIdToVVNName(data);
-      setPlans(Array.isArray(mapped) ? mapped : []);
+      // Convert dates to ISO format if they're in YYYY-MM-DD format
+      const isoDateStart = dateStart ? new Date(dateStart + 'T00:00:00').toISOString() : undefined;
+      const isoDateEnd = dateEnd ? new Date(dateEnd + 'T23:59:59').toISOString() : undefined;
+      
+      // Call the real API - use operationDateStart/operationDateEnd to filter by vessel visit dates
+      // (when operations are scheduled), not creation dates
+      const apiData = await searchOperationalPlans(apiOemFetch, { 
+        operationDateStart: isoDateStart, 
+        operationDateEnd: isoDateEnd 
+      });
+      
+      // Transform API response to UI format
+      const transformedPlans = transformApiResponse(apiData);
+      setPlans(transformedPlans);
     } catch (err) {
       setError(err.message || "Failed to search operational plans");
     } finally {
       setLoading(false);
     }
-  }, [mapIdToVVNName]);
+  }, [apiOemFetch, transformApiResponse]);
 
   // Filter by vesselName only
   const filteredPlans = useMemo(() => {
