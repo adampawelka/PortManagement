@@ -41,6 +41,13 @@ export const menuItems = [
         path: "/vvn/add",
         roles: ["PortAuthorityOfficer", "LogisticsOperator"],
       },
+      {
+        name: "Missing Plan VVNs",
+        key: "missing_plans_vvns",
+        path: "/vvn/missing",
+        roles: ["PortAuthorityOfficer", "LogisticsOperator"],
+      },
+
     ],
   },
   {

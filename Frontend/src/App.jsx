@@ -24,6 +24,7 @@ import ApproveVVNPage from "./pages/VesselVisitNotifications/ApproveVVNPage.jsx"
 import ListNotificationsPage from "./pages/VesselVisitNotifications/ListNotificationsPage.jsx";
 import AddVNNPage from "./pages/VesselVisitNotifications/AddVVNPage.jsx";
 import SubmitVVNPage from "./pages/VesselVisitNotifications/SubmitVVNPage.jsx";
+import MissingPlansPage from "./pages/OperationPlans/MissingPlansPage.jsx";
 
 import AvailableResourcesPage from "./pages/Resources/AvailableResourcesList.jsx";
 import AddResourcePage from "./pages/Resources/AddResourcesPage.jsx";
@@ -396,8 +397,15 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/vvn/missing"
+          element={
+            <ProtectedRoute requiredRoles={["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"]}>
+              <MissingPlansPage />
+            </ProtectedRoute>
+          }
+        />
         
-
         <Route
           path="/alternative-schedule"
           element={

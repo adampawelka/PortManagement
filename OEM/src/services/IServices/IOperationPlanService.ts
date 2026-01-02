@@ -1,7 +1,8 @@
 import {
   OperationPlanDTO,
   CreateOperationPlanDTO,
-  UpdateOperationPlanDTO
+  UpdateOperationPlanDTO,
+  MissingPlanVvnDTO
 } from "../../dto/OperationPlanDTO";
 
 export interface IOperationPlanService {
@@ -23,4 +24,6 @@ export interface IOperationPlanService {
     id: string,
     dto: UpdateOperationPlanDTO
   ): Promise<OperationPlanDTO | null>;
+
+  getMissingPlans(): Promise<MissingPlanVvnDTO[]>;
 }

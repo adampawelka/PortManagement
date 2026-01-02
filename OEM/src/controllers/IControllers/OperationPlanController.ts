@@ -7,7 +7,6 @@ import { CreateOperationPlanDTO, UpdateOperationPlanDTO } from "../../dto/Operat
 @Service()
 export default class OperationPlanController {
   constructor(
-      // Inyectamos el servicio usando la etiqueta definida en vuestro sistema de carga (loaders)
       @Inject(config.services.operationPlan.name) private operationPlanServiceInstance : IOperationPlanService
   ) {}
 
@@ -61,6 +60,16 @@ export default class OperationPlanController {
     try {
       const plansDTO = await this.operationPlanServiceInstance.getAll();
       return res.status(200).json(plansDTO);
+    } catch (e) {
+      return next(e);
+    }
+  };
+
+  // GET: /operationPlans/missing
+  public async getMissingPlans(req: Request, res: Response, next: NextFunction) {
+    try {
+      const missingPlansDTO = await this.operationPlanServiceInstance.getMissingPlans();
+      return res.status(200).json(missingPlansDTO);
     } catch (e) {
       return next(e);
     }

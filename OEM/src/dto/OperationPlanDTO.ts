@@ -18,3 +18,12 @@ export interface UpdateOperationPlanDTO {
   createdBy?: string;
   algorithmUsed?: string;
 }
+
+export interface MissingPlanVvnDTO {
+  vvnId: string;
+  vesselName: string;
+  imo: string;
+  eta: string;
+  status: string;
+}
+

@@ -1,10 +1,16 @@
+import { Service, Inject } from 'typedi';
+import config from "../../config";
+import axios from 'axios';
+
 import { IOperationPlanService } from "./IServices/IOperationPlanService";
 import { IOperationPlanRepo } from "./IRepos/IOperationPlanRepo";
+import { IVesselVisitExecutionRepo } from "./IRepos/IVesselVisitExecutionRepo";
 
 import {
   OperationPlanDTO,
   CreateOperationPlanDTO,
-  UpdateOperationPlanDTO
+  UpdateOperationPlanDTO,
+  MissingPlanVvnDTO
 } from "../dto/OperationPlanDTO";
 
 import { OperationPlan } from "../Domain/OperationPlans/OperationPlan";
@@ -16,11 +22,12 @@ import { CreatedAt } from "../Domain/OperationPlans/CreatedAt";
 import { CreatedBy } from "../Domain/OperationPlans/CreatedBy";
 import { AlgorithmUsed } from "../Domain/OperationPlans/AlgorithmUsed";
 
-export class OperationPlanService
-  implements IOperationPlanService {
+@Service()
+export class OperationPlanService implements IOperationPlanService {
 
   constructor(
-    private readonly operationPlanRepo: IOperationPlanRepo
+    @Inject(config.repos.operationPlan.name) private readonly operationPlanRepo: IOperationPlanRepo,
+    @Inject(config.repos.vesselVisitExecution.name) private readonly vveRepo: IVesselVisitExecutionRepo
   ) {}
 
   async create(
@@ -62,7 +69,6 @@ export class OperationPlanService
     return this.toDTO(plan);
   }
 
- 
   async getByvesselVisitExecutionId(
     vesselVisitExecutionId: string
   ): Promise<OperationPlanDTO | null> {
@@ -111,6 +117,48 @@ export class OperationPlanService
 
     await this.operationPlanRepo.save(plan);
     return this.toDTO(plan);
+  }
+
+  // --- IMPLEMENTACIÓN DE TAREA 4.1.5 ---
+  public async getMissingPlans(): Promise<MissingPlanVvnDTO[]> {
+    try {
+      // 1. Fetch de VVNs externas (Port Authority)
+      // Ajusta la URL según tu entorno real
+      const response = await axios.get('http://localhost:5000/api/VesselVisitNotifications');
+      const allVvns = response.data;
+
+      // 2. Filtrar aprobadas
+      const approvedVvns = allVvns.filter((vvn: any) => vvn.status === 'Approved' || vvn.status === 1);
+
+      // 3. Obtener planes locales
+      const existingPlans = await this.operationPlanRepo.findAll();
+
+      // 4. Obtener IDs de Ejecuciones que tienen plan
+      const executionIdsWithPlan = existingPlans.map(plan => plan.vesselVisitExecutionId.toString());
+
+      // 5. Obtener todas las VVE locales para traducir ExecutionID -> VvnID
+      const allLocalVVEs = await this.vveRepo.findAll();
+      
+      const vvnIdsWithPlans = allLocalVVEs
+        .filter(vve => executionIdsWithPlan.includes(vve.id.toString()))
+        .map(vve => vve.vvnId.toString());
+
+      // 6. Filtrar las VVNs externas que NO están en la lista de planificadas
+      const missingPlans = approvedVvns.filter((vvn: any) => !vvnIdsWithPlans.includes(vvn.id));
+
+      // 7. Mapear a DTO
+      return missingPlans.map((vvn: any) => ({
+        vvnId: vvn.id,
+        vesselName: vvn.vesselName, 
+        imo: vvn.imo,
+        eta: vvn.eta,
+        status: vvn.status
+      })) as MissingPlanVvnDTO[];
+
+    } catch (error) {
+      console.error("Error fetching missing plans:", error);
+      throw new Error("Error fetching missing plans from Port Authority or processing data.");
+    }
   }
 
   private toDTO(

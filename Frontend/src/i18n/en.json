@@ -44,5 +44,6 @@
   "test_algorithms": "Test Algorithms",
   "user_management": "User Management",
   "users": "Users",
-  "pending_users": "Pending Users"
+  "pending_users": "Pending Users",
+  "missing_plans_vvns": "Missing Plan VVNs"
 }
