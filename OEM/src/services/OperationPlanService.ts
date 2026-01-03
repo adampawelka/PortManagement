@@ -107,10 +107,67 @@ export class OperationPlanService implements IOperationPlanService {
     const plan = await this.operationPlanRepo.findById(OperationPlanId.create(new UniqueEntityID(id)));
     if (!plan) return null;
 
+    // Validate schedule if provided
+    if (dto.schedule) {
+      if (!Array.isArray(dto.schedule) || dto.schedule.length === 0) {
+        throw new Error("Schedule must be a non-empty array of operations");
+      }
+
+      // Validate each operation in schedule
+      for (let i = 0; i < dto.schedule.length; i++) {
+        const op = dto.schedule[i];
+        
+        // Validate required fields
+        if (!op.vesselName || op.vesselName.trim() === "") {
+          throw new Error(`Operation ${i + 1}: vesselName is required`);
+        }
+        if (!op.start) {
+          throw new Error(`Operation ${i + 1}: start time is required`);
+        }
+        if (!op.end) {
+          throw new Error(`Operation ${i + 1}: end time is required`);
+        }
+        if (op.delay === undefined || op.delay === null) {
+          throw new Error(`Operation ${i + 1}: delay is required`);
+        }
+        if (!op.dock || op.dock.trim() === "") {
+          throw new Error(`Operation ${i + 1}: dock is required`);
+        }
+
+        // Validate dates
+        const startDate = new Date(op.start);
+        const endDate = new Date(op.end);
+        
+        if (isNaN(startDate.getTime())) {
+          throw new Error(`Operation ${i + 1}: start time must be a valid date`);
+        }
+        if (isNaN(endDate.getTime())) {
+          throw new Error(`Operation ${i + 1}: end time must be a valid date`);
+        }
+        if (startDate >= endDate) {
+          throw new Error(`Operation ${i + 1}: start time must be before end time`);
+        }
+
+        // Validate delay
+        if (op.delay < 0) {
+          throw new Error(`Operation ${i + 1}: delay cannot be negative`);
+        }
+
+        // Validate arrays
+        if (op.cranes && !Array.isArray(op.cranes)) {
+          throw new Error(`Operation ${i + 1}: cranes must be an array`);
+        }
+        if (op.staff && !Array.isArray(op.staff)) {
+          throw new Error(`Operation ${i + 1}: staff must be an array`);
+        }
+      }
+
+      plan.props.schedule = this.mapScheduleDTOtoVO(dto.schedule);
+    }
+
     if (dto.createdAt) plan.props.createdAt = CreatedAt.create(dto.createdAt).getValue();
     if (dto.createdBy) plan.props.createdBy = CreatedBy.create(dto.createdBy).getValue();
     if (dto.algorithmUsed) plan.props.algorithmUsed = AlgorithmUsed.create(dto.algorithmUsed).getValue();
-    if (dto.schedule) plan.props.schedule = this.mapScheduleDTOtoVO(dto.schedule);
 
     await this.operationPlanRepo.save(plan);
     return this.toDTO(plan);
