@@ -61,6 +61,9 @@ import EditIncidentTypePage from "../pages/IncidentTypes/EditIncidentTypePage.js
 
 // Complementary Tasks
 
+import AddComplementaryTaskPage from "../pages/ComplementaryTasks/AddComplementaryTaskPage.jsx";
+import ListComplementaryTasksPage from "../pages/ComplementaryTasks/ListComplementaryTasksPage.jsx";
+import UpdateComplementaryTaskPage from "../pages/ComplementaryTasks/UpdateComplementaryTaskPage.jsx";
 
 // Complementary Task Categories
 import ComplementaryTaskCategoriesList from "../pages/ComplementaryTaskCategories/ComplementaryTaskCategoriesListPage.jsx"
@@ -178,6 +181,14 @@ export const protectedRoutes = {
     { path: "/complementary-task-categories/add", element: <AddComplementaryTaskCategory />, roles: ["OperationsSupervisor"] },
     { path: "/complementary-task-categories/edit", element: <EditComplementaryTaskCategory />, roles: ["OperationsSupervisor"] },
 
+  ],
+
+  complementaryTasks: [
+    { path: "/complementary-tasks/list", element: <ListComplementaryTasksPage />, roles: ["LogisticsOperator"] },
+    { path: "/complementary-tasks/log", element: <AddComplementaryTaskPage />, roles: ["LogisticsOperator"] },
+    { path: "/complementary-tasks/update", element: <UpdateComplementaryTaskPage />, roles: ["LogisticsOperator"] },
+    // Route with task id so we can open the editor directly from the list
+    { path: "/complementary-tasks/update/:id", element: <UpdateComplementaryTaskPage />, roles: ["LogisticsOperator"] },
   ],
 
   scheduling: [

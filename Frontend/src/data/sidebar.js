@@ -139,12 +139,7 @@ export const sidebarMenuItems = [
         path: "/complementary-tasks/log",
         roles: ["LogisticsOperator"],
       },
-      {
-        name: "Update Complementary Task",
-        key: "update_complementary_task",
-        path: "/complementary-tasks/update",
-        roles: ["LogisticsOperator"],
-      }
+      
     ],
   },
   {
