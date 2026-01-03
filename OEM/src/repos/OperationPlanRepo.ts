@@ -17,7 +17,8 @@ export class OperationPlanRepo implements IOperationPlanRepo {
   }
 
   async findById(id: OperationPlanId): Promise<OperationPlan | null> {
-    const doc = await OperationPlanSchema.findOne({ domainId: id.toString() });
+    const idString = id.id.toString();
+    const doc = await OperationPlanSchema.findOne({ domainId: idString });
     if (!doc) return null;
     return OperationPlanMap.toDomain(doc);
   }
