@@ -3,13 +3,14 @@ import { Inject, Service } from 'typedi';
 import config from "../../../config";
 import { IOperationPlanService } from "../../services/IServices/IOperationPlanService";
 import { CreateOperationPlanDTO, UpdateOperationPlanDTO, SearchOperationPlanDTO } from "../../dto/OperationPlanDTO";
+import { ResourceAllocationDTO } from "../../dto/OperationPlanDTO";
 
 @Service()
 export default class OperationPlanController {
   constructor(
-      @Inject(config.services.operationPlan.name) 
-      private operationPlanServiceInstance: IOperationPlanService
-  ) {}
+    @Inject(config.services.operationPlan.name)
+    private operationPlanServiceInstance: IOperationPlanService
+  ) { }
 
   public async createOperationPlan(req: Request, res: Response, next: NextFunction) {
     try {
@@ -21,10 +22,10 @@ export default class OperationPlanController {
   public async saveOperationPlans(req: Request, res: Response, next: NextFunction) {
     try {
       const { plans, metadata } = req.body;
-      
+
       if (!Array.isArray(plans) || plans.length === 0) {
         return res.status(400).json({ message: "Plans array is required and cannot be empty" });
-      }  
+      }
 
       const savedPlans = [];
       for (const planDto of plans) {
@@ -34,18 +35,18 @@ export default class OperationPlanController {
           createdBy: planDto.createdBy || metadata?.createdBy || "system",
           createdAt: planDto.createdAt || new Date()
         };
-        
+
         const plan = await this.operationPlanServiceInstance.create(enhancedDto);
         savedPlans.push(plan);
       }
-      
+
       return res.status(201).json({
         message: `Successfully saved ${savedPlans.length} operation plans`,
         count: savedPlans.length,
         plans: savedPlans
       });
-    } catch (e) { 
-      return next(e); 
+    } catch (e) {
+      return next(e);
     }
   }
 
@@ -80,6 +81,28 @@ export default class OperationPlanController {
     } catch (e) { return next(e); }
   }
 
+  public async getResourceAllocation(req: Request, res: Response, next: NextFunction) { //4.1.6
+    try {
+      const { resourceType, resourceId, from, to } = req.query;
+
+      if (!resourceType || !resourceId || !from || !to) {
+        return res.status(400).json({ message: "Missing query parameters" });
+      }
+
+      const result =
+        await this.operationPlanServiceInstance.getResourceAllocation(
+          resourceType as any,
+          resourceId as string,
+          new Date(from as string),
+          new Date(to as string)
+        );
+
+      return res.status(200).json(result);
+    } catch (e) {
+      return next(e);
+    }
+  }
+
   public async search(req: Request, res: Response, next: NextFunction) {
     try {
       const parseDate = (value?: string | string[]) => value ? new Date(value.toString()) : undefined;
@@ -99,12 +122,12 @@ export default class OperationPlanController {
       return res.status(200).json(plans);
     } catch (e) { return next(e); }
   }
-  
+
   public async getMissingPlans(req: Request, res: Response, next: NextFunction) {
     try {
       // Esperamos la fecha como query param: /missing?date=2025-12-23
       const date = req.query.date as string;
-      
+
       if (!date) {
         return res.status(400).send("Date query parameter is required");
       }

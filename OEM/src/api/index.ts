@@ -18,35 +18,37 @@ export default (): Router => {
 
   // Register routes
   // Complementary Task Categories
-  router.post('/complementaryTaskCategories', (req, res, next) => 
+  router.post('/complementaryTaskCategories', (req, res, next) =>
     complementaryTaskCategoryController.createCategory(req, res, next));
-  router.get('/complementaryTaskCategories', (req, res, next) => 
+  router.get('/complementaryTaskCategories', (req, res, next) =>
     complementaryTaskCategoryController.getAll(req, res, next));
-  router.get('/complementaryTaskCategories/:id', (req, res, next) => 
+  router.get('/complementaryTaskCategories/:id', (req, res, next) =>
     complementaryTaskCategoryController.getCategory(req, res, next));
 
   // Operation Plans
-  router.post('/operationPlans', (req, res, next) => 
+  router.post('/operationPlans', (req, res, next) =>
     (operationPlanController as any).createOperationPlan(req, res, next));
-  router.get('/operationPlans', (req, res, next) => 
+  router.get('/operationPlans', (req, res, next) =>
     (operationPlanController as any).getAll(req, res, next));
-  router.get('/operationPlans/search', (req, res, next) => 
+  router.get('/operationPlans/search', (req, res, next) =>
     (operationPlanController as any).search(req, res, next));
-  router.get('/operationPlans/:id', (req, res, next) => 
+  router.get('/operationPlans/:id', (req, res, next) =>
     (operationPlanController as any).getOperationPlan(req, res, next));
-  router.get('/operationPlans/vvn/:vvnId', (req, res, next) => 
+  router.get('/operationPlans/vvn/:vvnId', (req, res, next) =>
     (operationPlanController as any).getByVvn(req, res, next));
-  router.put('/operationPlans/:id', (req, res, next) => 
+  router.put('/operationPlans/:id', (req, res, next) =>
     (operationPlanController as any).updateOperationPlan(req, res, next));
+  router.get('/operationPlans/resource-allocation', (req, res, next) =>
+    (operationPlanController as any).getResourceAllocation(req, res, next)); //4.1.6
 
   // Vessel Visit Executions
-  router.post('/vesselVisitExecutions', (req, res, next) => 
+  router.post('/vesselVisitExecutions', (req, res, next) =>
     (vesselVisitExecutionController as any).createVVE(req, res, next));
-  router.get('/vesselVisitExecutions', (req, res, next) => 
+  router.get('/vesselVisitExecutions', (req, res, next) =>
     (vesselVisitExecutionController as any).getAll(req, res, next));
-  router.get('/vesselVisitExecutions/:id', (req, res, next) => 
+  router.get('/vesselVisitExecutions/:id', (req, res, next) =>
     (vesselVisitExecutionController as any).getVVE(req, res, next));
-  router.put('/vesselVisitExecutions/:id', (req, res, next) => 
+  router.put('/vesselVisitExecutions/:id', (req, res, next) =>
     (vesselVisitExecutionController as any).updateVVE(req, res, next));
 
   return router;

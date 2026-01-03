@@ -39,6 +39,20 @@ export class OperationPlanRepo implements IOperationPlanRepo {
     return docs.map(OperationPlanMap.toDomain);
   }
 
+    //4.1.6
+  async findByOperationDateRange(from: Date, to: Date): Promise<OperationPlan[]> { 
+    const docs = await OperationPlanSchema.find({
+      schedule: {
+        $elemMatch: {
+          start: { $lt: to },
+          end: { $gt: from }
+        }
+      }
+    });
+
+    return docs.map(OperationPlanMap.toDomain);
+  }
+  
   async search(criteria: {
     dateStart?: Date;
     dateEnd?: Date;
@@ -61,9 +75,9 @@ export class OperationPlanRepo implements IOperationPlanRepo {
       query.schedule = { $elemMatch: {} };
       if (criteria.operationDateStart) query.schedule.$elemMatch.start = { $gte: criteria.operationDateStart };
       if (criteria.operationDateEnd) {
-        query.schedule.$elemMatch.start = { 
-          ...query.schedule.$elemMatch.start, 
-          $lte: criteria.operationDateEnd 
+        query.schedule.$elemMatch.start = {
+          ...query.schedule.$elemMatch.start,
+          $lte: criteria.operationDateEnd
         };
       }
       if (criteria.vesselName) {
