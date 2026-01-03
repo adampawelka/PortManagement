@@ -1,0 +1,87 @@
+/* FOR JSON DISPLAY*/
+
+.privacy {
+  background-color: var(--color-background);
+  font-family: var(--font-family-base);
+  color: var(--color-text-dark);
+  padding: var(--spacing-xl);
+}
+
+.privacy__container {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: 2rem !important; 
+  line-height: 1.7;
+  font-size: 1rem;
+  color: var(--color-text-dark);
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.privacy__container h1,
+.privacy__container h2,
+.privacy__container h3,
+.privacy__container p,
+.privacy__container ul,
+.privacy__container ol {
+  text-align: left;
+}
+
+
+.privacy__title {
+  font-size: 1.75rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-lg);
+  text-align: left;
+}
+
+.privacy__heading {
+  font-size: var(--font-size-heading);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-primary-light);
+  text-align: left;
+}
+
+.privacy__text {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-md);
+  text-align: left;
+}
+
+.privacy__list {
+  padding-left: 20px;
+  margin-bottom: var(--spacing-md);
+}
+
+.privacy__list li {
+  margin-bottom: var(--spacing-xs);
+}
+
+.privacy__footer {
+  margin-top: var(--spacing-xl);
+  font-size: var(--font-size-small);
+  color: var(--color-not-found);
+  text-align: left;
+}
+
+.privacy__markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.privacy__markdown th,
+.privacy__markdown td {
+  border: 1px solid #ddd;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.privacy__markdown th {
+  background-color: var(--color-primary-light);
+  color: #fff;
+}

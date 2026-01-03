@@ -1,0 +1,468 @@
+{
+  "version": "1.0",
+  "effectiveDate": "2026-01-01",
+  "sections": {
+    "en": {
+      "title": "Privacy Policy",
+      "introduction": {
+        "title": "1. Introduction",
+        "content": "This Privacy Policy describes how our Port Management System (\"the System\", \"we\", \"us\", or \"our\") collects, uses, processes, and protects personal data in accordance with the General Data Protection Regulation (GDPR) and applicable data protection laws.\n\nBy using our System, you acknowledge that you have read and understood this Privacy Policy."
+      },
+      "dataController": {
+        "title": "2. Data Controller",
+        "content": "**Organization:** 3DL-E-04  \n**Contact Email:** any of the group members' emails, check README.md on the project root  \n**Data Protection Officer:** 1231246@isep.ipp.pt"
+      },
+      "dataCollected": {
+        "title": "3. Personal Data We Collect",
+        "categories": [
+          {
+            "category": "3.1 Shipping Agent Representatives",
+            "data": [
+              "Full name",
+              "Citizen ID number",
+              "Nationality",
+              "Email address",
+              "Phone number",
+              "Organization affiliation"
+            ]
+          },
+          {
+            "category": "3.2 Operating Staff Members",
+            "data": [
+              "Mecanographic number (employee ID)",
+              "Short name",
+              "Email address",
+              "Phone number",
+              "Professional qualifications",
+              "Operational window (work schedule)",
+              "Current status (available/unavailable)"
+            ]
+          },
+          {
+            "category": "3.3 Vessel Crew Information",
+            "data": [
+              "Captain's name",
+              "Total number of crew members",
+              "Safety officers' identities (when vessel carries dangerous cargo)"
+            ]
+          },
+          {
+            "category": "3.4 System Users (All Roles)",
+            "data": [
+              "User ID (provided by Auth0)",
+              "Email address",
+              "Full name",
+              "Profile information from Auth0",
+              "Assigned internal role(s)",
+              "Account status (active/inactive/pending)"
+            ]
+          },
+          {
+            "category": "3.5 System Logs and Audit Data",
+            "data": [
+              "User actions and timestamps",
+              "IP addresses",
+              "Login/logout events",
+              "Failed authentication attempts",
+              "System access attempts",
+              "Changes to critical data"
+            ]
+          }
+        ]
+      },
+      "dataCollection": {
+        "title": "4. How We Collect Personal Data",
+        "methods": [
+          "Direct Input: Port Authority Officers register shipping agents, representatives, and staff members through system forms",
+          "User Submission: Shipping Agent Representatives submit vessel visit notifications containing crew information",
+          "Authentication Provider: Auth0 provides user identity information upon login",
+          "Automatic Collection: System generates audit logs automatically during user interactions",
+          "Activation Process: Users provide confirmation through activation links sent to their email"
+        ]
+      },
+      "processingPurposes": {
+        "title": "5. Purpose of Data Processing",
+        "categories": [
+          {
+            "category": "5.1 Shipping Agent and Representative Data",
+            "purposes": [
+              "Managing vessel visit notifications and approvals",
+              "Coordinating port operations",
+              "Sending system notifications and alerts",
+              "Authorization and access control",
+              "Compliance with maritime regulations"
+            ]
+          },
+          {
+            "category": "5.2 Operating Staff Data",
+            "purposes": [
+              "Resource allocation and scheduling",
+              "Operational planning and task assignment",
+              "Qualification verification",
+              "Ensuring properly certified personnel operate equipment",
+              "Work schedule management"
+            ]
+          },
+          {
+            "category": "5.3 Vessel Crew Data",
+            "purposes": [
+              "Regulatory compliance (maritime law)",
+              "Security protocols",
+              "Safety requirements for dangerous cargo handling",
+              "Port access control"
+            ]
+          },
+          {
+            "category": "5.4 User Authentication Data",
+            "purposes": [
+              "Access control and authorization",
+              "System security",
+              "Preventing unauthorized access",
+              "User experience personalization (language preferences)"
+            ]
+          },
+          {
+            "category": "5.5 Audit Logs",
+            "purposes": [
+              "Security monitoring and incident response",
+              "Troubleshooting system issues",
+              "Regulatory compliance and auditing",
+              "Investigating unauthorized access attempts",
+              "Business continuity and disaster recovery"
+            ]
+          },
+          {
+            "category": "5.6 System Notifications",
+            "purposes": [
+              "Sending approval decisions",
+              "Operational updates",
+              "System alerts and notifications"
+            ]
+          }
+        ]
+      },
+      "legalBasis": {
+        "title": "6. Legal Basis for Processing",
+        "content": "We process personal data based on the following legal grounds under GDPR Article 6(1):\n\n| Data Type | Legal Basis | Description |\n|-----------|------------|-------------|\n| Shipping Agent Data | Contractual Necessity (b) | Required to provide port services and manage vessel visits |\n| Staff Operational Data | Contractual Necessity (b) & Legitimate Interests (f) | Necessary for efficient port operations and safety |\n| Crew Information | Legal Obligation (c) | Required by maritime law and safety regulations |\n| Authentication Data | Contractual Necessity (b) | Required to provide secure access to the system |\n| Audit Logs | Legal Obligation (c) & Legitimate Interests (f) | Required for security, compliance, and fraud prevention |\n| Dangerous Cargo Safety Officers | Legal Obligation (c) | Required by regulations governing hazardous materials |"
+      },
+      "dataRetention": {
+        "title": "7. Data Retention",
+        "content": "| Data Category            | Retention Period                      | Justification                             |\n|--------------------------|--------------------------------------|-------------------------------------------|\n| Shipping Agent Records   | 7 years after last activity           | Maritime compliance requirements          |\n| Staff Records            | 5 years after employment/contract end | Labor law and audit requirements          |\n| Vessel Visit Data        | 7 years                               | Maritime and customs regulations          |\n| Audit Logs               | 3 years                               | Security and compliance requirements      |\n| User Authentication Data | Duration of account + 1 year          | Access control and security investigation |\n| Inactive Accounts        | Deleted after 2 years of inactivity   | Data minimization principle               |\n\nAfter retention periods expire, personal data is either securely deleted or anonymized."
+      },
+      "dataSharing": {
+        "title": "8. Data Sharing and Recipients",
+        "recipients": [
+          {
+            "recipient": "Port Authority Officers",
+            "purpose": "Access to all operational data necessary for port management"
+          },
+          {
+            "recipient": "Shipping Agent Representatives",
+            "purpose": "Access limited to their own organization's data and vessel visit notifications"
+          },
+          {
+            "recipient": "Logistics Operators",
+            "purpose": "Access to operational planning data, staff schedules, and resource allocations"
+          },
+          {
+            "recipient": "Auth0 (Authentication Provider)",
+            "purpose": "Processes authentication data"
+          },
+          {
+            "recipient": "System Administrators",
+            "purpose": "Technical access for system maintenance and support"
+          },
+          {
+            "recipient": "Regulatory Authorities",
+            "purpose": "When required by law"
+          },
+          {
+            "recipient": "Legal Authorities",
+            "purpose": "When required by court order or legal obligation"
+          }
+        ]
+      },
+      "dataSubjectRights": {
+        "title": "9. Data Subject Rights",
+        "rights": [
+          "Right to be Informed (Articles 13 & 14)",
+          "Right to Access (Article 15)",
+          "Right to Rectification (Article 16)",
+          "Right to Erasure / 'Right to be Forgotten' (Article 17)",
+          "Right to Restrict Processing (Article 18)",
+          "Right to Data Portability (Article 20)",
+          "Right to Object (Article 21)",
+          "Rights Related to Automated Decision-Making (Article 22)"
+        ]
+      },
+      "security": {
+        "title": "10. Security Measures",
+        "measures": [
+          "Encryption: Data encrypted in transit (TLS/SSL) and at rest",
+          "Access Controls: Role-based access control (RBAC) and attribute-based access control (ABAC)",
+          "Authentication: Secure authentication via Auth0 with multi-factor authentication support",
+          "Audit Logging: Comprehensive logging of all data access and modifications",
+          "Network Security: Access restricted to DEI internal network or VPN (development/staging environments)",
+          "Regular Security Assessments: Periodic security audits and vulnerability testing",
+          "Data Backup: Regular encrypted backups with defined Recovery Point Objectives (RPO)",
+          "Incident Response: Documented procedures for data breach notification"
+        ]
+      },
+      "internationalTransfers": {
+        "title": "11. International Data Transfers",
+        "content": "Authentication services are provided by Auth0, which may process data in countries outside the EEA. Auth0 complies with applicable data transfer mechanisms including EU-U.S. Data Privacy Framework and Standard Contractual Clauses (SCCs)."
+      },
+      "cookies": {
+        "title": "12. Cookies and Tracking Technologies",
+        "content": "Our system uses cookies and similar technologies. See our separate Cookie Policy for details."
+      },
+      "dataBreach": {
+        "title": "13. Data Breach Notification",
+        "content": "In the event of a personal data breach that poses a risk to your rights and freedoms, we will notify the relevant supervisory authority within 72 hours and notify affected individuals without undue delay."
+      },
+      "childrenPrivacy": {
+        "title": "14. Children's Privacy",
+        "content": "Our system is not intended for individuals under 18 years of age. We do not knowingly collect personal data from children."
+      },
+      "changes": {
+        "title": "15. Changes to This Privacy Policy",
+        "content": "We may update this Privacy Policy periodically. Changes will be communicated via email to registered users, prominent notice on login page, and updating the 'Effective Date'."
+      },
+      "contact": {
+        "title": "16. Contact Information",
+        "content": "**Email:** any of the team members' emails, check README.md  \n**Data Protection Officer:** 1231246@isep.ipp.pt  \n**Supervisory Authority:** You have the right to lodge a complaint with your local data protection authority."
+      }
+    },
+    "pt": {
+      "title": "Política de Privacidade",
+      "introduction": {
+        "title": "1. Introdução",
+        "content": "Esta Política de Privacidade descreve como o nosso Sistema de Gestão Portuária (\"o Sistema\", \"nós\") coleta, utiliza, processa e protege dados pessoais de acordo com o Regulamento Geral de Proteção de Dados (RGPD) e leis de proteção de dados aplicáveis.\n\nAo utilizar o nosso Sistema, você reconhece que leu e compreendeu esta Política de Privacidade."
+      },
+      "dataController": {
+        "title": "2. Controlador de Dados",
+        "content": "**Organização:** 3DL-E-04  \n**Email de Contato:** qualquer dos emails dos membros do grupo, consulte o README.md no diretório raiz do projeto  \n**Encarregado de Proteção de Dados:** 1231246@isep.ipp.pt"
+      },
+      "dataCollected": {
+        "title": "3. Dados Pessoais que Coletamos",
+        "categories": [
+          {
+            "category": "3.1 Representantes de Agentes de Navegação",
+            "data": [
+              "Nome completo",
+              "Número de identificação civil",
+              "Nacionalidade",
+              "Endereço de e-mail",
+              "Número de telefone",
+              "Afiliação à organização"
+            ]
+          },
+          {
+            "category": "3.2 Membros da Equipa Operacional",
+            "data": [
+              "Número mecanográfico (ID de empregado)",
+              "Nome abreviado",
+              "Endereço de e-mail",
+              "Número de telefone",
+              "Qualificações profissionais",
+              "Janela operacional (horário de trabalho)",
+              "Estado atual (disponível/indisponível)"
+            ]
+          },
+          {
+            "category": "3.3 Informações da Tripulação de Embarcações",
+            "data": [
+              "Nome do capitão",
+              "Número total de tripulantes",
+              "Identidade dos oficiais de segurança (quando a embarcação transporta carga perigosa)"
+            ]
+          },
+          {
+            "category": "3.4 Usuários do Sistema (Todos os Papéis)",
+            "data": [
+              "ID de usuário (fornecido pelo Auth0)",
+              "Endereço de e-mail",
+              "Nome completo",
+              "Informações de perfil do Auth0",
+              "Função interna atribuída",
+              "Estado da conta (ativa/inativa/pendente)"
+            ]
+          },
+          {
+            "category": "3.5 Registos do Sistema e Dados de Auditoria",
+            "data": [
+              "Ações do usuário e carimbos de data/hora",
+              "Endereços IP",
+              "Eventos de login/logout",
+              "Tentativas de autenticação falhadas",
+              "Tentativas de acesso ao sistema",
+              "Alterações em dados críticos"
+            ]
+          }
+        ]
+      },
+      "dataCollection": {
+        "title": "4. Como Coletamos Dados Pessoais",
+        "methods": [
+          "Entrada Direta: Oficiais da Autoridade Portuária registam agentes, representantes e membros da equipa através dos formulários do sistema",
+          "Submissão de Usuário: Representantes de Agentes de Navegação submetem notificações de visitas de embarcações contendo informações da tripulação",
+          "Provedor de Autenticação: Auth0 fornece informações de identidade do usuário ao fazer login",
+          "Coleta Automática: O sistema gera logs de auditoria automaticamente durante as interações do usuário",
+          "Processo de Ativação: Usuários fornecem confirmação através de links de ativação enviados por e-mail"
+        ]
+      },
+      "processingPurposes": {
+        "title": "5. Finalidade do Processamento de Dados",
+        "categories": [
+          {
+            "category": "5.1 Dados de Agentes e Representantes",
+            "purposes": [
+              "Gerir notificações e aprovações de visitas de embarcações",
+              "Coordenar operações portuárias",
+              "Enviar notificações e alertas do sistema",
+              "Controle de acesso e autorização",
+              "Cumprimento de regulamentações marítimas"
+            ]
+          },
+          {
+            "category": "5.2 Dados da Equipa Operacional",
+            "purposes": [
+              "Alocação de recursos e programação",
+              "Planeamento operacional e atribuição de tarefas",
+              "Verificação de qualificações",
+              "Garantir que pessoal certificado opera equipamentos",
+              "Gestão de horários de trabalho"
+            ]
+          },
+          {
+            "category": "5.3 Dados da Tripulação da Embarcação",
+            "purposes": [
+              "Cumprimento de regulamentações (lei marítima)",
+              "Protocolos de segurança",
+              "Requisitos de segurança para manuseio de carga perigosa",
+              "Controle de acesso ao porto"
+            ]
+          },
+          {
+            "category": "5.4 Dados de Autenticação de Usuário",
+            "purposes": [
+              "Controle de acesso e autorização",
+              "Segurança do sistema",
+              "Prevenir acesso não autorizado",
+              "Personalização da experiência do usuário (preferências de idioma)"
+            ]
+          },
+          {
+            "category": "5.5 Logs de Auditoria",
+            "purposes": [
+              "Monitoramento de segurança e resposta a incidentes",
+              "Solução de problemas do sistema",
+              "Cumprimento regulatório e auditoria",
+              "Investigação de tentativas de acesso não autorizadas",
+              "Continuidade de negócios e recuperação de desastres"
+            ]
+          },
+          {
+            "category": "5.6 Notificações do Sistema",
+            "purposes": [
+              "Enviar decisões de aprovação",
+              "Atualizações operacionais",
+              "Alertas e notificações do sistema"
+            ]
+          }
+        ]
+      },
+      "legalBasis": {
+        "title": "6. Base Legal para o Processamento",
+        "content": "Processamos dados pessoais com base nos seguintes fundamentos legais do RGPD Artigo 6(1):\n\n| Tipo de Dados | Base Legal | Descrição |\n|---------------|-----------|-----------|\n| Dados de Agentes de Navegação | Necessidade Contratual (b) | Necessário para fornecer serviços portuários e gerir visitas de embarcações |\n| Dados Operacionais da Equipa | Necessidade Contratual (b) & Interesses Legítimos (f) | Necessário para operações portuárias eficientes e segurança |\n| Informações da Tripulação | Obrigação Legal (c) | Exigido pela lei marítima e regulamentações de segurança |\n| Dados de Autenticação | Necessidade Contratual (b) | Necessário para fornecer acesso seguro ao sistema |\n| Logs de Auditoria | Obrigação Legal (c) & Interesses Legítimos (f) | Necessário para segurança, conformidade e prevenção de fraudes |\n| Oficiais de Segurança de Carga Perigosa | Obrigação Legal (c) | Exigido por regulamentações sobre materiais perigosos |"
+      },
+      "dataRetention": {
+        "title": "7. Retenção de Dados",
+        "content": "| Categoria de Dados          | Período de Retenção                   | Justificação                               |\n|----------------------------|--------------------------------------|-------------------------------------------|\n| Registos de Agentes        | 7 anos após última atividade          | Requisitos de conformidade marítima       |\n| Registos da Equipa         | 5 anos após término do contrato/emprego | Lei laboral e requisitos de auditoria      |\n| Dados de Visita de Embarcação | 7 anos                              | Regulamentos marítimos e aduaneiros       |\n| Logs de Auditoria          | 3 anos                                | Segurança e conformidade                   |\n| Dados de Autenticação      | Duração da conta + 1 ano             | Controle de acesso e investigação de segurança |\n| Contas Inativas            | Eliminadas após 2 anos de inatividade | Princípio de minimização de dados         |\n\nApós o período de retenção, os dados pessoais são excluídos de forma segura ou anonimizados."
+      },
+      "dataSharing": {
+        "title": "8. Partilha de Dados e Destinatários",
+        "recipients": [
+          {
+            "recipient": "Oficiais da Autoridade Portuária",
+            "purpose": "Acesso a todos os dados operacionais necessários para gestão portuária"
+          },
+          {
+            "recipient": "Representantes de Agentes de Navegação",
+            "purpose": "Acesso limitado aos dados da sua própria organização e notificações de visitas de embarcações"
+          },
+          {
+            "recipient": "Operadores Logísticos",
+            "purpose": "Acesso aos dados de planeamento operacional, horários da equipa e alocação de recursos"
+          },
+          {
+            "recipient": "Auth0 (Provedor de Autenticação)",
+            "purpose": "Processa dados de autenticação"
+          },
+          {
+            "recipient": "Administradores do Sistema",
+            "purpose": "Acesso técnico para manutenção e suporte do sistema"
+          },
+          {
+            "recipient": "Autoridades Reguladoras",
+            "purpose": "Quando exigido por lei"
+          },
+          {
+            "recipient": "Autoridades Legais",
+            "purpose": "Quando exigido por ordem judicial ou obrigação legal"
+          }
+        ]
+      },
+      "dataSubjectRights": {
+        "title": "9. Direitos dos Titulares dos Dados",
+        "rights": [
+          "Direito à Informação (Artigos 13 & 14)",
+          "Direito de Acesso (Artigo 15)",
+          "Direito de Retificação (Artigo 16)",
+          "Direito de Eliminação / 'Direito ao Esquecimento' (Artigo 17)",
+          "Direito de Restrição do Processamento (Artigo 18)",
+          "Direito à Portabilidade dos Dados (Artigo 20)",
+          "Direito de Oposição (Artigo 21)",
+          "Direitos Relacionados com Decisões Automatizadas (Artigo 22)"
+        ]
+      },
+      "security": {
+        "title": "10. Medidas de Segurança",
+        "measures": [
+          "Criptografia: Dados encriptados em trânsito (TLS/SSL) e em repouso",
+          "Controles de Acesso: Controle de acesso baseado em funções (RBAC) e baseado em atributos (ABAC)",
+          "Autenticação: Autenticação segura via Auth0 com suporte a multi-fator",
+          "Registro de Auditoria: Registos abrangentes de acesso e modificações de dados",
+          "Segurança de Rede: Acesso restrito à rede interna do DEI ou VPN (ambientes de desenvolvimento/staging)",
+          "Avaliações de Segurança Regulares: Auditorias de segurança periódicas e testes de vulnerabilidade",
+          "Backup de Dados: Backups regulares encriptados com RPO definido",
+          "Resposta a Incidentes: Procedimentos documentados para notificação de violação de dados"
+        ]
+      },
+      "internationalTransfers": {
+        "title": "11. Transferências Internacionais de Dados",
+        "content": "Serviços de autenticação são fornecidos pelo Auth0, que pode processar dados em países fora do EEE. O Auth0 cumpre mecanismos de transferência de dados aplicáveis, incluindo o Quadro de Privacidade UE-EUA e Cláusulas Contratuais Padrão (CCPs)."
+      },
+      "cookies": {
+        "title": "12. Cookies e Tecnologias de Rastreamento",
+        "content": "Nosso sistema utiliza cookies e tecnologias similares. Consulte a nossa Política de Cookies separada para mais detalhes."
+      },
+      "dataBreach": {
+        "title": "13. Notificação de Violação de Dados",
+        "content": "Em caso de violação de dados pessoais que represente risco para os direitos e liberdades, notificaremos a autoridade supervisora relevante em até 72 horas e os indivíduos afetados sem demora indevida."
+      },
+      "childrenPrivacy": {
+        "title": "14. Privacidade de Crianças",
+        "content": "Nosso sistema não se destina a indivíduos menores de 18 anos. Não coletamos intencionalmente dados pessoais de crianças."
+      },
+      "changes": {
+        "title": "15. Alterações nesta Política de Privacidade",
+        "content": "Podemos atualizar periodicamente esta Política de Privacidade. As alterações serão comunicadas por email aos usuários registados, aviso destacado na página de login e atualização da 'Data de Vigência'."
+      },
+      "contact": {
+        "title": "16. Informações de Contato",
+        "content": "**Email:** qualquer dos emails dos membros do grupo, consulte README.md  \n**Encarregado de Proteção de Dados:** 1231246@isep.ipp.pt  \n**Autoridade Supervisora:** Você tem o direito de apresentar reclamação à autoridade local de proteção de dados."
+      }
+    }
+  }
+}
