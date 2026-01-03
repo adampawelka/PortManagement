@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm"; 
 import "../styles/PrivacyPolicy.css";
+import { useLanguage } from "../context/LanguageContext"; 
 
-const PrivacyPolicy = ({ language = "en" }) => {
+const PrivacyPolicy = () => {
+  const { language } = useLanguage(); 
   const [privacyPolicy, setPrivacyPolicy] = useState(null);
 
   useEffect(() => {
@@ -11,13 +13,13 @@ const PrivacyPolicy = ({ language = "en" }) => {
       .then((res) => res.json())
       .then((data) =>
         setPrivacyPolicy({
-          ...data.sections[language],
+          ...data.sections[language], 
           version: data.version,
           effectiveDate: data.effectiveDate,
         })
       )
       .catch((err) => console.error("Failed to load privacy policy:", err));
-  }, [language]);
+  }, [language]); 
 
   if (!privacyPolicy) return <p>Loading...</p>;
 

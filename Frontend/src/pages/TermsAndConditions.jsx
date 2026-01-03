@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import "../styles/PrivacyPolicy.css";
+import { useLanguage } from "../context/LanguageContext"; 
 
-const TermsAndConditions = ({ language = "en" }) => {
+const TermsAndConditions = () => {
+  const { language } = useLanguage(); 
   const [terms, setTerms] = useState(null);
 
   useEffect(() => {
@@ -10,13 +12,13 @@ const TermsAndConditions = ({ language = "en" }) => {
       .then((res) => res.json())
       .then((data) =>
         setTerms({
-          ...data.sections[language],
+          ...data.sections[language], 
           version: data.version,
           effectiveDate: data.effectiveDate,
         })
       )
       .catch((err) => console.error("Failed to load terms:", err));
-  }, [language]);
+  }, [language]); 
 
   if (!terms) return <p>Loading...</p>;
 
