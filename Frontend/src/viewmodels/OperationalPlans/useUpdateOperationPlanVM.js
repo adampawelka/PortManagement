@@ -115,18 +115,50 @@ export const useUpdateOperationPlanVM = () => {
       if (!op.end) {
         errors.push(`Operation ${index + 1}: End time is required`);
       }
+      
+      // Validate dates
+      if (op.start) {
+        const startDate = new Date(op.start);
+        if (isNaN(startDate.getTime())) {
+          errors.push(`Operation ${index + 1}: Start time must be a valid date`);
+        }
+      }
+      if (op.end) {
+        const endDate = new Date(op.end);
+        if (isNaN(endDate.getTime())) {
+          errors.push(`Operation ${index + 1}: End time must be a valid date`);
+        }
+      }
+      
+      // Validate time relationship
       if (op.start && op.end) {
         const startDate = new Date(op.start);
         const endDate = new Date(op.end);
-        if (startDate >= endDate) {
-          errors.push(`Operation ${index + 1}: Start time must be before end time`);
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+          if (startDate >= endDate) {
+            errors.push(`Operation ${index + 1}: Start time must be before end time`);
+          }
         }
       }
-      if (op.delay < 0) {
+      
+      // Validate delay
+      if (op.delay === undefined || op.delay === null) {
+        errors.push(`Operation ${index + 1}: Delay is required`);
+      } else if (op.delay < 0) {
         errors.push(`Operation ${index + 1}: Delay cannot be negative`);
       }
+      
+      // Validate dock
       if (!op.dock || op.dock.trim() === "") {
         errors.push(`Operation ${index + 1}: Dock is required`);
+      }
+      
+      // Validate arrays
+      if (op.cranes && !Array.isArray(op.cranes)) {
+        errors.push(`Operation ${index + 1}: Cranes must be an array`);
+      }
+      if (op.staff && !Array.isArray(op.staff)) {
+        errors.push(`Operation ${index + 1}: Staff must be an array`);
       }
     });
 
@@ -137,10 +169,56 @@ export const useUpdateOperationPlanVM = () => {
     const warnings = [];
 
     formData.schedule.forEach((op, index) => {
+      // Check for missing resources
       if ((!op.cranes || op.cranes.length === 0) && (!op.staff || op.staff.length === 0)) {
         warnings.push(`Operation ${index + 1}: No cranes or staff assigned`);
       }
+      
+      // Check for duplicate cranes in same operation
+      if (op.cranes && op.cranes.length > 1) {
+        const uniqueCranes = [...new Set(op.cranes)];
+        if (uniqueCranes.length < op.cranes.length) {
+          warnings.push(`Operation ${index + 1}: Duplicate cranes assigned`);
+        }
+      }
+      
+      // Check for duplicate staff in same operation
+      if (op.staff && op.staff.length > 1) {
+        const uniqueStaff = [...new Set(op.staff)];
+        if (uniqueStaff.length < op.staff.length) {
+          warnings.push(`Operation ${index + 1}: Duplicate staff members assigned`);
+        }
+      }
     });
+
+    // Check for overlapping operations in the same schedule
+    for (let i = 0; i < formData.schedule.length; i++) {
+      for (let j = i + 1; j < formData.schedule.length; j++) {
+        const op1 = formData.schedule[i];
+        const op2 = formData.schedule[j];
+        
+        if (op1.start && op1.end && op2.start && op2.end) {
+          const start1 = new Date(op1.start);
+          const end1 = new Date(op1.end);
+          const start2 = new Date(op2.start);
+          const end2 = new Date(op2.end);
+          
+          // Check if time periods overlap
+          if (start1 < end2 && end1 > start2) {
+            // Check if they share resources
+            const sharedCranes = op1.cranes?.filter(c => op2.cranes?.includes(c)) || [];
+            const sharedStaff = op1.staff?.filter(s => op2.staff?.includes(s)) || [];
+            
+            if (sharedCranes.length > 0) {
+              warnings.push(`Operations ${i + 1} and ${j + 1}: Overlapping time periods with shared crane(s): ${sharedCranes.join(', ')}`);
+            }
+            if (sharedStaff.length > 0) {
+              warnings.push(`Operations ${i + 1} and ${j + 1}: Overlapping time periods with shared staff: ${sharedStaff.join(', ')}`);
+            }
+          }
+        }
+      }
+    }
 
     return warnings;
   }, [formData]);
