@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Container,
     Typography,
@@ -18,12 +19,14 @@ import {
     TextField,
     Button,
     Box,
+    IconButton,
     TableSortLabel
 } from "@mui/material";
 
 import { useOperationalPlanSearchVM } from "../../viewmodels/OperationalPlans/useOperationalPlanSearchVM";
 
 const OperationalPlanSearch = () => {
+    const navigate = useNavigate();
     const {
         plans,
         loading,
@@ -256,9 +259,26 @@ const OperationalPlanSearch = () => {
             {/* Plans Table */}
             {sortedPlans.length > 0 && sortedPlans.map((plan, idx) => (
                 <Paper key={idx} sx={{ p: 2, mb: 3, borderRadius: "var(--radius-sm)", backgroundColor: "var(--color-surface)" }}>
-                    <Typography sx={{ fontWeight: 600, fontSize: "var(--font-size-heading)", mb: 1 }}>
-                        {plan.vesselName} (VVN {plan.vvnId})
-                    </Typography>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                        <Typography sx={{ fontWeight: 600, fontSize: "var(--font-size-heading)" }}>
+                            {plan.vesselName} (VVN {plan.vvnId})
+                        </Typography>
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => navigate(`/operational-plans/update/${plan.id}`)}
+                            sx={{
+                                borderColor: "var(--color-primary)",
+                                color: "var(--color-primary)",
+                                "&:hover": {
+                                    backgroundColor: "var(--color-primary-light)",
+                                    color: "var(--color-text-light)"
+                                }
+                            }}
+                        >
+                            Edit
+                        </Button>
+                    </Box>
 
                     <TableContainer>
                         <Table size="small">
