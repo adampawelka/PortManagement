@@ -1,0 +1,213 @@
+import { useState, useCallback } from "react";
+import { useApiOEM } from "../../services/api";
+import { getOperationalPlanById, updateOperationalPlan } from "../../services/operationalPlanService";
+import { useAuth0 } from "@auth0/auth0-react";
+
+export const useUpdateOperationPlanVM = () => {
+  const { apiOemFetch } = useApiOEM();
+  const { user } = useAuth0();
+
+  const [plan, setPlan] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [warnings, setWarnings] = useState([]);
+  
+  const [formData, setFormData] = useState({
+    algorithmUsed: "",
+    schedule: []
+  });
+  const [changeReason, setChangeReason] = useState("");
+
+  const loadPlan = useCallback(async (planId) => {
+    setLoading(true);
+    setError(null);
+    setPlan(null);
+    setWarnings([]);
+    setSuccess(false);
+
+    try {
+      const loadedPlan = await getOperationalPlanById(apiOemFetch, planId);
+      setPlan(loadedPlan);
+      
+      // Initialize form data from loaded plan
+      setFormData({
+        algorithmUsed: loadedPlan.algorithmUsed || "",
+        schedule: (loadedPlan.schedule || []).map(op => ({
+          vesselName: op.vesselName || "",
+          start: op.start ? new Date(op.start).toISOString() : "",
+          end: op.end ? new Date(op.end).toISOString() : "",
+          delay: op.delay || 0,
+          dock: op.dock || "",
+          cranes: Array.isArray(op.cranes) ? op.cranes : [],
+          staff: Array.isArray(op.staff) ? op.staff : []
+        }))
+      });
+    } catch (err) {
+      setError(err.message || "Failed to load operation plan");
+    } finally {
+      setLoading(false);
+    }
+  }, [apiOemFetch]);
+
+  const updateField = useCallback((field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }, []);
+
+  const updateScheduleOperation = useCallback((index, operation) => {
+    setFormData(prev => {
+      const newSchedule = [...prev.schedule];
+      newSchedule[index] = { ...newSchedule[index], ...operation };
+      return {
+        ...prev,
+        schedule: newSchedule
+      };
+    });
+  }, []);
+
+  const addScheduleOperation = useCallback(() => {
+    setFormData(prev => ({
+      ...prev,
+      schedule: [
+        ...prev.schedule,
+        {
+          vesselName: plan?.schedule?.[0]?.vesselName || "",
+          start: new Date().toISOString(),
+          end: new Date().toISOString(),
+          delay: 0,
+          dock: "",
+          cranes: [],
+          staff: []
+        }
+      ]
+    }));
+  }, [plan]);
+
+  const removeScheduleOperation = useCallback((index) => {
+    setFormData(prev => ({
+      ...prev,
+      schedule: prev.schedule.filter((_, i) => i !== index)
+    }));
+  }, []);
+
+  const validatePlan = useCallback(() => {
+    const errors = [];
+
+    if (!changeReason || changeReason.trim() === "") {
+      errors.push("Change reason is required");
+    }
+
+    if (!formData.schedule || formData.schedule.length === 0) {
+      errors.push("At least one operation is required in the schedule");
+    }
+
+    formData.schedule.forEach((op, index) => {
+      if (!op.vesselName || op.vesselName.trim() === "") {
+        errors.push(`Operation ${index + 1}: Vessel name is required`);
+      }
+      if (!op.start) {
+        errors.push(`Operation ${index + 1}: Start time is required`);
+      }
+      if (!op.end) {
+        errors.push(`Operation ${index + 1}: End time is required`);
+      }
+      if (op.start && op.end) {
+        const startDate = new Date(op.start);
+        const endDate = new Date(op.end);
+        if (startDate >= endDate) {
+          errors.push(`Operation ${index + 1}: Start time must be before end time`);
+        }
+      }
+      if (op.delay < 0) {
+        errors.push(`Operation ${index + 1}: Delay cannot be negative`);
+      }
+      if (!op.dock || op.dock.trim() === "") {
+        errors.push(`Operation ${index + 1}: Dock is required`);
+      }
+    });
+
+    return errors;
+  }, [formData, changeReason]);
+
+  const checkInconsistencies = useCallback(() => {
+    const warnings = [];
+
+    formData.schedule.forEach((op, index) => {
+      if ((!op.cranes || op.cranes.length === 0) && (!op.staff || op.staff.length === 0)) {
+        warnings.push(`Operation ${index + 1}: No cranes or staff assigned`);
+      }
+    });
+
+    return warnings;
+  }, [formData]);
+
+  const savePlan = useCallback(async () => {
+    if (!plan || !plan.id) {
+      setError("No plan loaded to update");
+      return;
+    }
+
+    // Validate
+    const validationErrors = validatePlan();
+    if (validationErrors.length > 0) {
+      setError(validationErrors.join("\n"));
+      return;
+    }
+
+    // Check inconsistencies
+    const inconsistencyWarnings = checkInconsistencies();
+    setWarnings(inconsistencyWarnings);
+
+    setSaving(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      const updateDto = {
+        algorithmUsed: formData.algorithmUsed || plan.algorithmUsed,
+        schedule: formData.schedule.map(op => ({
+          vesselName: op.vesselName,
+          start: new Date(op.start).toISOString(),
+          end: new Date(op.end).toISOString(),
+          delay: op.delay,
+          dock: op.dock,
+          cranes: op.cranes || [],
+          staff: op.staff || []
+        }))
+      };
+
+      await updateOperationalPlan(apiOemFetch, plan.id, updateDto);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError(err.message || "Failed to update operation plan");
+    } finally {
+      setSaving(false);
+    }
+  }, [plan, formData, apiOemFetch, validatePlan, checkInconsistencies]);
+
+  return {
+    plan,
+    loading,
+    error,
+    saving,
+    success,
+    warnings,
+    formData,
+    changeReason,
+    setChangeReason,
+    loadPlan,
+    updateField,
+    updateScheduleOperation,
+    addScheduleOperation,
+    removeScheduleOperation,
+    validatePlan,
+    checkInconsistencies,
+    savePlan
+  };
+};
+
