@@ -41,7 +41,14 @@ export const useAddVVEVM = () => {
         
         // Use exact same pattern as VVN list page
         const data = await getVesselVisitNotifications(apiFetch);
-        setVvns(Array.isArray(data) ? data : []);
+        // Filter out REJECTED VVNs - only show APPROVED VVNs for VVE creation
+        const approvedVvns = Array.isArray(data) 
+          ? data.filter(vvn => {
+              const status = (vvn.status || vvn.visitStatus || '').toUpperCase();
+              return status === 'APPROVED';
+            })
+          : [];
+        setVvns(approvedVvns);
       } catch (err) {
         // If fetch fails, just use empty array - don't show error
         // This allows form to work even if VVNs can't be loaded
