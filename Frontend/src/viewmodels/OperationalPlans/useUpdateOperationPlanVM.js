@@ -260,9 +260,31 @@ export const useUpdateOperationPlanVM = () => {
 
       await updateOperationalPlan(apiOemFetch, plan.id, updateDto);
       setSuccess(true);
+      setWarnings([]); // Clear warnings on success
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err.message || "Failed to update operation plan");
+      const errorMessage = err.message || "Failed to update operation plan";
+      
+      // Parse error message for warnings vs errors
+      // Backend might return errors with "Resource conflicts detected:" prefix
+      if (errorMessage.includes("Resource conflicts detected:")) {
+        // This is a blocking error
+        setError(errorMessage);
+        setWarnings([]);
+      } else if (errorMessage.includes("Warning:") || errorMessage.includes("warning")) {
+        // Extract warnings from error message
+        const warningLines = errorMessage.split('\n').filter(line => 
+          line.toLowerCase().includes('warning') || line.includes('may be')
+        );
+        if (warningLines.length > 0) {
+          setWarnings(warningLines);
+          setError("Please review warnings before saving");
+        } else {
+          setError(errorMessage);
+        }
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setSaving(false);
     }

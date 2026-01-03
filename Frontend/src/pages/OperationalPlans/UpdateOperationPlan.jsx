@@ -152,15 +152,27 @@ const UpdateOperationPlan = () => {
       )}
 
       {warnings.length > 0 && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
-            Warnings:
+        <Alert 
+          severity="warning" 
+          sx={{ 
+            mb: 2,
+            backgroundColor: "var(--color-warning-bg, #fff3cd)",
+            border: "1px solid var(--color-warning-border, #ffc107)",
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600, color: "var(--color-warning-text, #856404)" }}>
+            ⚠️ Inconsistency Warnings:
           </Typography>
-          <ul style={{ margin: 0, paddingLeft: 20 }}>
+          <Box component="ul" sx={{ margin: 0, paddingLeft: 3, color: "var(--color-warning-text, #856404)" }}>
             {warnings.map((warning, index) => (
-              <li key={index}>{warning}</li>
+              <Box component="li" key={index} sx={{ mb: 0.5 }}>
+                {warning}
+              </Box>
             ))}
-          </ul>
+          </Box>
+          <Typography variant="body2" sx={{ mt: 1, fontStyle: "italic", color: "var(--color-warning-text, #856404)" }}>
+            Please review these warnings. You can still save, but conflicts may occur.
+          </Typography>
         </Alert>
       )}
 
