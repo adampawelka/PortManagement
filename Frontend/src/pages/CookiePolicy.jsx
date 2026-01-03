@@ -39,18 +39,25 @@ const CookiePolicy = ({ language = "en" }) => {
     "international"
   ];
 
+  // Renderowanie kategorii z markdownem i tabelami
   const renderCategory = (cat, idx) => (
     <div key={idx} className="privacy__category">
-      <h3>{cat.category}</h3>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-        {cat.content}
-      </ReactMarkdown>
+      {cat.category && <h3>{cat.category}</h3>}
+      {cat.content && (
+        <div className="privacy__markdown">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {cat.content}
+          </ReactMarkdown>
+        </div>
+      )}
     </div>
   );
 
+  // Renderowanie sekcji z markdownem i kategoriami
   const renderSection = (section) => (
     <section key={section.title} className="privacy__section">
       <h2 className="privacy__heading">{section.title}</h2>
+
       {section.content && (
         <div className="privacy__markdown">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -58,6 +65,7 @@ const CookiePolicy = ({ language = "en" }) => {
           </ReactMarkdown>
         </div>
       )}
+
       {section.categories &&
         section.categories.map((cat, idx) => renderCategory(cat, idx))}
     </section>
@@ -69,7 +77,9 @@ const CookiePolicy = ({ language = "en" }) => {
 
         <h1 className="privacy__title">{cookiePolicy.title}</h1>
 
-        {sectionOrder.map((key) => cookiePolicy[key] && renderSection(cookiePolicy[key]))}
+        {sectionOrder.map(
+          (key) => cookiePolicy[key] && renderSection(cookiePolicy[key])
+        )}
 
         <div className="privacy__footer">
           Last updated: {cookiePolicy.effectiveDate} | Version: {cookiePolicy.version}
