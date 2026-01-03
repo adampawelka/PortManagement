@@ -9,6 +9,11 @@ import {
   TextField,
   Button,
   Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
 } from "@mui/material";
 import { useUpdateOperationPlanVM } from "../../viewmodels/OperationalPlans/useUpdateOperationPlanVM";
 
@@ -26,6 +31,7 @@ const UpdateOperationPlan = () => {
     changeReason,
     setChangeReason,
     loadPlan,
+    updateField,
   } = useUpdateOperationPlanVM();
 
   const [planIdInput, setPlanIdInput] = useState(paramPlanId || "");
@@ -149,26 +155,58 @@ const UpdateOperationPlan = () => {
             p: 3,
             backgroundColor: "var(--color-background)",
             borderRadius: "var(--radius-md)",
+            mb: 3,
           }}
         >
-          <Typography variant="h6" sx={{ mb: 2, color: "var(--color-primary)" }}>
+          <Typography variant="h6" sx={{ mb: 3, color: "var(--color-primary)", fontWeight: 600 }}>
             Plan Details
           </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            <strong>Plan ID:</strong> {plan.id}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            <strong>VVN ID:</strong> {plan.vvnId}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            <strong>Created At:</strong> {new Date(plan.createdAt).toLocaleString()}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            <strong>Created By:</strong> {plan.createdBy}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            <strong>Algorithm Used:</strong> {plan.algorithmUsed}
-          </Typography>
+          
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={6}>
+              <Typography variant="body2" sx={{ mb: 1, color: "var(--color-text-dark)" }}>
+                <strong>Plan ID:</strong> {plan.id}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="body2" sx={{ mb: 1, color: "var(--color-text-dark)" }}>
+                <strong>VVN ID:</strong> {plan.vvnId}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="body2" sx={{ mb: 1, color: "var(--color-text-dark)" }}>
+                <strong>Vessel Name:</strong> {plan.schedule && plan.schedule.length > 0 
+                  ? plan.schedule[0].vesselName 
+                  : "N/A"}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="body2" sx={{ mb: 1, color: "var(--color-text-dark)" }}>
+                <strong>Created At:</strong> {new Date(plan.createdAt).toLocaleString()}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Typography variant="body2" sx={{ mb: 1, color: "var(--color-text-dark)" }}>
+                <strong>Created By:</strong> {plan.createdBy}
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth sx={{ mt: 1 }}>
+                <InputLabel>Algorithm Used</InputLabel>
+                <Select
+                  value={formData.algorithmUsed || plan.algorithmUsed}
+                  onChange={(e) => updateField("algorithmUsed", e.target.value)}
+                  label="Algorithm Used"
+                  sx={{ backgroundColor: "var(--color-surface)" }}
+                >
+                  <MenuItem value="optimal">Optimal</MenuItem>
+                  <MenuItem value="heuristic">Heuristic</MenuItem>
+                  <MenuItem value="multi_crane">Multi-Crane</MenuItem>
+                  <MenuItem value="bruteforce">Brute Force</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
         </Paper>
       )}
     </Container>
