@@ -46,6 +46,7 @@ const UpdateOperationPlan = () => {
     updateScheduleOperation,
     addScheduleOperation,
     removeScheduleOperation,
+    savePlan,
   } = useUpdateOperationPlanVM();
 
   const [planIdInput, setPlanIdInput] = useState(paramPlanId || "");
@@ -381,6 +382,63 @@ const UpdateOperationPlan = () => {
             )}
           </Paper>
         </LocalizationProvider>
+      )}
+
+      {isPlanLoaded && plan && (
+        <Paper
+          sx={{
+            p: 3,
+            backgroundColor: "var(--color-background)",
+            borderRadius: "var(--radius-md)",
+            mb: 3,
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 2, color: "var(--color-primary)", fontWeight: 600 }}>
+            Change Information
+          </Typography>
+          
+          <TextField
+            label="Reason for Change"
+            value={changeReason}
+            onChange={(e) => setChangeReason(e.target.value)}
+            placeholder="Enter reason for updating this operation plan..."
+            required
+            fullWidth
+            multiline
+            rows={4}
+            error={!changeReason && saving}
+            helperText={!changeReason && saving ? "Change reason is required" : ""}
+            sx={{
+              mb: 3,
+              backgroundColor: "var(--color-surface)",
+            }}
+          />
+
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+            <Button
+              variant="outlined"
+              onClick={() => navigate("/operational-plans/search")}
+              sx={{
+                borderColor: "var(--color-primary)",
+                color: "var(--color-primary)",
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={savePlan}
+              disabled={saving || !changeReason.trim()}
+              sx={{
+                backgroundColor: "var(--color-primary)",
+                color: "var(--color-text-light)",
+                px: 4,
+              }}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </Box>
+        </Paper>
       )}
     </Container>
   );
