@@ -22,8 +22,13 @@ export default class VesselVisitExecutionController {
       }
 
       return res.status(201).json(vveDTO);
-    } catch (e) {
-      return next(e);
+    } catch (e: any) {
+      console.error(`[VesselVisitExecutionController] Error creating VVE:`, e.message);
+      // Return error message to client for better UX
+      const statusCode = e.message && e.message.includes('already exists') ? 409 : 500;
+      return res.status(statusCode).json({ 
+        message: e.message || "Failed to create vessel visit execution" 
+      });
     }
   };
 

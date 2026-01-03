@@ -59,12 +59,28 @@ export class VvnClientService {
    */
   async getVvnById(vvnId: string): Promise<VvnDto | null> {
     try {
+      console.log(`[VvnClientService] Fetching VVN: ${vvnId} from ${this.baseUrl}/VesselVisitNotifications/${vvnId}`);
       const response = await this.client.get(`/VesselVisitNotifications/${vvnId}`);
       if (response.status === 200 && response.data) {
-        return response.data as VvnDto;
+        console.log(`[VvnClientService] VVN response data:`, JSON.stringify(response.data, null, 2));
+        // Map visitStatus to status if needed (Backend API might use visitStatus)
+        const vvnData = response.data;
+        if ((vvnData as any).visitStatus && !vvnData.status) {
+          vvnData.status = (vvnData as any).visitStatus;
+        }
+        return vvnData as VvnDto;
       }
       return null;
     } catch (error: any) {
+      console.error(`[VvnClientService] Error fetching VVN:`, error.message);
+      if (error.response) {
+        console.error(`[VvnClientService] Response status: ${error.response.status}`);
+        console.error(`[VvnClientService] Response data:`, error.response.data);
+        // Include status code in error message for better error handling
+        if (error.response.status === 401) {
+          throw new Error(`Failed to get VVN: Authentication failed (401). ${error.message}`);
+        }
+      }
       if (error.response && error.response.status === 404) {
         return null;
       }

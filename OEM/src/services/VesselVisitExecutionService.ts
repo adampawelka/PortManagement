@@ -35,6 +35,17 @@ export class VesselVisitExecutionService
   async create(
     dto: CreateVesselVisitExecutionDTO
   ): Promise<VesselVisitExecutionDTO> {
+    console.log(`[VesselVisitExecutionService] CREATE METHOD CALLED with VVN ID: ${dto.vvnId}`);
+
+    // Check for duplicate VVE - prevent creating multiple VVEs for the same VVN
+    console.log(`[VesselVisitExecutionService] Checking for duplicate VVE for VVN: ${dto.vvnId}`);
+    const existingVves = await this.vveRepo.findByVVN(dto.vvnId);
+    console.log(`[VesselVisitExecutionService] Found ${existingVves.length} existing VVE(s) for VVN ${dto.vvnId}`);
+    if (existingVves.length > 0) {
+      const errorMsg = `A Vessel Visit Execution (VVE) already exists for VVN ${dto.vvnId}. Cannot create duplicate VVE.`;
+      console.error(`[VesselVisitExecutionService] ${errorMsg}`);
+      throw new Error(errorMsg);
+    }
 
     // Validate that the referenced VVN exists and is APPROVED (US 4.1.7)
     let vvnValidationError: Error | null = null;
@@ -63,8 +74,9 @@ export class VesselVisitExecutionService
       
       console.log(`[VesselVisitExecutionService] VVN validation passed - status is APPROVED`);
     } catch (error: any) {
-      // If it's our validation error, always throw it
+      // If it's our validation error, always throw it (this should never be caught and swallowed)
       if (vvnValidationError) {
+        console.error(`[VesselVisitExecutionService] Throwing validation error: ${vvnValidationError.message}`);
         throw vvnValidationError;
       }
       
@@ -74,12 +86,19 @@ export class VesselVisitExecutionService
         error.message.includes('must be APPROVED') ||
         error.message.includes('Cannot create VVE')
       )) {
+        console.error(`[VesselVisitExecutionService] Throwing validation error: ${error.message}`);
         throw error;
       }
       
-      // For network/auth errors, log warning but allow creation to proceed
-      // This prevents blocking VVE creation if Backend API is unavailable
+      // For authentication errors (401), block VVE creation - we cannot validate VVN status
+      if (error.message && error.message.includes('401')) {
+        throw new Error(`Cannot create VVE: Authentication failed when validating VVN. Please ensure OEM backend is properly configured to access Backend API.`);
+      }
+      
+      // For network/timeout errors, log warning but allow creation to proceed
+      // This prevents blocking VVE creation if Backend API is temporarily unavailable
       console.warn(`[VesselVisitExecutionService] Could not validate VVN: ${error.message}. Proceeding with VVE creation.`);
+      console.warn(`[VesselVisitExecutionService] Error type: ${error.constructor.name}, Stack: ${error.stack}`);
     }
 
     if (dto.actualBerthTime) {
