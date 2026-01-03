@@ -1,3 +1,5 @@
+import { ALL_ROLES } from "../data/roles.js"
+
 import Home from "../pages/Home.jsx";
 import Visualisation from "../pages/Visualisation.jsx";
 
@@ -77,13 +79,20 @@ import PendingUsersManagementPage from "../pages/Users/PendingUsersManagementPag
 
 import ThumbRaiserComponent from "../pages/Visualisation.jsx";
 
+import PrivacyPolicy from "../pages/PrivacyPolicy.jsx";
+
 // ---------------------------
 // Grouped Routes
 // ---------------------------
 export const protectedRoutes = {
   home: [
-    { path: "/", element: <Home />, roles: ["Administrator", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator", "OperationsSupervisor"], index: true },
-    { path: "visualisation", element: <Visualisation />, roles: ["Administrator", "user", "PortAuthorityOfficer", "ShippingAgentRepresentative", "LogisticsOperator"] }
+    { path: "/", element: <Home />, roles: ALL_ROLES, index: true },
+  ],
+
+  privacyPolicy: [
+    {
+      path: "/privacy-policy", element: <PrivacyPolicy />, roles: ALL_ROLES
+    },
   ],
 
   storageAreas: [
@@ -151,10 +160,10 @@ export const protectedRoutes = {
     //{ path: "/incident-types/:id/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] }
   ],
 
-  complementaryTaskCategories : [
-    { path: "/complementary-task-categories/list", element: <ComplementaryTaskCategoriesList />, roles: ["OperationsSupervisor"]},
-    { path: "/complementary-task-categories/add", element: <AddComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
-    { path: "/complementary-task-categories/edit", element: <EditComplementaryTaskCategory />, roles: ["OperationsSupervisor"]},
+  complementaryTaskCategories: [
+    { path: "/complementary-task-categories/list", element: <ComplementaryTaskCategoriesList />, roles: ["OperationsSupervisor"] },
+    { path: "/complementary-task-categories/add", element: <AddComplementaryTaskCategory />, roles: ["OperationsSupervisor"] },
+    { path: "/complementary-task-categories/edit", element: <EditComplementaryTaskCategory />, roles: ["OperationsSupervisor"] },
 
   ],
 
@@ -172,9 +181,10 @@ export const protectedRoutes = {
     { path: "user-management/pending-users", element: <PendingUsersManagementPage />, roles: ["Administrator", "LogisticsOperator"] }
   ],
 
-  visualisation: [ 
-    { path: "/visualisation", element: <ThumbRaiserComponent />, roles: ["LogisticsOperator"] 
+  visualisation: [
+    {
+      path: "/visualisation", element: <ThumbRaiserComponent />, roles: ["LogisticsOperator"]
 
     }
-  ]
+  ],
 };
