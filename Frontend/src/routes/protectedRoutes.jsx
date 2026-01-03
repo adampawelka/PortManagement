@@ -44,6 +44,7 @@ import SubmitVVNPage from "../pages/VesselVisitNotifications/SubmitVVNPage.jsx";
 import VVEListPage from "../pages/VesselVisitExecutions/VVEListPage.jsx";
 import UpdateVVEPage from "../pages/VesselVisitExecutions/UpdateVVEPage.jsx";
 import AddVVEPage from "../pages/VesselVisitExecutions/AddVVEPage.jsx";
+import SearchVVEPage from "../pages/VesselVisitExecutions/SearchVVEPage.jsx";
 
 // Operational Plans
 import OperationalPlansGenerate from "../pages/OperationalPlans/GenerateOperationalPlans.jsx";
@@ -152,7 +153,8 @@ export const protectedRoutes = {
     { path: "/vve/list", element: <VVEListPage />, roles: ["LogisticsOperator"] },
     { path: "/vve/add", element: <AddVVEPage />, roles: ["LogisticsOperator"] },
     { path: "/vve/update", element: <UpdateVVEPage />, roles: ["LogisticsOperator"] },          // without ID
-    { path: "/vve/:vveId/update", element: <UpdateVVEPage />, roles: ["LogisticsOperator"] }   // with ID -> reditect from VVE list
+    { path: "/vve/:vveId/update", element: <UpdateVVEPage />, roles: ["LogisticsOperator"] },   // with ID -> reditect from VVE list
+    { path: "/vve/search", element: <SearchVVEPage />, roles: ["LogisticsOperator"] }
   ],
 
 

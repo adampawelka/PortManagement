@@ -64,6 +64,7 @@
   "update": "Update",
   "vve": "Vessel Visit Executions",
   "vve_list": "Vessel Visit Execution List",
+  "search_vve":"Search Visit Execution",
   "add_vve": "Add New Vessel Visit Execution",
   "update_vve": "Update Vessel Visit Execution",
   "complementary_task_categories": "Complementary Task Categories",

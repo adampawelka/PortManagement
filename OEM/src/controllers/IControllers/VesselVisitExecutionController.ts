@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Inject, Service } from 'typedi';
 import config from "../../../config";
 import { IVesselVisitExecutionService } from "../../services/IServices/IVesselVisitExecutionService";
-import { CreateVesselVisitExecutionDTO, UpdateVesselVisitExecutionDTO } from "../../dto/VesselVisitExecutionDTO";
+import { CreateVesselVisitExecutionDTO, UpdateVesselVisitExecutionDTO, VveSearchCriteriaDTO } from "../../dto/VesselVisitExecutionDTO";
 
 @Service()
 export default class VesselVisitExecutionController {
@@ -46,13 +46,28 @@ export default class VesselVisitExecutionController {
     }
   };
 
-  // GET: /vesselVisitExecutions (US 4.1.10)
+  // MODIFICADO: GET /vesselVisitExecutions (Soporta US 4.1.10 y getAll simple)
   public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      // Nota: El servicio actual devuelve todos, pero para cumplir plenamente 
-      // la US 4.1.10, el backend deberá soportar filtrado por fechas más adelante.
-      const vvesDTO = await this.vveServiceInstance.getAll();
-      return res.status(200).json(vvesDTO);
+      // Verificamos si hay query params para búsqueda
+      const { dateStart, dateEnd, vesselName, status } = req.query;
+
+      if (dateStart || dateEnd || vesselName || status) {
+        // US 4.1.10: Búsqueda avanzada
+        const criteria: VveSearchCriteriaDTO = {
+          dateStart: dateStart as string,
+          dateEnd: dateEnd as string,
+          vesselName: vesselName as string,
+          status: status as string
+        };
+        
+        const results = await this.vveServiceInstance.search(criteria);
+        return res.status(200).json(results);
+      } else {
+        // getAll original (sin filtros)
+        const vvesDTO = await this.vveServiceInstance.getAll();
+        return res.status(200).json(vvesDTO);
+      }
     } catch (e) {
       return next(e);
     }
@@ -73,3 +88,4 @@ export default class VesselVisitExecutionController {
     }
   };
 }
+

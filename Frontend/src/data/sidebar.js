@@ -60,6 +60,12 @@ export const sidebarMenuItems = [
         key: "update_vve",   
         path: "/vve/update",
         roles: ["LogisticsOperator"],
+      },
+      {
+        name: "Search Vessel Visit Execution",
+        key: "search_vve",   
+        path: "/vve/search",
+        roles: ["LogisticsOperator"],
       }
     ],
   },

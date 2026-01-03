@@ -4,7 +4,9 @@ import { IVesselVisitExecutionRepo } from "./IRepos/IVesselVisitExecutionRepo";
 import {
   VesselVisitExecutionDTO,
   CreateVesselVisitExecutionDTO,
-  UpdateVesselVisitExecutionDTO
+  UpdateVesselVisitExecutionDTO,
+  VveSearchCriteriaDTO,
+  VveSearchDTO
 } from "../dto/VesselVisitExecutionDTO";
 
 import { VesselVisitExecution } from "../Domain/VesselVisitExecutions/VesselVisitExecution";
@@ -163,6 +165,87 @@ export class VesselVisitExecutionService
 
     await this.vveRepo.save(vve);
     return this.toDTO(vve);
+  }
+
+  // --- IMPLEMENTACIÓN US 4.1.10 ---
+  async search(criteria: VveSearchCriteriaDTO): Promise<VveSearchDTO[]> {
+    try {
+      console.log("[VVE Service] Searching with criteria:", criteria);
+
+      // 1. Obtener TODAS las ejecuciones (ya que la DB no soporta filtros complejos aún)
+      const allVves = await this.vveRepo.findAll();
+      
+      // 2. Filtrado en Memoria
+      let filteredVves = allVves;
+
+      // Filtro por Fecha (Start/End basado en ActualArrivalTime)
+      if (criteria.dateStart) {
+        const start = new Date(criteria.dateStart);
+        filteredVves = filteredVves.filter(vve => vve.actualArrivalTime.value >= start);
+      }
+      if (criteria.dateEnd) {
+        const end = new Date(criteria.dateEnd);
+        // Ajustamos al final del día si es necesario, o comparación directa
+        filteredVves = filteredVves.filter(vve => vve.actualArrivalTime.value <= end);
+      }
+
+      // Filtro por Estado
+      if (criteria.status) {
+        filteredVves = filteredVves.filter(vve => vve.status.value === criteria.status);
+      }
+
+      // 3. Mapeo a DTO con Métricas y Nombre del Buque
+      const results: VveSearchDTO[] = [];
+
+      for (const vve of filteredVves) {
+        // Obtener nombre del buque (Simulado o via Cliente VVN)
+        // Lo ideal sería: const details = await this.vvnClient.getDetails(vve.vvnId.value);
+        // Por ahora, devolvemos "Unknown" o el ID si no tenemos el servicio de nombres listo
+        let vesselName = "Unknown Vessel"; 
+        try {
+             // Si tu vvnClient tiene un método para obtener datos, úsalo aquí.
+             // Si no, filtraremos por vvnId si criteria.vesselName se usa como ID.
+             vesselName = `Vessel (VVN: ${vve.vvnId.value.substring(0,8)}...)`; 
+        } catch (e) { console.warn("Could not fetch vessel name"); }
+
+        // Si hay filtro por Vessel (Nombre o ID), aplicarlo aquí
+        if (criteria.vesselName && !vesselName.includes(criteria.vesselName) && !vve.vvnId.value.includes(criteria.vesselName)) {
+            continue; 
+        }
+
+        // --- CÁLCULO DE MÉTRICAS ---
+        const arrival = vve.actualArrivalTime.value;
+        const berth = vve.actualBerthTime ? vve.actualBerthTime.value : null;
+        // Asumimos que tienes una propiedad departure o un método para obtenerla. 
+        // Si no existe en el dominio actual, usamos null (visita en curso).
+        // const departure = vve.actualDepartureTime ? vve.actualDepartureTime.value : null; 
+        const departure = null; // Placeholder hasta que implementes US 4.1.11
+
+        // Cálculo de minutos (diferencia en ms / 1000 / 60)
+        const waitingTime = berth ? Math.floor((berth.getTime() - arrival.getTime()) / (1000 * 60)) : 0;
+        const occupancy = (berth && departure) ? Math.floor((departure.getTime() - berth.getTime()) / (1000 * 60)) : 0;
+        const turnaround = departure ? Math.floor((departure.getTime() - arrival.getTime()) / (1000 * 60)) : 0;
+
+        results.push({
+          id: vve.id.toString(),
+          vvnId: vve.vvnId.value,
+          vesselName: vesselName,
+          arrival: arrival.toISOString(),
+          berth: berth ? berth.toISOString() : undefined,
+          departure: departure ? departure.toISOString() : undefined,
+          status: vve.status.value,
+          waitingTimeMinutes: waitingTime,
+          berthOccupancyMinutes: occupancy,
+          totalTurnaroundMinutes: turnaround
+        });
+      }
+
+      return results;
+
+    } catch (error: any) {
+      console.error("[VVE Service] Error searching:", error);
+      throw new Error("Failed to search vessel visit executions.");
+    }
   }
 
   private toDTO(
