@@ -13,7 +13,7 @@ import { useApi } from '/Users/guille/Documents/GitHub/LEI-SEM5-PI-2025-26-3DL-E
 export default function AccountActivation() {
   const [status, setStatus] = useState('processing'); // 'processing', 'success', 'error'
   const [errorMsg, setErrorMsg] = useState('');
-  const [apiFetch] = useApi();
+  const { apiFetch } = useApi();
 
   useEffect(() => {
     // 1. Extraer parámetros de la URL
@@ -35,19 +35,26 @@ export default function AccountActivation() {
     try {
       console.log(`Intentando activar cuenta para: ${IamUserId} con token: ${activationToken}`);
       
-      // Simulación de llamada a tu servicio/API
-      // Reemplaza esto con: await userService.activateAccount(token)
-      const response = await apiFetch('http://localhost:5000/api/Users/activate', {
+      const response = await apiFetch('/api/Users/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ activationToken, IamUserId })
+        body: JSON.stringify({ 
+          activationToken, 
+          iamUserId: IamUserId 
+        })
       });
 
       if (response.ok) {
         setStatus('success');
       } else {
-        const data = await response.json();
-        throw new Error(data.message || 'El enlace ha expirado o es inválido.');
+        let errorMessage = 'The link has expired or is invalid.';
+        try {
+          const data = await response.json();
+          errorMessage = data.message || data.Message || errorMessage;
+        } catch (e) {
+          // Si no se puede parsear JSON, usar mensaje por defecto
+        }
+        throw new Error(errorMessage);
       }
     } catch (err) {
       setStatus('error');
@@ -63,10 +70,10 @@ export default function AccountActivation() {
           <Box sx={{ py: 4 }}>
             <Loader2 className="animate-spin" size={60} style={{ color: '#1976d2', margin: '0 auto' }} />
             <Typography variant="h5" sx={{ mt: 3, fontWeight: 'bold' }}>
-              Verificando tu cuenta...
+              Verifying your account...
             </Typography>
             <Typography color="text.secondary">
-              Estamos procesando tu solicitud de activación. No cierres esta ventana.
+              We are processing your activation request. Please do not close this window.
             </Typography>
           </Box>
         )}
@@ -75,10 +82,10 @@ export default function AccountActivation() {
           <Box sx={{ py: 2 }}>
             <CheckCircle size={80} color="#2e7d32" style={{ margin: '0 auto' }} />
             <Typography variant="h4" sx={{ mt: 3, fontWeight: 'bold', color: '#2e7d32' }}>
-              ¡Cuenta Activada!
+              ¡Account activated!
             </Typography>
             <Typography sx={{ mt: 2, mb: 4, color: 'text.secondary' }}>
-              Tu correo ha sido verificado correctamente. Ya puedes acceder a todas las funciones de la plataforma.
+              Your e-mail has been verified correctly. Now you can access all platform functions.
             </Typography>
             <Button 
               variant="contained" 
@@ -87,7 +94,7 @@ export default function AccountActivation() {
               onClick={() => window.location.href = '/login'}
               sx={{ borderRadius: 2, py: 1.5, textTransform: 'none', fontSize: '1.1rem' }}
             >
-              Ir al Inicio de Sesión
+              Go to Login
             </Button>
           </Box>
         )}
@@ -96,7 +103,7 @@ export default function AccountActivation() {
           <Box sx={{ py: 2 }}>
             <XCircle size={80} color="#d32f2f" style={{ margin: '0 auto' }} />
             <Typography variant="h5" sx={{ mt: 3, fontWeight: 'bold', color: '#d32f2f' }}>
-              Error en la activación
+              Failed to Activate Account
             </Typography>
             <Alert severity="error" sx={{ mt: 2, mb: 4, textAlign: 'left' }}>
               {errorMsg}
@@ -107,7 +114,7 @@ export default function AccountActivation() {
               onClick={() => window.location.href = '/contact-support'}
               sx={{ borderRadius: 2, textTransform: 'none' }}
             >
-              Contactar Soporte
+              Contact Support
             </Button>
           </Box>
         )}
