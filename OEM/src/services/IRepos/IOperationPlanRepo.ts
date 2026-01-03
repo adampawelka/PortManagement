@@ -29,4 +29,8 @@ export interface IOperationPlanRepo {
   ): Promise<OperationPlan[]>;
 
   exists(OperationPlan: OperationPlan): Promise<boolean>;
+
+  //4.1.6
+  findByOperationDateRange(from: Date, to: Date): Promise<OperationPlan[]>;
+
 }
