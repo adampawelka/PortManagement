@@ -9,6 +9,7 @@ import { protectedRoutes } from "./routes/protectedRoutes.jsx";
 
 import GlobalLayout from "./components/GlobalLayout.jsx";
 import LoginButton from "./components/LoginButton.jsx";
+import AccountActivation from "./components/activate.jsx";
 
 import { useApi } from "./services/api.js";
 
@@ -141,6 +142,17 @@ const App = () => {
           <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh" }}>
             <h1>Login</h1>
             <LoginButton />
+            <DebugUserInfo />
+          </div>
+        }
+      />
+
+      <Route
+        path="/activate"
+        element={
+          <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+            <h1>Activation</h1>
+            <AccountActivation />
             <DebugUserInfo />
           </div>
         }

@@ -178,36 +178,32 @@ namespace DDDSample1.Controllers
 
         
         // POST: api/Users/activate
+        
         [HttpPost("activate")]
-        //[Authorize] // ¡ATTENTION! User must be logged with Auth0
+        [AllowAnonymous] // Permite entrar sin estar logueado
         public async Task<ActionResult<UserDto>> ActivateUser([FromBody] ActivateUserDto dto)
         {
-            // --- Aditional security 3.2.6 ---
-            // We verify that the User is activated
+            // EXPLICACIÓN: Eliminamos el chequeo de "User.FindFirstValue" porque 
+            // el usuario que viene del email NO tiene una sesión activa todavía.
 
-            // 1. We obtein the Auth0 ID token
-            var authenticatedIamId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(authenticatedIamId))
+            // 1. Validación básica del DTO
+            if (dto == null || string.IsNullOrEmpty(dto.ActivationToken))
             {
-                return Unauthorized(new { Message = "Token de sesión inválido." });
+                return BadRequest(new { Message = "El token de activación es requerido." });
             }
 
-            // 2. Compare the ID token with the one given by DTO
-            if (authenticatedIamId != dto.IamUserId)
-            {
-                return Forbid("No tienes permiso para activar esta cuenta.");
-            }
-
-            // 3. Call service 
             try
             {
+                // 2. Llamamos al servicio. 
+                // El servicio debe buscar al usuario por su 'ActivationToken' (o IamUserId + Token)
+                // y verificar que el token sea válido y no haya expirado.
                 var userDto = await _userService.ActivateAsync(dto);
+                
                 return Ok(userDto);
             }
             catch (BusinessRuleValidationException ex)
             {
-                // Service manage errors 
+                // Ejemplo: "El token ha expirado" o "Usuario ya activado"
                 return BadRequest(new { Message = ex.Message });
             }
             catch (Exception ex)
