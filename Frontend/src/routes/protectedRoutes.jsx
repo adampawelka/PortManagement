@@ -47,6 +47,7 @@ import AddVVEPage from "../pages/VesselVisitExecutions/AddVVEPage.jsx";
 import OperationalPlansGenerate from "../pages/OperationalPlans/GenerateOperationalPlans.jsx";
 import SearchOperationalPlans from "../pages/OperationalPlans/SearchOperationalPlans.jsx";
 import MissingOperationalPlans from "../pages/OperationalPlans/MissingOperationalPlans.jsx";
+import UpdateOperationPlan from "../pages/OperationalPlans/UpdateOperationPlan.jsx";
 
 // Incident 
 
@@ -141,7 +142,9 @@ export const protectedRoutes = {
   operationalPlans: [
     { path: "/operational-plans/generate", element: <OperationalPlansGenerate />, roles: ["LogisticsOperator"] },
     { path: "operational-plans/search", element: <SearchOperationalPlans />, roles: ["LogisticsOperator"] },
-    { path: "operational-plans/missing", element: <MissingOperationalPlans />, roles: ["LogisticsOperator"] }
+    { path: "operational-plans/missing", element: <MissingOperationalPlans />, roles: ["LogisticsOperator"] },
+    { path: "/operational-plans/update/:id", element: <UpdateOperationPlan />, roles: ["LogisticsOperator"] },
+    { path: "/operational-plans/update", element: <UpdateOperationPlan />, roles: ["LogisticsOperator"] }
   ],
 
   incidentTypes: [
