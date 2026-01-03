@@ -6,7 +6,7 @@ const TermsAndConditions = ({ language = "en" }) => {
   const [terms, setTerms] = useState(null);
 
   useEffect(() => {
-    fetch("/termsAndConditions/1.0.json")
+    fetch("/termsAndConditions/json/1.0.json")
       .then((res) => res.json())
       .then((data) =>
         setTerms({
@@ -86,7 +86,6 @@ const TermsAndConditions = ({ language = "en" }) => {
     <main className="privacy">
       <div className="privacy__container">
 
-        {/* Header w tym samym stylu co footer */}
         <div className="privacy__footer">
           Effective Date: {terms.effectiveDate} | Version: {terms.version}
         </div>
@@ -95,7 +94,6 @@ const TermsAndConditions = ({ language = "en" }) => {
 
         {sections.map(renderSection)}
 
-        {/* Footer */}
         <div className="privacy__footer">
           Last updated: {terms.effectiveDate} | Version: {terms.version}
         </div>

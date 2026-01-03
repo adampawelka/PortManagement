@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm"; // <- do obsługi tabel
+import remarkGfm from "remark-gfm"; 
 import "../styles/PrivacyPolicy.css";
 
 const PrivacyPolicy = ({ language = "en" }) => {
@@ -37,7 +37,6 @@ const PrivacyPolicy = ({ language = "en" }) => {
     <section key={`${section.title}-${idx}`} className="privacy__section">
       <h2 className="privacy__heading">{section.title}</h2>
 
-      {/* Render Markdown, w tym tabele */}
       {section.content && (
         <div className="privacy__markdown">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -46,7 +45,6 @@ const PrivacyPolicy = ({ language = "en" }) => {
         </div>
       )}
 
-      {/* Listy i kategorie */}
       {section.methods && (
         <ul className="privacy__list">{section.methods.map((m, i) => <li key={i}>{m}</li>)}</ul>
       )}
@@ -76,7 +74,6 @@ const PrivacyPolicy = ({ language = "en" }) => {
     <main className="privacy-policy">
       <div className="privacy__container">
 
-        {/* Header w tym samym stylu co footer */}
         <div className="privacy__footer">
           Effective Date: {privacyPolicy.effectiveDate} | Version: {privacyPolicy.version}
         </div>
@@ -85,7 +82,6 @@ const PrivacyPolicy = ({ language = "en" }) => {
 
         {sections.map(renderSection)}
 
-        {/* Footer */}
         <div className="privacy__footer">
           Last updated: {privacyPolicy.effectiveDate} | Version: {privacyPolicy.version}
         </div>
