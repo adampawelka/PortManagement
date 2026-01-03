@@ -14,7 +14,18 @@ import {
   Select,
   MenuItem,
   Grid,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  Chip,
 } from "@mui/material";
+import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { useUpdateOperationPlanVM } from "../../viewmodels/OperationalPlans/useUpdateOperationPlanVM";
 
 const UpdateOperationPlan = () => {
@@ -32,6 +43,9 @@ const UpdateOperationPlan = () => {
     setChangeReason,
     loadPlan,
     updateField,
+    updateScheduleOperation,
+    addScheduleOperation,
+    removeScheduleOperation,
   } = useUpdateOperationPlanVM();
 
   const [planIdInput, setPlanIdInput] = useState(paramPlanId || "");
@@ -208,6 +222,165 @@ const UpdateOperationPlan = () => {
             </Grid>
           </Grid>
         </Paper>
+      )}
+
+      {isPlanLoaded && plan && (
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Paper
+            sx={{
+              p: 3,
+              backgroundColor: "var(--color-background)",
+              borderRadius: "var(--radius-md)",
+              mb: 3,
+            }}
+          >
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+              <Typography variant="h6" sx={{ color: "var(--color-primary)", fontWeight: 600 }}>
+                Schedule Operations
+              </Typography>
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={addScheduleOperation}
+                sx={{
+                  borderColor: "var(--color-primary)",
+                  color: "var(--color-primary)",
+                }}
+              >
+                Add Operation
+              </Button>
+            </Box>
+
+            {formData.schedule && formData.schedule.length > 0 ? (
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "var(--color-background-light)" }}>
+                    <TableCell sx={{ fontWeight: 600 }}>Vessel Name</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Start Time</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>End Time</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Delay (h)</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Dock</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Cranes</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Staff</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {formData.schedule.map((operation, index) => (
+                    <TableRow key={index} sx={{ backgroundColor: "var(--color-surface)" }}>
+                      <TableCell>
+                        <TextField
+                          size="small"
+                          value={operation.vesselName || ""}
+                          onChange={(e) =>
+                            updateScheduleOperation(index, { vesselName: e.target.value })
+                          }
+                          sx={{ width: 150, backgroundColor: "white" }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <DateTimePicker
+                          value={operation.start ? new Date(operation.start) : null}
+                          onChange={(newValue) =>
+                            updateScheduleOperation(index, {
+                              start: newValue ? newValue.toISOString() : "",
+                            })
+                          }
+                          renderInput={(params) => (
+                            <TextField {...params} size="small" sx={{ width: 180, backgroundColor: "white" }} />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <DateTimePicker
+                          value={operation.end ? new Date(operation.end) : null}
+                          onChange={(newValue) =>
+                            updateScheduleOperation(index, {
+                              end: newValue ? newValue.toISOString() : "",
+                            })
+                          }
+                          renderInput={(params) => (
+                            <TextField {...params} size="small" sx={{ width: 180, backgroundColor: "white" }} />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          type="number"
+                          size="small"
+                          value={operation.delay || 0}
+                          onChange={(e) =>
+                            updateScheduleOperation(index, {
+                              delay: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          inputProps={{ min: 0, step: 0.1 }}
+                          sx={{ width: 80, backgroundColor: "white" }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          size="small"
+                          value={operation.dock || ""}
+                          onChange={(e) =>
+                            updateScheduleOperation(index, { dock: e.target.value })
+                          }
+                          sx={{ width: 120, backgroundColor: "white" }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          size="small"
+                          value={Array.isArray(operation.cranes) ? operation.cranes.join(", ") : ""}
+                          onChange={(e) =>
+                            updateScheduleOperation(index, {
+                              cranes: e.target.value
+                                .split(",")
+                                .map((c) => c.trim())
+                                .filter((c) => c !== ""),
+                            })
+                          }
+                          placeholder="Crane1, Crane2"
+                          sx={{ width: 150, backgroundColor: "white" }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <TextField
+                          size="small"
+                          value={Array.isArray(operation.staff) ? operation.staff.join(", ") : ""}
+                          onChange={(e) =>
+                            updateScheduleOperation(index, {
+                              staff: e.target.value
+                                .split(",")
+                                .map((s) => s.trim())
+                                .filter((s) => s !== ""),
+                            })
+                          }
+                          placeholder="Staff1, Staff2"
+                          sx={{ width: 150, backgroundColor: "white" }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          color="error"
+                          size="small"
+                          onClick={() => removeScheduleOperation(index)}
+                          disabled={formData.schedule.length === 1}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <Alert severity="info">
+                No operations in schedule. Click "Add Operation" to add one.
+              </Alert>
+            )}
+          </Paper>
+        </LocalizationProvider>
       )}
     </Container>
   );
