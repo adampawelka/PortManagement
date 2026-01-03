@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
+import { Container, TextField, Button, Typography, Alert, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useRejectVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useRejectVesselVisitNotificationVM'; 
 
 const RejectVVNPage = () => {
@@ -7,11 +7,15 @@ const RejectVVNPage = () => {
     notificationId,
     rejectionReason,
     loading,
+    submitting,
     message,
+    notifications,
     setNotificationId,
     setReason,
     handleReject,
   } = useRejectVesselVisitNotificationVM(); 
+
+  if (loading) return <Container sx={{ mt: 4 }}><CircularProgress /> Loading notifications...</Container>;
 
   return (
     <Container 
@@ -52,17 +56,35 @@ const RejectVVNPage = () => {
       )}
 
       <form onSubmit={handleReject}>
-        <TextField
-          label="Notification ID (GUID)"
-          value={notificationId}
-          onChange={(e) => setNotificationId(e.target.value)}
-          required
-          fullWidth
-          margin="normal"
-          sx={{
-            input: { fontFamily: 'var(--font-family-base)', fontSize: 'var(--font-size-base)' },
-          }}
-        />
+        <FormControl fullWidth margin="normal" required disabled={submitting} sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}>
+          <InputLabel id="notification-reject-label">Notification (Submitted)</InputLabel>
+          <Select
+            labelId="notification-reject-label"
+            name="notificationId"
+            value={notificationId}
+            label="Notification (Submitted)"
+            onChange={(e) => setNotificationId(e.target.value)}
+            sx={{
+              '& .MuiInputBase-input': {
+                color: 'var(--color-text-dark)', 
+              },
+              '& .MuiOutlinedInput-root': {
+                borderColor: 'var(--color-border)', 
+              },
+            }}
+          >
+            {notifications.length === 0 ? (
+              <MenuItem value="">No submitted notifications available</MenuItem>
+            ) : (
+              notifications.map((n) => (
+                <MenuItem key={n.id} value={n.id}>
+                  {n.id.substring(0, 8)}... - Vessel: {n.vesselName || 'N/A'}
+                </MenuItem>
+              ))
+            )}
+          </Select>
+        </FormControl>
+
         <TextField
           label="Reason"
           value={rejectionReason}
@@ -70,6 +92,8 @@ const RejectVVNPage = () => {
           required
           fullWidth
           margin="normal"
+          multiline
+          rows={3}
           sx={{
             input: { fontFamily: 'var(--font-family-base)', fontSize: 'var(--font-size-base)' },
           }}
@@ -78,7 +102,7 @@ const RejectVVNPage = () => {
         <Button 
           type="submit" 
           variant="contained" 
-          disabled={loading} 
+          disabled={loading || submitting} 
           sx={{ 
             mt: 3, 
             py: 1.5, 
@@ -88,7 +112,7 @@ const RejectVVNPage = () => {
           }} 
           fullWidth
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Reject'}
+          {submitting ? <CircularProgress size={24} color="inherit" /> : 'Reject'}
         </Button>
       </form>
     </Container>

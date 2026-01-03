@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApi } from '../../services/api'; 
 import { addStorageArea } from '../../services/storageAreaService'; 
 
-export const useStorageAreaVM = () => {
+export const useAddStorageAreaVM = () => {
   const { apiFetch } = useApi();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);

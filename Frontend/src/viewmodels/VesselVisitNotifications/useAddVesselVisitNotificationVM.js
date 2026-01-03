@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getVesselVisitNotifications, addVesselVisitNotification } from '../../services/vesselVisitNotificationService';
 import { useApi } from '../../services/api';
 import { getVessels } from '../../services/vesselService';
+import { getShippingAgents } from '../../services/shippingAgentService';
 
 export const useAddVesselVisitNotificationVM = () => {
   const { apiFetch } = useApi();
@@ -18,22 +19,37 @@ export const useAddVesselVisitNotificationVM = () => {
   });
 
   const [vessels, setVessels] = useState([]);
+  const [representatives, setRepresentatives] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    const loadVessels = async () => {
+    const loadInitial = async () => {
       try {
-        const vesselsData = await getVessels(apiFetch);
-        setVessels(vesselsData);
+        const [vesselsData, agentsData] = await Promise.all([
+          getVessels(apiFetch),
+          getShippingAgents(apiFetch)
+        ]);
+
+        setVessels(vesselsData || []);
+
+        const reps = (agentsData || []).flatMap(org => (org.representatives || []).map(r => ({
+          id: r.id,
+          name: r.name,
+          email: r.email,
+          organizationId: org.id,
+          organizationName: org.legalName
+        })));
+
+        setRepresentatives(reps);
       } catch (error) {
-        setMessage({ type: 'error', text: 'Failed to load vessels.' });
+        setMessage({ type: 'error', text: 'Failed to load vessels or representatives.' });
       } finally {
         setLoading(false);
       }
     };
-    loadVessels();
+    loadInitial();
   }, [apiFetch]);
 
   const handleChange = (e) => {
@@ -96,6 +112,7 @@ export const useAddVesselVisitNotificationVM = () => {
   return {
     formData,
     vessels,
+    representatives,
     loading,
     submitting,
     message,

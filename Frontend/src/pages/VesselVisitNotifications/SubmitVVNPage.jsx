@@ -1,15 +1,19 @@
 import React from 'react';
-import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
+import { Container, Button, Typography, Alert, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useSubmitVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useSubmitVesselVisitNotificationVM'; 
 
 const SubmitVVNPage = () => {
   const {
     notificationId,
     loading,
+    submitting,
     message,
+    notifications,
     setNotificationId,
     handleSubmit,
   } = useSubmitVesselVisitNotificationVM(); 
+
+  if (loading) return <Container sx={{ mt: 4 }}><CircularProgress /> Loading notifications...</Container>;
 
   return (
     <Container 
@@ -50,22 +54,39 @@ const SubmitVVNPage = () => {
       )}
 
       <form onSubmit={handleSubmit}>
-        <TextField
-          label="Notification ID (GUID)"
-          value={notificationId}
-          onChange={(e) => setNotificationId(e.target.value)}
-          required
-          fullWidth
-          margin="normal"
-          sx={{
-            input: { fontFamily: 'var(--font-family-base)', fontSize: 'var(--font-size-base)' },
-          }}
-        />
+        <FormControl fullWidth margin="normal" required disabled={submitting} sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}>
+          <InputLabel id="notification-submit-label">Notification (Draft or In Progress)</InputLabel>
+          <Select
+            labelId="notification-submit-label"
+            name="notificationId"
+            value={notificationId}
+            label="Notification (Draft or In Progress)"
+            onChange={(e) => setNotificationId(e.target.value)}
+            sx={{
+              '& .MuiInputBase-input': {
+                color: 'var(--color-text-dark)', 
+              },
+              '& .MuiOutlinedInput-root': {
+                borderColor: 'var(--color-border)', 
+              },
+            }}
+          >
+            {notifications.length === 0 ? (
+              <MenuItem value="">No draft or in-progress notifications available</MenuItem>
+            ) : (
+              notifications.map((n) => (
+                <MenuItem key={n.id} value={n.id}>
+                  {n.id.substring(0, 8)}... - {n.status} - Vessel: {n.vesselName || 'N/A'}
+                </MenuItem>
+              ))
+            )}
+          </Select>
+        </FormControl>
 
         <Button 
           type="submit" 
           variant="contained" 
-          disabled={loading} 
+          disabled={loading || submitting} 
           sx={{ 
             mt: 3, 
             py: 1.5, 
@@ -75,7 +96,7 @@ const SubmitVVNPage = () => {
           }} 
           fullWidth
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Submit'}
+          {submitting ? <CircularProgress size={24} color="inherit" /> : 'Submit'}
         </Button>
       </form>
     </Container>

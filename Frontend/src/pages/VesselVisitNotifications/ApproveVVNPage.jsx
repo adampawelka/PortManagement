@@ -1,6 +1,6 @@
 // src/pages/ApproveVvnPage.js
 import React from 'react';
-import { Container, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
+import { Container, TextField, Button, Typography, Alert, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useApproveVesselVisitNotificationVM } from '../../viewmodels/VesselVisitNotifications/useApproveVesselVisitNotificationVM';
 
 const ApproveVVNPage = () => {
@@ -8,11 +8,16 @@ const ApproveVVNPage = () => {
     notificationId,
     dockID,
     loading,
+    submitting,
     message,
+    notifications,
+    docks,
     setNotificationId,
     setDock,
     handleApprove,
   } = useApproveVesselVisitNotificationVM();
+
+  if (loading) return <Container sx={{ mt: 4 }}><CircularProgress /> Loading notifications and docks...</Container>;
 
   return (
     <Container 
@@ -44,47 +49,68 @@ const ApproveVVNPage = () => {
       </Alert>}
 
       <form onSubmit={handleApprove}>
-        <TextField 
-          label="Notification ID (GUID)" 
-          value={notificationId} 
-          onChange={(e) => setNotificationId(e.target.value)}
-          required 
-          fullWidth 
-          margin="normal"
-          sx={{ 
-            input: { 
-              fontSize: 'var(--font-size-input)', 
-              color: 'var(--color-text-dark)',
-            },
-            label: { 
-              fontSize: 'var(--font-size-label)', 
-            },
-          }}
-        />
+        <FormControl fullWidth margin="normal" required disabled={submitting} sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}>
+          <InputLabel id="notification-select-label">Notification (Submitted)</InputLabel>
+          <Select
+            labelId="notification-select-label"
+            name="notificationId"
+            value={notificationId}
+            label="Notification (Submitted)"
+            onChange={(e) => setNotificationId(e.target.value)}
+            sx={{
+              '& .MuiInputBase-input': {
+                color: 'var(--color-text-dark)', 
+              },
+              '& .MuiOutlinedInput-root': {
+                borderColor: 'var(--color-border)', 
+              },
+            }}
+          >
+            {notifications.length === 0 ? (
+              <MenuItem value="">No submitted notifications available</MenuItem>
+            ) : (
+              notifications.map((n) => (
+                <MenuItem key={n.id} value={n.id}>
+                  {n.id.substring(0, 8)}... - Vessel: {n.vesselName || 'N/A'}
+                </MenuItem>
+              ))
+            )}
+          </Select>
+        </FormControl>
 
-        <TextField 
-          label="DOCK ID (GUID)" 
-          value={dockID} 
-          onChange={(e) => setDock(e.target.value)}
-          required 
-          fullWidth 
-          margin="normal"
-          helperText="Dock Alpha Example. (230e6a8a-bc83-4f6d-b69e-2f9e1fcab771)"
-          sx={{ 
-            input: { 
-              fontSize: 'var(--font-size-input)', 
-              color: 'var(--color-text-dark)',
-            },
-            label: { 
-              fontSize: 'var(--font-size-label)', 
-            },
-          }}
-        />
+        <FormControl fullWidth margin="normal" required disabled={submitting} sx={{ '& .MuiInputLabel-root': { color: 'var(--color-text-dark)' } }}>
+          <InputLabel id="dock-select-label">Dock</InputLabel>
+          <Select
+            labelId="dock-select-label"
+            name="dockId"
+            value={dockID}
+            label="Dock"
+            onChange={(e) => setDock(e.target.value)}
+            sx={{
+              '& .MuiInputBase-input': {
+                color: 'var(--color-text-dark)', 
+              },
+              '& .MuiOutlinedInput-root': {
+                borderColor: 'var(--color-border)', 
+              },
+            }}
+          >
+            {docks.length === 0 ? (
+              <MenuItem value="">No docks available</MenuItem>
+            ) : (
+              docks.map((d) => (
+                <MenuItem key={d.id} value={d.id}>
+                  {d.dockName || d.name} - {d.location || 'N/A'}
+                </MenuItem>
+              ))
+            )}
+          </Select>
+        </FormControl>
 
         <Button 
           type="submit" 
           variant="contained" 
-          disabled={loading} 
+          disabled={loading || submitting} 
           sx={{ 
             mt: 3, 
             py: 1.5, 
@@ -95,7 +121,7 @@ const ApproveVVNPage = () => {
           }} 
           fullWidth
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Approve'}
+          {submitting ? <CircularProgress size={24} color="inherit" /> : 'Approve'}
         </Button>
       </form>
     </Container>
