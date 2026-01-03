@@ -1,4 +1,5 @@
 import { CreateOperationPlanDTO, OperationPlanDTO, SearchOperationPlanDTO, MissingPlanDTO } from "../../dto/OperationPlanDTO";
+import { ResourceAllocationDTO } from "../../dto/OperationPlanDTO";
 
 export interface IOperationPlanService {
   create(
@@ -25,4 +26,13 @@ export interface IOperationPlanService {
   ): Promise<OperationPlanDTO[]>;
 
   getMissingPlans(date: string): Promise<MissingPlanDTO[]>;
+
+  getResourceAllocation(
+    resourceType: 'CRANE' | 'STAFF' | 'DOCK',
+    resourceId: string,
+    from: Date,
+    to: Date
+  ): Promise<ResourceAllocationDTO>; //4.1.6
+
 }
+

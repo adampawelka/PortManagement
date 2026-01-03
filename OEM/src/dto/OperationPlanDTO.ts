@@ -49,3 +49,14 @@ export interface MissingPlanDTO {
   eta: string;
   status: string;
 }
+
+export interface ResourceAllocationDTO { //4.1.6
+  resourceType: 'CRANE' | 'STAFF' | 'DOCK';
+  resourceId: string;
+
+  from: Date;
+  to: Date;
+
+  totalAllocatedMinutes: number;
+  numberOfOperations: number;
+}

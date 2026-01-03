@@ -2,6 +2,7 @@ import React, { useEffect, useState, createContext, useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import "./styles/App.css";
+import PrivacyAcceptanceModal from './components/PrivacyAcceptanceModal';
 
 import { ALL_ROLES } from "./data/roles.js"
 
@@ -30,12 +31,14 @@ const fetchUserRole = async (iamUserId, name, email, apiFetch) => {
 // PROTECTED ROUTE
 // ---------------------------
 const ProtectedRoute = ({ children, requiredRoles = [], testUser = null }) => {
-  const { isAuthenticated, isLoading, user } = useAuth0();
+  const { isAuthenticated, isLoading, user, logout } = useAuth0();
   const { apiFetch } = useApi();
 
   const [loadingUser, setLoadingUser] = useState(true);
   const [userData, setUserData] = useState(null);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [policy, setPolicy] = useState(null);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -46,11 +49,11 @@ const ProtectedRoute = ({ children, requiredRoles = [], testUser = null }) => {
 
       try {
         // TEMP DEVELOPMENT USER
-        // const data1 = { role: "OperationsSupervisor", status: "Active" }; for complementary Task Categories pages
-        //const data1 = { role: "LogisticsOperator", status: "Active" };
+         //const data1 = { role: "OperationsSupervisor", status: "Active" }; for complementary Task Categories pages
+        const data1 = { role: "LogisticsOperator", status: "Active" };
 
         // REAL API CALL
-        const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        //const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
 
         setUserData(data1);
 
@@ -67,6 +70,33 @@ const ProtectedRoute = ({ children, requiredRoles = [], testUser = null }) => {
 
     loadUserData();
   }, [isAuthenticated, user?.sub, requiredRoles, apiFetch, testUser]);
+
+  // Fetch privacy policy and verify acceptance for this user (client-side storage)
+  useEffect(() => {
+    const checkPolicyAcceptance = async () => {
+      if (!isAuthenticated || !user?.sub) return;
+
+      try {
+        const res = await fetch('/privacyPolicy/json/1.0.json');
+        if (!res.ok) return;
+        const data = await res.json();
+        setPolicy(data);
+
+        const acceptedKey = `privacyAccepted:${user.sub}`;
+        const acceptedVersion = localStorage.getItem(acceptedKey);
+
+        if (!acceptedVersion || acceptedVersion !== data.version) {
+          setShowPrivacyModal(true);
+        } else {
+          setShowPrivacyModal(false);
+        }
+      } catch (err) {
+        console.error('Failed to load privacy policy for acceptance check:', err);
+      }
+    };
+
+    checkPolicyAcceptance();
+  }, [isAuthenticated, user?.sub]);
 
   if (isLoading || loadingUser) return <div>Loading...</div>;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
@@ -87,7 +117,27 @@ const ProtectedRoute = ({ children, requiredRoles = [], testUser = null }) => {
     );
   }
 
-  return <UserContext.Provider value={userData}>{children}</UserContext.Provider>;
+  const handleAcceptPolicy = () => {
+    if (policy && user?.sub) {
+      const acceptedKey = `privacyAccepted:${user.sub}`;
+      localStorage.setItem(acceptedKey, policy.version);
+    }
+    setShowPrivacyModal(false);
+  };
+
+  const handleDeclinePolicy = () => {
+    // Log out user if they decline
+    logout({ returnTo: window.location.origin });
+  };
+
+  return (
+    <UserContext.Provider value={userData}>
+      {showPrivacyModal && (
+        <PrivacyAcceptanceModal open={showPrivacyModal} policy={policy} onAccept={handleAcceptPolicy} onDecline={handleDeclinePolicy} />
+      )}
+      {!showPrivacyModal && children}
+    </UserContext.Provider>
+  );
 };
 
 // ---------------------------

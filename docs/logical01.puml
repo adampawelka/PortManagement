@@ -31,6 +31,7 @@ note right of PMS
   - Vessel visits & cargo manifests
   - Resource allocation & scheduling
   - Task planning & execution
+  - Operation execution management
 end note
 
 @enduml

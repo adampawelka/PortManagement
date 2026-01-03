@@ -11,6 +11,7 @@ import {
 
 import axios from 'axios';
 
+import { ResourceAllocationDTO } from "../dto/OperationPlanDTO";
 import { OperationPlan } from "../Domain/OperationPlans/OperationPlan";
 import { OperationPlanId } from "../Domain/OperationPlans/OperationPlanId";
 import { VvnId } from "../Domain/VesselVisitExecutions/VvnId";
@@ -334,4 +335,46 @@ export class OperationPlanService implements IOperationPlanService {
       }))
     };
   }
+
+  async getResourceAllocation(
+  resourceType: 'CRANE' | 'STAFF' | 'DOCK',
+  resourceId: string,
+  from: Date,
+  to: Date
+): Promise<ResourceAllocationDTO> {
+  const plans = await this.operationPlanRepo.findByOperationDateRange(from, to);
+
+  let totalMinutes = 0;
+  let operations = 0;
+
+  for (const plan of plans) {
+    for (const op of plan.schedule) {
+
+      const usesResource =
+        resourceType === 'CRANE' ? op.cranes.includes(resourceId) :
+        resourceType === 'STAFF' ? op.staff.includes(resourceId) :
+        op.dock === resourceId;
+
+      if (!usesResource) continue;
+
+      const start = op.start < from ? from : op.start;
+      const end = op.end > to ? to : op.end;
+
+      if (start < end) {
+        totalMinutes += (end.getTime() - start.getTime()) / 60000;
+        operations++;
+      }
+    }
+  }
+
+  return {
+    resourceType,
+    resourceId,
+    from,
+    to,
+    totalAllocatedMinutes: Math.round(totalMinutes),
+    numberOfOperations: operations
+  };
+}
+
 }

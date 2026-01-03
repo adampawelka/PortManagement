@@ -1,4 +1,5 @@
 @startuml
+skinparam linetype ortho
 !define NODE node
 !define COMPONENT component
 !define DATABASE database
@@ -14,19 +15,30 @@ NODE "localhost:5173" {
 }
 
 NODE "localhost:5000" {
-        COMPONENT "API Module"
+        COMPONENT "BackendAPI Module"
+}
+
+NODE "localhost:5161" {
+        COMPONENT "OEM Module"
+}
+NODE "localhost:5107" {
         COMPONENT "Scheduling Module"
 }
 
 NODE "vs216.dei.isep.ipp.pt" {
-        DATABASE "Relational Database"
+        DATABASE "SQL Database"
+        DATABASE "MongoDB Database"
 }
 
 NODE "Auth0" {
 }
 
 "localhost:5173" --> "localhost:5000"
+"localhost:5173" --> "localhost:5161"
+"localhost:5173" --> "localhost:5107"
+"localhost:5161" -> "localhost:5107"
 "localhost:5173" --> "Auth0"
 "localhost:5000" -down-> "vs216.dei.isep.ipp.pt"
+"localhost:5161" -down-> "vs216.dei.isep.ipp.pt"
 
 @enduml
