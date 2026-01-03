@@ -13,6 +13,10 @@ const Footer = () => {
           {t("privacy_policy")}
         </Link>
         {" | "}  
+        <Link to="/cookies" className="footer-link">
+          {t("cookies")}
+        </Link>
+        {" | "}  
         <Link to="/terms-and-conditions" className="footer-link">
           {t("terms_and_conditions")}
         </Link>
