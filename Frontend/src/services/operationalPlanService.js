@@ -56,6 +56,39 @@ export const getMissingPlans = async (apiOemFetch, date) => {
   return res.json();
 };
 
+export const getOperationalPlanById = async (apiOemFetch, planId) => {
+  const res = await apiOemFetch(`/api/operationPlans/${planId}`);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    if (res.status === 404) {
+      throw new Error("Operation plan not found");
+    }
+    throw new Error(errorData.message || "Failed to fetch operation plan");
+  }
+  return res.json();
+};
+
+export const updateOperationalPlan = async (apiOemFetch, planId, updateDto) => {
+  const res = await apiOemFetch(`/api/operationPlans/${planId}`, {
+    method: "PUT",
+    body: JSON.stringify(updateDto),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    if (res.status === 404) {
+      throw new Error("Operation plan not found");
+    }
+    if (res.status === 400) {
+      throw new Error(errorData.message || "Validation error: Invalid plan data");
+    }
+    if (res.status === 409) {
+      throw new Error(errorData.message || "Conflict: Resource already in use");
+    }
+    throw new Error(errorData.message || "Failed to update operation plan");
+  }
+  return res.json();
+};
+
 
 
 // MOCK DATA GENERATOR
