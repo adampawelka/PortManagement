@@ -162,6 +162,71 @@ export class OperationPlanService implements IOperationPlanService {
         }
       }
 
+      // Check for inconsistencies before updating
+      const warnings: string[] = [];
+      const errors: string[] = [];
+
+      // Get all other plans to check for conflicts
+      const allPlans = await this.operationPlanRepo.findAll();
+      const otherPlans = allPlans.filter(p => p.id.toString() !== id);
+
+      // Check each operation in the new schedule
+      for (let i = 0; i < dto.schedule.length; i++) {
+        const newOp = dto.schedule[i];
+        const newStart = new Date(newOp.start);
+        const newEnd = new Date(newOp.end);
+        const newCranes = newOp.cranes || [];
+        const newStaff = newOp.staff || [];
+
+        // Check for overlaps with other plans using same resources
+        for (const otherPlan of otherPlans) {
+          for (const otherOp of otherPlan.schedule) {
+            const otherStart = otherOp.start;
+            const otherEnd = otherOp.end;
+            const otherCranes = otherOp.cranes || [];
+            const otherStaff = otherOp.staff || [];
+
+            // Check if time periods overlap
+            const timeOverlap = (newStart < otherEnd && newEnd > otherStart);
+
+            if (timeOverlap) {
+              // Check crane conflicts
+              const craneOverlap = newCranes.some(crane => otherCranes.includes(crane));
+              if (craneOverlap) {
+                const conflictingCranes = newCranes.filter(c => otherCranes.includes(c));
+                errors.push(
+                  `Operation ${i + 1}: Crane(s) ${conflictingCranes.join(', ')} already assigned to another plan (${otherPlan.vvnId.value}) during this time period`
+                );
+              }
+
+              // Check staff conflicts
+              const staffOverlap = newStaff.some(staff => otherStaff.includes(staff));
+              if (staffOverlap) {
+                const conflictingStaff = newStaff.filter(s => otherStaff.includes(s));
+                warnings.push(
+                  `Operation ${i + 1}: Staff member(s) ${conflictingStaff.join(', ')} may be double-booked with another plan (${otherPlan.vvnId.value})`
+                );
+              }
+            }
+          }
+        }
+
+        // Check if operation has at least one resource assigned
+        if (newCranes.length === 0 && newStaff.length === 0) {
+          warnings.push(`Operation ${i + 1}: No cranes or staff assigned`);
+        }
+      }
+
+      // Throw errors for critical conflicts
+      if (errors.length > 0) {
+        throw new Error(`Resource conflicts detected:\n${errors.join('\n')}`);
+      }
+
+      // Log warnings (non-blocking)
+      if (warnings.length > 0) {
+        console.warn('Operation Plan Update Warnings:', warnings);
+      }
+
       plan.props.schedule = this.mapScheduleDTOtoVO(dto.schedule);
     }
 
