@@ -35,41 +35,38 @@ jobs:
         if [ -d "Frontend" ]; then
           mkdir -p deployment/frontend
           cp -r Frontend/* deployment/frontend/
-          echo "✅ Frontend module packaged"
+          echo "Frontend module packaged"
         else
-          echo "⚠️  Frontend directory not found"
+          echo "Frontend directory not found"
         fi
         
         if [ -d "BackendAPI" ]; then
           mkdir -p deployment/backend
           cp -r BackendAPI/* deployment/backend/
-          echo "✅ Backend module packaged"
+          echo "Backend module packaged"
         else
-          echo "⚠️  BackendAPI directory not found"
+          echo "BackendAPI directory not found"
         fi
         
         if [ -d "Scheduling" ]; then
           mkdir -p deployment/scheduling
           cp -r Scheduling/* deployment/scheduling/
-          echo "✅ Scheduling module packaged"
+          echo "Scheduling module packaged"
         else
-          echo "⚠️  Scheduling directory not found"
+          echo "Scheduling directory not found"
         fi
         
         if [ -d "OEM" ]; then
           mkdir -p deployment/oem
           cp -r OEM/* deployment/oem/
-          echo "✅ OEM module packaged"
+          echo "OEM module packaged"
         else
-          echo "⚠️  OEM directory not found"
+          echo "OEM directory not found"
         fi
         
         # Copy docker-compose files
         if [ -f "docker-compose.yml" ]; then
           cp docker-compose.yml deployment/
-        fi
-        if [ -f "docker-compose.prod.yml" ]; then
-          cp docker-compose.prod.yml deployment/
         fi
         
         # Create deployment manifest
@@ -165,9 +162,9 @@ jobs:
             
             # Test VPN connection
             if ping -c 1 -W 5 ${{ secrets.DEPLOY_HOST_INTERNAL }} &> /dev/null; then
-              echo "✅ VPN connected"
+              echo "VPN connected"
             else
-              echo "⚠️  VPN connection may not be active"
+              echo "VPN connection may not be active"
             fi
           fi
           
@@ -177,7 +174,7 @@ jobs:
           
           # 3. Check if Docker is running
           if ! docker info &> /dev/null; then
-            echo "❌ Docker is not running"
+            echo "Docker is not running"
             exit 1
           fi
           
@@ -215,7 +212,7 @@ jobs:
           cd /tmp
           
           if [ ! -f "deployment-$RELEASE_VERSION.tar.gz" ]; then
-            echo "❌ Deployment package not found"
+            echo "Deployment package not found"
             exit 1
           fi
           
@@ -224,7 +221,7 @@ jobs:
             BACKUP_DIR="$DEPLOY_PATH/backups/$RELEASE_VERSION"
             mkdir -p "$BACKUP_DIR"
             cp -r "$DEPLOY_PATH/current" "$BACKUP_DIR/" 2>/dev/null || true
-            echo "✅ Current version backed up to: $BACKUP_DIR"
+            echo "Current version backed up to: $BACKUP_DIR"
           fi
           
           # Run deployment script from package
@@ -235,4 +232,4 @@ jobs:
           chmod +x deploy.sh
           ./deploy.sh "$RELEASE_VERSION" "/tmp/deployment-$RELEASE_VERSION.tar.gz"
           
-          echo "🎉 Deployment completed successfully!"
+          echo "Deployment completed successfully!"
