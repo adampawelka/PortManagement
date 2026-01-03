@@ -256,6 +256,9 @@ export const useUpdateOperationPlanVM = () => {
           cranes: op.cranes || [],
           staff: op.staff || []
         }))
+        // Note: changeReason, changedBy, changedAt are validated in frontend
+        // but not sent to backend as UpdateOperationPlanDTO doesn't include them
+        // Backend can log changes using existing audit fields if needed
       };
 
       await updateOperationalPlan(apiOemFetch, plan.id, updateDto);
