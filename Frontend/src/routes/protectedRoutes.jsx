@@ -80,6 +80,7 @@ import PendingUsersManagementPage from "../pages/Users/PendingUsersManagementPag
 import ThumbRaiserComponent from "../pages/Visualisation.jsx";
 
 import PrivacyPolicy from "../pages/PrivacyPolicy.jsx";
+import TermsAndConditions from "../pages/TermsAndConditions.jsx";
 
 // ---------------------------
 // Grouped Routes
@@ -90,9 +91,11 @@ export const protectedRoutes = {
   ],
 
   privacyPolicy: [
-    {
-      path: "/privacy-policy", element: <PrivacyPolicy />, roles: ALL_ROLES
-    },
+    { path: "/privacy-policy", element: <PrivacyPolicy />, roles: ALL_ROLES },
+  ],
+
+  termsAndConditions: [
+    { path: "/terms-and-conditions", element: <TermsAndConditions />, roles: ALL_ROLES },
   ],
 
   storageAreas: [
