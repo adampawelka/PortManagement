@@ -36,24 +36,59 @@ export class VesselVisitExecutionService
     dto: CreateVesselVisitExecutionDTO
   ): Promise<VesselVisitExecutionDTO> {
 
-    // Validate that the referenced VVN exists (US 4.1.7)
-    // If validation fails due to network/auth issues, log warning but continue
+    // Validate that the referenced VVN exists and is APPROVED (US 4.1.7)
+    let vvnValidationError: Error | null = null;
     try {
-      const vvnExists = await this.vvnClient.vvnExists(dto.vvnId);
-      if (!vvnExists) {
-        throw new Error(`Vessel Visit Notification (VVN) with ID ${dto.vvnId} does not exist`);
+      console.log(`[VesselVisitExecutionService] Validating VVN: ${dto.vvnId}`);
+      const vvn = await this.vvnClient.getVvnById(dto.vvnId);
+      
+      if (!vvn) {
+        vvnValidationError = new Error(`Vessel Visit Notification (VVN) with ID ${dto.vvnId} does not exist`);
+        throw vvnValidationError;
       }
+      
+      // Log the full VVN object for debugging
+      console.log(`[VesselVisitExecutionService] VVN retrieved:`, JSON.stringify(vvn, null, 2));
+      
+      // Check status (case-insensitive comparison)
+      // Try multiple possible field names: status, visitStatus, VisitStatus
+      const vvnStatus = (vvn.status || (vvn as any).visitStatus || (vvn as any).VisitStatus || '').toString().toUpperCase();
+      console.log(`[VesselVisitExecutionService] VVN status check: received="${vvn.status || (vvn as any).visitStatus || (vvn as any).VisitStatus}", normalized="${vvnStatus}"`);
+      
+      if (!vvnStatus || vvnStatus !== 'APPROVED') {
+        vvnValidationError = new Error(`Cannot create VVE for VVN with status "${vvn.status || (vvn as any).visitStatus || (vvn as any).VisitStatus}". VVN must be APPROVED.`);
+        console.error(`[VesselVisitExecutionService] ${vvnValidationError.message}`);
+        throw vvnValidationError;
+      }
+      
+      console.log(`[VesselVisitExecutionService] VVN validation passed - status is APPROVED`);
     } catch (error: any) {
-      // If it's a validation error (VVN doesn't exist), throw it
-      if (error.message && error.message.includes('does not exist')) {
+      // If it's our validation error, always throw it
+      if (vvnValidationError) {
+        throw vvnValidationError;
+      }
+      
+      // If it's a validation error (VVN doesn't exist or wrong status), throw it
+      if (error.message && (
+        error.message.includes('does not exist') || 
+        error.message.includes('must be APPROVED') ||
+        error.message.includes('Cannot create VVE')
+      )) {
         throw error;
       }
+      
       // For network/auth errors, log warning but allow creation to proceed
       // This prevents blocking VVE creation if Backend API is unavailable
-      console.warn(`[VesselVisitExecutionService] Could not validate VVN existence: ${error.message}. Proceeding with VVE creation.`);
-      // In production, you might want to make this stricter or use a service account
+      console.warn(`[VesselVisitExecutionService] Could not validate VVN: ${error.message}. Proceeding with VVE creation.`);
     }
 
+    if (dto.actualBerthTime) {
+      const arrivalTime = new Date(dto.actualArrivalTime);
+      const berthTime = new Date(dto.actualBerthTime);
+      if (berthTime < arrivalTime) {
+        throw new Error("Actual Berth Time must be after Actual Arrival Time");
+      }
+    }
     // VVE ID is automatically generated as UUID (matching VVN ID pattern)
     // No ID is passed to create(), so UniqueEntityID generates a new UUID
     // Status is automatically set to IN_PROGRESS when VVE is created (US 4.1.7)
