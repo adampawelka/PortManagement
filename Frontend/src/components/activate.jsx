@@ -4,16 +4,17 @@ import {
   Box, Button, Alert 
 } from '@mui/material';
 import { CheckCircle, XCircle, Loader2, MailOpen } from 'lucide-react';
-import { useApi } from '/Users/guille/Documents/GitHub/LEI-SEM5-PI-2025-26-3DL-E-04/Frontend/src/services/api.js';
 
 /**
  * Este componente debe estar mapeado a la ruta que pones en el correo.
- * Ejemplo de URL: /activate-account?token=XXXX&email=user@test.com
+ * Ejemplo de URL: /activate?token=XXXX&iamId=user@test.com
+ * 
+ * NOTE: This component does NOT use useApi() because the user hasn't logged in yet.
+ * The backend endpoint [AllowAnonymous] accepts plain HTTP requests without Auth0 token.
  */
 export default function AccountActivation() {
   const [status, setStatus] = useState('processing'); // 'processing', 'success', 'error'
   const [errorMsg, setErrorMsg] = useState('');
-  const { apiFetch } = useApi();
 
   useEffect(() => {
     // 1. Extraer parámetros de la URL
@@ -35,7 +36,8 @@ export default function AccountActivation() {
     try {
       console.log(`Intentando activar cuenta para: ${IamUserId} con token: ${activationToken}`);
       
-      const response = await apiFetch('/api/Users/activate', {
+      // Use plain fetch (no Auth0) because endpoint is [AllowAnonymous]
+      const response = await fetch('http://localhost:5000/api/Users/activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
