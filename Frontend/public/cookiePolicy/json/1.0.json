@@ -1,0 +1,176 @@
+{
+    "version": "1.0",
+    "effectiveDate": "December 23, 2025",
+    "sections": {
+        "en": {
+            "title": "Cookie Policy",
+            "introduction": {
+                "title": "1. What Are Cookies?",
+                "content": "Cookies are small text files placed on your device (computer, smartphone, or tablet) when you visit a website. They allow the website to recognize your device and remember information about your visit, such as your preferences and login status."
+            },
+            "usage": {
+                "title": "2. How We Use Cookies",
+                "content": "The Port Management System uses cookies and similar technologies to:\n- Maintain your authenticated session\n- Remember your language preference\n- Protect against security threats\n- Improve system performance\n- Analyze how users interact with the System"
+            },
+            "types": {
+                "title": "3. Types of Cookies We Use",
+                "categories": [
+                    {
+                        "category": "3.1 Essential Cookies (Always Active)",
+                        "content": "These cookies are necessary for the System to function and cannot be disabled.\n\n| Cookie Name | Purpose | Duration | Set By |\n|-------------|---------|----------|--------|\n| `auth0.session` | Maintains your authenticated session after login via Auth0 | Session | Auth0 |\n| `auth0.is.authenticated` | Indicates authentication status | Session | Auth0 |\n| `auth_token` | Secure authentication token | Session | Our System |\n| `csrf_token` | Protection against Cross-Site Request Forgery attacks | Session | Our System |\n| `session_id` | Unique identifier for your current session | Session | Our System |\n\n**Why These Are Essential:**\n- Without these cookies, you cannot log in or use the System\n- They ensure secure communication between your browser and our servers\n- They protect against unauthorized access and security attacks"
+                    },
+                    {
+                        "category": "3.2 Functional Cookies (Can Be Disabled)",
+                        "content": "These cookies enhance your experience but are not strictly necessary.\n\n| Cookie Name | Purpose | Duration | Set By |\n|-------------|---------|----------|--------|\n| `user_language` | Remembers your language preference (EN/PT) | 1 year | Our System |\n| `ui_preferences` | Stores your interface customization settings | 1 year | Our System |\n| `sidebar_collapsed` | Remembers sidebar state (expanded/collapsed) | 30 days | Our System |\n| `theme_preference` | Stores your theme preference (if available) | 1 year | Our System |\n\n**Impact of Disabling:**\n- You will need to re-select your language on each visit\n- Your UI preferences will not be saved between sessions\n- The System will work, but with a less personalized experience"
+                    },
+                    {
+                        "category": "3.3 Analytics Cookies (Optional)",
+                        "content": "These cookies help us understand how users interact with the System.\n\n| Cookie Name | Purpose | Duration | Set By |\n|-------------|---------|----------|--------|\n| `_ga` | Google Analytics - distinguishes users | 2 years | Google Analytics |\n| `_gid` | Google Analytics - distinguishes users | 24 hours | Google Analytics |\n| `_gat` | Google Analytics - throttles request rate | 1 minute | Google Analytics |\n\n**What We Track:**\n- Pages visited and features used\n- Time spent on different sections\n- Navigation patterns and user flows\n- Error rates and system performance\n- Anonymized demographic information\n\n**Privacy Note:**\n- Analytics data is anonymized and aggregated\n- We cannot identify individual users from this data\n- IP addresses are anonymized before storage"
+                    }
+                ]
+            },
+            "thirdParty": {
+                "title": "4. Third-Party Cookies",
+                "categories": [
+                    {
+                        "category": "4.1 Auth0 Authentication Cookies",
+                        "content": "We use Auth0 as our authentication provider. Auth0 sets cookies to manage your login session and authentication state.\n\n**Auth0 Cookies Include:**\n- Authentication state cookies\n- Session management cookies\n- Security tokens\n- Remember-me functionality\n\n**Auth0's Privacy Policy:** https://auth0.com/privacy\n\n**Auth0's Cookie Policy:** https://auth0.com/docs/secure/tokens/cookies"
+                    },
+                    {
+                        "category": "4.2 Social Login Providers",
+                        "content": "**Google:**\n- Privacy Policy: https://policies.google.com/privacy\n- Cookie Information: https://policies.google.com/technologies/cookies\n\n**Microsoft:**\n- Privacy Policy: https://privacy.microsoft.com/privacystatement\n- Cookie Information: https://privacy.microsoft.com/data-management/cookies\n\n**Facebook:**\n- Privacy Policy: https://www.facebook.com/privacy/policy\n- Cookie Information: https://www.facebook.com/policies/cookies\n\n**Note:** We do not control these third-party cookies. Please refer to the respective privacy policies for information about their data practices."
+                    }
+                ]
+            },
+            "lifespan": {
+                "title": "5. Cookie Lifespan",
+                "content": "### 5.1 Session Cookies\n- **Duration:** Deleted when you close your browser\n- **Purpose:** Maintain your active session while using the System\n- **Examples:** Authentication tokens, CSRF protection\n\n### 5.2 Persistent Cookies\n- **Duration:** Remain on your device for a set period\n- **Purpose:** Remember preferences between sessions\n- **Examples:** Language preference (1 year), UI settings (1 year)\n\n### 5.3 Expiration Policy\nAll cookies have defined expiration periods. Once expired, they are automatically deleted by your browser."
+            },
+            "managingPreferences": {
+                "title": "6. Managing Your Cookie Preferences",
+                "content": "### 6.1 Cookie Consent Banner\nWhen you first visit the System, you will see a cookie consent banner with the following options:\n\n- **Accept All:** Enables all cookies including analytics\n- **Reject Non-Essential:** Only essential cookies are enabled\n- **Customize:** Choose which cookie categories to enable\n\nYour preference is stored and respected on future visits.\n\n### 6.2 Changing Your Preferences\n1. **Via System Settings:**\n   - Log in to the System\n   - Navigate to \"Account Settings\" → \"Privacy & Cookies\"\n   - Update your cookie preferences\n2. **Via Footer Link:**\n   - Click \"Cookie Settings\" in the page footer\n   - Update your preferences in the pop-up dialog\n\n### 6.3 Browser Settings\nYou can also control cookies through your browser settings.\n\n**Note:** Blocking all cookies may prevent you from using the System entirely."
+            },
+            "dnt": {
+                "title": "7. Do Not Track (DNT)",
+                "content": "Some browsers offer a \"Do Not Track\" (DNT) signal. Currently, there is no industry standard for how websites should respond to DNT signals. We do not alter our data collection practices based on DNT signals, but you can control cookies through the methods described above."
+            },
+            "mobile": {
+                "title": "8. Mobile Devices",
+                "content": "If you access the System via mobile devices or tablets:\n- Cookies function similarly to desktop browsers\n- Manage cookies through your mobile browser settings\n- Some mobile operating systems may have additional privacy controls"
+            },
+            "disabling": {
+                "title": "9. Consequences of Disabling Cookies",
+                "content": "### 9.1 Disabling Essential Cookies\n**Impact:**\n- You cannot log in or authenticate\n- The System will not function\n- Security protections will be compromised\n\n**Recommendation:** Essential cookies must remain enabled.\n\n### 9.2 Disabling Functional Cookies\n**Impact:**\n- Language preference not saved (defaults to English)\n- UI customizations reset on each visit\n- Less personalized user experience\n\n**Recommendation:** Enable for better user experience.\n\n### 9.3 Disabling Analytics Cookies\n**Impact:**\n- No impact on System functionality\n- We cannot improve the System based on usage patterns\n- Your usage data will not contribute to analytics\n\n**Recommendation:** Your choice - no functional impact."
+            },
+            "updates": {
+                "title": "10. Updates to This Cookie Policy",
+                "content": "We may update this Cookie Policy to reflect:\n- Changes in cookie usage\n- New cookie technologies\n- Legal or regulatory requirements\n- Improvements to transparency\n\n**Notification of Changes:**\n- Email notification to registered users\n- Notice in the cookie consent banner\n- Version number and date updated\n\n**Version History:**\n- v1.0 - December 23, 2025: Initial version"
+            },
+            "dataProtection": {
+                "title": "11. Data Protection and Privacy",
+                "content": "For information about how we collect, use, and protect your personal data, please see our [Privacy Policy](#).\n\nKey points regarding cookies and privacy:\n- Cookies may contain personal data (e.g., user ID, session tokens)\n- We protect cookie data with encryption and security measures\n- Third-party cookies are subject to their respective privacy policies\n- You have rights under GDPR regarding data collected via cookies"
+            },
+            "contact": {
+                "title": "12. Contact Information",
+                "content": "**Email:** privacy@portmanagement.example.com  \n**Data Protection Officer:** dpo@portmanagement.example.com\n\nFor technical issues with cookies:\n**Technical Support:** techsupport@portmanagement.example.com"
+            },
+            "legalBasis": {
+                "title": "13. Legal Basis for Cookie Use",
+                "content": "We use cookies based on the following legal grounds:\n- **Essential Cookies:** Necessary for contract performance (Art. 6(1)(b) GDPR)\n- **Functional Cookies:** Based on your consent (Art. 6(1)(a) GDPR)\n- **Analytics Cookies:** Based on your consent (Art. 6(1)(a) GDPR)\n\nYou can withdraw consent at any time through the cookie settings."
+            },
+            "childrenPrivacy": {
+                "title": "14. Children's Privacy",
+                "content": "The System is not intended for individuals under 18 years of age. We do not knowingly collect data from minors via cookies or any other means."
+            },
+            "international": {
+                "title": "15. International Users",
+                "content": "If you access the System from outside the European Union:\n- Cookie usage remains the same\n- Data protection laws of your jurisdiction may apply\n- Auth0 processes authentication data according to its privacy policy\n- Cross-border data transfers are protected by appropriate safeguards"
+            }
+        },
+        "pt": {
+            "title": "Política de Cookies",
+            "introduction": {
+                "title": "1. O que são Cookies?",
+                "content": "Cookies são pequenos arquivos de texto colocados no seu dispositivo (computador, smartphone ou tablet) quando você visita um site. Eles permitem que o site reconheça seu dispositivo e lembre informações sobre sua visita, como suas preferências e estado de login."
+            },
+            "usage": {
+                "title": "2. Como Utilizamos os Cookies",
+                "content": "O Sistema de Gestão Portuária utiliza cookies e tecnologias similares para:\n- Manter sua sessão autenticada\n- Lembrar sua preferência de idioma\n- Proteger contra ameaças de segurança\n- Melhorar o desempenho do sistema\n- Analisar como os usuários interagem com o Sistema"
+            },
+            "types": {
+                "title": "3. Tipos de Cookies que Utilizamos",
+                "categories": [
+                    {
+                        "category": "3.1 Cookies Essenciais (Sempre Ativos)",
+                        "content": "Estes cookies são necessários para o funcionamento do Sistema e não podem ser desativados.\n\n| Nome do Cookie | Finalidade | Duração | Configurado Por |\n|----------------|------------|---------|----------------|\n| `auth0.session` | Mantém sua sessão autenticada após login via Auth0 | Sessão | Auth0 |\n| `auth0.is.authenticated` | Indica o estado de autenticação | Sessão | Auth0 |\n| `auth_token` | Token de autenticação seguro | Sessão | Nosso Sistema |\n| `csrf_token` | Proteção contra ataques Cross-Site Request Forgery | Sessão | Nosso Sistema |\n| `session_id` | Identificador único para sua sessão atual | Sessão | Nosso Sistema |\n\n**Por que são essenciais:**\n- Sem esses cookies, você não pode fazer login ou usar o Sistema\n- Garantem comunicação segura entre seu navegador e nossos servidores\n- Protegem contra acessos não autorizados e ataques de segurança"
+                    },
+                    {
+                        "category": "3.2 Cookies Funcionais (Podem ser desativados)",
+                        "content": "Estes cookies melhoram sua experiência, mas não são estritamente necessários.\n\n| Nome do Cookie | Finalidade | Duração | Configurado Por |\n|----------------|------------|---------|----------------|\n| `user_language` | Lembra sua preferência de idioma (EN/PT) | 1 ano | Nosso Sistema |\n| `ui_preferences` | Armazena configurações personalizadas da interface | 1 ano | Nosso Sistema |\n| `sidebar_collapsed` | Lembra o estado da barra lateral (expandida/colapsada) | 30 dias | Nosso Sistema |\n| `theme_preference` | Armazena preferência de tema (se disponível) | 1 ano | Nosso Sistema |\n\n**Impacto da desativação:**\n- Você precisará selecionar o idioma novamente a cada visita\n- Suas preferências de interface não serão salvas entre sessões\n- O Sistema funcionará, mas com experiência menos personalizada"
+                    },
+                    {
+                        "category": "3.3 Cookies Analíticos (Opcionais)",
+                        "content": "Estes cookies nos ajudam a entender como os usuários interagem com o Sistema.\n\n| Nome do Cookie | Finalidade | Duração | Configurado Por |\n|----------------|------------|---------|----------------|\n| `_ga` | Google Analytics - distingue usuários | 2 anos | Google Analytics |\n| `_gid` | Google Analytics - distingue usuários | 24 horas | Google Analytics |\n| `_gat` | Google Analytics - limita taxa de requisições | 1 minuto | Google Analytics |\n\n**O que rastreamos:**\n- Páginas visitadas e funcionalidades usadas\n- Tempo gasto em diferentes seções\n- Padrões de navegação e fluxo de usuários\n- Taxas de erro e desempenho do sistema\n- Informações demográficas anonimizadas\n\n**Nota de Privacidade:**\n- Dados analíticos são anonimizados e agregados\n- Não é possível identificar usuários individuais a partir desses dados\n- Endereços IP são anonimizados antes do armazenamento"
+                    }
+                ]
+            },
+            "thirdParty": {
+                "title": "4. Cookies de Terceiros",
+                "categories": [
+                    {
+                        "category": "4.1 Cookies de Autenticação Auth0",
+                        "content": "Utilizamos Auth0 como nosso provedor de autenticação. Auth0 define cookies para gerenciar sua sessão de login e estado de autenticação.\n\n**Cookies Auth0 incluem:**\n- Cookies de estado de autenticação\n- Cookies de gerenciamento de sessão\n- Tokens de segurança\n- Funcionalidade 'lembrar-me'\n\n**Política de Privacidade Auth0:** https://auth0.com/privacy\n\n**Política de Cookies Auth0:** https://auth0.com/docs/secure/tokens/cookies"
+                    },
+                    {
+                        "category": "4.2 Provedores de Login Social",
+                        "content": "Se você escolher autenticar usando login social (Google, Microsoft, Facebook), esses provedores podem definir seus próprios cookies:\n\n**Google:**\n- Política de Privacidade: https://policies.google.com/privacy\n- Informações sobre Cookies: https://policies.google.com/technologies/cookies\n\n**Microsoft:**\n- Política de Privacidade: https://privacy.microsoft.com/privacystatement\n- Informações sobre Cookies: https://privacy.microsoft.com/data-management/cookies\n\n**Facebook:**\n- Política de Privacidade: https://www.facebook.com/privacy/policy\n- Informações sobre Cookies: https://www.facebook.com/policies/cookies\n\n**Nota:** Não controlamos esses cookies de terceiros. Consulte as políticas de privacidade correspondentes para informações sobre suas práticas de dados."
+                    }
+                ]
+            },
+            "lifespan": {
+                "title": "5. Duração dos Cookies",
+                "content": "### 5.1 Cookies de Sessão\n- **Duração:** Excluídos ao fechar o navegador\n- **Finalidade:** Manter sua sessão ativa enquanto usa o Sistema\n- **Exemplos:** Tokens de autenticação, proteção CSRF\n\n### 5.2 Cookies Persistentes\n- **Duração:** Permanecem no dispositivo por um período definido\n- **Finalidade:** Lembrar preferências entre sessões\n- **Exemplos:** Preferência de idioma (1 ano), configurações de UI (1 ano)\n\n### 5.3 Política de Expiração\nTodos os cookies têm períodos de expiração definidos. Uma vez expirados, são automaticamente excluídos pelo navegador."
+            },
+            "managingPreferences": {
+                "title": "6. Gerenciando suas Preferências de Cookies",
+                "content": "### 6.1 Banner de Consentimento de Cookies\nAo visitar o Sistema pela primeira vez, você verá um banner de consentimento de cookies com as seguintes opções:\n\n- **Aceitar Todos:** Ativa todos os cookies, incluindo os analíticos\n- **Rejeitar Não Essenciais:** Apenas cookies essenciais são ativados\n- **Personalizar:** Escolha quais categorias de cookies ativar\n\nSua preferência é armazenada e respeitada em visitas futuras.\n\n### 6.2 Alterando suas Preferências\n1. **Através das Configurações do Sistema:**\n   - Faça login no Sistema\n   - Vá para \"Configurações da Conta\" → \"Privacidade & Cookies\"\n   - Atualize suas preferências de cookies\n2. **Através do Rodapé:**\n   - Clique em \"Configurações de Cookies\" no rodapé da página\n   - Atualize suas preferências na janela pop-up\n\n### 6.3 Configurações do Navegador\nVocê também pode controlar os cookies através das configurações do seu navegador.\n\n**Nota:** Bloquear todos os cookies pode impedir o uso completo do Sistema."
+            },
+            "dnt": {
+                "title": "7. Não Rastrear (DNT)",
+                "content": "Alguns navegadores oferecem um sinal 'Não Rastrear' (DNT). Atualmente, não existe um padrão da indústria sobre como os sites devem responder a sinais DNT. Não alteramos nossa coleta de dados com base nesses sinais, mas você pode controlar os cookies pelos métodos descritos acima."
+            },
+            "mobile": {
+                "title": "8. Dispositivos Móveis",
+                "content": "Se você acessar o Sistema via dispositivos móveis ou tablets:\n- Cookies funcionam de forma semelhante aos navegadores de desktop\n- Gerencie cookies pelas configurações do navegador móvel\n- Alguns sistemas operacionais móveis podem ter controles adicionais de privacidade"
+            },
+            "disabling": {
+                "title": "9. Consequências de Desativar Cookies",
+                "content": "### 9.1 Desativando Cookies Essenciais\n**Impacto:**\n- Não será possível fazer login ou autenticar\n- O Sistema não funcionará\n- Proteções de segurança serão comprometidas\n\n**Recomendação:** Cookies essenciais devem permanecer ativos.\n\n### 9.2 Desativando Cookies Funcionais\n**Impacto:**\n- Preferência de idioma não salva (padrão Inglês)\n- Personalizações da interface resetadas a cada visita\n- Experiência do usuário menos personalizada\n\n**Recomendação:** Ativar para melhor experiência do usuário.\n\n### 9.3 Desativando Cookies Analíticos\n**Impacto:**\n- Nenhum impacto na funcionalidade do Sistema\n- Não podemos melhorar o Sistema com base em padrões de uso\n- Seus dados de uso não contribuirão para análises\n\n**Recomendação:** Sua escolha - sem impacto funcional."
+            },
+            "updates": {
+                "title": "10. Atualizações desta Política de Cookies",
+                "content": "Podemos atualizar esta Política de Cookies para refletir:\n- Mudanças no uso de cookies\n- Novas tecnologias de cookies\n- Requisitos legais ou regulamentares\n- Melhorias na transparência\n\n**Notificação de Mudanças:**\n- Notificação por email aos usuários cadastrados\n- Aviso no banner de consentimento de cookies\n- Número da versão e data atualizados\n\n**Histórico de Versões:**\n- v1.0 - 23 de dezembro de 2025: Versão inicial"
+            },
+            "dataProtection": {
+                "title": "11. Proteção de Dados e Privacidade",
+                "content": "Para informações sobre como coletamos, usamos e protegemos seus dados pessoais, consulte nossa [Política de Privacidade](#).\n\nPontos importantes sobre cookies e privacidade:\n- Cookies podem conter dados pessoais (ex.: ID de usuário, tokens de sessão)\n- Protegemos os dados de cookies com criptografia e medidas de segurança\n- Cookies de terceiros estão sujeitos às respectivas políticas de privacidade\n- Você tem direitos sob o GDPR sobre dados coletados via cookies"
+            },
+            "contact": {
+                "title": "12. Informações de Contato",
+                "content": "**Email:** privacy@portmanagement.example.com  \n**Encarregado de Proteção de Dados:** dpo@portmanagement.example.com\n\nPara problemas técnicos com cookies:\n**Suporte Técnico:** techsupport@portmanagement.example.com"
+            },
+            "legalBasis": {
+                "title": "13. Base Legal para Uso de Cookies",
+                "content": "Usamos cookies com base nos seguintes fundamentos legais:\n- **Cookies Essenciais:** Necessários para execução de contrato (Art. 6(1)(b) GDPR)\n- **Cookies Funcionais:** Baseado no seu consentimento (Art. 6(1)(a) GDPR)\n- **Cookies Analíticos:** Baseado no seu consentimento (Art. 6(1)(a) GDPR)\n\nVocê pode retirar o consentimento a qualquer momento pelas configurações de cookies."
+            },
+            "childrenPrivacy": {
+                "title": "14. Privacidade das Crianças",
+                "content": "O Sistema não é destinado a menores de 18 anos. Não coletamos intencionalmente dados de menores via cookies ou quaisquer outros meios."
+            },
+            "international": {
+                "title": "15. Usuários Internacionais",
+                "content": "Se você acessar o Sistema fora da União Europeia:\n- O uso de cookies permanece o mesmo\n- Leis de proteção de dados do seu país podem se aplicar\n- Auth0 processa dados de autenticação conforme sua política de privacidade\n- Transferências internacionais de dados são protegidas por salvaguardas apropriadas"
+            }
+        }
+    }
+}
