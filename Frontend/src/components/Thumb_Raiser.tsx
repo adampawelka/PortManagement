@@ -194,8 +194,8 @@ const ThumbRaiserComponent = (): React.JSX.Element => {
       {showOverlay && selectedInfo && (
         <div
           style={{
-            position: "absolute",
-            top: "20px",
+            position: "fixed",
+            top: "80px",
             right: "20px",
             backgroundColor: "rgba(0, 0, 0, 0.8)",
             color: "white",
