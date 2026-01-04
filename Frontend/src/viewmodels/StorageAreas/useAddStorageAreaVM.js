@@ -3,7 +3,7 @@ import { useApi } from '../../services/api';
 import { addStorageArea } from '../../services/storageAreaService';
 import { useNotification } from '../../hooks/useNotification'; 
 
-export const useStorageAreaVM = () => {
+export const useAddStorageAreaVM = () => {
   const { apiFetch } = useApi();
   const { showSuccess } = useNotification();
   const [loading, setLoading] = useState(false);

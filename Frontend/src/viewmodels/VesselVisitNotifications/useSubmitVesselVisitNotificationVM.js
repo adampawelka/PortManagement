@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { submitVesselVisitNotification } from '../../services/vesselVisitNotificationService'; 
+import { useState, useEffect } from 'react';
+import { submitVesselVisitNotification, getVesselVisitNotifications } from '../../services/vesselVisitNotificationService';
 import { useApi } from '../../services/api';
-import { useNotification } from '../../hooks/useNotification';
 import { useFormAutoSave } from '../../hooks/useFormAutoSave';
 
 const initialFormState = {
@@ -10,12 +9,13 @@ const initialFormState = {
 
 export const useSubmitVesselVisitNotificationVM = () => {
   const { apiFetch } = useApi();
-  const { showSuccess } = useNotification();
   const [formData, setFormData] = useState(initialFormState);
-  const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
 
-  // Auto-save form data to localStorage
+  // Auto-save form
   const { clearSavedData } = useFormAutoSave(
     'submit-notification-form',
     formData,
@@ -23,46 +23,65 @@ export const useSubmitVesselVisitNotificationVM = () => {
     initialFormState
   );
 
+  // Load notifications (Draft or InProgress)
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const notificationsData = await getVesselVisitNotifications(apiFetch);
+        const eligible = (notificationsData || []).filter(
+          n => n.status === 'Draft' || n.status === 'InProgress'
+        );
+        setNotifications(eligible);
+      } catch (err) {
+        setMessage({ type: 'error', text: 'Failed to load notifications.' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNotifications();
+  }, [apiFetch]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!formData.notificationId) {
-      setMessage({ type: 'error', text: 'Notification ID is required.' });
+      setMessage({ type: 'error', text: 'Notification is required.' });
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
     setMessage(null);
 
     try {
-      const response = await submitVesselVisitNotification(apiFetch, formData.notificationId); 
+      await submitVesselVisitNotification(apiFetch, formData.notificationId);
+      setMessage({ type: 'success', text: 'Notification submitted successfully!' });
+      setFormData(initialFormState);
 
-      if (response) {
-        // Show success notification toast
-        showSuccess(`Notification ${formData.notificationId} submitted successfully!`);
-        // Also set message for Alert (optional - can remove later)
-        setMessage({ type: 'success', text: `Notification ${formData.notificationId} submitted successfully!` });
-        setFormData(initialFormState);
-        // Clear saved form data after successful submission
-        clearSavedData();
-      }
+      // Reload notifications
+      const updatedNotifications = await getVesselVisitNotifications(apiFetch);
+      const eligible = (updatedNotifications || []).filter(
+        n => n.status === 'Draft' || n.status === 'InProgress'
+      );
+      setNotifications(eligible);
     } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'Error while submitting notification.' });
+      setMessage({ type: 'error', text: err.message || 'Error submitting notification.' });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return {
     formData,
-    loading,
-    message,
     handleChange,
     handleSubmit,
+    notifications,
+    loading,
+    submitting,
+    message,
   };
 };

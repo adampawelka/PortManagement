@@ -18,7 +18,6 @@ namespace DDDSample1.Domain.StaffMembers
         public string Phone { get; set; }
         public string OperationalWindow { get; set; }
         
-        // Lista de IDs de cualificaciones
         public List<Guid> QualificationIds { get; set; } = new List<Guid>();
     }
 }

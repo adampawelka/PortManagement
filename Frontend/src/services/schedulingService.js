@@ -12,49 +12,19 @@ export const useSchedulingService = () => {
             method: "GET",
         });
 
-        const text = await res.text();
-        if (!res.ok) throw new Error(text);
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text);
+        }
 
-        return text;
+        return await res.json();
     };
 
-   const calculateMultiCraneSchedule = async (date) => {
-    const query = `?date=${encodeURIComponent(date)}`;
 
-    const res = await apiFetch(`/api/Scheduling/calculate-schedule-multi-crane${query}`, {
-        method: "GET",
-    });
+    const calculateMultiCraneSchedule = async (date) => {
+        const query = `?date=${encodeURIComponent(date)}`;
 
-    if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text);
-    }
-
-    return await res.json(); // ← TU JEST FIX
-    };
-
-    const calculateGeneticSchedule = async (date, mode = "single", params = {}) => {
-        const {
-        populationSize = 50,
-        generations = 100,
-        crossoverRate = 0.8,  // Changed from 80 to 0.8
-        mutationRate = 0.1,    // Changed from 10 to 0.1
-        maxTime = 10,
-        desiredDelay = 0
-    } = params;
-
-    const queryParams = new URLSearchParams({
-        date: encodeURIComponent(date),
-        mode: mode,
-        populationSize: populationSize,
-        generations: generations,
-        crossoverRate: crossoverRate * 100, // Convert to percentage for API
-        mutationRate: mutationRate * 100,   // Convert to percentage for API
-        maxTime: maxTime,
-        desiredDelay: desiredDelay
-    });
-
-        const res = await apiFetch(`/api/Scheduling/calculate-schedule-genetic?${queryParams}`, {
+        const res = await apiFetch(`/api/Scheduling/calculate-schedule-multi-crane${query}`, {
             method: "GET",
         });
 
@@ -66,6 +36,25 @@ export const useSchedulingService = () => {
         return await res.json();
     };
 
+    const calculateGeneticSchedule = async (date, params = {}) => {
+        const queryParams = new URLSearchParams({
+        date: date,
+        populationSize: params.populationSize || 30,
+        generations: params.generations || 50,
+        crossoverRate: params.crossoverRate || 0.8,
+        mutationRate: params.mutationRate || 0.2,
+        cranes: params.cranes || 1
+        });
+
+        const response = await apiFetch(`/api/Scheduling/calculate-schedule-genetic?${queryParams}`);
+    
+        if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Genetic scheduling failed: ${errorText}`);
+        }
+    
+        return await response.json();
+    };
 
     return {
         calculateSchedule,

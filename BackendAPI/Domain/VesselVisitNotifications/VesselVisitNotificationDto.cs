@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-// NAMESPACE ESTANDARIZADO A DDDSample1
 namespace DDDSample1.Domain.VesselVisitNotifications
 {
     public class VesselVisitNotificationDto
     {
-        // --- Campos de 2.2.9 ---
         public Guid Id { get; set; }
         public Guid VesselId { get; set; }
         public string VesselName { get; set; }
@@ -19,13 +17,11 @@ namespace DDDSample1.Domain.VesselVisitNotifications
         public List<CargoManifestDto> CargoManifests { get; set; }
         public List<CrewMemberDto> CrewMembers { get; set; }
 
-        // --- Campos AÑADIDOS de 2.2.8 ---
         public Guid? AssignedDockId { get; set; }
         public string RejectionReason { get; set; }
         public Guid? DecidingOfficerId { get; set; }
         public DateTime? DecisionTimestamp { get; set; }
 
-        // --- Constructor Fusionado ---
         public VesselVisitNotificationDto(
             Guid id,
             Guid vesselId,
@@ -38,10 +34,10 @@ namespace DDDSample1.Domain.VesselVisitNotifications
             DateTime etd,
             List<CargoManifestDto> cargoManifests,
             List<CrewMemberDto> crewMembers,
-            Guid? assignedDockId,     // <--- Añadido
-            string rejectionReason,    // <--- Añadido
-            Guid? decidingOfficerId,  // <--- Añadido
-            DateTime? decisionTimestamp // <--- Añadido
+            Guid? assignedDockId,   
+            string rejectionReason,    
+            Guid? decidingOfficerId,  
+            DateTime? decisionTimestamp 
             )
         {
             Id = id;
@@ -55,7 +51,7 @@ namespace DDDSample1.Domain.VesselVisitNotifications
             ETD = etd;
             CargoManifests = cargoManifests;
             CrewMembers = crewMembers;
-            // --- Asignación de campos añadidos ---
+
             AssignedDockId = assignedDockId;
             RejectionReason = rejectionReason;
             DecidingOfficerId = decidingOfficerId;

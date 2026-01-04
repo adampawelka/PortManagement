@@ -24,6 +24,7 @@ import { useRecommendedScheduleVM } from "../../viewmodels/Scheduling/useRecomme
 const RecommendedSchedulePage = () => {
     const [date, setDate] = useState("");
     const [overrideAlgo, setOverrideAlgo] = useState("");
+    const [hasGenerated, setHasGenerated] = useState(false);
 
     const {
         loading,
@@ -40,6 +41,7 @@ const RecommendedSchedulePage = () => {
             alert("Please select a date");
             return;
         }
+        setHasGenerated(true);
         const iso = new Date(date).toISOString().split("T")[0];
         generate(iso, overrideAlgo);
     };
@@ -83,7 +85,6 @@ const RecommendedSchedulePage = () => {
                     flexWrap: "wrap"
                 }}
             >
-                {/* Date */}
                 <FormControl sx={{ width: 250 }}>
                     <TextField
                         type="date"
@@ -105,11 +106,8 @@ const RecommendedSchedulePage = () => {
                     />
                 </FormControl>
 
-                {/* Algorithm selector */}
                 <FormControl size="small" sx={{ width: 250 }}>
-                    <InputLabel sx={{ fontSize: "0.85rem" }}>
-                        Algorithm Override
-                    </InputLabel>
+                    <InputLabel sx={{ fontSize: "0.85rem" }}>Algorithm Override</InputLabel>
                     <Select
                         value={overrideAlgo}
                         label="Algorithm Override"
@@ -129,7 +127,6 @@ const RecommendedSchedulePage = () => {
                     </Select>
                 </FormControl>
 
-                {/* Button */}
                 <Button
                     variant="contained"
                     onClick={handleGenerate}
@@ -159,16 +156,15 @@ const RecommendedSchedulePage = () => {
                         fontSize: "var(--font-size-body)",
                     }}
                 >
-                    <strong>Selected Algorithm:</strong> {algorithm} <br />
-                    <em>{reason}</em>
                     {executionTime && <div>Execution Time: {executionTime}s</div>}
                 </Alert>
             )}
 
+            <strong>Selected Algorithm:</strong> {algorithm} <br />
+            <em>{reason}</em>
+
             {loading && (
-                <CircularProgress
-                    sx={{ display: "block", margin: "20px auto" }}
-                />
+                <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
             )}
 
             {error && (
@@ -185,10 +181,24 @@ const RecommendedSchedulePage = () => {
                 </Alert>
             )}
 
-            {!loading && results.length === 0 && !error && algorithm && (
+            {/* Alert dla Unassigned */}
+            {hasGenerated && !loading && results.length > 0 && (
                 <Alert
                     severity="info"
-                    aria-live="polite"
+                    sx={{
+                        mb: 2,
+                        backgroundColor: "var(--color-info)",
+                        color: "var(--color-text-dark)",
+                    }}
+                >
+                    <strong>Note:</strong> "Unassigned" means that the crane or staff could not be assigned due to insufficient resources.
+                </Alert>
+            )}
+
+            {/* Alert brak wyników */}
+            {hasGenerated && !loading && results.length === 0 && !error && (
+                <Alert
+                    severity="info"
                     sx={{
                         mb: 2,
                         backgroundColor: "var(--color-info)",
@@ -205,13 +215,13 @@ const RecommendedSchedulePage = () => {
                     <Table size="small">
                         <TableHead>
                             <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Vessel</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Dock</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Crane</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Start</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>End</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Staff</TableCell>
-                                <TableCell sx={{ fontWeight: "bold", fontSize: "var(--font-size-table-header)" }}>Area</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Delay</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -219,16 +229,53 @@ const RecommendedSchedulePage = () => {
                                 <TableRow
                                     key={i}
                                     sx={{
-                                        "&:hover": { backgroundColor: "var(--color-background)" }
+                                        "&:hover": { backgroundColor: "var(--color-background)" },
                                     }}
                                 >
                                     <TableCell>{row.vessel}</TableCell>
-                                    <TableCell>{row.dock}</TableCell>
-                                    <TableCell>{row.crane}</TableCell>
-                                    <TableCell>{row.start}</TableCell>
-                                    <TableCell>{row.end}</TableCell>
-                                    <TableCell>{row.staff}</TableCell>
-                                    <TableCell>{row.area}</TableCell>
+
+                                    <TableCell
+
+                                    >
+                                        {row.start}
+                                    </TableCell>
+
+                                    <TableCell
+
+                                    >
+                                        {row.end}
+                                    </TableCell>
+
+                                    <TableCell>{row.delay}</TableCell>
+
+                                    <TableCell
+                                    >{row.dock}
+                                    </TableCell>
+
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                !row.crane || row.crane.length === 0
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
+                                        }}
+                                    >
+                                        {row.crane ?? "Unassigned"}
+                                    </TableCell>
+
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                !row.staff || row.staff.length === 0
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
+                                        }}
+                                    >
+                                        {row.staff && row.staff.length > 0
+                                            ? row.staff.join(", ")
+                                            : "Unassigned"}
+
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

@@ -1,289 +1,195 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSchedulingService } from "../../services/schedulingService";
 import { useApi } from "../../services/api";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 
 export const useGeneticScheduleVM = () => {
-    const { calculateGeneticSchedule, testGeneticAlgorithm } = useSchedulingService();
-    const { apiFetch } = useApi();
+  const { calculateGeneticSchedule } = useSchedulingService();
+  const { apiFetch } = useApi();
 
-    const [targetDate, setTargetDate] = useState("");
-    const [algorithmType, setAlgorithmType] = useState("single");
-    const [geneticParams, setGeneticParams] = useState({
-    populationSize: 50,
-    generations: 100,
-    crossoverRate: 0.8,    // Decimal
-    mutationRate: 0.1,     // Decimal
-    maxTime: 10,
-    desiredDelay: 0
-});
-    const [scheduleResults, setScheduleResults] = useState([]);
-    const [vesselNotifications, setVesselNotifications] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [performanceMetrics, setPerformanceMetrics] = useState({
-        executionTime: null,
-        totalDelay: 0,
-        craneHours: 0,
-        delayReduction: 0,
-        percentageImprovement: 0,
-        algorithmParameters: null,
-        dockSchedules: {}  // NEW: Store schedules by dock
-    });
+  const [targetDate, setTargetDate] = useState("");
+  const [scheduleResults, setScheduleResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  
+  // Genetic Algorithm parameters
+  const [populationSize, setPopulationSize] = useState(30);
+  const [generations, setGenerations] = useState(50);
+  const [crossoverRate, setCrossoverRate] = useState(0.8);
+  const [mutationRate, setMutationRate] = useState(0.2);
+  const [cranes, setCranes] = useState(1);
+  
+  // Results metadata
+  const [executionTime, setExecutionTime] = useState(null);
+  const [totalDelay, setTotalDelay] = useState(0);
+  const [algorithmParameters, setAlgorithmParameters] = useState({});
+  const [dockSchedules, setDockSchedules] = useState({});
 
-    // --- Helpers ---
-    const slotToTime = (slot) => {
-        const n = parseInt(slot);
-        if (isNaN(n)) return slot;
-        const hours = n % 24;
-        const days = Math.floor(n / 24);
-        return days > 0
-            ? `${hours.toString().padStart(2, "0")}:00 (+${days}d)`
-            : `${hours.toString().padStart(2, "0")}:00`;
-    };
+  // Calculate total delay from all schedules
+  const calculateTotalDelay = (schedules) => {
+    return schedules.reduce((acc, schedule) => {
+      if (schedule.schedules && Array.isArray(schedule.schedules)) {
+        return acc + schedule.schedules.reduce((sum, vessel) => sum + (vessel.delay || 0), 0);
+      }
+      return acc;
+    }, 0);
+  };
 
-    const parseGeneticResult = (data, mode) => {
-        const dockSchedules = {};
-        const allSchedules = [];
-        let performance = {
-            executionTime: 0,
-            totalDelay: 0,
-            craneHours: 0,
-            delayReduction: 0,
-            percentageImprovement: 0,
-            algorithmParameters: null
-        };
-
-        // Handle API response structure
-        if (typeof data === 'object' && !Array.isArray(data)) {
-            // Check if it's a test result
-            if (data.algorithm && data.algorithm.includes("Genetic Algorithm")) {
-                performance.executionTime = parseFloat(data.executionTime) || 0;
-                performance.totalDelay = parseInt(data.totalDelay) || 0;
-                performance.algorithmParameters = {
-                    populationSize: geneticParams.populationSize,
-                    generations: geneticParams.generations,
-                    crossoverRate: geneticParams.crossoverRate,
-                    mutationRate: geneticParams.mutationRate
-                };
-                
-                // Create test schedules from solution string
-                if (data.sequence) {
-                    const vessels = data.sequence.replace(/[\[\]]/g, '').split(',').map(v => v.trim());
-                    vessels.forEach((vessel, index) => {
-                        if (vessel) {
-                            const schedule = {
-                                vessel: vessel,
-                                dock: "Test Dock",
-                                crane: "Test Crane",
-                                start: slotToTime(8 + index * 2),
-                                end: slotToTime(10 + index * 2),
-                                staff: "Test Staff",
-                                area: "Test Area",
-                                cranesUsed: mode === "multi" ? 2 : 1
-                            };
-                            allSchedules.push(schedule);
-                        }
-                    });
-                }
-            } 
-            // Handle dock-based schedule structure
-            else {
-                Object.entries(data).forEach(([dockId, dockInfo]) => {
-                    const dockName = dockInfo.dockName || dockInfo.dock || `Dock ${dockId}`;
-                    
-                    // Store dock schedule
-                    dockSchedules[dockId] = {
-                        dockName: dockName,
-                        schedules: [],
-                        performance: {}
-                    };
-
-                    // Parse algorithm parameters
-                    if (dockInfo.parameters) {
-                        performance.algorithmParameters = dockInfo.parameters;
-                    }
-
-                    // Parse schedules
-                    if (dockInfo.schedule && Array.isArray(dockInfo.schedule)) {
-                        dockInfo.schedule.forEach(schedule => {
-                            const vesselSchedule = {
-                                vessel: schedule.vessel || schedule.vesselName || "",
-                                dock: dockName,
-                                crane: schedule.craneCode || schedule.crane || "Auto",
-                                start: slotToTime(schedule.startSlot || schedule.StartSlot || schedule.start),
-                                end: slotToTime(schedule.endSlot || schedule.EndSlot || schedule.end),
-                                staff: "Auto",
-                                area: "Auto",
-                                cranesUsed: schedule.cranesUsed || schedule.cranes || (mode === "multi" ? 2 : 1),
-                                containers: schedule.containers || 0,
-                                processingTime: schedule.processingTime || 0
-                            };
-                            dockSchedules[dockId].schedules.push(vesselSchedule);
-                            allSchedules.push(vesselSchedule);
-                        });
-                    }
-
-                    // Parse performance metrics
-                    if (dockInfo.performance) {
-                        dockSchedules[dockId].performance = dockInfo.performance;
-                        performance.executionTime = Math.max(
-                            performance.executionTime, 
-                            dockInfo.performance.computationTime || 0
-                        );
-                        performance.totalDelay += dockInfo.performance.totalDelay || 0;
-                        performance.craneHours += dockInfo.performance.craneHours || 0;
-                    }
-
-                    // Parse improvement metrics
-                    if (dockInfo.improvement) {
-                        performance.delayReduction += dockInfo.improvement.delayReduction || 0;
-                        performance.percentageImprovement = Math.max(
-                            performance.percentageImprovement,
-                            dockInfo.improvement.percentageImprovement || 0
-                        );
-                    }
-                });
-            }
-        }
-
-        return { 
-            schedules: allSchedules, 
-            performance, 
-            dockSchedules 
-        };
-    };
-
-    // --- Generate Genetic Schedule ---
-    const generateGeneticSchedule = async () => {
-        setError("");
-        setScheduleResults([]);
-        setPerformanceMetrics({
-            executionTime: null,
-            totalDelay: 0,
-            craneHours: 0,
-            delayReduction: 0,
-            percentageImprovement: 0,
-            algorithmParameters: null,
-            dockSchedules: {}
-        });
-
-        if (!targetDate) {
-            setError("Please select a date");
-            return;
-        }
-
-        const isoDate = new Date(targetDate).toISOString().split("T")[0];
-        setLoading(true);
-
-        try {
-            // 1. Fetch Vessel Visit Notifications
-            const allNotifs = await getVesselVisitNotifications(apiFetch);
-            const filtered = allNotifs.filter(
-                (n) =>
-                    n.status === "Approved" &&
-                    new Date(n.eta).toISOString().split("T")[0] === isoDate
-            );
-            setVesselNotifications(filtered);
-
-            if (filtered.length === 0) {
-                // No vessels for selected date - run test with sample data
-                const testResult = await testGeneticAlgorithm({
-                    populationSize: geneticParams.populationSize,
-                    generations: geneticParams.generations,
-                    crossoverRate: geneticParams.crossoverRate,
-                    mutationRate: geneticParams.mutationRate,
-                    maxCranes: algorithmType === "multi" ? 2 : 1,
-                    multiCrane: algorithmType === "multi"
-                });
-                
-                const { schedules, performance } = parseGeneticResult(testResult, algorithmType);
-                setScheduleResults(schedules);
-                setPerformanceMetrics(prev => ({ ...prev, ...performance }));
-                setError("No approved vessels for selected date. Showing test results with sample data.");
-            } else {
-                // 2. Generate Genetic Schedule with actual vessel data
-                const result = await calculateGeneticSchedule(
-                    isoDate,
-                    algorithmType,
-                    geneticParams
-                );
-
-                // 3. Parse results
-                const { schedules, performance, dockSchedules } = parseGeneticResult(result, algorithmType);
-                setScheduleResults(schedules);
-                setPerformanceMetrics(prev => ({ 
-                    ...prev, 
-                    ...performance, 
-                    dockSchedules 
-                }));
-            }
-
-        } catch (err) {
-            console.error("Genetic scheduling error:", err);
-            setError(`Genetic scheduling failed: ${err.message || "Unknown error"}`);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Update genetic parameter
-const updateGeneticParam = (param, value) => {
-    let processedValue = typeof value === 'string' ? parseFloat(value) : value;
+  // Parse genetic algorithm results
+  const parseGeneticResults = (data) => {
+    const results = [];
     
-    // Convert percentages for API
-    if (param === 'crossoverRate' || param === 'mutationRate') {
-        processedValue = processedValue / 100;
+    Object.entries(data).forEach(([dockId, dockInfo]) => {
+      if (dockInfo.schedule && Array.isArray(dockInfo.schedule)) {
+        dockInfo.schedule.forEach((vesselSchedule) => {
+          results.push({
+            vessel: vesselSchedule.vesselName || vesselSchedule.VesselName,
+            start: vesselSchedule.startTime || vesselSchedule.StartTime,
+            end: vesselSchedule.endTime || vesselSchedule.EndTime,
+            delay: vesselSchedule.delay || vesselSchedule.Delay || 0,
+            dock: dockInfo.dock || dockInfo.dockName,
+            cranes: vesselSchedule.cranesUsed || vesselSchedule.CranesUsed || 1,
+            crane: dockInfo.craneCode || dockInfo.crane || "Crane",
+            staff: vesselSchedule.staff ? 
+              vesselSchedule.staff.map(s => s.shortName || s.name).join(", ") : 
+              "Unassigned",
+            warning: vesselSchedule.warning || ""
+          });
+        });
+      }
+    });
+    
+    return results;
+  };
+
+  // Generate schedule using genetic algorithm
+  const generateSchedule = async () => {
+    setError("");
+    if (!targetDate) {
+      setError("Please select a date");
+      return;
+    }
+
+    // Validate parameters
+    if (populationSize < 10 || populationSize > 500) {
+      setError("Population size must be between 10 and 500");
+      return;
     }
     
-    setGeneticParams(prev => ({
-        ...prev,
-        [param]: processedValue
-    }));
-};
+    if (generations < 10 || generations > 500) {
+      setError("Generations must be between 10 and 500");
+      return;
+    }
+    
+    if (crossoverRate < 0 || crossoverRate > 1) {
+      setError("Crossover rate must be between 0 and 1");
+      return;
+    }
+    
+    if (mutationRate < 0 || mutationRate > 1) {
+      setError("Mutation rate must be between 0 and 1");
+      return;
+    }
+    
+    if (cranes < 1 || cranes > 8) {
+      setError("Number of cranes must be between 1 and 8");
+      return;
+    }
 
-    // Reset parameters to defaults
-    const resetGeneticParams = () => {
-        setGeneticParams({
-            populationSize: 50,
-            generations: 100,
-            crossoverRate: 80,
-            mutationRate: 10,
-            maxTime: 10,
-            desiredDelay: 0
-        });
-    };
+    const isoDate = new Date(targetDate).toISOString().split("T")[0];
+    setLoading(true);
+    setScheduleResults([]);
+    setExecutionTime(null);
+    setTotalDelay(0);
 
-    // Get dock summary
-    const getDockSummary = () => {
-        const { dockSchedules } = performanceMetrics;
-        if (!dockSchedules || Object.keys(dockSchedules).length === 0) {
-            return null;
-        }
-        
-        return Object.entries(dockSchedules).map(([dockId, dockInfo]) => ({
-            id: dockId,
-            name: dockInfo.dockName,
-            vesselCount: dockInfo.schedules?.length || 0,
-            delay: dockInfo.performance?.totalDelay || 0,
-            executionTime: dockInfo.performance?.computationTime || 0
-        }));
-    };
+    try {
+      // Prepare genetic algorithm parameters
+      const params = {
+        populationSize,
+        generations,
+        crossoverRate,
+        mutationRate,
+        cranes
+      };
 
-    return {
-        targetDate,
-        setTargetDate,
-        algorithmType,
-        setAlgorithmType,
-        geneticParams,
-        updateGeneticParam,
-        resetGeneticParams,
-        scheduleResults,
-        vesselNotifications,
-        loading,
-        error,
-        performanceMetrics,
-        generateGeneticSchedule,
-        getDockSummary  // NEW: Expose dock summary
-    };
+      setAlgorithmParameters(params);
+
+      // Call genetic algorithm endpoint
+      const result = await calculateGeneticSchedule(isoDate, params);
+      
+      // Extract execution time if available
+      if (result.executionTime !== undefined) {
+        setExecutionTime(result.executionTime);
+      }
+      
+      // Store dock schedules for detailed view
+      setDockSchedules(result);
+      
+      // Parse and flatten results for table display
+      const parsedResults = parseGeneticResults(result);
+      setScheduleResults(parsedResults);
+      
+      // Calculate total delay
+      const calculatedDelay = calculateTotalDelay(Object.values(result));
+      setTotalDelay(calculatedDelay);
+      
+    } catch (err) {
+      console.error("Genetic algorithm error:", err);
+      setError(`Genetic scheduling failed: ${err.message || "Unknown error"}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reset all parameters to defaults
+  const resetParameters = () => {
+    setPopulationSize(30);
+    setGenerations(50);
+    setCrossoverRate(0.8);
+    setMutationRate(0.2);
+    setCranes(1);
+  };
+
+  // Get improvement metrics if available
+  const getImprovementMetrics = () => {
+    if (!dockSchedules || Object.keys(dockSchedules).length === 0) {
+      return null;
+    }
+    
+    // Look for improvement data in any dock schedule
+    const firstDock = Object.values(dockSchedules)[0];
+    return firstDock.improvement || null;
+  };
+
+  return {
+    // State
+    targetDate,
+    setTargetDate,
+    scheduleResults,
+    loading,
+    error,
+    executionTime,
+    totalDelay,
+    
+    // Genetic Algorithm Parameters
+    populationSize,
+    setPopulationSize,
+    generations,
+    setGenerations,
+    crossoverRate,
+    setCrossoverRate,
+    mutationRate,
+    setMutationRate,
+    cranes,
+    setCranes,
+    
+    // Algorithm metadata
+    algorithmParameters,
+    dockSchedules,
+    
+    // Functions
+    generateSchedule,
+    resetParameters,
+    getImprovementMetrics
+  };
 };

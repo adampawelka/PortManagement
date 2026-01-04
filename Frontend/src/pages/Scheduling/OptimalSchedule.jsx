@@ -65,6 +65,7 @@ const OptimalSchedule = () => {
                 Optimal Schedule ({scheduleResults.length})
             </Typography>
 
+            {/* Controls */}
             <Paper
                 sx={{
                     p: 2,
@@ -116,6 +117,7 @@ const OptimalSchedule = () => {
                 </Button>
             </Paper>
 
+            {/* Execution Time */}
             {executionTime && (
                 <Alert
                     severity="info"
@@ -129,12 +131,12 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
+            {/* Loading */}
             {loading && (
-                <CircularProgress
-                    sx={{ display: "block", margin: "20px auto" }}
-                />
+                <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
             )}
 
+            {/* Error */}
             {error && (
                 <Alert
                     severity="error"
@@ -148,6 +150,21 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
+            {/* Global info about Unassigned */}
+            {hasGenerated && !loading && scheduleResults.length > 0 && (
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: 2,
+                        backgroundColor: "var(--color-info)",
+                        color: "var(--color-text-dark)",
+                    }}
+                >
+                    <strong>Note:</strong> "Unassigned" means that the staff, crane, or dock could not be assigned due to insufficient resources.
+                </Alert>
+            )}
+
+            {/* No schedule results */}
             {hasGenerated && !loading && scheduleResults.length === 0 && !error && (
                 <Alert
                     severity="info"
@@ -161,18 +178,19 @@ const OptimalSchedule = () => {
                 </Alert>
             )}
 
+            {/* Schedule Table */}
             {scheduleResults.length > 0 && (
                 <TableContainer component={Paper} sx={{ mt: 3 }}>
                     <Table size="small">
                         <TableHead>
                             <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
                                 <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Delay</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Dock</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
                                 <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -180,18 +198,52 @@ const OptimalSchedule = () => {
                                 <TableRow
                                     key={i}
                                     sx={{
-                                        "&:hover": {
-                                            backgroundColor: "var(--color-background)",
-                                        }
+                                        "&:hover": { backgroundColor: "var(--color-background)" },
                                     }}
                                 >
                                     <TableCell>{row.vessel}</TableCell>
-                                    <TableCell>{row.dock}</TableCell>
-                                    <TableCell>{row.crane}</TableCell>
-                                    <TableCell>{row.start}</TableCell>
-                                    <TableCell>{row.end}</TableCell>
-                                    <TableCell>{row.staff}</TableCell>
-                                    <TableCell>{row.area}</TableCell>
+
+                                    <TableCell
+                                        
+                                    >
+                                        {row.start}
+                                    </TableCell>
+
+                                    <TableCell
+                                        
+                                    >
+                                        {row.end}
+                                    </TableCell>
+
+                                    <TableCell>{row.delay}</TableCell>
+
+                                    <TableCell
+                                        >{row.dock}
+                                    </TableCell>
+
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                !row.crane || row.crane.length === 0
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
+                                        }}
+                                    >
+                                        {row.crane ?? "Unassigned"}
+                                    </TableCell>
+
+                                    <TableCell
+                                        sx={{
+                                            backgroundColor:
+                                                !row.staff || row.staff.length === 0
+                                                    ? "var(--color-warning-bg)"
+                                                    : "inherit"
+                                        }}
+                                    >
+                                        {Array.isArray(row.staff) && row.staff.length > 0
+                                            ? row.staff.map(s => s.shortName ?? s).join(", ")
+                                            : "Unassigned"}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

@@ -54,6 +54,44 @@ services:
       - portmanagement-network
     restart: unless-stopped
 
+  oem:
+    build:
+      context: ./OEM
+      dockerfile: Dockerfile
+    container_name: portmanagement-oem
+    environment:
+      - NODE_ENV=development
+      - PORT=5161
+      - MONGODB_URI=mongodb://oem_admin:PORTMANAGEMENT3DLE04@10.9.20.216:27017/portoemdb?authSource=admin
+      - JWT_SECRET=LVAR2f6MoYTtL+GiitLI5Eos5y4ws7N3zXT6/1HwNvs=
+      - CORS_ORIGINS=http://localhost:5173
+      - BACKEND_API_URL=http://backend:5000
+      - SCHEDULING_API_URL=http://scheduling:5107
+    ports:
+      - "5161:5161"
+    depends_on:
+      - backend
+    networks:
+      - portmanagement-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=development
+    container_name: portmanagement-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+      - scheduling
+      - oem
+    networks:
+      - portmanagement-network
+    restart: unless-stopped
+
 volumes:
   postgres-data:
 

@@ -6,53 +6,52 @@ import Breadcrumbs from "./Breadcrumbs";
 import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { LanguageProvider } from "../context/LanguageContext"; // import kontekstu
 
 const GlobalLayout = () => {
   return (
-    <div style={{ width: "100%", minHeight: "100vh", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
-      <Header />
-      <PrimaryNavigation />
+    <LanguageProvider>
+      <div style={{ width: "100%", minHeight: "100vh", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+        <Header />
+        <PrimaryNavigation />
 
-      {/* Główna sekcja: sidebar + reszta */}
-      <div style={{ display: "flex", flex: 1 }}>
-        {/* Sidebar z lewej strony */}
-        <Sidebar />
+        <div style={{ display: "flex", flex: 1 }}>
+          <Sidebar />
 
-        {/* Reszta kontentu po prawej stronie */}
-        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          {/* Pasek breadcrumb + język */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "15px",
-              borderBottom: '1px solid #eee' // Separador visual
-            }}
-          >
-            <Breadcrumbs />
-            <LanguageSwitcher />
+          <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "15px",
+                borderBottom: '1px solid #eee'
+              }}
+            >
+              <Breadcrumbs />
+              <LanguageSwitcher />
+            </div>
+
+            <main
+              style={{
+                flex: 1,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "flex-start",
+                padding: "0px 20px 65px 20px",
+                textAlign: "center",
+              }}
+            >
+              <div style={{ display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'auto'}}>
+                <Outlet />
+              </div>
+            </main>
           </div>
-
-          {/* Główna treść */}
-          <main
-            style={{
-              flex: 1,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "flex-start",
-              padding: "0px 20px 65px 20px",
-              textAlign: "center",
-              
-            }}
-          >
-            <div style={{ display: 'flex', flex: 1, flexDirection: 'column', overflowY: 'auto'}}><Outlet /></div>
-          </main>
         </div>
-      </div>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </LanguageProvider>
   );
 };
 

@@ -16,7 +16,7 @@ namespace DDDSample1.Domain.Qualifications
             if (value.Length > 50)
                 throw new BusinessRuleValidationException("Qualification code is too long.");
 
-            Value = value;
+            Value = value.Trim().ToUpperInvariant();
         }
     }
 }

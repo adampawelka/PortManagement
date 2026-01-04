@@ -64,34 +64,23 @@ export const useScheduleMultiCraneVM = () => {
             v.assignedDockId.toString() === dockId.toString()
         );
 
-        const singleRaw = dockInfo.singleCrane?.schedules ?? [];
-        const multiRaw = dockInfo.multiCrane?.schedules ?? [];
-
-        const single = singleRaw.map((s) => ({
+        const mapSchedule = (s) => ({
           vessel: getVesselName(s, dockVessels),
           dock: dockInfo.dockName,
-          crane: dockInfo.craneCode,
           start: s.startTime || slotToTime(s.startSlot ?? s.StartSlot),
           end: s.endTime || slotToTime(s.endSlot ?? s.EndSlot),
           startSlot: s.startSlot ?? s.StartSlot,
           endSlot: s.endSlot ?? s.EndSlot,
           cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
-          staff: randomStaff(dockInfo.staff),
+          craneCodes: s.craneCodes ?? [],
+          staff: s.staff ?? [],
           area: dockInfo.area,
-        }));
+          delay: s.delay ?? 0,
+          warning: s.warning ?? null,
+        });
 
-        const multi = multiRaw.map((s) => ({
-          vessel: getVesselName(s, dockVessels),
-          dock: dockInfo.dockName,
-          crane: dockInfo.craneCode,
-          start: s.startTime || slotToTime(s.startSlot ?? s.StartSlot),
-          end: s.endTime || slotToTime(s.endSlot ?? s.EndSlot),
-          startSlot: s.startSlot ?? s.StartSlot,
-          endSlot: s.endSlot ?? s.EndSlot,
-          cranes: s.cranesUsed ?? s.CranesUsed ?? 1,
-          staff: randomStaff(dockInfo.staff),
-          area: dockInfo.area,
-        }));
+        const single = (dockInfo.singleCrane?.schedules ?? []).map(mapSchedule);
+        const multi = (dockInfo.multiCrane?.schedules ?? []).map(mapSchedule);
 
         return {
           dockId,
@@ -119,9 +108,7 @@ export const useScheduleMultiCraneVM = () => {
 
       setScheduleResults(processed);
     } catch (err) {
-      setError(
-        "Multi-crane scheduling failed: " + (err.message || String(err))
-      );
+      setError("Multi-crane scheduling failed: " + (err.message || String(err)));
     } finally {
       setLoading(false);
     }

@@ -10,11 +10,13 @@ Container_Boundary(pm, "Port Management System") {
 
     Container_Boundary(backend, "Backend Layer") {
         Container(api, "Backend API Module", ".NET Core")
+        Container(oem, "OEM Module", "node.js")
         Container(scheduling, "Scheduling API Module", ".NET Core + Prolog")
     }
 
     Container_Boundary(data, "Data Layer") {
         ContainerDb(db, "Relational Database", "PostgreSQL")
+        ContainerDb(db2, "Relational Database", "MongoDB")
     }
 
     Container_Boundary(external, "External Services") {
@@ -23,12 +25,15 @@ Container_Boundary(pm, "Port Management System") {
 }
 
 Rel(spa, api, "Consumes", "HTTPS/REST")
+Rel(spa, oem, "Consumes", "HTTPS/REST")
 Rel(spa, scheduling, "Requests schedules", "HTTPS/REST")
 Rel(spa, viz, "Loads 3D scene", "HTTPS/WebGL")
 Rel(spa, iam, "Authenticates", "Auth0")
 
 Rel(api, db, "Reads/Writes", "EF Core/ADO.NET")
+Rel(oem, db2, "Reads/Writes", "NPM")
 Rel(scheduling, api, "Consumes data", "HTTPS/REST")
+Rel(scheduling, oem, "Consumes data", "HTTPS/REST")
 Rel(viz, api, "Fetches layout data", "HTTPS/REST")
 
 

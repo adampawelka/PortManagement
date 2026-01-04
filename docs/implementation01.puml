@@ -7,11 +7,11 @@ title Implementation View - Level 1
 
 rectangle "Port Management System" as PMS {
   [Web Application\n(SPA)] as SPA
-  [Backend Services\n(.NET Core)] as Backend
-  [Database\n(PostgreSQL/SQL Server)] as DB
+  [Backend/OEM Services\n(.NET Core/node.js)] as Backend
+  [Databases\n(SQL/MongoDB on Debian Server)] as DB
 
   SPA -down-> Backend : REST/HTTPS
-  Backend -down-> DB : SQL
+  Backend -down-> DB : SQL/Mongo
 }
 
 rectangle "Identity Provider\n(Google/Microsoft/Facebook)" as IDP
@@ -24,8 +24,8 @@ Backend --> Email : SMTP
 note right of PMS
   Technology Stack:
   - Frontend: React + Three.js
-  - Backend: .NET Core 8.0 + Prolog
-  - Database: PostgreSQL/SQL Server
+  - Backend: .NET Core 8.0 + node + Prolog
+  - Database: PostgreSQL/MongoDB Server
   - Deployment: Docker containers
 end note
 

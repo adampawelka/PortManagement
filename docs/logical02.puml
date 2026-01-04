@@ -6,9 +6,9 @@ skinparam packageStyle rectangle
 title Logical View - Level 2
 
 package "Port Management System" {
-    [Port Operations\nManagement] as POM
-    [Resource & Staff\nManagement] as RSM
-    [Vessel & Agent\nManagement] as VAM
+    [SPA Page\nLayer] as SPA
+    [Backend Layer] as BEL
+    [OEM Layer] as OEM
     [Planning & Scheduling\nEngine] as PSE
     [3D Visualization\nModule] as VIZ
 }
@@ -19,7 +19,8 @@ actor "Logistics\nOperator" as LO
 actor "System\nAdministrator" as ADMIN
 
 component "External IAM\nProvider" as IAM <<external>>
-database "System\nDatabase" as DB
+database "SQL\nDatabase" as SQL
+database "Mongo\nDatabase" as MDB
 
 ' User interactions
 PAO --> "Port Management System"
@@ -28,13 +29,15 @@ LO --> "Port Management System"
 ADMIN --> "Port Management System"
 
 ' System interactions
-POM --> DB : Reads/Writes
-VAM --> DB : Reads/Writes
-RSM --> DB : Reads/Writes
-PSE ..> POM : Consumes\nvisit data
-PSE ..> RSM : Consumes\nresource data
-VIZ ..> POM : Reads facility\n& visit data
-VIZ ..> RSM : Reads resource\ndata
+SPA --> BEL : Fetches Data
+SPA --> OEM : Fetches Data
+SPA --> PSE : Fetches Data
+BEL --> SQL : Reads/Writes
+OEM --> MDB : Reads/Writes
+OEM ..> BEL : Consumes\nVVN data
+PSE ..> BEL : Consumes\nresource data
+VIZ ..> BEL : Reads facility, resource\n& visit data
+SPA ..> VIZ : Reads resource\ndata
 
 ' Authentication
 PAO -> IAM : Authenticates

@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getVesselVisitNotifications, addVesselVisitNotification } from '../../services/vesselVisitNotificationService';
+import { useState, useEffect } from 'react';
 import { useApi } from '../../services/api';
 import { getVessels } from '../../services/vesselService';
+import { getShippingAgents } from '../../services/shippingAgentService';
+import { addVesselVisitNotification } from '../../services/vesselVisitNotificationService';
 import { useNotification } from '../../hooks/useNotification';
 import { useFormAutoSave } from '../../hooks/useFormAutoSave';
 
@@ -20,9 +21,15 @@ const getInitialFormState = () => ({
 export const useAddVesselVisitNotificationVM = () => {
   const { apiFetch } = useApi();
   const { showSuccess } = useNotification();
-  const [formData, setFormData] = useState(getInitialFormState());
 
-  // Auto-save form data to localStorage
+  const [formData, setFormData] = useState(getInitialFormState());
+  const [vessels, setVessels] = useState([]);
+  const [representatives, setRepresentatives] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState(null);
+
+  // Auto-save form
   const { clearSavedData } = useFormAutoSave(
     'add-notification-form',
     formData,
@@ -30,40 +37,52 @@ export const useAddVesselVisitNotificationVM = () => {
     getInitialFormState
   );
 
-  const [vessels, setVessels] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState(null);
-
   useEffect(() => {
-    const loadVessels = async () => {
+    const loadInitial = async () => {
       try {
-        const vesselsData = await getVessels(apiFetch);
-        setVessels(vesselsData);
-      } catch (error) {
-        setMessage({ type: 'error', text: 'Failed to load vessels.' });
+        const [vesselsData, agentsData] = await Promise.all([
+          getVessels(apiFetch),
+          getShippingAgents(apiFetch),
+        ]);
+
+        setVessels(vesselsData || []);
+
+        const reps = (agentsData || []).flatMap(org =>
+          (org.representatives || []).map(r => ({
+            id: r.id,
+            name: r.name,
+            email: r.email,
+            organizationId: org.id,
+            organizationName: org.legalName,
+          }))
+        );
+
+        setRepresentatives(reps);
+      } catch (err) {
+        setMessage({ type: 'error', text: 'Failed to load vessels or representatives.' });
       } finally {
         setLoading(false);
       }
     };
-    loadVessels();
+
+    loadInitial();
   }, [apiFetch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setMessage(null);
 
     if (!formData.vesselId || !formData.submittedById) {
       setMessage({ type: 'error', text: 'Vessel and Submitter must be selected.' });
-      setSubmitting(false);
       return;
     }
+
+    setSubmitting(true);
+    setMessage(null);
 
     const vvnDto = {
       VesselId: formData.vesselId,
@@ -73,7 +92,9 @@ export const useAddVesselVisitNotificationVM = () => {
       CargoManifests: [
         {
           ManifestType: formData.loadunload,
-          ContainerIdentifiers: formData.manifestContainers.split(',').map(id => id.trim()),
+          ContainerIdentifiers: formData.manifestContainers
+            ? formData.manifestContainers.split(',').map(id => id.trim())
+            : [],
         },
       ],
       CrewMembers: [
@@ -86,16 +107,13 @@ export const useAddVesselVisitNotificationVM = () => {
     };
 
     try {
-      const response = await addVesselVisitNotification(apiFetch, vvnDto);
-      // Show success notification toast
+      await addVesselVisitNotification(apiFetch, vvnDto);
       showSuccess('Notification submitted successfully!');
-      // Also set message for Alert (optional - can remove later)
       setMessage({ type: 'success', text: 'Notification submitted successfully!' });
       setFormData(getInitialFormState());
-      // Clear saved form data after successful submission
       clearSavedData();
     } catch (err) {
-      setMessage({ type: 'error', text: `Submission failed: ${err.message}.` });
+      setMessage({ type: 'error', text: `Submission failed: ${err.message}` });
     } finally {
       setSubmitting(false);
     }
@@ -104,6 +122,7 @@ export const useAddVesselVisitNotificationVM = () => {
   return {
     formData,
     vessels,
+    representatives,
     loading,
     submitting,
     message,

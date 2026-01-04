@@ -1,72 +1,97 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApi } from '../../services/api';
-import { approveVesselVisitNotification } from '../../services/vesselVisitNotificationService';
+import { approveVesselVisitNotification, getVesselVisitNotifications } from '../../services/vesselVisitNotificationService';
+import { getDocks } from '../../services/dockService';
 import { useNotification } from '../../hooks/useNotification';
 import { useFormAutoSave } from '../../hooks/useFormAutoSave';
 
 const initialFormState = {
-    notificationId: '',
-    dockID: '',
+  notificationId: '',
+  dockID: '',
 };
 
 export const useApproveVesselVisitNotificationVM = () => {
-    const { apiFetch } = useApi();
-    const { showSuccess } = useNotification();
-    
-    const [formData, setFormData] = useState(initialFormState);
-    const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState(null);
+  const { apiFetch } = useApi();
+  const { showSuccess } = useNotification();
 
-    // Auto-save form data to localStorage
-    const { clearSavedData } = useFormAutoSave(
-        'approve-notification-form',
-        formData,
-        setFormData,
-        initialFormState
-    );
+  const [formData, setFormData] = useState(initialFormState);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [docks, setDocks] = useState([]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+  // Auto-save form data
+  const { clearSavedData } = useFormAutoSave('approve-notification-form', formData, setFormData, initialFormState);
+
+  // Load notifications and docks
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [notificationsData, docksData] = await Promise.all([
+          getVesselVisitNotifications(apiFetch),
+          getDocks(apiFetch),
+        ]);
+
+        setNotifications((notificationsData || []).filter(n => n.status === 'Submitted'));
+        setDocks(docksData || []);
+      } catch (err) {
+        setMessage({ type: 'error', text: 'Failed to load notifications or docks.' });
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleApprove = async (e) => {
-        e.preventDefault();
-        if (!formData.notificationId) {
-            setMessage({ type: 'error', text: 'Notification ID is required.' });
-            return;
-        }
+    loadData();
+  }, [apiFetch]);
 
-        setLoading(true);
-        setMessage(null);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-        const updateDto = {
-            status: 'Approved',
-            DockId: formData.dockID,
-        };
+  const handleApprove = async (e) => {
+    e.preventDefault();
 
-        try {
-            await approveVesselVisitNotification(apiFetch, formData.notificationId, updateDto);
-            // Show success notification toast
-            showSuccess(`Notification ${formData.notificationId} approved successfully!`);
-            // Also set message for Alert (optional - can remove later)
-            setMessage({ type: 'success', text: `Notification ${formData.notificationId} approved successfully!` });
-            setFormData(initialFormState);
-            // Clear saved form data after successful submission
-            clearSavedData();
-        } catch (err) {
-            // Error notifications are already handled by api.js
-            setMessage({ type: 'error', text: `Approval failed: ${err.message}` });
-        } finally {
-            setLoading(false);
-        }
-    };
+    if (!formData.notificationId) {
+      setMessage({ type: 'error', text: 'Notification is required.' });
+      return;
+    }
+    if (!formData.dockID) {
+      setMessage({ type: 'error', text: 'Dock is required.' });
+      return;
+    }
 
-    return {
-        formData,
-        loading,
-        message,
-        handleChange,
-        handleApprove,
-    };
+    setSubmitting(true);
+    setMessage(null);
+
+    const updateDto = { status: 'Approved', DockId: formData.dockID };
+
+    try {
+      await approveVesselVisitNotification(apiFetch, formData.notificationId, updateDto);
+      setMessage({ type: 'success', text: `Notification approved successfully!` });
+      showSuccess(`Notification ${formData.notificationId} approved successfully!`);
+      setFormData(initialFormState);
+      clearSavedData();
+
+      // Reload notifications
+      const updatedNotifications = await getVesselVisitNotifications(apiFetch);
+      setNotifications((updatedNotifications || []).filter(n => n.status === 'Submitted'));
+    } catch (err) {
+      setMessage({ type: 'error', text: `Approval failed: ${err.message}` });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return {
+    formData,
+    loading,
+    submitting,
+    message,
+    notifications,
+    docks,
+    handleChange,
+    handleApprove,
+  };
 };

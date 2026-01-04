@@ -1,128 +1,83 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSchedulingService } from "../../services/schedulingService";
 import { useApi } from "../../services/api";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 
 export const useOptimalScheduleVM = () => {
-    const { calculateSchedule } = useSchedulingService();   // backend 5107
-    const { apiFetch } = useApi();                          // backend 5000
+  const { calculateSchedule } = useSchedulingService();
+  const { apiFetch } = useApi();
 
-    const [targetDate, setTargetDate] = useState("");
-    const [scheduleResults, setScheduleResults] = useState([]);
-    const [vesselNotifications, setVesselNotifications] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [executionTime, setExecutionTime] = useState(null);
+  const [targetDate, setTargetDate] = useState("");
+  const [scheduleResults, setScheduleResults] = useState([]);
+  const [vesselNotifications, setVesselNotifications] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [executionTime, setExecutionTime] = useState(null);
 
-    // --- Helpers ---
-    const slotToTime = (slot) => {
-        const n = parseInt(slot);
-        if (isNaN(n)) return slot;
-        const hours = n % 24;
-        const days = Math.floor(n / 24);
-        return days > 0
-            ? `${hours.toString().padStart(2, "0")}:00 (+${days}d)`
-            : `${hours.toString().padStart(2, "0")}:00`;
-    };
+  const totalDelay = useMemo(() => scheduleResults.reduce((acc, item) => acc + (item.delay || 0), 0), [scheduleResults]);
 
-    const extractExecutionTime = (raw) => {
-        const patterns = [
-            /Execution Time:\s*([\d.e-]+)/i,
-            /Brute Force Execution Time:\s*([\d.e-]+)/i
-        ];
-        for (const p of patterns) {
-            const m = raw.match(p);
-            if (m) return parseFloat(m[1]);
-        }
-        return null;
-    };
+  const generateSchedule = async () => {
+    setError("");
+    if (!targetDate) {
+      setError("Please select a date");
+      return;
+    }
 
-    const parsePrologResult = (raw) => {
-        if (!raw) return [];
+    const isoDate = new Date(targetDate).toISOString().split("T")[0];
+    setLoading(true);
+    setScheduleResults([]);
+    setExecutionTime(null);
 
-        let cleaned = raw
-            .replace(/Execution Time:.*?\n/i, "")
-            .replace(/Brute Force Execution Time:.*?\n/i, "")
-            .replace(/\[|\]/g, "")
-            .trim();
+    try {
+      const allNotifs = await getVesselVisitNotifications(apiFetch);
+      const filtered = allNotifs.filter(n =>
+        n.status === "Approved" &&
+        new Date(n.eta).toISOString().split("T")[0] === isoDate
+      );
+      setVesselNotifications(filtered);
 
-        if (!cleaned) return [];
+      const json = await calculateSchedule(isoDate, "optimal");
 
-        return cleaned.split(/\),/).map((item) => {
-            const p = item.replace(/[()]/g, "").split(",");
+      // Flatten parsedSchedule 
+      const parsed = Object.values(json).flatMap(dockInfo =>
+        (dockInfo.parsedSchedule ?? []).map(item => ({
+          vessel: item.vesselName,           
+          vesselId: item.vesselId,
+          startSlot: item.startSlot,
+          endSlot: item.endSlot,
+          start: item.start,
+          end: item.end,
+          dock: dockInfo.dock,               
+          crane: item.craneCodes?.[0] || null,
+          staff: Array.isArray(item.staff)
+            ? item.staff.map(s => s.shortName)
+            : [],
+          warning: item.warning || null,
+          delay: item.delay || 0
+        }))
+      );
 
-            const startSlot = p[1]?.trim();
-            const endSlot = p[2]?.trim();
 
-            return {
-                vessel: p[0]?.trim() || "",
-                start: slotToTime(startSlot),
-                end: slotToTime(endSlot),
-                dock: p[3]?.trim() || "Unknown",
-                crane: p[4]?.trim() || "Unassigned",
-                staff: "Auto",
-                area: p[5]?.trim() || "Unassigned",
-            };
-        });
-    };
 
-    // --- Generate Schedule ---
-    const generateSchedule = async () => {
-        setError("");
+      setScheduleResults(parsed);
 
-        if (!targetDate) {
-            setError("Please select a date");
-            return;
-        }
+    } catch (err) {
+      console.error(err);
+      setError(`Scheduling failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        const isoDate = new Date(targetDate).toISOString().split("T")[0];
-
-        setLoading(true);
-        setScheduleResults([]);
-        setExecutionTime(null);
-
-        try {
-            // --- 1. fetch VVN using useApi + pure service function ---
-            const allNotifs = await getVesselVisitNotifications(apiFetch);
-
-            const filtered = allNotifs.filter(
-                (n) =>
-                    n.status === "Approved" &&
-                    new Date(n.eta).toISOString().split("T")[0] === isoDate
-            );
-
-            setVesselNotifications(filtered);
-
-            // --- 2. fetch schedule via SchedulingService ---
-            const raw = await calculateSchedule(isoDate, "bruteforce");
-
-            const exec = extractExecutionTime(raw);
-            if (exec) setExecutionTime(exec);
-
-            const json = JSON.parse(raw);
-
-            const parsed = Object.values(json).flatMap((dockInfo) =>
-                parsePrologResult(dockInfo.schedule)
-            );
-
-            setScheduleResults(parsed);
-
-        } catch (err) {
-            console.error(err);
-            setError(`Scheduling failed: ${err.message}`);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return {
-        targetDate,
-        setTargetDate,
-        scheduleResults,
-        vesselNotifications,
-        loading,
-        error,
-        executionTime,
-        generateSchedule,
-    };
+  return {
+    targetDate,
+    setTargetDate,
+    scheduleResults,
+    vesselNotifications,
+    loading,
+    error,
+    executionTime,
+    totalDelay,
+    generateSchedule
+  };
 };
