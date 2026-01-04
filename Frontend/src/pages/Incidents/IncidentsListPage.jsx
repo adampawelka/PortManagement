@@ -29,7 +29,9 @@ const IncidentsListPage = () => {
   const navigate = useNavigate();
   const {
     incidents,
+    vessels,
     loading,
+    loadingVessels,
     error,
     filters,
     updateFilter,
@@ -88,15 +90,30 @@ const IncidentsListPage = () => {
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={3}>
-            <TextField
-              label="Vessel Name"
-              value={filters.vesselName}
-              onChange={(e) => updateFilter("vesselName", e.target.value)}
-              fullWidth
-              size="small"
-            />
+            <FormControl fullWidth size="small">
+              <InputLabel>Vessel</InputLabel>
+              <Select
+                value={filters.vesselName}
+                label="Vessel"
+                onChange={(e) => updateFilter("vesselName", e.target.value)}
+                disabled={loadingVessels}
+              >
+                <MenuItem value="">All Vessels</MenuItem>
+                {loadingVessels && (
+                  <MenuItem disabled>Loading vessels...</MenuItem>
+                )}
+                {vessels.length === 0 && !loadingVessels && (
+                  <MenuItem disabled>No vessels available</MenuItem>
+                )}
+                {vessels.map((vessel) => (
+                  <MenuItem key={vessel.id} value={vessel.vesselName}>
+                    {vessel.vesselName} {vessel.imo ? `(${vessel.imo})` : ''}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={3}>
             <TextField
               label="Start Date"
               type="date"
@@ -107,7 +124,7 @@ const IncidentsListPage = () => {
               InputLabelProps={{ shrink: true }}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={3}>
             <TextField
               label="End Date"
               type="date"
@@ -118,7 +135,7 @@ const IncidentsListPage = () => {
               InputLabelProps={{ shrink: true }}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={1.5}>
             <FormControl fullWidth size="small">
               <InputLabel>Severity</InputLabel>
               <Select
@@ -133,7 +150,7 @@ const IncidentsListPage = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={1.5}>
             <FormControl fullWidth size="small">
               <InputLabel>Status</InputLabel>
               <Select

@@ -79,3 +79,5 @@ export const getIncidentsByType = async (apiOemFetch, typeId) => {
   return res.json();
 };
 
+
+
