@@ -1,4 +1,4 @@
-name: Deploy Port Management System
+name: Deploy
 
 on:
   push:
@@ -14,117 +14,171 @@ jobs:
 
       - name: Create deployment archive
         run: |
-          # Create archive of everything except git and node_modules
-          tar -czf deployment.tar.gz \
+          # Create archive of everything
+          tar -czf /tmp/deployment.tar.gz \
             --exclude='.git' \
             --exclude='node_modules' \
             --exclude='.github' \
             .
           
-          echo "Archive created: $(ls -lh deployment.tar.gz)"
+          echo "📦 Archive created: $(ls -lh /tmp/deployment.tar.gz)"
 
-      - name: Setup VPN and deploy
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            
-            echo "=== Starting VPN Connection ==="
-            
-            # Write VPN config file
-            echo "${{ secrets.VPN_CONFIG }}" > /tmp/deinet.ovpn
-            
-            # Create VPN auth file
-            echo "${{ secrets.VPN_USER }}" > /tmp/vpn-auth.txt
-            echo "${{ secrets.VPN_PASSWORD }}" >> /tmp/vpn-auth.txt
-            
-            # Connect to VPN
-            echo "Connecting to VPN..."
-            sudo openvpn --config /tmp/deinet.ovpn --auth-user-pass /tmp/vpn-auth.txt --daemon
-            
-            # Wait for VPN connection
-            sleep 15
-            echo "VPN connection established"
-            
-            echo "=== Starting Deployment ==="
-            
-            DEPLOY_PATH="/opt/port-management"
-            RELEASE_VERSION="${{ github.sha }}-$(date +'%Y%m%d-%H%M%S')"
-            RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
-            
-            echo "Release: $RELEASE_VERSION"
-            
-            # Create release directory
-            sudo mkdir -p "$RELEASE_DIR"
-            sudo chown -R deploy:deploy "$RELEASE_DIR"
-            
-            # Stop application services
-            echo "Stopping services..."
-            sudo systemctl stop portmanagement-backend.service
-            sudo systemctl stop portmanagement-oem.service
-            
-            # Extract new version
-            echo "Extracting deployment..."
-            cd "$RELEASE_DIR"
-            
-            # The archive will be uploaded in the next step
-            echo "Ready for file transfer..."
-
-      - name: Upload deployment archive
+      - name: Upload archive to server via VPN
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "deployment.tar.gz"
+          script_stop: true
+          script: |
+            set -e
+            
+            echo "🔐 Establishing VPN connection..."
+            
+            # Create VPN configuration file
+            cat > /tmp/deinet.ovpn << 'EOF'
+            ${{ secrets.VPN_CONFIG }}
+            EOF
+            
+            # Create VPN auth file
+            echo -e "${{ secrets.VPN_USER }}\n${{ secrets.VPN_PASSWORD }}" > /tmp/vpn-auth.txt
+            chmod 600 /tmp/vpn-auth.txt
+            
+            # Connect to VPN
+            echo "Connecting to DEINET VPN..."
+            sudo openvpn --config /tmp/deinet.ovpn --auth-user-pass /tmp/vpn-auth.txt --daemon
+            
+            # Wait for VPN to establish
+            echo "Waiting for VPN connection..."
+            sleep 15
+            
+            # Test VPN connection to internal host
+            if ping -c 1 -W 10 ${{ secrets.DEPLOY_HOST_INTERNAL }} &> /dev/null; then
+              echo "✅ VPN connected successfully"
+            else
+              echo "❌ VPN connection failed"
+              echo "Trying alternative connection method..."
+              # Try alternative route
+              sudo route add -net 10.0.0.0/8 gw 10.8.0.1
+              sudo route add -net 192.168.62.0/24 gw 10.8.0.1
+            fi
+          source: "/tmp/deployment.tar.gz"
           target: "/tmp"
 
-      - name: Complete deployment
+      - name: Deploy via SSH over VPN
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          script_stop: true
           script: |
             set -e
             
-            echo "=== Completing Deployment ==="
+            echo "🚀 Starting deployment over VPN..."
+            echo "Target server: ${{ secrets.DEPLOY_HOST_INTERNAL }}"
             
+            # First establish VPN connection from the runner
+            echo "🔐 Setting up VPN from GitHub runner..."
+            
+            # Install OpenVPN on GitHub runner if needed
+            if ! command -v openvpn &> /dev/null; then
+              echo "Installing OpenVPN on runner..."
+              sudo apt-get update
+              sudo apt-get install -y openvpn
+            fi
+            
+            # Create VPN configuration
+            cat > /tmp/deinet.ovpn << 'EOF'
+            ${{ secrets.VPN_CONFIG }}
+            EOF
+            
+            # Create VPN auth file
+            echo -e "${{ secrets.VPN_USER }}\n${{ secrets.VPN_PASSWORD }}" > /tmp/vpn-auth.txt
+            chmod 600 /tmp/vpn-auth.txt
+            
+            # Connect to VPN
+            echo "Connecting to VPN..."
+            sudo openvpn --config /tmp/deinet.ovpn --auth-user-pass /tmp/vpn-auth.txt --daemon
+            
+            # Wait for VPN connection
+            echo "Waiting for VPN to establish..."
+            for i in {1..30}; do
+              if ping -c 1 -W 2 ${{ secrets.DEPLOY_HOST_INTERNAL }} &> /dev/null; then
+                echo "✅ VPN connection established"
+                break
+              fi
+              if [ $i -eq 30 ]; then
+                echo "❌ VPN connection failed after 30 attempts"
+                exit 1
+              fi
+              sleep 2
+            done
+            
+            # Now connect to the server via VPN
+            echo "🖥️  Connecting to server at ${{ secrets.DEPLOY_HOST_INTERNAL }}"
+            
+            # Variables
             DEPLOY_PATH="/opt/port-management"
             RELEASE_VERSION="${{ github.sha }}-$(date +'%Y%m%d-%H%M%S')"
             RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
             
-            # Extract the uploaded archive
-            echo "Extracting deployment archive..."
-            cd "$RELEASE_DIR"
-            tar -xzf /tmp/deployment.tar.gz
+            # Verify we can reach the server
+            if ! ping -c 1 -W 5 ${{ secrets.DEPLOY_HOST_INTERNAL }} &> /dev/null; then
+              echo "❌ Cannot reach server via VPN"
+              exit 1
+            fi
+            
+            # Test SSH connection via VPN
+            echo "Testing SSH connection..."
+            ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_PATH || '~/.ssh/id_rsa' }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST_INTERNAL }} "echo 'SSH connection successful via VPN'"
+            
+            # Stop services
+            echo "🛑 Stopping services..."
+            ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_PATH || '~/.ssh/id_rsa' }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST_INTERNAL }} "
+              sudo systemctl stop portmanagement-backend.service portmanagement-oem.service 2>/dev/null || echo 'Services already stopped or not running'
+            "
+            
+            # Create release directory
+            echo "📁 Creating release directory..."
+            ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_PATH || '~/.ssh/id_rsa' }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST_INTERNAL }} "
+              sudo mkdir -p '$RELEASE_DIR'
+              sudo chown -R deploy:deploy '$RELEASE_DIR'
+            "
+            
+            # Extract new version
+            echo "📦 Extracting new version..."
+            ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_PATH || '~/.ssh/id_rsa' }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST_INTERNAL }} "
+              cd '$RELEASE_DIR'
+              tar -xzf /tmp/deployment.tar.gz
+            "
             
             # Update current symlink
-            echo "Updating current symlink..."
-            sudo rm -f "$DEPLOY_PATH/current"
-            sudo ln -sf "$RELEASE_DIR" "$DEPLOY_PATH/current"
+            echo "🔗 Updating current symlink..."
+            ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_PATH || '~/.ssh/id_rsa' }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST_INTERNAL }} "
+              sudo rm -f '$DEPLOY_PATH/current'
+              sudo ln -sf '$RELEASE_DIR' '$DEPLOY_PATH/current'
+            "
             
             # Start services
-            echo "Starting services..."
-            sudo systemctl start portmanagement-backend.service
-            sudo systemctl start portmanagement-oem.service
+            echo "▶️ Starting services..."
+            ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_PATH || '~/.ssh/id_rsa' }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST_INTERNAL }} "
+              sudo systemctl start portmanagement-backend.service portmanagement-oem.service
+            "
             
-            # Cleanup old releases (keep last 5)
-            echo "Cleaning up old releases..."
-            cd "$DEPLOY_PATH/releases"
-            ls -t | tail -n +6 | xargs -I {} sudo rm -rf {} 2>/dev/null || true
+            # Cleanup old releases
+            echo "🧹 Cleaning old releases..."
+            ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_PATH || '~/.ssh/id_rsa' }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST_INTERNAL }} "
+              cd '$DEPLOY_PATH/releases'
+              ls -t | tail -n +11 | xargs -I {} sudo rm -rf {} 2>/dev/null || echo 'No old releases to clean'
+            "
             
-            echo "=== Deployment Complete ==="
-            echo "Version: $RELEASE_VERSION"
-            echo "Directory: $RELEASE_DIR"
-            
-            # Show service status
-            echo "Service status:"
-            sudo systemctl status portmanagement-backend.service --no-pager | grep -E "(Active|Status)" || true
-            sudo systemctl status portmanagement-oem.service --no-pager | grep -E "(Active|Status)" || true
+            # Verify
+            echo "✅ Deployment complete via VPN!"
+            echo ""
+            echo "📊 Service status:"
+            ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY_PATH || '~/.ssh/id_rsa' }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST_INTERNAL }} "
+              sudo systemctl status portmanagement-*.service --no-pager | grep -E '(Service|Active)' || true
+            "
