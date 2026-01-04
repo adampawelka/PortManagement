@@ -39,7 +39,7 @@ export default (): Router => {
   router.put('/operationPlans/:id', (req, res, next) =>
     (operationPlanController as any).updateOperationPlan(req, res, next));
   router.get('/operationPlans/resource-allocation', (req, res, next) =>
-    (operationPlanController as any).getResourceAllocation(req, res, next)); //4.1.6
+    (operationPlanController as any).getResourceAllocation(req, res, next)); 
 
   // Vessel Visit Executions
   router.post('/vesselVisitExecutions', (req, res, next) =>
@@ -50,6 +50,17 @@ export default (): Router => {
     (vesselVisitExecutionController as any).getVVE(req, res, next));
   router.put('/vesselVisitExecutions/:id', (req, res, next) =>
     (vesselVisitExecutionController as any).updateVVE(req, res, next));
+
+
+    // Complementary Tasks (US 4.1.15)
+  router.post('/complementaryTasks', (req, res, next) =>
+    (complementaryTaskController as any).createTask(req, res, next));
+  router.get('/complementaryTasks', (req, res, next) =>
+    (complementaryTaskController as any).getAll(req, res, next));
+  router.get('/complementaryTasks/vve/:vveId', (req, res, next) =>
+    (complementaryTaskController as any).getByVVE(req, res, next));
+  router.put('/complementaryTasks/:id', (req, res, next) =>
+    (complementaryTaskController as any).updateTask(req, res, next));
 
   return router;
 };
