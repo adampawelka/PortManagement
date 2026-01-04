@@ -24,12 +24,19 @@ import {
 import { CreatedBy } from "../Domain/VesselVisitExecutions/CreatedBy";
 import { VvnClientService } from "./VvnClientService";
 
+import { ActualUnberthTime } from "../Domain/VesselVisitExecutions/ActualUnberthTime";
+import { ActualPortDepartureTime } from "../Domain/VesselVisitExecutions/ActualPortDepartureTime";
+import { ExecutedOperationStatusEnum } from "../Domain/ExecutedOperations/ExecutedOperationStatus";
+import { IExecutedOperationRepo } from "./IRepos/IExecutedOperationRepo";
+
 export class VesselVisitExecutionService
   implements IVesselVisitExecutionService {
 
   constructor(
     private readonly vveRepo: IVesselVisitExecutionRepo,
-    private readonly vvnClient: VvnClientService
+    private readonly vvnClient: VvnClientService,
+    private readonly executedOperationRepo: IExecutedOperationRepo
+    
   ) { }
 
   async create(
@@ -52,26 +59,26 @@ export class VesselVisitExecutionService
     try {
       console.log(`[VesselVisitExecutionService] Validating VVN: ${dto.vvnId}`);
       const vvn = await this.vvnClient.getVvnById(dto.vvnId);
-      
+
       if (!vvn) {
         vvnValidationError = new Error(`Vessel Visit Notification (VVN) with ID ${dto.vvnId} does not exist`);
         throw vvnValidationError;
       }
-      
+
       // Log the full VVN object for debugging
       console.log(`[VesselVisitExecutionService] VVN retrieved:`, JSON.stringify(vvn, null, 2));
-      
+
       // Check status (case-insensitive comparison)
       // Try multiple possible field names: status, visitStatus, VisitStatus
       const vvnStatus = (vvn.status || (vvn as any).visitStatus || (vvn as any).VisitStatus || '').toString().toUpperCase();
       console.log(`[VesselVisitExecutionService] VVN status check: received="${vvn.status || (vvn as any).visitStatus || (vvn as any).VisitStatus}", normalized="${vvnStatus}"`);
-      
+
       if (!vvnStatus || vvnStatus !== 'APPROVED') {
         vvnValidationError = new Error(`Cannot create VVE for VVN with status "${vvn.status || (vvn as any).visitStatus || (vvn as any).VisitStatus}". VVN must be APPROVED.`);
         console.error(`[VesselVisitExecutionService] ${vvnValidationError.message}`);
         throw vvnValidationError;
       }
-      
+
       console.log(`[VesselVisitExecutionService] VVN validation passed - status is APPROVED`);
     } catch (error: any) {
       // If it's our validation error, always throw it (this should never be caught and swallowed)
@@ -79,22 +86,22 @@ export class VesselVisitExecutionService
         console.error(`[VesselVisitExecutionService] Throwing validation error: ${vvnValidationError.message}`);
         throw vvnValidationError;
       }
-      
+
       // If it's a validation error (VVN doesn't exist or wrong status), throw it
       if (error.message && (
-        error.message.includes('does not exist') || 
+        error.message.includes('does not exist') ||
         error.message.includes('must be APPROVED') ||
         error.message.includes('Cannot create VVE')
       )) {
         console.error(`[VesselVisitExecutionService] Throwing validation error: ${error.message}`);
         throw error;
       }
-      
+
       // For authentication errors (401), block VVE creation - we cannot validate VVN status
       if (error.message && error.message.includes('401')) {
         throw new Error(`Cannot create VVE: Authentication failed when validating VVN. Please ensure OEM backend is properly configured to access Backend API.`);
       }
-      
+
       // For network/timeout errors, log warning but allow creation to proceed
       // This prevents blocking VVE creation if Backend API is temporarily unavailable
       console.warn(`[VesselVisitExecutionService] Could not validate VVN: ${error.message}. Proceeding with VVE creation.`);
@@ -143,14 +150,14 @@ export class VesselVisitExecutionService
   ): Promise<VesselVisitExecutionDTO | null> {
     try {
       console.log(`[VesselVisitExecutionService] Getting VVE by ID: ${id}`);
-      
+
       const vveId = VesselVisitExecutionId.create(
         new UniqueEntityID(id)
       );
 
       const vve = await this.vveRepo.findById(vveId);
       console.log(`[VesselVisitExecutionService] Found VVE:`, vve ? "Yes" : "No");
-      
+
       if (!vve) return null;
 
       const dto = this.toDTO(vve);
@@ -228,7 +235,7 @@ export class VesselVisitExecutionService
 
       // 1. Obtener TODAS las ejecuciones (ya que la DB no soporta filtros complejos aún)
       const allVves = await this.vveRepo.findAll();
-      
+
       // 2. Filtrado en Memoria
       let filteredVves = allVves;
 
@@ -255,16 +262,16 @@ export class VesselVisitExecutionService
         // Obtener nombre del buque (Simulado o via Cliente VVN)
         // Lo ideal sería: const details = await this.vvnClient.getDetails(vve.vvnId.value);
         // Por ahora, devolvemos "Unknown" o el ID si no tenemos el servicio de nombres listo
-        let vesselName = "Unknown Vessel"; 
+        let vesselName = "Unknown Vessel";
         try {
-             // Si tu vvnClient tiene un método para obtener datos, úsalo aquí.
-             // Si no, filtraremos por vvnId si criteria.vesselName se usa como ID.
-             vesselName = `Vessel (VVN: ${vve.vvnId.value.substring(0,8)}...)`; 
+          // Si tu vvnClient tiene un método para obtener datos, úsalo aquí.
+          // Si no, filtraremos por vvnId si criteria.vesselName se usa como ID.
+          vesselName = `Vessel (VVN: ${vve.vvnId.value.substring(0, 8)}...)`;
         } catch (e) { console.warn("Could not fetch vessel name"); }
 
         // Si hay filtro por Vessel (Nombre o ID), aplicarlo aquí
         if (criteria.vesselName && !vesselName.includes(criteria.vesselName) && !vve.vvnId.value.includes(criteria.vesselName)) {
-            continue; 
+          continue;
         }
 
         // --- CÁLCULO DE MÉTRICAS ---
@@ -300,6 +307,61 @@ export class VesselVisitExecutionService
       console.error("[VVE Service] Error searching:", error);
       throw new Error("Failed to search vessel visit executions.");
     }
+  }
+
+  // 4.1.11
+  async completeVVE(
+    id: string,
+    dto: {
+      actualUnberthTime: string;
+      actualPortDepartureTime: string;
+      user: string;
+    }
+  ): Promise<VesselVisitExecutionDTO> {
+
+    // 1. Cargar la VVE
+    const vveId = VesselVisitExecutionId.create(
+      new UniqueEntityID(id)
+    );
+
+    const vve = await this.vveRepo.findById(vveId);
+    if (!vve) {
+      throw new Error("Vessel Visit Execution not found");
+    }
+
+    // 2. Cargar operaciones ejecutadas asociadas
+    const executedOps =
+      await this.executedOperationRepo.findByVesselVisitExecutionId(id);
+
+    const hasUnfinishedOps = executedOps.some(
+      op => op.status.value !== ExecutedOperationStatusEnum.COMPLETED
+    );
+
+    if (hasUnfinishedOps) {
+      throw new Error(
+        "Cannot complete VVE: unfinished cargo operations exist"
+      );
+    }
+
+    // 3. Marcar la VVE como completada (DOMINIO)
+    vve.complete(
+      ActualUnberthTime.create(
+        new Date(dto.actualUnberthTime)
+      ).getValue(),
+      ActualPortDepartureTime.create(
+        new Date(dto.actualPortDepartureTime)
+      ).getValue()
+    );
+
+    // 4. Guardar cambios
+    await this.vveRepo.save(vve);
+
+    // 5. Audit log mínimo
+    console.log(
+      `[AUDIT] VVE ${id} completed by ${dto.user} at ${new Date().toISOString()}`
+    );
+
+    return this.toDTO(vve);
   }
 
   private toDTO(

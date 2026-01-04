@@ -6,6 +6,7 @@ export interface ComplementaryTaskDTO {
   startTime: string;
   endTime?: string;
   status: string;
+  executionMode?: string;
 }
 
 export interface CreateComplementaryTaskDTO {
@@ -15,6 +16,7 @@ export interface CreateComplementaryTaskDTO {
   startTime: string;
   endTime?: string;
   status: string;
+  executionMode?: 'PARALLEL' | 'SUSPEND';
 }
 
 export interface UpdateComplementaryTaskDTO {

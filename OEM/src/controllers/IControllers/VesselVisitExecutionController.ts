@@ -7,8 +7,8 @@ import { CreateVesselVisitExecutionDTO, UpdateVesselVisitExecutionDTO, VveSearch
 @Service()
 export default class VesselVisitExecutionController {
   constructor(
-      @Inject(config.services.vesselVisitExecution.name) private vveServiceInstance : IVesselVisitExecutionService
-  ) {}
+    @Inject(config.services.vesselVisitExecution.name) private vveServiceInstance: IVesselVisitExecutionService
+  ) { }
 
   // POST: /vesselVisitExecutions (US 4.1.7)
   public async createVVE(req: Request, res: Response, next: NextFunction) {
@@ -26,8 +26,8 @@ export default class VesselVisitExecutionController {
       console.error(`[VesselVisitExecutionController] Error creating VVE:`, e.message);
       // Return error message to client for better UX
       const statusCode = e.message && e.message.includes('already exists') ? 409 : 500;
-      return res.status(statusCode).json({ 
-        message: e.message || "Failed to create vessel visit execution" 
+      return res.status(statusCode).json({
+        message: e.message || "Failed to create vessel visit execution"
       });
     }
   };
@@ -65,7 +65,7 @@ export default class VesselVisitExecutionController {
           vesselName: vesselName as string,
           status: status as string
         };
-        
+
         const results = await this.vveServiceInstance.search(criteria);
         return res.status(200).json(results);
       } else {
@@ -92,5 +92,32 @@ export default class VesselVisitExecutionController {
       return next(e);
     }
   };
+
+  //4.1.11
+  public async completeVVE(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = (req as any).user?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "User not authenticated" });
+      }
+
+      const result = await this.vveServiceInstance.completeVVE(
+        req.params.id,
+        {
+          actualUnberthTime: req.body.actualUnberthTime,
+          actualPortDepartureTime: req.body.actualPortDepartureTime,
+          user: userId
+        }
+      );
+
+      return res.status(200).json(result);
+    } catch (e: any) {
+      return res.status(400).json({
+        message: e.message || "Failed to complete VVE"
+      });
+    }
+  }
+
 }
 

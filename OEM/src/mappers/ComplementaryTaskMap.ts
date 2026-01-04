@@ -11,7 +11,8 @@ export class ComplementaryTaskMap {
       responsibleTeam: task.responsibleTeam.value,
       startTime: task.startTime.value,
       endTime: task.endTime?.value ?? null,
-      status: task.status.value
+      status: task.status.value,
+      executionMode: task.executionMode.value
     };
   }
 
@@ -25,7 +26,8 @@ export class ComplementaryTaskMap {
         responsibleTeam: data.responsibleTeam,
         startTime: data.startTime,
         endTime: data.endTime ?? undefined,
-        status: data.status
+        status: data.status,
+        executionMode: data.executionMode
       },
       new UniqueEntityID(data.domainId)
     );

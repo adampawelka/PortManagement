@@ -8,8 +8,10 @@ import { VvnId } from "./VvnId";
 import { ActualArrivalTime } from "./ActualArrivalTime";
 import { ActualBerthTime } from "./ActualBerthTime";
 import { DockId } from "./DockId";
-import { VesselVisitExecutionStatus } from "./VesselVisitExecutionStatus";
 import { CreatedBy } from "./CreatedBy";
+import { ActualUnberthTime } from "./ActualUnberthTime";
+import { ActualPortDepartureTime } from "./ActualPortDepartureTime";
+import {VesselVisitExecutionStatus,VesselVisitExecutionStatusEnum } from "./VesselVisitExecutionStatus";
 
 interface VesselVisitExecutionProps {
   vvnId: VvnId;
@@ -18,6 +20,8 @@ interface VesselVisitExecutionProps {
   dockId?: DockId;
   status: VesselVisitExecutionStatus;
   createdBy: CreatedBy;
+  actualUnberthTime?: ActualUnberthTime;
+  actualPortDepartureTime?: ActualPortDepartureTime;
 }
 
 export class VesselVisitExecution extends AggregateRoot<VesselVisitExecutionProps> {
@@ -52,6 +56,21 @@ export class VesselVisitExecution extends AggregateRoot<VesselVisitExecutionProp
 
   get createdBy(): CreatedBy {
     return this.props.createdBy;
+  }
+
+  public complete(
+    unberth: ActualUnberthTime,
+    departure: ActualPortDepartureTime
+  ): void {
+    if (this.status.value === VesselVisitExecutionStatusEnum.COMPLETED) {
+      throw new Error("VVE already completed");
+    }
+
+    this.props.actualUnberthTime = unberth;
+    this.props.actualPortDepartureTime = departure;
+    this.props.status = VesselVisitExecutionStatus.create(
+      VesselVisitExecutionStatusEnum.COMPLETED
+    ).getValue();
   }
 
   private constructor(props: VesselVisitExecutionProps, id?: UniqueEntityID) {
