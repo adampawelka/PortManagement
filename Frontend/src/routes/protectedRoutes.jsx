@@ -59,6 +59,11 @@ import IncidentTypesListPage from "../pages/IncidentTypes/IncidentTypesListPage.
 import AddIncidentTypePage from "../pages/IncidentTypes/AddIncidentTypePage.jsx";
 import EditIncidentTypePage from "../pages/IncidentTypes/EditIncidentTypePage.jsx";
 
+// Incidents
+import IncidentsListPage from "../pages/Incidents/IncidentsListPage.jsx";
+import ReportIncidentPage from "../pages/Incidents/ReportIncidentPage.jsx";
+import UpdateIncidentPage from "../pages/Incidents/UpdateIncidentPage.jsx";
+
 // Complementary Tasks
 
 import AddComplementaryTaskPage from "../pages/ComplementaryTasks/AddComplementaryTaskPage.jsx";
@@ -174,6 +179,13 @@ export const protectedRoutes = {
     { path: "/incident-types/add", element: <AddIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
     { path: "/incident-types/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] },
     //{ path: "/incident-types/:id/edit", element: <EditIncidentTypePage />, roles: ["PortAuthorityOfficer"] }
+  ],
+
+  incidents: [
+    { path: "/incidents/list", element: <IncidentsListPage />, roles: ["LogisticsOperator"] },
+    { path: "/incidents/report", element: <ReportIncidentPage />, roles: ["LogisticsOperator"] },
+    { path: "/incidents/update", element: <UpdateIncidentPage />, roles: ["LogisticsOperator"] },
+    { path: "/incidents/update/:id", element: <UpdateIncidentPage />, roles: ["LogisticsOperator"] },
   ],
 
   complementaryTaskCategories: [
