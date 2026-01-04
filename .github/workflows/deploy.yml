@@ -1,4 +1,4 @@
-name: Deploy to DEINET Server
+name: Deploy
 
 on:
   push:
@@ -12,141 +12,107 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install OpenVPN and setup VPN
-        run: |
-          echo "🔐 Setting up VPN connection from GitHub runner..."
-          
-          # Install OpenVPN
-          sudo apt-get update
-          sudo apt-get install -y openvpn
-          
-          # Create VPN configuration file
-          cat > /tmp/deinet.ovpn << 'EOF'
-          ${{ secrets.VPN_CONFIG }}
-          EOF
-          
-          # Create VPN auth file
-          echo -e "${{ secrets.VPN_USER }}\n${{ secrets.VPN_PASSWORD }}" > /tmp/vpn-auth.txt
-          chmod 600 /tmp/vpn-auth.txt
-          
-          # Start VPN connection
-          echo "Starting VPN connection..."
-          sudo openvpn --config /tmp/deinet.ovpn --auth-user-pass /tmp/vpn-auth.txt --daemon
-          
-          # Wait for VPN to establish
-          echo "Waiting for VPN connection..."
-          sleep 15
-          
-          # Add routes for internal networks
-          echo "Adding routes to internal networks..."
-          sudo route add -net 10.9.0.0/16 gw 10.8.0.1 2>/dev/null || true
-          
-          # Test connection to your server
-          echo "Testing connection to vs216 server..."
-          if ping -c 1 -W 10 10.9.20.216 &> /dev/null; then
-            echo "✅ Successfully connected to 10.9.20.216 via VPN"
-          else
-            echo "❌ Cannot reach 10.9.20.216"
-            echo "Current routing table:"
-            ip route show
-            echo "Current interfaces:"
-            ip addr show
-            exit 1
-          fi
+      - name: Setup VPN and deploy via SSH
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: 10.9.20.216  # Your server's internal IP
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          script: |
+            # This will be executed on the GitHub runner before SSH
+            echo "Setting up VPN on GitHub runner..."
+            
+            # Install OpenVPN
+            sudo apt-get update
+            sudo apt-get install -y openvpn
+            
+            # Create VPN config
+            cat > /tmp/deinet.ovpn << 'EOF'
+            ${{ secrets.VPN_CONFIG }}
+            EOF
+            
+            # Create auth file
+            echo -e "${{ secrets.VPN_USER }}\n${{ secrets.VPN_PASSWORD }}" > /tmp/vpn-auth.txt
+            chmod 600 /tmp/vpn-auth.txt
+            
+            # Start VPN
+            sudo openvpn --config /tmp/deinet.ovpn --auth-user-pass /tmp/vpn-auth.txt --daemon
+            sleep 15
+            
+            # Add route to 10.9.0.0/16 network
+            sudo route add -net 10.9.0.0/16 gw 10.8.0.1 2>/dev/null || true
+            
+            # Test connection
+            if ! ping -c 1 -W 5 10.9.20.216 &> /dev/null; then
+              echo "ERROR: Cannot reach server via VPN"
+              exit 1
+            fi
+            
+            echo "VPN connected successfully"
+          envs: GITHUB_SHA
+        env:
+          GITHUB_SHA: ${{ github.sha }}
 
-      - name: Setup SSH key
-        run: |
-          # Create SSH key file
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          
-          # Add server to known_hosts (skip verification)
-          ssh-keyscan -H 10.9.20.216 >> ~/.ssh/known_hosts 2>/dev/null || true
-
-      - name: Create and upload deployment package
-        run: |
-          echo "📦 Creating deployment package..."
-          
-          # Create archive
-          tar -czf /tmp/deployment.tar.gz \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            --exclude='.github' \
-            .
-          
-          echo "Uploading to server..."
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa /tmp/deployment.tar.gz deploy@10.9.20.216:/tmp/
-          
-          echo "✅ Package uploaded"
-
-      - name: Execute deployment on server
-        run: |
-          set -e
-          
-          echo "🚀 Executing deployment..."
-          
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa deploy@10.9.20.216 << 'EOF'
+      - name: Execute deployment commands
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: 10.9.20.216
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
             set -e
-          
-            echo "=== Port Management Deployment on vs216 ==="
-            echo "Server: $(hostname)"
-            echo "IP: $(hostname -I)"
-            echo "Time: $(date)"
-          
-            # Variables
+            
+            echo "=== Starting Deployment ==="
+            
             DEPLOY_PATH="/opt/port-management"
-            RELEASE_VERSION="${{ github.sha }}-$(date +'%Y%m%d-%H%M%S')"
+            RELEASE_VERSION="$GITHUB_SHA-$(date +'%Y%m%d-%H%M%S')"
             RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
-          
+            
+            # Create temp dir and clone
+            TEMP_DIR="/tmp/deploy-$RELEASE_VERSION"
+            mkdir -p "$TEMP_DIR"
+            cd "$TEMP_DIR"
+            
+            echo "Cloning repository..."
+            git clone https://github.com/${{ github.repository }}.git .
+            git checkout "$GITHUB_SHA"
+            
             # Create release directory
-            echo "Creating release directory: \$RELEASE_DIR"
-            sudo mkdir -p "\$RELEASE_DIR"
-            sudo chown -R deploy:deploy "\$RELEASE_DIR"
-          
-            # Extract deployment
-            echo "Extracting deployment package..."
-            cd "\$RELEASE_DIR"
-            tar -xzf /tmp/deployment.tar.gz
-          
+            echo "Creating release directory..."
+            sudo mkdir -p "$RELEASE_DIR"
+            sudo chown -R deploy:deploy "$RELEASE_DIR"
+            
+            # Copy files
+            echo "Copying files..."
+            cp -r . "$RELEASE_DIR/"
+            
             # Stop services
-            echo "Stopping application services..."
+            echo "Stopping services..."
             sudo systemctl stop portmanagement-backend.service portmanagement-oem.service 2>/dev/null || echo "Services already stopped"
-          
-            # Update current symlink
+            
+            # Update symlink
             echo "Updating current symlink..."
-            sudo rm -f "\$DEPLOY_PATH/current"
-            sudo ln -sf "\$RELEASE_DIR" "\$DEPLOY_PATH/current"
-          
+            sudo rm -f "$DEPLOY_PATH/current"
+            sudo ln -sf "$RELEASE_DIR" "$DEPLOY_PATH/current"
+            
             # Start services
             echo "Starting services..."
             sudo systemctl start portmanagement-backend.service portmanagement-oem.service
-          
-            # Cleanup old releases (keep last 5)
-            echo "Cleaning old releases..."
-            cd "\$DEPLOY_PATH/releases"
-            ls -t | tail -n +6 | xargs -I {} sudo rm -rf {} 2>/dev/null || echo "No old releases to clean"
-          
-            # Cleanup temp file
-            rm -f /tmp/deployment.tar.gz
-          
+            
+            # Cleanup
+            echo "Cleaning up..."
+            rm -rf "$TEMP_DIR"
+            
+            # Keep last 5 releases
+            cd "$DEPLOY_PATH/releases"
+            ls -t | tail -n +6 | xargs -I {} sudo rm -rf {} 2>/dev/null || echo "No old releases"
+            
             echo "✅ Deployment complete!"
+            
+            # Show status
             echo ""
-            echo "=== Service Status ==="
-            for service in portmanagement-backend portmanagement-oem portmanagement-postgres portmanagement-mongo; do
-              if sudo systemctl is-active --quiet "\$service"; then
-                echo "✅ \$service: RUNNING"
-              else
-                echo "❌ \$service: NOT RUNNING"
-                # Show logs for failed services
-                sudo journalctl -u "\$service" -n 10 --no-pager 2>/dev/null | tail -10 || true
-              fi
-            done
-          
-            echo ""
-            echo "=== Access Information ==="
-            echo "Backend API: http://10.9.20.216:5000"
-            echo "OEM Module: http://10.9.20.216:5161"
-            echo "PostgreSQL: localhost:5432"
-            echo "MongoDB: localhost:27017"
-          EOF
+            echo "Service Status:"
+            sudo systemctl status portmanagement-*.service --no-pager | grep -A1 "portmanagement-" || true
