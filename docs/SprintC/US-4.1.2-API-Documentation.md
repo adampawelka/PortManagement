@@ -132,6 +132,5 @@ All SPA routes related to Operational Plans are under: `/operational-plans`
 - Empty result sets return an informative message in SPA (`No operational plans found`) instead of errors.
 - Sorting and filtering work correctly on the table columns.
 - SPA handles slow API responses gracefully (loading spinner displayed).
-- Generated schedules reflect algorithm choice (auto or override) and show correct execution time.
 
 
