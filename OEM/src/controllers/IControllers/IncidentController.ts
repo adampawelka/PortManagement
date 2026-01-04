@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { Inject, Service } from 'typedi';
 import config from "../../../config";
 import { IIncidentService } from "../../services/IServices/IIncidentService";
-import { CreateIncidentDTO, UpdateIncidentDTO } from "../../dto/IncidentDTO";
+import { CreateIncidentDTO, UpdateIncidentDTO, IncidentSearchCriteriaDTO } from "../../dto/IncidentDTO";
 
 @Service()
 export default class IncidentController {
@@ -31,9 +31,25 @@ export default class IncidentController {
     }
   };
 
-  // GET: /incidents (Para filtros por buque, fecha o severidad en SPA)
+  // GET: /incidents (Supports filtering by vessel, date range, severity, status)
   public async getAll(req: Request, res: Response, next: NextFunction) {
     try {
+      const { vesselName, dateStart, dateEnd, severity, status } = req.query;
+
+      // If any filter is provided, use search method
+      if (vesselName || dateStart || dateEnd || severity || status) {
+        const criteria: IncidentSearchCriteriaDTO = {
+          vesselName: vesselName as string,
+          dateStart: dateStart as string,
+          dateEnd: dateEnd as string,
+          severity: severity as string,
+          status: status as 'active' | 'resolved'
+        };
+        const incidentsDTO = await this.incidentServiceInstance.search(criteria);
+        return res.status(200).json(incidentsDTO);
+      }
+
+      // Otherwise, return all incidents
       const incidentsDTO = await this.incidentServiceInstance.getAll();
       return res.status(200).json(incidentsDTO);
     } catch (e) {

@@ -51,5 +51,27 @@ export default (): Router => {
   router.put('/vesselVisitExecutions/:id', (req, res, next) =>
     (vesselVisitExecutionController as any).updateVVE(req, res, next));
 
+  // Incident Types (US 4.1.12)
+  router.post('/incidentTypes', (req, res, next) =>
+    (incidentTypeController as any).createIncidentType(req, res, next));
+  router.get('/incidentTypes', (req, res, next) =>
+    (incidentTypeController as any).getAll(req, res, next));
+  router.get('/incidentTypes/:id', (req, res, next) =>
+    (incidentTypeController as any).getById(req, res, next));
+  router.put('/incidentTypes/:id', (req, res, next) =>
+    (incidentTypeController as any).updateIncidentType(req, res, next));
+
+  // Incidents (US 4.1.13)
+  router.post('/incidents', (req, res, next) =>
+    (incidentController as any).createIncident(req, res, next));
+  router.get('/incidents', (req, res, next) =>
+    (incidentController as any).getAll(req, res, next));
+  router.get('/incidents/:id', (req, res, next) =>
+    (incidentController as any).getIncident(req, res, next));
+  router.get('/incidents/type/:typeId', (req, res, next) =>
+    (incidentController as any).getByIncidentType(req, res, next));
+  router.put('/incidents/:id', (req, res, next) =>
+    (incidentController as any).updateIncident(req, res, next));
+
   return router;
 };

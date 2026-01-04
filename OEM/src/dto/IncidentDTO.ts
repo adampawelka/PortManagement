@@ -25,3 +25,12 @@ export interface UpdateIncidentDTO {
   description?: string;
   createdBy?: string;
 }
+
+// DTO for filtering incidents (US 4.1.13)
+export interface IncidentSearchCriteriaDTO {
+  vesselName?: string;
+  dateStart?: string;
+  dateEnd?: string;
+  severity?: string;
+  status?: 'active' | 'resolved'; // active = no endTime, resolved = has endTime
+}

@@ -4,7 +4,8 @@ import { IIncidentRepo } from "./IRepos/IIncidentRepo";
 import {
   IncidentDTO,
   CreateIncidentDTO,
-  UpdateIncidentDTO
+  UpdateIncidentDTO,
+  IncidentSearchCriteriaDTO
 } from "../dto/IncidentDTO";
 
 import { Incident } from "../Domain/Incidents/Incident";
@@ -90,6 +91,49 @@ export class IncidentService implements IIncidentService {
   async getAll(): Promise<IncidentDTO[]> {
     const incidents = await this.incidentRepo.findAll();
     return incidents.map(i => this.toDTO(i));
+  }
+
+  async search(criteria: IncidentSearchCriteriaDTO): Promise<IncidentDTO[]> {
+    const allIncidents = await this.incidentRepo.findAll();
+    let filtered = allIncidents.map(i => this.toDTO(i));
+
+    // Filter by date range (startTime)
+    if (criteria.dateStart) {
+      const start = new Date(criteria.dateStart);
+      filtered = filtered.filter(inc => new Date(inc.startTime) >= start);
+    }
+
+    if (criteria.dateEnd) {
+      const end = new Date(criteria.dateEnd);
+      // Include incidents that started before or during the end date
+      filtered = filtered.filter(inc => new Date(inc.startTime) <= end);
+    }
+
+    // Filter by severity
+    if (criteria.severity) {
+      filtered = filtered.filter(inc => 
+        inc.severity.toLowerCase() === criteria.severity?.toLowerCase()
+      );
+    }
+
+    // Filter by status (active = no endTime, resolved = has endTime)
+    if (criteria.status) {
+      if (criteria.status === 'active') {
+        filtered = filtered.filter(inc => !inc.endTime);
+      } else if (criteria.status === 'resolved') {
+        filtered = filtered.filter(inc => !!inc.endTime);
+      }
+    }
+
+    // Filter by vessel name
+    // Note: Vessel filtering requires VVE association (to be implemented in sub-issue #4)
+    // For now, this is a placeholder - vessel filtering will be added when VVE association is implemented
+    if (criteria.vesselName) {
+      // TODO: Implement vessel filtering when VVE association is added
+      console.log(`[IncidentService] Vessel filtering requested for "${criteria.vesselName}" - requires VVE association (sub-issue #4)`);
+    }
+
+    return filtered;
   }
 
   async update(
