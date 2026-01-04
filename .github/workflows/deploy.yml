@@ -4,232 +4,293 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy'
-        required: false
-        default: 'main'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.inputs.branch || github.ref }}
-    
-    - name: Setup environment
-      run: |
-        echo "RELEASE_VERSION=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
-        echo "DEPLOY_PATH=/opt/port-management" >> $GITHUB_ENV
-        echo "BRANCH_NAME=${{ github.head_ref || github.ref_name }}" >> $GITHUB_ENV
-    
-    - name: Create deployment package
-      run: |
-        # Create deployment directory
-        mkdir -p deployment
-        
-        # Copy ALL modules
-        if [ -d "Frontend" ]; then
-          mkdir -p deployment/frontend
-          cp -r Frontend/* deployment/frontend/
-          echo "Frontend module packaged"
-        else
-          echo "Frontend directory not found"
-        fi
-        
-        if [ -d "BackendAPI" ]; then
-          mkdir -p deployment/backend
-          cp -r BackendAPI/* deployment/backend/
-          echo "Backend module packaged"
-        else
-          echo "BackendAPI directory not found"
-        fi
-        
-        if [ -d "Scheduling" ]; then
-          mkdir -p deployment/scheduling
-          cp -r Scheduling/* deployment/scheduling/
-          echo "Scheduling module packaged"
-        else
-          echo "Scheduling directory not found"
-        fi
-        
-        if [ -d "OEM" ]; then
-          mkdir -p deployment/oem
-          cp -r OEM/* deployment/oem/
-          echo "OEM module packaged"
-        else
-          echo "OEM directory not found"
-        fi
-        
-        # Copy docker-compose files
-        if [ -f "docker-compose.yml" ]; then
-          cp docker-compose.yml deployment/
-        fi
-        
-        # Create deployment manifest
-        echo "{
-          \"version\": \"$RELEASE_VERSION\",
-          \"timestamp\": \"$(date -Iseconds)\",
-          \"commit\": \"${{ github.sha }}\",
-          \"branch\": \"$BRANCH_NAME\"
-        }" > deployment/deploy.json
-        
-        # Create deployment script
-        cat > deployment/deploy.sh << 'EOF'
-        #!/bin/bash
-        set -e
-        
-        echo "=== Port Management System Deployment ==="
-        echo "Version: $1"
-        echo "Timestamp: $(date)"
-        
-        DEPLOY_PATH="/opt/port-management"
-        RELEASE_DIR="$DEPLOY_PATH/releases/$1"
-        
-        # Create release directory
-        mkdir -p "$RELEASE_DIR"
-        
-        # Extract deployment
-        cd "$RELEASE_DIR"
-        tar -xzf "$2"
-        
-        echo "Deployment extracted to: $RELEASE_DIR"
-        
-        # Stop all existing containers
-        echo "Stopping existing containers..."
-        cd "$DEPLOY_PATH/current" 2>/dev/null || true
-        docker-compose down 2>/dev/null || true
-        
-        # Deploy new version
-        echo "Deploying new version..."
-        rm -rf "$DEPLOY_PATH/current"
-        ln -sfn "$RELEASE_DIR/deployment" "$DEPLOY_PATH/current"
-        
-        # Start all services
-        echo "Starting services..."
-        cd "$DEPLOY_PATH/current"
-        
-        # Build and start all containers
-        docker-compose up -d --build
-        
-        echo "✅ Deployment completed!"
-        echo "Services:"
-        echo "- Frontend: http://localhost:5173"
-        echo "- Backend API: http://localhost:5000"
-        echo "- Scheduling API: http://localhost:5107"
-        echo "- OEM Module: http://localhost:5161"
-        
-        # Cleanup old releases (keep last 5)
-        cd "$DEPLOY_PATH/releases"
-        ls -t | tail -n +6 | xargs -I {} rm -rf {} 2>/dev/null || true
-        
-        echo "=== Deployment finished ==="
-        EOF
-        
-        chmod +x deployment/deploy.sh
-        
-        # Create final archive
-        tar -czf deployment-$RELEASE_VERSION.tar.gz -C deployment .
-        
-        echo "📦 Deployment package created: deployment-$RELEASE_VERSION.tar.gz"
-        ls -lh deployment-$RELEASE_VERSION.tar.gz
-    
-    - name: Deploy to server
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        envs: RELEASE_VERSION
-        script: |
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup environment
+        run: |
+          echo "RELEASE_VERSION=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_ENV
+          echo "DEPLOY_PATH=/opt/port-management" >> $GITHUB_ENV
+
+      - name: Create deployment package
+        run: |
+          # Create deployment directory
+          mkdir -p deployment
+          
+          # Copy everything needed for deployment
+          mkdir -p deployment/OEM
+          cp -r OEM/* deployment/OEM/
+          
+          mkdir -p deployment/Frontend
+          cp -r Frontend/* deployment/Frontend/
+          
+          mkdir -p deployment/BackendAPI
+          cp -r BackendAPI/* deployment/BackendAPI/
+          
+          # Copy docker-compose if it exists
+          cp docker-compose.yml deployment/ 2>/dev/null || echo "docker-compose.yml not found, continuing..."
+          
+          # Create simple docker-compose for deployment
+          cat > deployment/docker-compose.deploy.yml << 'EOF'
+          version: '3.8'
+          
+          services:
+            postgres:
+              image: postgres:13-alpine
+              container_name: portmanagement-db
+              environment:
+                POSTGRES_DB: portmanagementdb
+                POSTGRES_USER: portapp
+                POSTGRES_PASSWORD: ${DB_PASSWORD:-PORTMANAGEMENT3DLE04}
+              volumes:
+                - postgres-data:/var/lib/postgresql/data
+              restart: unless-stopped
+          
+            backend:
+              build:
+                context: ./BackendAPI
+                dockerfile: Dockerfile
+              container_name: portmanagement-backend
+              environment:
+                - ASPNETCORE_ENVIRONMENT=Production
+                - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=portmanagementdb;Username=portapp;Password=${DB_PASSWORD:-PORTMANAGEMENT3DLE04}
+              ports:
+                - "5000:5000"
+              depends_on:
+                - postgres
+              restart: unless-stopped
+          
+            oem:
+              build:
+                context: ./OEM
+                dockerfile: Dockerfile
+              container_name: portmanagement-oem
+              environment:
+                - NODE_ENV=production
+                - PORT=5161
+                - MONGODB_URI=mongodb://oem_admin:${MONGO_PASSWORD:-PORTMANAGEMENT3DLE04}@10.9.20.216:27017/portoemdb?authSource=admin
+                - JWT_SECRET=${JWT_SECRET}
+                - CORS_ORIGINS=${CORS_ORIGINS}
+              ports:
+                - "5161:5161"
+              restart: unless-stopped
+          
+            frontend:
+              build:
+                context: ./Frontend
+                dockerfile: Dockerfile
+              container_name: portmanagement-frontend
+              ports:
+                - "5173:80"
+              restart: unless-stopped
+          
+          volumes:
+            postgres-data:
+          EOF
+          
+          # Create deployment script
+          cat > deployment/deploy.sh << 'EOF'
+          #!/bin/bash
           set -e
           
-          echo "=== Starting Deployment ==="
+          echo "=== Starting Port Management System Deployment ==="
+          echo "Timestamp: $(date)"
           
-          # 1. Setup VPN (if needed)
-          echo "Setting up VPN..."
-          if [ -n "${{ secrets.VPN_CONFIG }}" ]; then
-            echo "${{ secrets.VPN_CONFIG }}" > /tmp/deinet.ovpn
-            echo -e "${{ secrets.VPN_USER }}\n${{ secrets.VPN_PASSWORD }}" > /tmp/vpn-auth.txt
+          DEPLOY_PATH="/opt/port-management"
+          RELEASE_DIR="$DEPLOY_PATH/releases/$1"
+          DEPLOYMENT_FILE="$2"
+          
+          echo "Release directory: $RELEASE_DIR"
+          echo "Deployment file: $DEPLOYMENT_FILE"
+          
+          # Create release directory
+          mkdir -p "$RELEASE_DIR"
+          
+          # Extract deployment package
+          cd "$RELEASE_DIR"
+          echo "Extracting deployment package..."
+          tar -xzf "$DEPLOYMENT_FILE"
+          
+          # Check if extraction was successful
+          if [ ! -d "deployment" ]; then
+            echo "ERROR: Deployment extraction failed"
+            exit 1
+          fi
+          
+          # Stop and remove existing containers
+          echo "Stopping existing containers..."
+          cd "$DEPLOY_PATH/current" 2>/dev/null && docker-compose down 2>/dev/null || true
+          
+          # Remove old current symlink
+          rm -f "$DEPLOY_PATH/current"
+          
+          # Create new current symlink
+          ln -sfn "$RELEASE_DIR/deployment" "$DEPLOY_PATH/current"
+          
+          # Navigate to deployment directory
+          cd "$DEPLOY_PATH/current"
+          
+          # Build and start containers
+          echo "Building and starting containers..."
+          docker-compose -f docker-compose.deploy.yml up -d --build
+          
+          # Wait for services to start
+          echo "Waiting for services to be ready..."
+          sleep 10
+          
+          # Check if containers are running
+          echo "Checking container status..."
+          docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep portmanagement
+          
+          # Health checks
+          echo "Performing health checks..."
+          
+          # Check OEM
+          if curl -s -f http://localhost:5161/health > /dev/null; then
+            echo "✅ OEM module is healthy"
+          else
+            echo "⚠️ OEM module health check failed"
+          fi
+          
+          # Cleanup old releases (keep last 5)
+          echo "Cleaning up old releases..."
+          cd "$DEPLOY_PATH/releases"
+          ls -t | tail -n +6 | xargs -I {} rm -rf {} 2>/dev/null || true
+          
+          echo "=== Deployment Completed Successfully ==="
+          echo ""
+          echo "Services deployed:"
+          echo "  • Frontend:     http://localhost:5173"
+          echo "  • Backend API:  http://localhost:5000"
+          echo "  • OEM Module:   http://localhost:5161"
+          echo "  • PostgreSQL:   localhost:5432"
+          echo ""
+          echo "To view logs:"
+          echo "  docker logs portmanagement-oem"
+          echo "  docker logs portmanagement-backend"
+          echo "  docker logs portmanagement-frontend"
+          EOF
+          
+          chmod +x deployment/deploy.sh
+          
+          # Create environment template
+          cat > deployment/.env.example << 'EOF'
+          # Database
+          DB_PASSWORD=PORTMANAGEMENT3DLE04
+          MONGO_PASSWORD=PORTMANAGEMENT3DLE04
+          
+          # Security
+          JWT_SECRET=your-secure-jwt-secret-key-change-this
+          CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+          
+          # MongoDB connection (using existing server)
+          MONGODB_URI=mongodb://oem_admin:PORTMANAGEMENT3DLE04@10.9.20.216:27017/portoemdb?authSource=admin
+          EOF
+          
+          # Create archive
+          tar -czf deployment.tar.gz -C deployment .
+          
+          echo "Deployment package created: deployment.tar.gz"
+          ls -lh deployment.tar.gz
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
             
-            # Connect to VPN in background
-            openvpn --config /tmp/deinet.ovpn --auth-user-pass /tmp/vpn-auth.txt --daemon
-            sleep 15
+            echo "=== Preparing Deployment ==="
+            echo "Host: ${{ secrets.DEPLOY_HOST }}"
+            echo "User: ${{ secrets.DEPLOY_USER }}"
             
-            # Test VPN connection
-            if ping -c 1 -W 5 ${{ secrets.DEPLOY_HOST_INTERNAL }} &> /dev/null; then
-              echo "VPN connected"
-            else
-              echo "VPN connection may not be active"
+            # Create deployment directory
+            DEPLOY_PATH="/opt/port-management"
+            mkdir -p $DEPLOY_PATH/{releases,backups,current,logs,config}
+            
+            # Set permissions
+            chmod 755 $DEPLOY_PATH
+            
+            echo "Deployment path structure created"
+
+      - name: Upload deployment package
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-package
+          path: deployment.tar.gz
+
+      - name: Transfer files to server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "deployment.tar.gz"
+          target: "/tmp"
+
+      - name: Execute deployment on server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            
+            echo "=== Executing Deployment on Server ==="
+            
+            DEPLOY_PATH="/opt/port-management"
+            RELEASE_VERSION=$(date +'%Y%m%d-%H%M%S')
+            DEPLOYMENT_FILE="/tmp/deployment.tar.gz"
+            
+            # Check if deployment file exists
+            if [ ! -f "$DEPLOYMENT_FILE" ]; then
+              echo "ERROR: Deployment file not found at $DEPLOYMENT_FILE"
+              exit 1
             fi
-          fi
-          
-          # 2. Create deployment directory
-          DEPLOY_PATH="/opt/port-management"
-          mkdir -p $DEPLOY_PATH/{releases,backups,current,logs}
-          
-          # 3. Check if Docker is running
-          if ! docker info &> /dev/null; then
-            echo "Docker is not running"
-            exit 1
-          fi
-          
-          # 4. Prepare for file transfer
-          cd /tmp
-          echo "Ready for file transfer..."
-    
-    - name: Transfer deployment package
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        source: "deployment-${{ env.RELEASE_VERSION }}.tar.gz"
-        target: "/tmp"
-    
-    - name: Execute deployment
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: ${{ secrets.SSH_PORT }}
-        envs: RELEASE_VERSION
-        script: |
-          set -e
-          
-          echo "=== Executing Deployment ==="
-          
-          DEPLOY_PATH="/opt/port-management"
-          RELEASE_VERSION="$RELEASE_VERSION"
-          
-          # Extract and deploy
-          cd /tmp
-          
-          if [ ! -f "deployment-$RELEASE_VERSION.tar.gz" ]; then
-            echo "Deployment package not found"
-            exit 1
-          fi
-          
-          # Backup current if exists
-          if [ -d "$DEPLOY_PATH/current" ]; then
-            BACKUP_DIR="$DEPLOY_PATH/backups/$RELEASE_VERSION"
-            mkdir -p "$BACKUP_DIR"
-            cp -r "$DEPLOY_PATH/current" "$BACKUP_DIR/" 2>/dev/null || true
-            echo "Current version backed up to: $BACKUP_DIR"
-          fi
-          
-          # Run deployment script from package
-          tar -xzf "deployment-$RELEASE_VERSION.tar.gz"
-          cd deployment
-          
-          # Make deploy script executable and run it
-          chmod +x deploy.sh
-          ./deploy.sh "$RELEASE_VERSION" "/tmp/deployment-$RELEASE_VERSION.tar.gz"
-          
-          echo "Deployment completed successfully!"
+            
+            echo "Release version: $RELEASE_VERSION"
+            echo "Deployment file: $DEPLOYMENT_FILE"
+            
+            # Move to deployment directory
+            cd "$DEPLOY_PATH"
+            
+            # Create release directory
+            RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
+            mkdir -p "$RELEASE_DIR"
+            
+            # Copy deployment file to release directory
+            cp "$DEPLOYMENT_FILE" "$RELEASE_DIR/"
+            
+            # Extract deployment
+            cd "$RELEASE_DIR"
+            tar -xzf deployment.tar.gz
+            
+            # Check if deploy.sh exists
+            if [ ! -f "deployment/deploy.sh" ]; then
+              echo "ERROR: deploy.sh not found in deployment package"
+              exit 1
+            fi
+            
+            # Make deploy script executable
+            chmod +x deployment/deploy.sh
+            
+            # Setup environment variables
+            export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+            export CORS_ORIGINS="${{ secrets.CORS_ORIGINS }}"
+            
+            # Run deployment script
+            deployment/deploy.sh "$RELEASE_VERSION" "$RELEASE_DIR/deployment.tar.gz"
+            
+            echo "Deployment execution completed!"
