@@ -2,9 +2,7 @@ import React from "react";
 import {
   Container,
   TextField,
-  Button,
   Typography,
-  CircularProgress,
   Alert,
   FormControl,
   InputLabel,
@@ -15,6 +13,7 @@ import {
   Chip,
 } from "@mui/material";
 import { useAddDockVM } from "../../viewmodels/Docks/useAddDockVM";
+import { LoadingButton, LoadingOverlay, LoadingSpinner } from "../../components/LoadingComponents";
 
 const AddDockPage = () => {
   const vm = useAddDockVM();
@@ -26,10 +25,9 @@ const AddDockPage = () => {
         sx={{
           mt: "var(--spacing-xl)",
           fontFamily: "var(--font-family-base)",
-          color: "var(--color-text-dark)",
         }}
       >
-        Loading initial data...
+        <LoadingSpinner size="large" message="Loading initial data..." />
       </Container>
     );
   }
@@ -51,17 +49,19 @@ const AddDockPage = () => {
   }
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        mt: "var(--spacing-xl)",
-        p: "var(--spacing-lg)",
-        backgroundColor: "var(--color-surface)",
-        borderRadius: "var(--radius-md)",
-        boxShadow: 3,
-        fontFamily: "var(--font-family-base)",
-      }}
-    >
+    <>
+      <LoadingOverlay open={vm.submitting} message="Creating dock..." />
+      <Container
+        maxWidth="sm"
+        sx={{
+          mt: "var(--spacing-xl)",
+          p: "var(--spacing-lg)",
+          backgroundColor: "var(--color-surface)",
+          borderRadius: "var(--radius-md)",
+          boxShadow: 3,
+          fontFamily: "var(--font-family-base)",
+        }}
+      >
       <Typography
         variant="h4"
         gutterBottom
@@ -170,10 +170,11 @@ const AddDockPage = () => {
           </Select>
         </FormControl>
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="contained"
-          disabled={vm.submitting || vm.criticalError}
+          loading={vm.submitting}
+          disabled={vm.criticalError}
           fullWidth
           sx={{
             mt: "var(--spacing-lg)",
@@ -183,14 +184,11 @@ const AddDockPage = () => {
             "&:hover": { backgroundColor: "var(--color-primary-light)" },
           }}
         >
-          {vm.submitting ? (
-            <CircularProgress size={24} color="inherit" />
-          ) : (
-            "Create Dock"
-          )}
-        </Button>
+          Create Dock
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 

@@ -1,125 +1,133 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSchedulingService } from "../../services/schedulingService";
 import { getVesselVisitNotifications } from "../../services/vesselVisitNotificationService";
 import { useApi } from "../../services/api";
 
 export const useRecommendedScheduleVM = () => {
-    const { apiFetch } = useApi();
-    const { calculateSchedule } = useSchedulingService();
+  const { apiFetch } = useApi();
+  const { calculateSchedule } = useSchedulingService();
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
-    const [results, setResults] = useState([]);
-    const [executionTime, setExecutionTime] = useState(null);
-    const [algorithm, setAlgorithm] = useState("");
-    const [reason, setReason] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [results, setResults] = useState([]);
+  const [executionTime, setExecutionTime] = useState(null);
+  const [algorithm, setAlgorithm] = useState("");
+  const [reason, setReason] = useState("");
+  const [vesselNotifications, setVesselNotifications] = useState([]);
 
-    const chooseAlgorithm = (vesselCount, operations) => {
-        if (operations < 10)
-            return { algo: "optimal", reason: "Small operation set (<150 ops)" };
-        if (operations < 20)
-            return { algo: "heuristic", reason: "Medium-sized instance" };
-        return { algo: "genetic", reason: "Large or time-constrained instance" };
-    };
+  const chooseAlgorithm = (vesselCount) => {
+    if (vesselCount < 10) return { algo: "optimal", reason: "Small vessel set" };
+    if (vesselCount >= 10 && vesselCount < 20) return { algo: "heuristic", reason: "Medium-sized instance" };
+    return { algo: "genetic", reason: "Large or time-constrained instance" };
+  };
 
-    const extractExecutionTime = (txt) => {
-        const patterns = [
-            /Execution Time:\s*([\d.e-]+)/i,
-            /Heuristic Execution Time:\s*([\d.e-]+)/i,
-            /Brute Force Execution Time:\s*([\d.e-]+)/i,
-            /Genetic Execution Time:\s*([\d.e-]+)/i,
-        ];
-        for (const p of patterns) {
-            const match = txt.match(p);
-            if (match) return parseFloat(match[1]);
-        }
-        return null;
-    };
+  const slotToTime = (slot) => {
+    const slotNum = parseInt(slot);
+    if (isNaN(slotNum)) return slot;
+    const hours = slotNum % 24;
+    const days = Math.floor(slotNum / 24);
+    const timeStr = `${hours.toString().padStart(2, "0")}:00`;
+    return days > 0 ? `${timeStr} (+${days}d)` : timeStr;
+  };
 
-    const parseSchedule = (jsonText) => {
-        const parsed = JSON.parse(jsonText);
-        const rows = [];
+  const calculateDelay = (endSlot, etd) => {
+    if (!endSlot || !etd) return 0;
+    const etdDate = new Date(etd);
+    const endDate = new Date(etdDate.getTime());
+    endDate.setHours(0, 0, 0, 0);
+    endDate.setHours(endDate.getHours() + endSlot);
+    const diffHours = Math.round((endDate - etdDate) / (1000 * 60 * 60));
+    return diffHours > 0 ? diffHours : 0;
+  };
 
-        for (const dockId in parsed) {
-            const info = parsed[dockId];
-            let scheduleText = info.schedule
-                .replace(/^\s*\[|\]\s*$/g, "")
-                .replace(/\[|\]/g, "")
-                .trim();
+  const totalDelay = useMemo(
+    () => results.reduce((acc, item) => acc + (item.delay || 0), 0),
+    [results]
+  );
 
-            const exec = extractExecutionTime(scheduleText);
-            if (exec) setExecutionTime(exec);
+  const generate = async (isoDate, overrideAlgorithm = "") => {
+    setLoading(true);
+    setError("");
+    setResults([]);
+    setExecutionTime(null);
+    setVesselNotifications([]);
 
-            scheduleText = scheduleText.replace(/Execution Time:.*\n?/i, "");
-            const lines = scheduleText.split("),");
+    try {
+      const allNotifs = await getVesselVisitNotifications(apiFetch);
+      const filtered = allNotifs.filter(
+        (n) => n.status === "Approved" && new Date(n.eta).toISOString().split("T")[0] === isoDate
+      );
+      setVesselNotifications(filtered);
 
-            lines.forEach(line => {
-                const clean = line.replace(/[\(\)]/g, "").trim();
-                const parts = clean.split(",").map(x => x.trim());
+      const vesselsCount = filtered.length;
+      const { algo, reason: autoReason } = chooseAlgorithm(vesselsCount);
+      const finalAlgo = overrideAlgorithm || algo;
+      const finalReason = overrideAlgorithm ? "User override" : autoReason;
+      setAlgorithm(finalAlgo);
+      setReason(finalReason);
 
-                if (parts.length >= 3) {
-                    rows.push({
-                        vessel: parts[0],
-                        dock: info.dock || dockId,
-                        crane: info.crane,
-                        start: parts[1],
-                        end: parts[2],
-                        staff: "Assigned Staff TBD",
-                        area: info.area
-                    });
-                }
-            });
-        }
-
-        return rows;
-    };
-
-    const generate = async (isoDate, overrideAlgorithm = "") => {
-        setLoading(true);
-        setError("");
+      if (finalAlgo === "genetic" && overrideAlgorithm) {
         setResults([]);
-        setExecutionTime(null);
+        return;
+      }
 
-        try {
-            const all = await getVesselVisitNotifications(apiFetch);
-            const filtered = all.filter(v =>
-                v.status === "Approved" &&
-                v.eta.split("T")[0] === isoDate
-            );
+      const raw = await calculateSchedule(isoDate, finalAlgo);
 
-            const vessels = filtered.length;
-            const ops = filtered.reduce((sum, v) => sum + (v.estimatedOperations || 30), 0);
+      const execTimes = Object.values(raw)
+        .map((dock) => dock.executionTime)
+        .filter(Boolean);
+      if (execTimes.length > 0) setExecutionTime(execTimes[0]);
 
-            const { algo, reason: autoReason } = chooseAlgorithm(vessels, ops);
+      const parsedResults = Object.values(raw).flatMap((dockInfo) =>
+        (dockInfo.parsedSchedule ?? []).map((item) => {
+          const note = filtered.find(
+            (n) =>
+              n.vesselName &&
+              n.vesselName.toLowerCase().replace(/\s+/g, "_") ===
+                (item.vesselName || item.vessel)?.toLowerCase()
+          );
+          const delay =
+            finalAlgo === "heuristic"
+              ? note && item.endSlot != null
+                ? calculateDelay(item.endSlot, note.etd)
+                : 0
+              : item.delay || 0;
 
-            const finalAlgo = overrideAlgorithm || algo;
-            const finalReason = overrideAlgorithm ? "User override" : autoReason;
+          return {
+            vessel: item.vesselName || item.vessel || "Unknown",
+            vesselId: item.vesselId || null,
+            startSlot: item.startSlot,
+            endSlot: item.endSlot,
+            start: slotToTime(item.startSlot),
+            end: slotToTime(item.endSlot),
+            dock: dockInfo.dock || "N/A",
+            crane: item.craneCodes?.[0] || dockInfo.crane || "Unassigned",
+            staff: Array.isArray(item.staff)
+              ? item.staff.map((s) => s.shortName ?? s)
+              : [], // <- staff jako tablica
+            warning: item.warning || null,
+            delay,
+          };
+        })
+      );
 
-            setAlgorithm(finalAlgo);
-            setReason(finalReason);
+      setResults(parsedResults);
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            if (finalAlgo === "genetic" && overrideAlgorithm) {
-                setResults([]);
-                return;
-            }
-
-            const txt = await calculateSchedule(isoDate, finalAlgo);
-            const parsed = parseSchedule(txt);
-            setResults(parsed);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return {
-        loading,
-        error,
-        results,
-        executionTime,
-        algorithm,
-        reason,
-        generate
-    };
+  return {
+    loading,
+    error,
+    results,
+    executionTime,
+    algorithm,
+    reason,
+    totalDelay,
+    generate,
+  };
 };

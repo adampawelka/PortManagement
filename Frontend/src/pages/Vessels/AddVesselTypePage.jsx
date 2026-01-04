@@ -1,21 +1,24 @@
 import React from 'react';
-import { Container, Typography, TextField, Button, CircularProgress, Alert } from '@mui/material';
+import { Container, Typography, TextField, Alert } from '@mui/material';
 import { useAddVesselTypeVM } from '../../viewmodels/VesselTypes/useAddVesselTypeVM';
+import { LoadingButton, LoadingOverlay } from '../../components/LoadingComponents';
 
 const AddVesselTypePage = () => {
   const { formData, loading, message, handleChange, handleSubmit } = useAddVesselTypeVM();
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        mt: 4,
-        backgroundColor: 'var(--color-surface)',
-        p: 4,
-        borderRadius: 'var(--radius-md)',
-        boxShadow: 'var(--shadow-md)',
-      }}
-    >
+    <>
+      <LoadingOverlay open={loading} message="Creating vessel type..." />
+      <Container
+        maxWidth="sm"
+        sx={{
+          mt: 4,
+          backgroundColor: 'var(--color-surface)',
+          p: 4,
+          borderRadius: 'var(--radius-md)',
+          boxShadow: 'var(--shadow-md)',
+        }}
+      >
       <Typography
         variant="h4"
         gutterBottom
@@ -111,10 +114,10 @@ const AddVesselTypePage = () => {
           margin="normal"
         />
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="contained"
-          disabled={loading}
+          loading={loading}
           fullWidth
           sx={{
             mt: 3,
@@ -124,10 +127,11 @@ const AddVesselTypePage = () => {
             '&:hover': { backgroundColor: 'var(--color-primary-light)' },
           }}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : 'Create Vessel Type'}
-        </Button>
+          Create Vessel Type
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 

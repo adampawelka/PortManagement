@@ -1,31 +1,30 @@
 using System;
-using System.Collections.Generic;
 using DDDSample1.Domain.Shared;
+using Newtonsoft.Json;
 
 namespace DDDSample1.Domain.StaffMembers
 {
     public class StaffMemberId : EntityId
     {
-        public StaffMemberId(string value) : base(ValidateAndReturn(value))
-        {
-        }
+        [JsonConstructor]
+        public StaffMemberId(Guid value) : base(value) { }
 
-        private static string ValidateAndReturn(string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new BusinessRuleValidationException("Staff Member ID must be non-empty.");
-            return value;
-        }
+        public StaffMemberId(string value) : base(value) { }
 
         protected override object createFromString(string text)
         {
-            return text; 
+            return new Guid(text);
         }
 
         public override string AsString()
         {
-            return Value?.ToString() ?? string.Empty;
+            Guid obj = (Guid)base.ObjValue;
+            return obj.ToString();
         }
 
+        public Guid AsGuid()
+        {
+            return (Guid)base.ObjValue;
+        }
     }
 }

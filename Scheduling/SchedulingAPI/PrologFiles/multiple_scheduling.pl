@@ -173,7 +173,7 @@ find_most_delayed_vessel(Triplets, VesselWithMaxDelay, MaxDelay):-
 find_max_delay_helper([], BestVessel, BestDelay, BestVessel, BestDelay).
 find_max_delay_helper([(Vessel, _, EndTime, _)|Rest], CurrentBest, CurrentMax, FinalBest, FinalMax):-
     vessel_multi(Vessel, _, DesiredDep, _, _, _),
-    ActualDep is EndTime + 1,
+    ActualDep is EndTime,
     ThisDelay is max(0, ActualDep - DesiredDep),
     (   ThisDelay > CurrentMax
     ->  find_max_delay_helper(Rest, Vessel, ThisDelay, FinalBest, FinalMax)

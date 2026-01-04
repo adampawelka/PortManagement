@@ -1,0 +1,120 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  VPN_CONFIG: ${{ secrets.VPN_CONFIG }}
+  VPN_USER: ${{ secrets.VPN_USER }}
+  VPN_PASSWORD: ${{ secrets.VPN_PASSWORD }}
+  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST_INTERNAL }}
+  DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+  SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH with VPN
+        run: |
+          # Write SSH key to file
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          
+          # Create VPN config
+          echo "$VPN_CONFIG" > /tmp/deinet.ovpn
+          
+          # Create VPN auth file
+          echo -e "$VPN_USER\n$VPN_PASSWORD" > /tmp/vpn-auth.txt
+          chmod 600 /tmp/vpn-auth.txt
+          
+          # Install OpenVPN
+          sudo apt-get update
+          sudo apt-get install -y openvpn
+          
+          # Start VPN in background
+          echo "Starting VPN..."
+          sudo openvpn --config /tmp/deinet.ovpn --auth-user-pass /tmp/vpn-auth.txt --daemon
+          
+          # Wait for VPN
+          echo "Waiting for VPN connection..."
+          for i in {1..30}; do
+            if ping -c 1 -W 2 $DEPLOY_HOST &> /dev/null; then
+              echo "VPN connected after $i attempts"
+              break
+            fi
+            sleep 2
+          done
+          
+          # Add routes if needed
+          sudo route add -net 10.0.0.0/8 gw 10.8.0.1 2>/dev/null || true
+          sudo route add -net 192.168.62.0/24 gw 10.8.0.1 2>/dev/null || true
+          
+          # Test connection
+          if ping -c 1 -W 5 $DEPLOY_HOST &> /dev/null; then
+            echo "✅ Server reachable via VPN"
+          else
+            echo "❌ Cannot reach server via VPN"
+            exit 1
+          fi
+
+      - name: Deploy via SSH
+        run: |
+          set -e
+          
+          echo "🚀 Starting deployment..."
+          
+          DEPLOY_PATH="/opt/port-management"
+          RELEASE_VERSION="${{ github.sha }}-$(date +'%Y%m%d-%H%M%S')"
+          RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
+          
+          # Create archive locally
+          tar -czf /tmp/deployment.tar.gz \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            .
+          
+          # Copy to server
+          echo "Uploading deployment package..."
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa /tmp/deployment.tar.gz $DEPLOY_USER@$DEPLOY_HOST:/tmp/
+          
+          # Execute deployment commands
+          echo "Executing deployment..."
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
+            set -e
+          
+            echo "🛑 Stopping services..."
+            sudo systemctl stop portmanagement-backend.service portmanagement-oem.service 2>/dev/null || echo "Services stopped"
+          
+            echo "📁 Creating release directory: $RELEASE_DIR"
+            sudo mkdir -p "$RELEASE_DIR"
+            sudo chown -R deploy:deploy "$RELEASE_DIR"
+          
+            echo "📦 Extracting deployment..."
+            cd "$RELEASE_DIR"
+            tar -xzf /tmp/deployment.tar.gz
+          
+            echo "🔗 Updating symlink..."
+            sudo rm -f "$DEPLOY_PATH/current"
+            sudo ln -sf "$RELEASE_DIR" "$DEPLOY_PATH/current"
+          
+            echo "▶️ Starting services..."
+            sudo systemctl start portmanagement-backend.service portmanagement-oem.service
+          
+            echo "🧹 Cleaning up..."
+            cd "$DEPLOY_PATH/releases"
+            ls -t | tail -n +11 | xargs -I {} sudo rm -rf {} 2>/dev/null || true
+            rm -f /tmp/deployment.tar.gz
+          
+            echo "✅ Deployment complete!"
+            echo ""
+            echo "Service status:"
+            sudo systemctl status portmanagement-*.service --no-pager | grep -E "(Service|Active)" || true
+          EOF

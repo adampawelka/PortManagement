@@ -1,16 +1,21 @@
 import React from 'react';
 import { 
-  Container, Typography, Alert, TextField, Button, 
-  FormControl, InputLabel, Select, MenuItem, CircularProgress 
+  Container, Typography, Alert, TextField, 
+  FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import { useAddVesselVM } from '../../viewmodels/Vessels/useAddVesselVM';
+import { LoadingButton, LoadingOverlay, LoadingSpinner } from '../../components/LoadingComponents';
 
 const AddVesselPage = () => {
   const vm = useAddVesselVM();
 
   // While initial data is loading
   if (vm.loading) 
-    return <Container sx={{ mt: 4, color: 'var(--color-text-dark)', fontFamily: 'var(--font-family-base)' }}>Loading initial data...</Container>;
+    return (
+      <Container sx={{ mt: 4, fontFamily: 'var(--font-family-base)' }}>
+        <LoadingSpinner size="large" message="Loading initial data..." />
+      </Container>
+    );
 
   // If critical API error occurred, block form completely
   if (vm.criticalError) {
@@ -22,17 +27,19 @@ const AddVesselPage = () => {
   }
 
   return (
-    <Container 
-      maxWidth="sm" 
-      sx={{ 
-        mt: 4, 
-        backgroundColor: 'var(--color-surface)', 
-        p: 4, 
-        borderRadius: 'var(--radius-md)', 
-        boxShadow: 3,
-        fontFamily: 'var(--font-family-base)',
-      }}
-    >
+    <>
+      <LoadingOverlay open={vm.submitting} message="Creating vessel..." />
+      <Container 
+        maxWidth="sm" 
+        sx={{ 
+          mt: 4, 
+          backgroundColor: 'var(--color-surface)', 
+          p: 4, 
+          borderRadius: 'var(--radius-md)', 
+          boxShadow: 3,
+          fontFamily: 'var(--font-family-base)',
+        }}
+      >
       <Typography 
         variant="h4" 
         gutterBottom
@@ -101,10 +108,11 @@ const AddVesselPage = () => {
           </Select>
         </FormControl>
 
-        <Button
+        <LoadingButton
           type="submit"
           variant="contained"
-          disabled={vm.submitting || vm.criticalError}  
+          loading={vm.submitting}
+          disabled={vm.criticalError}
           fullWidth
           sx={{ 
             mt: 3, 
@@ -114,10 +122,11 @@ const AddVesselPage = () => {
             '&:hover': { backgroundColor: 'var(--color-primary-light)' }
           }}
         >
-          {vm.submitting ? <CircularProgress size={24} color="inherit" /> : 'Create Vessel'}
-        </Button>
+          Create Vessel
+        </LoadingButton>
       </form>
     </Container>
+    </>
   );
 };
 

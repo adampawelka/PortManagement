@@ -71,8 +71,6 @@ namespace DDDSample1.Infrastructure.Docks
                         j.ToTable("DockAllowedVesselTypes");
                         j.HasKey("DockId", "VesselTypeId");
                     });
-
         }
-
     }
 }

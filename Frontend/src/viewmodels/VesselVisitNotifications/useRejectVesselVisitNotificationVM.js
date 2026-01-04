@@ -1,51 +1,91 @@
-import { useState } from 'react';
-import { rejectVesselVisitNotification } from '../../services/vesselVisitNotificationService'; 
+import { useState, useEffect } from 'react';
 import { useApi } from '../../services/api';
+import { getVesselVisitNotifications, rejectVesselVisitNotification } from '../../services/vesselVisitNotificationService';
+import { useNotification } from '../../hooks/useNotification';
+import { useFormAutoSave } from '../../hooks/useFormAutoSave';
+
+const initialFormState = {
+  notificationId: '',
+  rejectionReason: '',
+};
+
 export const useRejectVesselVisitNotificationVM = () => {
   const { apiFetch } = useApi();
-  const [notificationId, setNotificationId] = useState('');
-  const [rejectionReason, setReason] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { showSuccess } = useNotification();
+
+  const [formData, setFormData] = useState(initialFormState);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+
+  // Auto-save form
+  const { clearSavedData } = useFormAutoSave(
+    'reject-notification-form',
+    formData,
+    setFormData,
+    initialFormState
+  );
+
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        const notificationsData = await getVesselVisitNotifications(apiFetch);
+        const submittedNotifications = (notificationsData || []).filter(
+          n => n.status === 'Submitted'
+        );
+        setNotifications(submittedNotifications);
+      } catch (err) {
+        setMessage({ type: 'error', text: 'Failed to load notifications.' });
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadNotifications();
+  }, [apiFetch]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleReject = async (e) => {
     e.preventDefault();
 
-    if (!notificationId || !rejectionReason) {
-      setMessage({ type: 'error', text: 'Notification ID and Reason are required.' });
+    if (!formData.notificationId || !formData.rejectionReason) {
+      setMessage({ type: 'error', text: 'Notification and Reason are required.' });
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
     setMessage(null);
 
-
-
     try {
-      const rejectBodyDto = { 
-        Reason: rejectionReason // El string simple que se mapea a RejectNotificationDto
-      };
-      const response = await rejectVesselVisitNotification(apiFetch, notificationId, rejectBodyDto); 
+      const rejectBodyDto = { Reason: formData.rejectionReason };
+      await rejectVesselVisitNotification(apiFetch, formData.notificationId, rejectBodyDto);
 
-      if (response) {
-        setMessage({ type: 'success', text: `Notification ${notificationId} rejected successfully!` });
-        setNotificationId('');
-        setReason('');
-      }
+      showSuccess(`Notification rejected successfully!`);
+      setMessage({ type: 'success', text: 'Notification rejected successfully!' });
+      setFormData(initialFormState);
+      clearSavedData();
+
+      // Reload notifications
+      const updatedNotifications = await getVesselVisitNotifications(apiFetch);
+      setNotifications((updatedNotifications || []).filter(n => n.status === 'Submitted'));
     } catch (err) {
       setMessage({ type: 'error', text: err.message || 'Error while rejecting notification.' });
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return {
-    notificationId,
-    rejectionReason,
+    formData,
     loading,
+    submitting,
     message,
-    setNotificationId,
-    setReason,
+    notifications,
+    handleChange,
     handleReject,
   };
 };

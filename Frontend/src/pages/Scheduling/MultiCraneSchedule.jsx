@@ -19,6 +19,37 @@ import {
 
 import { useScheduleMultiCraneVM } from "../../viewmodels/Scheduling/useMultiCraneScheduleVM";
 
+const getUncoveredHoursWithDate = (schedules) => {
+    if (!schedules || schedules.length === 0) return null;
+
+    const covered = new Set();
+
+    schedules.forEach(s => {
+        let start = s.startHour != null ? s.startHour : null;
+        let end = s.endHour != null ? s.endHour : null;
+        if (start === null || end === null) return;
+
+        if (start <= end) {
+            for (let h = start; h <= end; h++) covered.add(h);
+        } else {
+            // Zakres przechodzi przez północ
+            for (let h = start; h < start + 24; h++) covered.add(h);
+        }
+    });
+
+    const allHours = Array.from({ length: 24 * 3 }, (_, i) => i); // np. 3 dni na wszelki wypadek
+    const uncovered = allHours.filter(h => !covered.has(h));
+    if (uncovered.length === 0) return null;
+
+    return uncovered
+        .map(h => {
+            const dayOffset = Math.floor(h / 24);
+            const hour = h % 24;
+            return dayOffset > 0 ? `${hour}(+${dayOffset})` : `${hour}`;
+        })
+        .join(", ");
+};
+
 const MultiCraneSchedule = () => {
     const {
         targetDate,
@@ -54,8 +85,7 @@ const MultiCraneSchedule = () => {
                 fontFamily: "var(--font-family-base)"
             }}
         >
-
-            {/* HEADER — identical style to OptimalSchedule */}
+            {/* HEADER */}
             <Typography
                 variant="h4"
                 gutterBottom
@@ -64,7 +94,7 @@ const MultiCraneSchedule = () => {
                     fontWeight: 600,
                     mb: 3,
                     letterSpacing: 0.3,
-                    fontSize: "var(--font-size-heading)",
+                    fontSize: "var(--font-size-heading)"
                 }}
             >
                 Multi-Crane Scheduling ({safeResults.length})
@@ -122,6 +152,7 @@ const MultiCraneSchedule = () => {
                 </Button>
             </Paper>
 
+            {/* LOADING / ERRORS */}
             {loading && (
                 <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
             )}
@@ -136,6 +167,20 @@ const MultiCraneSchedule = () => {
                     }}
                 >
                     {error}
+                </Alert>
+            )}
+
+            {/* GLOBAL NOTE */}
+            {hasGenerated && !loading && safeResults.length > 0 && (
+                <Alert
+                    severity="info"
+                    sx={{
+                        mb: 2,
+                        backgroundColor: "var(--color-info)",
+                        color: "var(--color-text-dark)"
+                    }}
+                >
+                    <strong>Note:</strong> "Unassigned" means that the staff or crane could not be assigned due to insufficient resources.
                 </Alert>
             )}
 
@@ -186,10 +231,7 @@ const MultiCraneSchedule = () => {
                                     : "rgba(180,180,180,0.15)"
                         }}
                     >
-                        <Typography
-                            variant="subtitle1"
-                            sx={{ fontWeight: 600, mb: 1 }}
-                        >
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
                             Optimization Summary
                         </Typography>
 
@@ -216,137 +258,118 @@ const MultiCraneSchedule = () => {
                         alignItems="flex-start"
                         sx={{ width: "100%", mt: 1 }}
                     >
-                        {/* SINGLE CRANE */}
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center"
-                            }}
-                        >
-                            <Paper
-                                sx={{
-                                    width: "100%",
-                                    maxWidth: 700,
-                                    p: 2,
-                                    mb: 2,
-                                    backgroundColor: "var(--color-surface)",
-                                    borderRadius: "var(--radius-sm)"
-                                }}
-                            >
-                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                                    Single-Crane Solution
-                                </Typography>
+                        {["singleCrane", "multiCrane"].map((type) => {
+                            const schedules = dock?.[type]?.schedules ?? [];
+                            const uncoveredHours = getUncoveredHoursWithDate(schedules);
 
-                                <div><strong>Total Delay:</strong> {dock?.singleCrane?.delay ?? 0}h</div>
-                                <div><strong>Crane Hours:</strong> {dock?.singleCrane?.craneHours ?? 0}</div>
-                                <div><strong>Vessels:</strong> {dock?.singleCrane?.schedules?.length ?? 0}</div>
-                            </Paper>
+                            return (
+                                <Grid
+                                    key={type}
+                                    item
+                                    xs={12}
+                                    md={6}
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center"
+                                    }}
+                                >
+                                    <Paper
+                                        sx={{
+                                            width: "100%",
+                                            maxWidth: 700,
+                                            p: 2,
+                                            mb: 2,
+                                            backgroundColor: "var(--color-surface)",
+                                            borderRadius: "var(--radius-sm)"
+                                        }}
+                                    >
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                            {type === "singleCrane" ? "Single-Crane Solution" : "Multi-Crane Solution"}
+                                        </Typography>
 
-                            <TableContainer
-                                component={Paper}
-                                sx={{
-                                    width: "100%",
-                                    maxWidth: 700,
-                                    borderRadius: "var(--radius-sm)",
-                                }}
-                            >
-                                <Table size="small">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Crane</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {(dock?.singleCrane?.schedules ?? []).map((row, i) => (
-                                            <TableRow key={i}>
-                                                <TableCell>{row.vessel}</TableCell>
-                                                <TableCell>{row.start}</TableCell>
-                                                <TableCell>{row.end}</TableCell>
-                                                <TableCell>{row.crane}</TableCell>
-                                                <TableCell>{row.staff}</TableCell>
-                                                <TableCell>{row.area}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Grid>
+                                        <div>
+                                            <strong>Total Delay:</strong> {dock?.[type]?.delay ?? 0}h
+                                        </div>
+                                        <div>
+                                            <strong>Crane Hours:</strong> {dock?.[type]?.craneHours ?? 0}
+                                        </div>
+                                        <div>
+                                            <strong>Vessels:</strong> {schedules.length}
+                                        </div>
+                                    </Paper>
 
-                        {/* MULTI-CRANE */}
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                alignItems: "center"
-                            }}
-                        >
-                            <Paper
-                                sx={{
-                                    width: "100%",
-                                    maxWidth: 700,
-                                    p: 2,
-                                    mb: 2,
-                                    backgroundColor: "var(--color-surface)",
-                                    borderRadius: "var(--radius-sm)"
-                                }}
-                            >
-                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
-                                    Multi-Crane Solution
-                                </Typography>
-
-                                <div><strong>Total Delay:</strong> {dock?.multiCrane?.delay ?? 0}h</div>
-                                <div><strong>Crane Hours:</strong> {dock?.multiCrane?.craneHours ?? 0}</div>
-                                <div><strong>Vessels:</strong> {dock?.multiCrane?.schedules?.length ?? 0}</div>
-                            </Paper>
-
-                            <TableContainer
-                                component={Paper}
-                                sx={{
-                                    width: "100%",
-                                    maxWidth: 700,
-                                    borderRadius: "var(--radius-sm)",
-                                }}
-                            >
-                                <Table size="small">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Cranes</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
-                                            <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {(dock?.multiCrane?.schedules ?? []).map((row, i) => (
-                                            <TableRow key={i}>
-                                                <TableCell>{row.vessel}</TableCell>
-                                                <TableCell>{row.start}</TableCell>
-                                                <TableCell>{row.end}</TableCell>
-                                                <TableCell>{row.cranes}</TableCell>
-                                                <TableCell>{row.staff}</TableCell>
-                                                <TableCell>{row.area}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Grid>
+                                    <TableContainer
+                                        component={Paper}
+                                        sx={{
+                                            width: "100%",
+                                            maxWidth: 700,
+                                            borderRadius: "var(--radius-sm)"
+                                        }}
+                                    >
+                                        <Table size="small">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell sx={{ fontWeight: "bold" }}>Vessel</TableCell>
+                                                    <TableCell sx={{ fontWeight: "bold" }}>Start</TableCell>
+                                                    <TableCell sx={{ fontWeight: "bold" }}>End</TableCell>
+                                                    <TableCell sx={{ fontWeight: "bold" }}>Delay [h]</TableCell>
+                                                    {type === "multiCrane" && <TableCell sx={{ fontWeight: "bold" }}>Number of Cranes</TableCell>}
+                                                    <TableCell sx={{ fontWeight: "bold" }}>Cranes</TableCell>
+                                                    <TableCell sx={{ fontWeight: "bold" }}>Staff</TableCell>
+                                                    <TableCell sx={{ fontWeight: "bold" }}>Area</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {schedules.map((row, i) => (
+                                                    <TableRow key={i}>
+                                                        <TableCell>{row.vessel}</TableCell>
+                                                        <TableCell
+                                                            sx={{
+                                                                backgroundColor:
+                                                                    row.start == null || row.start === "Unassigned" ? "var(--color-warning-bg)" : "inherit"
+                                                            }}
+                                                        >
+                                                            {row.start ?? "Unassigned"}
+                                                        </TableCell>
+                                                        <TableCell
+                                                            sx={{
+                                                                backgroundColor:
+                                                                    row.end == null || row.end === "Unassigned" ? "var(--color-warning-bg)" : "inherit"
+                                                            }}
+                                                        >
+                                                            {row.end ?? "Unassigned"}
+                                                        </TableCell>
+                                                        <TableCell>{row.delay}</TableCell>
+                                                        {type === "multiCrane" && <TableCell>{row.cranes}</TableCell>}
+                                                        <TableCell
+                                                            sx={{
+                                                                backgroundColor:
+                                                                    !row.craneCodes || row.craneCodes.length === 0 ? "var(--color-warning-bg)" : "inherit"
+                                                            }}
+                                                        >
+                                                            {row.craneCodes?.join(", ") ?? "Unassigned"}
+                                                        </TableCell>
+                                                        <TableCell
+                                                            sx={{
+                                                                backgroundColor:
+                                                                    !row.staff || row.staff.length === 0 ? "var(--color-warning-bg)" : "inherit"
+                                                            }}
+                                                        >
+                                                            {Array.isArray(row.staff) && row.staff.length > 0
+                                                                ? row.staff.map(s => s.shortName).join(", ")
+                                                                : "Unassigned"}
+                                                        </TableCell>
+                                                        <TableCell>{row.area}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                </Grid>
+                            );
+                        })}
                     </Grid>
-
                 </Paper>
             ))}
         </Container>

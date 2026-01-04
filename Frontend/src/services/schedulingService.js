@@ -12,30 +12,53 @@ export const useSchedulingService = () => {
             method: "GET",
         });
 
-        const text = await res.text();
-        if (!res.ok) throw new Error(text);
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text);
+        }
 
-        return text;
+        return await res.json();
     };
 
-   const calculateMultiCraneSchedule = async (date) => {
-    const query = `?date=${encodeURIComponent(date)}`;
 
-    const res = await apiFetch(`/api/Scheduling/calculate-schedule-multi-crane${query}`, {
-        method: "GET",
-    });
+    const calculateMultiCraneSchedule = async (date) => {
+        const query = `?date=${encodeURIComponent(date)}`;
 
-    if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text);
-    }
+        const res = await apiFetch(`/api/Scheduling/calculate-schedule-multi-crane${query}`, {
+            method: "GET",
+        });
 
-    return await res.json(); // ← TU JEST FIX
-};
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text);
+        }
 
+        return await res.json();
+    };
+
+    const calculateGeneticSchedule = async (date, params = {}) => {
+        const queryParams = new URLSearchParams({
+        date: date,
+        populationSize: params.populationSize || 30,
+        generations: params.generations || 50,
+        crossoverRate: params.crossoverRate || 0.8,
+        mutationRate: params.mutationRate || 0.2,
+        cranes: params.cranes || 1
+        });
+
+        const response = await apiFetch(`/api/Scheduling/calculate-schedule-genetic?${queryParams}`);
+    
+        if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Genetic scheduling failed: ${errorText}`);
+        }
+    
+        return await response.json();
+    };
 
     return {
         calculateSchedule,
         calculateMultiCraneSchedule,
+        calculateGeneticSchedule,
     };
 };
