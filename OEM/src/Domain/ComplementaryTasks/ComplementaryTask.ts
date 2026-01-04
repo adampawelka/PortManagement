@@ -11,6 +11,11 @@ import { EndTime } from "./EndTime";
 import { ComplementaryTaskStatus } from "./ComplementaryTaskStatus";
 import { ComplementaryTaskCategoryId } from "../ComplementaryTaskCategories/ComplementaryTaskCategoryId";
 
+import {
+  ComplementaryTaskExecutionMode,
+  ComplementaryTaskExecutionModeEnum
+} from "./ComplementaryTaskExecutionMode";
+
 interface ComplementaryTaskProps {
   vesselVisitExecutionId: VesselVisitExecutionId;
   categoryId: ComplementaryTaskCategoryId;
@@ -18,6 +23,7 @@ interface ComplementaryTaskProps {
   startTime: StartTime;
   endTime?: EndTime;
   status: ComplementaryTaskStatus;
+  executionMode?: ComplementaryTaskExecutionMode;
 }
 
 export class ComplementaryTask extends AggregateRoot<ComplementaryTaskProps> {
@@ -53,6 +59,10 @@ export class ComplementaryTask extends AggregateRoot<ComplementaryTaskProps> {
   get status(): ComplementaryTaskStatus {
     return this.props.status;
   }
+  
+  get executionMode(): ComplementaryTaskExecutionMode {
+    return this.props.executionMode!;
+  }
 
   private constructor(props: ComplementaryTaskProps, id?: UniqueEntityID) {
     super(props, id);
@@ -77,7 +87,20 @@ export class ComplementaryTask extends AggregateRoot<ComplementaryTaskProps> {
       return Result.fail<ComplementaryTask>(guardResult.message);
     }
 
-    const task = new ComplementaryTask({ ...props }, id);
+    const task = new ComplementaryTask(
+      {
+        ...props,
+        executionMode:
+          props.executionMode ??
+          ComplementaryTaskExecutionMode.create(
+            ComplementaryTaskExecutionModeEnum.PARALLEL
+          ).getValue()
+      },
+      id
+    );
+
+
     return Result.ok<ComplementaryTask>(task);
   }
+
 }
