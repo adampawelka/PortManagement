@@ -21,7 +21,7 @@ export const getRoleStatus = async (apiFetch, iamId, email = null, name = null) 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to fetch role status");
-  }
+  } 
   return res.json();
 };
 

@@ -11,18 +11,16 @@
 
 import * as THREE from "three";
 import Orientation from "./orientation.js";
-import { generalData, mazeData, lightsData, cameraData } from "./default_data.js";
+import { generalData, lightsData, cameraData } from "./default_data.js";
 import { merge } from "./merge.js";
-import Maze from "./maze.js";
 import Lights from "./lights.js";
 import Camera from "./camera.js";
 import { PortBuilder } from "../PortBuilder.js";
-import CameraController from "./mouse.js";
+import CameraController from "./cameraController.js";
 
 export default class ThumbRaiser {
-  constructor(generalParameters, mazeParameters, lightsParameters, thirdPersonViewCameraParameters) {
+  constructor(generalParameters, lightsParameters, thirdPersonViewCameraParameters, onObjectSelected) {
     this.generalParameters = merge({}, generalData, generalParameters);
-    this.mazeParameters = merge({}, mazeData, mazeParameters);
     this.lightsParameters = merge({}, lightsData, lightsParameters);
     this.thirdPersonViewCameraParameters = merge({}, cameraData, thirdPersonViewCameraParameters);
 
@@ -47,13 +45,6 @@ export default class ThumbRaiser {
     // Create a 3D scene (the game itself)
     this.scene3D = new THREE.Scene();
 
-    // *** Crear el puerto (PortBuilder) y guardarlo en this para usarlo después
-    this.portBuilder = new PortBuilder(this.scene3D);
-    this.portBuilder.loadPortData();
-
-    // Create the maze
-    this.maze = new Maze(this.mazeParameters);
-
     // Create the lights
     this.lights = new Lights(this.lightsParameters);
 
@@ -77,7 +68,30 @@ export default class ThumbRaiser {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    this.cameraController = new CameraController(this.camera.object, this.renderer);
+    this.cameraController = new CameraController(this.camera.object, this.renderer, onObjectSelected);
+    if (this.cameraController) {
+    // Intentamos establecer las propiedades comunes de controladores Three.js
+    this.cameraController.minDistance = 2.0;
+    this.cameraController.maxDistance = 200.0; // ¡Correa larga!
+    
+    // Si tu controlador usa nombres diferentes (a veces pasa en plantillas académicas):
+    this.cameraController.distanceMin = 2.0;
+    this.cameraController.distanceMax = 200.0;
+    }
+
+
+
+    // *** Crear el puerto (PortBuilder) y guardarlo en this para usarlo después
+    this.portBuilder = new PortBuilder(this.scene3D);
+    this.portBuilder.cameraController = this.cameraController;
+    this.portBuilder.loadPortData().then(() => {
+      const pickables = [];
+      this.portBuilder.scene.traverse(obj => {
+        if (obj.userData?.pickable) pickables.push(obj);
+      });
+
+      this.cameraController.pickables = pickables;
+    });
 
     // Set the mouse move action (none)
     this.changeCameraDistance = false;
@@ -99,9 +113,11 @@ export default class ThumbRaiser {
     this.renderer.domElement.addEventListener("contextmenu", (event) => this.contextMenu(event));
 
     this.activeElement = document.activeElement;
+
+    this.clock = new THREE.Clock();
+
   }
 
-  // *** NUEVO: método público para cargar barcos y recursos desde React
   loadDynamicObjects(dynamicData) {
     if (!this.portBuilder || !dynamicData) return;
 
@@ -122,29 +138,6 @@ export default class ThumbRaiser {
     }
   }
 
-  mouseDown(event) {
-    if (event.buttons === 1 || event.buttons === 2) {
-      // Store mouse position (origin top-left to bottom-left)
-      this.mousePosition = new THREE.Vector2(event.clientX, window.innerHeight - event.clientY - 1);
-    }
-  }
-
-  mouseMove(event) {
-    // Optional: keep only if you want mouse-based camera interaction
-  }
-
-  mouseUp(event) {
-    // Reset any mouse-based actions
-    this.changeCameraDistance = false;
-    this.changeCameraOrientation = false;
-  }
-
-  mouseWheel(event) {
-    // Prevent page scrolling
-    event.preventDefault();
-    // Store mouse position (if needed for zoom logic)
-    this.mousePosition = new THREE.Vector2(event.clientX, window.innerHeight - event.clientY - 1);
-  }
 
   contextMenu(event) {
     event.preventDefault(); // Disable right-click menu
@@ -161,15 +154,20 @@ export default class ThumbRaiser {
 
   update() {
     if (!this.gameRunning) {
-      if (this.maze.loaded) {
-        this.scene3D.add(this.maze.object, this.lights.object);
-        this.maze.object.visible = false; // Hide the maze to show the Port
-        this.thirdPersonViewCamera.object.position.set(0, 30, 54);
-        this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
-        this.clock = new THREE.Clock();
-        this.gameRunning = true;
-      }
-      // Esperamos a que cargue el laberinto antes de renderizar
+
+      this.scene3D.add(this.lights.object);
+      const cam = this.thirdPersonViewCamera.object;
+    
+    // 2. Aumentamos la distancia de visión a 5000 unidades (antes sería 100 o 1000)
+      cam.far = 5000; 
+      
+      // 3. ¡IMPORTANTE! Hay que actualizar la matriz para que surta efecto
+      cam.updateProjectionMatrix();
+      this.thirdPersonViewCamera.object.position.set(0, 80, 160);
+      this.thirdPersonViewCamera.object.lookAt(0, 0, 0);
+      this.cameraController.setInitialView();
+      this.clock = new THREE.Clock();
+      this.gameRunning = true;
       return;
     }
 
@@ -178,5 +176,7 @@ export default class ThumbRaiser {
     this.renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
     this.renderer.render(this.scene3D, this.camera.object);
     this.renderer.render(this.scene2D, this.camera2D);
+    const deltaTime = this.clock.getDelta(); // seconds since last call
+    this.cameraController.update(deltaTime);
   }
 }

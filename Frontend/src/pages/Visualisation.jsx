@@ -1,35 +1,37 @@
 // Frontend/src/pages/Visualisation.jsx
-
 import React from "react";
-// Assuming you have imported the corrected ThumbRaiserComponent from the previous step
-import ThumbRaiserComponent from "../components/Thumb_Raiser"; // <-- Use the correct component name
+import ThumbRaiserComponent from "../components/Thumb_Raiser";
+
+// Frontend/src/pages/Visualisation.jsx
 
 const Visualisation = () => {
   return (
-    // The main container that centers the content horizontally
-    <main style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <main style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       
       <h1>Visualisation</h1>
       <p>This is the visualisation page.</p>
 
-      {/* Contenedor que centra el canvas 3D y le da un ancho máximo */}
+      {/* Contenedor GRANDE y FIJO */}
       <div 
           style={{ 
-              display: 'flex', 
-              justifyContent: 'center', // <--- CENTRADO CRÍTICO
-              width: '150%', 
-              maxWidth: '1600px', // Limita el ancho del renderizado
-              margin: '0px auto',
-              marginBottom: '80px' // <-- AÑADE ESTA PROPIEDAD
+              position: 'auto',
+              display: 'flex',
+              justifyContent: 'center',
+              width: '100%',        // Ancho relativo a la pantalla
+              maxWidth: '1600px', 
+              height: '90vh',      // Altura fija (80% de la pantalla)
+              margin: '0 auto',
+              marginBottom: '40px',
+              backgroundColor: '#000', // Fondo negro para evitar flasheos blancos
+              overflow: 'hidden',  // Evita scrollbars
+              borderRadius: '8px', // Opcional: bordes redondeados
+              boxShadow: '0 4px 10px rgba(0,0,0,0.3)' // Opcional: sombra
           }}
       >
-          <div className="VisualizationCanvasWrapper"> 
-              <ThumbRaiserComponent /> {/* Aquí se renderiza el canvas */}
-          </div>
+          <ThumbRaiserComponent /> 
       </div>
       
     </main>
   );
 };
-
 export default Visualisation;

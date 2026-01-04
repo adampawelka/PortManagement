@@ -12,6 +12,11 @@ import {
   TableCell,
   TableBody,
   Button,
+  // ✅ NUEVAS IMPORTACIONES AÑADIDAS:
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from "@mui/material";
 
 import { useUsersManagementVM } from "../../viewmodels/Users/useUsersManagementVM";
@@ -61,47 +66,15 @@ const UsersManagementPage = () => {
         User Management ({users.length})
       </Typography>
 
+      {/* ... (Todo el bloque de carga y alertas sigue igual) ... */}
       {loading && (
-        <CircularProgress
-          sx={{
-            display: "block",
-            margin: "20px auto",
-            color: "var(--color-primary)",
-          }}
-        />
+        <CircularProgress sx={{ display: "block", margin: "20px auto", color: "var(--color-primary)" }} />
       )}
-
-      {error && (
-        <Alert
-          severity="error"
-          sx={{
-            mb: 2,
-            color: "var(--color-text-light)",
-            backgroundColor: "var(--color-error)",
-          }}
-        >
-          {error}
-        </Alert>
-      )}
-
-      {!loading && users.length === 0 && !error && (
-        <Alert
-          severity="info"
-          sx={{
-            mb: 2,
-            backgroundColor: "var(--color-info)",
-            color: "var(--color-text-dark)",
-          }}
-        >
-          No users found.
-        </Alert>
-      )}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {!loading && users.length === 0 && !error && <Alert severity="info" sx={{ mb: 2 }}>No users found.</Alert>}
 
       {users.length > 0 && (
-        <TableContainer
-          component={Paper}
-          sx={{ mt: 3, boxShadow: "var(--shadow-sm)" }}
-        >
+        <TableContainer component={Paper} sx={{ mt: 3, boxShadow: "var(--shadow-sm)" }}>
           <Table size="small">
             <TableHead>
               <TableRow sx={{ backgroundColor: "var(--color-background)" }}>
@@ -109,49 +82,29 @@ const UsersManagementPage = () => {
                 <TableCell className="um-th">Email</TableCell>
                 <TableCell className="um-th">Role</TableCell>
                 <TableCell className="um-th">Status</TableCell>
-                <TableCell className="um-th" align="right">
-                  Actions
-                </TableCell>
+                <TableCell className="um-th" align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {users.map((user) => (
-                <TableRow
-                  key={user.id}
-                  sx={{
-                    "&:hover": { backgroundColor: "var(--color-background)" },
-                  }}
-                >
+                <TableRow key={user.id} sx={{ "&:hover": { backgroundColor: "var(--color-background)" } }}>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
-
                   <TableCell>
-                    <span
-                      className={`um-chip ${
-                        user.role === "Administrator"
-                          ? "chip-admin"
-                          : "chip-default"
-                      }`}
-                    >
+                    <span className={`um-chip ${user.role === "Administrator" ? "chip-admin" : "chip-default"}`}>
                       {user.role}
                     </span>
                   </TableCell>
-
                   <TableCell>
-                    <span
-                      className={`um-chip ${
-                        user.status === "Active"
-                          ? "chip-active"
-                          : "chip-inactive"
-                      }`}
-                    >
+                    <span className={`um-chip ${user.status === "Active" ? "chip-active" : "chip-inactive"}`}>
                       {user.status}
                     </span>
                   </TableCell>
 
                   <TableCell align="right">
                     <div className="um-action-buttons">
+                      {/* ✅ ESTO YA ESTÁ PERFECTO */}
                       <Button
                         variant="contained"
                         className="um-btn primary"
@@ -166,32 +119,17 @@ const UsersManagementPage = () => {
 
                       {user.status === "Deactivated" && (
                         <>
-                          <Button
-                            variant="contained"
-                            className="um-btn success"
-                            onClick={() =>
-                              handleGenerateActivationToken(user.id)
-                            }
-                          >
+                          <Button variant="contained" className="um-btn success" onClick={() => handleGenerateActivationToken(user.id)}>
                             Activate
                           </Button>
-
-                          <Button
-                            variant="contained"
-                            className="um-btn success"
-                            onClick={() => handleReactivate(user.id)}
-                          >
+                          <Button variant="contained" className="um-btn success" onClick={() => handleReactivate(user.id)}>
                             Reactivate
                           </Button>
                         </>
                       )}
 
                       {user.status === "Active" && (
-                        <Button
-                          variant="contained"
-                          className="um-btn danger"
-                          onClick={() => handleDeactivate(user.id)}
-                        >
+                        <Button variant="contained" className="um-btn danger" onClick={() => handleDeactivate(user.id)}>
                           Deactivate
                         </Button>
                       )}
@@ -206,44 +144,48 @@ const UsersManagementPage = () => {
 
       {showRoleModal && (
         <div className="um-modal-overlay">
-          <div className="um-modal">
+          <div className="um-modal" style={{ padding: '20px', backgroundColor: 'white', borderRadius: '8px' }}>
             <h2>Assign Role</h2>
 
-            <p>
-              User: <strong>{selectedUser?.name}</strong>
-            </p>
-            <p>
-              Email: <strong>{selectedUser?.email}</strong>
-            </p>
+            <p>User: <strong>{selectedUser?.name}</strong></p>
+            <p>Email: <strong>{selectedUser?.email}</strong></p>
 
-            <div className="um-modal-input">
-              <label>Select Role:</label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-              >
-                <option value="">-- Select Role --</option>
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
+            <div className="um-modal-input" style={{ marginTop: '20px', marginBottom: '20px' }}>
+              <FormControl fullWidth>
+                  <InputLabel id="role-select-label">Select Role</InputLabel>
+                  <Select
+                    labelId="role-select-label"
+                    value={selectedRole || ""} // Asegura que no sea null
+                    label="Select Role"
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    sx={{ backgroundColor: "white" }}
+                  >
+                    {/* ✅ CORRECCIÓN AQUÍ: Usamos el map correctamente */}
+                    {roles.map((role) => (
+                        <MenuItem key={role} value={role}>
+                          {role}
+                        </MenuItem>
+                    ))}
+                  </Select>
+              </FormControl>
             </div>
 
             <div className="um-modal-buttons">
-              <button
-                className={`um-btn primary full ${
-                  !selectedRole ? "disabled" : ""
-                }`}
+              <Button
+                variant="contained"
+                color="primary"
                 disabled={!selectedRole}
                 onClick={handleAssignRole}
+                fullWidth
+                sx={{ mb: 1 }}
               >
                 Assign Role
-              </button>
+              </Button>
 
-              <button
-                className="um-btn secondary full"
+              <Button
+                variant="outlined"
+                color="secondary"
+                fullWidth
                 onClick={() => {
                   setShowRoleModal(false);
                   setSelectedUser(null);
@@ -251,7 +193,7 @@ const UsersManagementPage = () => {
                 }}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </div>

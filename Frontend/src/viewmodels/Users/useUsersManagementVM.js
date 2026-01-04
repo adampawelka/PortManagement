@@ -115,6 +115,8 @@ export const useUsersManagementVM = () => {
     setSelectedRole,
     openRoleModal,
     closeRoleModal,
+    setSelectedUser,
+    setShowRoleModal,
 
     handleAssignRole,
     handleGenerateActivationToken,
