@@ -25,4 +25,15 @@ export interface IVesselVisitExecutionService {
 
   // Nuevo método para US 4.1.10
   search(criteria: VveSearchCriteriaDTO): Promise<VveSearchDTO[]>;
+
+  //4.1.11
+  completeVVE(
+  id: string,
+  dto: {
+    actualUnberthTime: string;
+    actualPortDepartureTime: string;
+    user: string;
+  }
+): Promise<VesselVisitExecutionDTO>;
+
 }
