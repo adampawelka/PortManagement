@@ -1,13 +1,8 @@
-name: Deploy Port Management System
+name: Deploy
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
-
-env:
-  DEPLOY_PATH: "/opt/port-management"
-  RELEASE_VERSION: ${{ github.sha }}-$(date +'%Y%m%d-%H%M%S')
 
 jobs:
   deploy:
@@ -17,153 +12,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup deployment package
+      - name: Create deployment archive
         run: |
-          # Create deployment directory with all files
-          mkdir -p deployment
+          # Create archive of everything
+          tar -czf /tmp/deployment.tar.gz \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            .
           
-          # Copy entire repository (excluding .git)
-          rsync -av --exclude='.git' --exclude='node_modules' --exclude='.github' . deployment/
-          
-          # Create deployment manifest
-          echo "{
-            \"version\": \"${{ env.RELEASE_VERSION }}\",
-            \"timestamp\": \"$(date -Iseconds)\",
-            \"commit\": \"${{ github.sha }}\",
-            \"branch\": \"${{ github.ref_name }}\",
-            \"deployed_by\": \"${{ github.actor }}\"
-          }" > deployment/deploy.json
-          
-          # Create simple deployment script
-          cat > deployment/deploy.sh << 'EOF'
-          #!/bin/bash
-          set -e
-          
-          echo "🚀 Port Management System Deployment"
-          echo "Version: $1"
-          echo "Timestamp: $(date)"
-          
-          DEPLOY_PATH="/opt/port-management"
-          RELEASE_DIR="$DEPLOY_PATH/releases/$1"
-          
-          # Stop all services before deployment
-          echo "🛑 Stopping services..."
-          sudo systemctl stop portmanagement-backend.service portmanagement-oem.service portmanagement-postgres.service portmanagement-mongo.service 2>/dev/null || true
-          
-          # Create release directory
-          echo "📁 Creating release directory..."
-          sudo mkdir -p "$RELEASE_DIR"
-          sudo chown -R deploy:deploy "$RELEASE_DIR"
-          
-          # Copy deployment files
-          echo "📦 Copying deployment files..."
-          cp -r . "$RELEASE_DIR/"
-          
-          # Link to current
-          echo "🔗 Updating current symlink..."
-          sudo rm -f "$DEPLOY_PATH/current"
-          sudo ln -sf "$RELEASE_DIR" "$DEPLOY_PATH/current"
-          
-          # Start services
-          echo "▶️ Starting services..."
-          sudo systemctl start portmanagement-postgres.service portmanagement-mongo.service
-          sleep 10  # Wait for databases
-          sudo systemctl start portmanagement-backend.service portmanagement-oem.service
-          
-          # Cleanup old releases (keep last 10)
-          echo "🧹 Cleaning up old releases..."
-          cd "$DEPLOY_PATH/releases"
-          ls -t | tail -n +11 | xargs -I {} sudo rm -rf {} 2>/dev/null || true
-          
-          echo "✅ Deployment completed successfully!"
-          echo ""
-          echo "📊 Services Status:"
-          sudo systemctl status portmanagement-*.service --no-pager || true
-          EOF
-          
-          chmod +x deployment/deploy.sh
-          
-          # Create complete docker-compose file for reference
-          cat > deployment/docker-compose.full.yml << 'EOF'
-          version: '3.8'
-          
-          services:
-            postgres:
-              image: postgres:13-alpine
-              container_name: portmanagement-postgres
-              environment:
-                POSTGRES_DB: portmanagementdb
-                POSTGRES_USER: portapp
-                POSTGRES_PASSWORD: ${DB_PASSWORD:-PortManagement123!}
-              volumes:
-                - /opt/port-management/data/postgres:/var/lib/postgresql/data
-              ports:
-                - "5432:5432"
-              restart: unless-stopped
-              healthcheck:
-                test: ["CMD-SHELL", "pg_isready -U portapp -d portmanagementdb"]
-                interval: 30s
-                timeout: 10s
-                retries: 3
-          
-            mongo:
-              image: mongo:6.0
-              container_name: portmanagement-mongo
-              environment:
-                MONGO_INITDB_ROOT_USERNAME: admin
-                MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-PORTMANAGEMENT3DLE04}
-                MONGO_INITDB_DATABASE: oemdb
-              volumes:
-                - /opt/port-management/data/mongo:/data/db
-              ports:
-                - "27017:27017"
-              restart: unless-stopped
-              command: mongod --auth
-          
-            backend:
-              build:
-                context: ./BackendAPI
-                dockerfile: Dockerfile
-              container_name: portmanagement-backend
-              environment:
-                - ASPNETCORE_ENVIRONMENT=Production
-                - ASPNETCORE_URLS=http://+:5000
-                - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=portmanagementdb;Username=portapp;Password=${DB_PASSWORD:-PortManagement123!}
-              ports:
-                - "5000:5000"
-              depends_on:
-                postgres:
-                  condition: service_healthy
-              restart: unless-stopped
-          
-            oem:
-              build:
-                context: ./OEM
-                dockerfile: Dockerfile
-              container_name: portmanagement-oem
-              environment:
-                - NODE_ENV=production
-                - PORT=5161
-                - MONGODB_URI=mongodb://admin:${MONGO_PASSWORD:-PORTMANAGEMENT3DLE04!}@mongo:27017/oemdb?authSource=admin
-                - BACKEND_API_URL=http://backend:5000
-              ports:
-                - "5161:5161"
-              depends_on:
-                - mongo
-                - backend
-              restart: unless-stopped
-              healthcheck:
-                test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5161/health"]
-                interval: 30s
-                timeout: 10s
-                retries: 3
-          EOF
-          
-          # Create archive
-          tar -czf deployment.tar.gz deployment/
-          echo "📦 Created deployment.tar.gz ($(du -h deployment.tar.gz | cut -f1))"
+          echo "📦 Archive created: $(ls -lh /tmp/deployment.tar.gz)"
 
-      - name: Deploy to server
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -173,74 +33,55 @@ jobs:
           script: |
             set -e
             
-            echo "=== Starting Deployment to Server ==="
+            echo "Starting deployment..."
             
-            # Create working directory
-            WORK_DIR="/tmp/deploy-${{ env.RELEASE_VERSION }}"
-            mkdir -p "$WORK_DIR"
-            cd "$WORK_DIR"
+            # Variables
+            DEPLOY_PATH="/opt/port-management"
+            RELEASE_VERSION="${{ github.sha }}-$(date +'%Y%m%d-%H%M%S')"
+            RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
             
-            echo "📥 Downloading deployment package..."
-            # The package will be uploaded in the next step
+            # Stop services
+            echo "Stopping services..."
+            sudo systemctl stop portmanagement-backend.service portmanagement-oem.service 2>/dev/null || true
+            
+            # Create release directory
+            echo "Creating release directory: $RELEASE_DIR"
+            sudo mkdir -p "$RELEASE_DIR"
+            sudo chown -R deploy:deploy "$RELEASE_DIR"
+            
+            # Extract new version
+            echo "Extracting new version..."
+            cd "$RELEASE_DIR"
+            tar -xzf /tmp/deployment.tar.gz
+            
+            # Update current symlink
+            echo "Updating current symlink..."
+            sudo rm -f "$DEPLOY_PATH/current"
+            sudo ln -sf "$RELEASE_DIR" "$DEPLOY_PATH/current"
+            
+            # Start services
+            echo "▶Starting services..."
+            sudo systemctl start portmanagement-postgres.service portmanagement-mongo.service
+            sleep 5
+            sudo systemctl start portmanagement-backend.service portmanagement-oem.service
+            
+            # Cleanup old releases
+            echo "Cleaning old releases..."
+            cd "$DEPLOY_PATH/releases"
+            ls -t | tail -n +11 | xargs -I {} sudo rm -rf {} 2>/dev/null || true
+            
+            # Verify
+            echo "Deployment complete!"
+            echo ""
+            echo "Service status:"
+            sudo systemctl status portmanagement-*.service --no-pager | grep -E "(Service|Active)" || true
 
-      - name: Upload deployment package
+      - name: Upload archive to server
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "deployment.tar.gz"
+          source: "/tmp/deployment.tar.gz"
           target: "/tmp"
-
-      - name: Extract and execute deployment
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            
-            echo "=== Executing Deployment ==="
-            
-            WORK_DIR="/tmp/deploy-${{ env.RELEASE_VERSION }}"
-            cd "$WORK_DIR"
-            
-            # Extract deployment package
-            echo "Extracting deployment package..."
-            tar -xzf /tmp/deployment.tar.gz
-            
-            # Run deployment script
-            echo "Running deployment script..."
-            cd deployment
-            sudo -E ./deploy.sh "${{ env.RELEASE_VERSION }}"
-            
-            # Verify deployment
-            echo "Verifying deployment..."
-            sleep 10
-            
-            # Check services
-            SERVICES="portmanagement-backend portmanagement-oem portmanagement-postgres portmanagement-mongo"
-            for service in $SERVICES; do
-              if sudo systemctl is-active --quiet "$service"; then
-                echo "$service is running"
-              else
-                echo "$service is NOT running"
-                sudo systemctl status "$service" --no-pager || true
-              fi
-            done
-            
-            # Cleanup
-            echo "🧹 Cleaning up temporary files..."
-            rm -rf "$WORK_DIR" /tmp/deployment.tar.gz
-            
-            echo "🎉 Deployment completed successfully!"
-            echo ""
-            echo "🌐 Access Points:"
-            echo "- Frontend: N/A (not in deployment)"
-            echo "- Backend API: http://$(hostname -I | awk '{print $1}'):5000"
-            echo "- OEM Module: http://$(hostname -I | awk '{print $1}'):5161"
-            echo "- PostgreSQL: localhost:5432"
-            echo "- MongoDB: localhost:27017"
