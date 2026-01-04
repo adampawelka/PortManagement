@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy Port Management System
 
 on:
   push:
@@ -14,16 +14,16 @@ jobs:
 
       - name: Create deployment archive
         run: |
-          # Create archive of everything
-          tar -czf /tmp/deployment.tar.gz \
+          # Create archive of everything except git and node_modules
+          tar -czf deployment.tar.gz \
             --exclude='.git' \
             --exclude='node_modules' \
             --exclude='.github' \
             .
           
-          echo "📦 Archive created: $(ls -lh /tmp/deployment.tar.gz)"
+          echo "Archive created: $(ls -lh deployment.tar.gz)"
 
-      - name: Deploy via SSH
+      - name: Setup VPN and deploy
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -33,24 +33,75 @@ jobs:
           script: |
             set -e
             
-            echo "Starting deployment..."
+            echo "=== Starting VPN Connection ==="
             
-            # Variables
+            # Write VPN config file
+            echo "${{ secrets.VPN_CONFIG }}" > /tmp/deinet.ovpn
+            
+            # Create VPN auth file
+            echo "${{ secrets.VPN_USER }}" > /tmp/vpn-auth.txt
+            echo "${{ secrets.VPN_PASSWORD }}" >> /tmp/vpn-auth.txt
+            
+            # Connect to VPN
+            echo "Connecting to VPN..."
+            sudo openvpn --config /tmp/deinet.ovpn --auth-user-pass /tmp/vpn-auth.txt --daemon
+            
+            # Wait for VPN connection
+            sleep 15
+            echo "VPN connection established"
+            
+            echo "=== Starting Deployment ==="
+            
             DEPLOY_PATH="/opt/port-management"
             RELEASE_VERSION="${{ github.sha }}-$(date +'%Y%m%d-%H%M%S')"
             RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
             
-            # Stop services
-            echo "Stopping services..."
-            sudo systemctl stop portmanagement-backend.service portmanagement-oem.service 2>/dev/null || true
+            echo "Release: $RELEASE_VERSION"
             
             # Create release directory
-            echo "Creating release directory: $RELEASE_DIR"
             sudo mkdir -p "$RELEASE_DIR"
             sudo chown -R deploy:deploy "$RELEASE_DIR"
             
+            # Stop application services
+            echo "Stopping services..."
+            sudo systemctl stop portmanagement-backend.service
+            sudo systemctl stop portmanagement-oem.service
+            
             # Extract new version
-            echo "Extracting new version..."
+            echo "Extracting deployment..."
+            cd "$RELEASE_DIR"
+            
+            # The archive will be uploaded in the next step
+            echo "Ready for file transfer..."
+
+      - name: Upload deployment archive
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "deployment.tar.gz"
+          target: "/tmp"
+
+      - name: Complete deployment
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            
+            echo "=== Completing Deployment ==="
+            
+            DEPLOY_PATH="/opt/port-management"
+            RELEASE_VERSION="${{ github.sha }}-$(date +'%Y%m%d-%H%M%S')"
+            RELEASE_DIR="$DEPLOY_PATH/releases/$RELEASE_VERSION"
+            
+            # Extract the uploaded archive
+            echo "Extracting deployment archive..."
             cd "$RELEASE_DIR"
             tar -xzf /tmp/deployment.tar.gz
             
@@ -60,28 +111,20 @@ jobs:
             sudo ln -sf "$RELEASE_DIR" "$DEPLOY_PATH/current"
             
             # Start services
-            echo "▶Starting services..."
-            sudo systemctl start portmanagement-postgres.service portmanagement-mongo.service
-            sleep 5
-            sudo systemctl start portmanagement-backend.service portmanagement-oem.service
+            echo "Starting services..."
+            sudo systemctl start portmanagement-backend.service
+            sudo systemctl start portmanagement-oem.service
             
-            # Cleanup old releases
-            echo "Cleaning old releases..."
+            # Cleanup old releases (keep last 5)
+            echo "Cleaning up old releases..."
             cd "$DEPLOY_PATH/releases"
-            ls -t | tail -n +11 | xargs -I {} sudo rm -rf {} 2>/dev/null || true
+            ls -t | tail -n +6 | xargs -I {} sudo rm -rf {} 2>/dev/null || true
             
-            # Verify
-            echo "Deployment complete!"
-            echo ""
+            echo "=== Deployment Complete ==="
+            echo "Version: $RELEASE_VERSION"
+            echo "Directory: $RELEASE_DIR"
+            
+            # Show service status
             echo "Service status:"
-            sudo systemctl status portmanagement-*.service --no-pager | grep -E "(Service|Active)" || true
-
-      - name: Upload archive to server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "/tmp/deployment.tar.gz"
-          target: "/tmp"
+            sudo systemctl status portmanagement-backend.service --no-pager | grep -E "(Active|Status)" || true
+            sudo systemctl status portmanagement-oem.service --no-pager | grep -E "(Active|Status)" || true
