@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to Server
 
 on:
   push:
@@ -12,15 +12,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Create package
+      - name: Create deployment package
         run: |
-          mkdir -p package
-          cp -r OEM package/
-          cp -r Frontend package/
-          cp -r BackendAPI package/
-          tar -czf package.tar.gz package/
+          RELEASE_VERSION=$(date +'%Y%m%d-%H%M%S')
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          
+          # Create simple package
+          tar -czf deployment.tar.gz \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='node_modules' \
+            --exclude='*.log' \
+            .
+          
+          echo "Package created: deployment.tar.gz"
+          ls -lh deployment.tar.gz
 
-      - name: Setup server directory
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -28,45 +36,46 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            mkdir -p /opt/port-management
-            chmod 755 /opt/port-management
-
-      - name: Copy files to server
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: "package.tar.gz"
-          target: "/opt/port-management"
-
-      - name: Deploy on server
-        uses: appleboy/ssh-action@v0.1.5
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd /opt/port-management
+            set -e
             
-            # Extract package
-            tar -xzf package.tar.gz
+            echo "🚀 Starting deployment..."
             
-            # Stop old containers
-            docker stop portmanagement-oem portmanagement-backend portmanagement-frontend 2>/dev/null || true
-            docker rm portmanagement-oem portmanagement-backend portmanagement-frontend 2>/dev/null || true
+            # Configuration
+            DEPLOY_DIR="/opt/port-management"
+            RELEASE_VERSION="${{ env.RELEASE_VERSION }}"
             
-            # Build and run OEM
-            cd package/OEM
-            docker build -t portmanagement-oem .
-            docker run -d \
-              --name portmanagement-oem \
-              -p 5161:5161 \
-              -e MONGODB_URI="mongodb://oem_admin:PORTMANAGEMENT3DLE04@10.9.20.216:27017/portoemdb?authSource=admin" \
-              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-              -e CORS_ORIGINS="${{ secrets.CORS_ORIGINS }}" \
-              portmanagement-oem
+            # Create directory structure
+            sudo mkdir -p $DEPLOY_DIR/{releases,backups,logs}
+            sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} $DEPLOY_DIR
             
-            echo "OEM deployed on port 5161"
+            # Create release directory
+            RELEASE_PATH="$DEPLOY_DIR/releases/$RELEASE_VERSION"
+            mkdir -p "$RELEASE_PATH"
+            
+            # Upload and extract (file will be uploaded by the action)
+            cd "$RELEASE_PATH"
+            
+            # Extract the uploaded files (they're in the workspace)
+            # The action copies the entire workspace to the server
+            
+            # Stop existing containers
+            cd "$DEPLOY_DIR/current" 2>/dev/null && docker-compose down 2>/dev/null || true
+            
+            # Update current symlink
+            rm -f "$DEPLOY_DIR/current" 2>/dev/null || true
+            ln -sfn "$RELEASE_PATH" "$DEPLOY_DIR/current"
+            
+            # Start services
+            cd "$DEPLOY_DIR/current"
+            
+            # Build and start
+            docker-compose up -d --build
+            
+            echo "Deployment completed!"
+            
+            # Cleanup old releases
+            cd "$DEPLOY_DIR/releases"
+            ls -t | tail -n +6 | xargs -I {} rm -rf {} 2>/dev/null || true
+            
+            echo "Services deployed:"
+            docker-compose ps
