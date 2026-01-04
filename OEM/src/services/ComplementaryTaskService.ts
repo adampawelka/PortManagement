@@ -16,17 +16,15 @@ import { ComplementaryTaskCategoryId } from "../Domain/ComplementaryTaskCategori
 import { ResponsibleTeam } from "../Domain/ComplementaryTasks/ResponsibleTeam";
 import { StartTime } from "../Domain/ComplementaryTasks/StartTime";
 import { EndTime } from "../Domain/ComplementaryTasks/EndTime";
-import {
-  ComplementaryTaskStatus,
-  ComplementaryTaskStatusEnum
-} from "../Domain/ComplementaryTasks/ComplementaryTaskStatus";
+import { ComplementaryTaskStatus, ComplementaryTaskStatusEnum } from "../Domain/ComplementaryTasks/ComplementaryTaskStatus";
+import { ComplementaryTaskExecutionMode, ComplementaryTaskExecutionModeEnum } from "../Domain/ComplementaryTasks/ComplementaryTaskExecutionMode";
 
 export class ComplementaryTaskService
   implements IComplementaryTaskService {
 
   constructor(
     private readonly taskRepo: IComplementaryTaskRepo
-  ) {}
+  ) { }
 
   // --------------------
   // CREATE
@@ -49,8 +47,14 @@ export class ComplementaryTaskService
         : undefined,
       status: ComplementaryTaskStatus.create(
         this.toStatusEnum(dto.status)
-      ).getValue()
+      ).getValue(),
+      executionMode: dto.executionMode
+        ? ComplementaryTaskExecutionMode.create(
+          dto.executionMode as ComplementaryTaskExecutionModeEnum
+        ).getValue()
+        : undefined
     });
+
 
     if (taskOrError.isFailure) {
       throw new Error(taskOrError.errorValue().toString());
@@ -172,7 +176,8 @@ export class ComplementaryTaskService
       endTime: task.endTime
         ? task.endTime.value.toISOString()
         : undefined,
-      status: task.status.value
+      status: task.status.value,
+      executionMode: task.executionMode.value
     };
   }
 }
