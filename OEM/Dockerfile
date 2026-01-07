@@ -10,6 +10,7 @@ COPY package*.json ./
 
 # 3. Install dependencies
 RUN npm ci
+RUN npm install uuid@8.3.2
 
 # 4. Copy source code
 COPY . ./
@@ -24,6 +25,9 @@ RUN find src/ -name "*.ts" | head -5
 
 # 7. Build TypeScript
 RUN npx tsc --skipLibCheck
+
+# Build TypeScript
+RUN npm run build
 
 # 8. Check build output
 RUN ls -la build/

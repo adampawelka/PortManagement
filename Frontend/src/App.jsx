@@ -115,7 +115,9 @@ const ProtectedRoute = ({ children, requiredRoles = [], testUser = null }) => {
           </>
         ) : (
           <p>User not registered in system.</p>
-        )}
+        )
+        }
+        <LoginButton />
       </div>
     );
   }

@@ -12,22 +12,7 @@ const Visualisation = () => {
       <p>This is the visualisation page.</p>
 
       {/* Contenedor GRANDE y FIJO */}
-      <div 
-          style={{ 
-              position: 'auto',
-              display: 'flex',
-              justifyContent: 'center',
-              width: '100%',        // Ancho relativo a la pantalla
-              maxWidth: '1600px', 
-              height: '90vh',      // Altura fija (80% de la pantalla)
-              margin: '0 auto',
-              marginBottom: '40px',
-              backgroundColor: '#000', // Fondo negro para evitar flasheos blancos
-              overflow: 'hidden',  // Evita scrollbars
-              borderRadius: '8px', // Opcional: bordes redondeados
-              boxShadow: '0 4px 10px rgba(0,0,0,0.3)' // Opcional: sombra
-          }}
-      >
+      <div>
           <ThumbRaiserComponent /> 
       </div>
       
