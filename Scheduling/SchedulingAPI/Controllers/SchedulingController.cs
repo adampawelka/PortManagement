@@ -137,14 +137,14 @@ namespace SchedulingAPI.Controllers
 
             // In your constructor, make sure you're loading the correct file:
             string geneticSourcePath = Path.Combine(baseDir, "..", "..", "..", "PrologFiles", "genetic_scheduling.pl");
-            geneticSourcePath = Path.GetFullPath(geneticSourcePath).Replace("\\", "/");            
+            geneticSourcePath = Path.GetFullPath(geneticSourcePath).Replace("\\", "/");
 
             _geneticScriptPath = System.IO.File.Exists(geneticSourcePath)
                 ? geneticSourcePath
                 : Path.Combine(baseDir, "PrologFiles", "genetic_scheduling.pl");
-            _geneticScriptPath = Path.GetFullPath(_geneticScriptPath).Replace("\\", "/");            
+            _geneticScriptPath = Path.GetFullPath(_geneticScriptPath).Replace("\\", "/");
 
-            Console.WriteLine($"Genetic Algorithm script path: {_geneticScriptPath}");            
+            Console.WriteLine($"Genetic Algorithm script path: {_geneticScriptPath}");
 
             if (!System.IO.File.Exists(_geneticScriptPath))
                 throw new Exception($"Genetic Algorithm script not found at {_geneticScriptPath}");
@@ -718,8 +718,8 @@ namespace SchedulingAPI.Controllers
                 var multiCraneHoursMatch = System.Text.RegularExpressions.Regex.Match(result, @"MULTI_CRANE_HOURS:(\d+)");
                 if (multiCraneHoursMatch.Success)
                     parsed.MultiCraneHours = int.Parse(multiCraneHoursMatch.Groups[1].Value);
-                
-                    
+
+
             }
             catch (Exception ex)
             {
@@ -1072,131 +1072,259 @@ namespace SchedulingAPI.Controllers
 
             return schedules.OrderBy(s => s.StartSlot).ToList();
         }
-// Add this method to SchedulingController.cs
-[HttpGet("calculate-schedule-genetic")]
+        // Add this method to SchedulingController.cs
+        // [HttpGet("calculate-schedule-genetic")]
+        // public async Task<IActionResult> CalculateScheduleGenetic(
+        //     [FromQuery] string date,
+        //     [FromQuery] int populationSize = 30,
+        //     [FromQuery] int generations = 50,
+        //     [FromQuery] double crossoverRate = 0.8,
+        //     [FromQuery] double mutationRate = 0.2,
+        //     [FromQuery] int cranes = 1,
+        //     [FromQuery] string algorithm = "genetic")
+        // {
+        //     if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
+        //         return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
+
+        //     try
+        //     {
+        //         var authHeader = Request.Headers["Authorization"].ToString();
+        //         if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+        //             return Unauthorized(new { message = "Missing or invalid token." });
+
+        //         var token = authHeader.Substring("Bearer ".Length).Trim();
+
+        //         var client = _httpClientFactory.CreateClient();
+        //         client.DefaultRequestHeaders.Authorization =
+        //             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        //         var response = await client.GetAsync($"{_backendApiUrl}/api/VesselVisitNotifications");
+        //         response.EnsureSuccessStatusCode();
+
+        //         var vessels = await response.Content.ReadFromJsonAsync<List<VesselVisitNotificationDto>>();
+        //         if (vessels == null)
+        //             return BadRequest(new { message = "No vessels received from the API." });
+
+        //         var approvedVessels = vessels
+        //             .Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue)
+        //             .ToList();
+
+        //         if (!approvedVessels.Any())
+        //             return BadRequest(new { message = "No approved vessels assigned to any dock." });
+
+        //         var dockGroups = approvedVessels
+        //             .GroupBy(v => v.AssignedDockId)
+        //             .ToList();
+
+        //         var resourceResponse = await client.GetAsync($"{_backendApiUrl}/api/Resources");
+        //         resourceResponse.EnsureSuccessStatusCode();
+
+        //         var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
+        //         var availableCranes = allResources
+        //             .Where(r => r.Type == "Crane" && r.Status == "active")
+        //             .ToList();
+
+        //         var staffResponse = await client.GetAsync($"{_backendApiUrl}/api/StaffMembers");
+        //         staffResponse.EnsureSuccessStatusCode();
+
+        //         var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffMemberDto>>();
+
+        //         var areaResponse = await client.GetAsync($"{_backendApiUrl}/api/StorageAreas");
+        //         areaResponse.EnsureSuccessStatusCode();
+
+        //         var allAreas = await areaResponse.Content.ReadFromJsonAsync<List<StorageAreaDto>>();
+
+        //         var selectedCrane = availableCranes.FirstOrDefault();
+        //         if (selectedCrane != null) availableCranes.Remove(selectedCrane);
+
+        //         var dockSchedules = new Dictionary<string, object>();
+
+        //         foreach (var dockGroup in dockGroups)
+        //         {
+        //             string dockId = dockGroup.Key.Value.ToString();
+
+        //             var dockResponse = await client.GetAsync($"{_backendApiUrl}/api/Docks/{dockId}");
+        //             dockResponse.EnsureSuccessStatusCode();
+        //             var dock = await dockResponse.Content.ReadFromJsonAsync<DockDto>();
+
+        //             var vesselsForDate = dockGroup
+        //                 .Where(v => v.ETA.Date == targetDate.Date)
+        //                 .ToList();
+
+        //             if (!vesselsForDate.Any())
+        //                 continue;
+
+        //             var closestArea = GetClosestArea(allAreas, dockGroup.Key.Value);
+
+        //             // Build Prolog facts for vessels
+        //             string facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
+        //             {
+        //                 int containerCount = v.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
+        //                 int loadTime = 2 + (containerCount * 2);
+        //                 int unloadTime = 2 + (containerCount * 2);
+
+        //                 int etaHour = v.ETA.Minute >= 30 ? v.ETA.Hour + 1 : v.ETA.Hour;
+        //                 int etdHour = v.ETD.Minute >= 30 ? v.ETD.Hour + 1 : v.ETD.Hour;
+
+        //                 string vesselKey = v.VesselName.ToLower().Replace(" ", "_");
+
+        //                 return $"asserta(vessel({vesselKey}, {etaHour}, {etdHour}, {unloadTime}, {loadTime})),";
+        //             }));
+
+        //             // Build crane capacity fact
+        //             string craneFact = $"asserta(multiple_cranes({cranes})),";
+
+        //             string query = $@"
+        //         {facts} 
+        //         asserta(multiple_cranes({cranes})),
+        //         solve_genetic_with_params({populationSize}, {generations}, {crossoverRate}, {mutationRate}, {cranes}, Solution, TotalDelay), 
+        //         format('SOLUTION:~w~n', [Solution]), 
+        //         format('TOTAL_DELAY:~w~n', [TotalDelay]), 
+        //         format('CRANES_USED:~w~n', [{cranes}]), 
+        //         halt.";
+
+        //             string result;
+        //             try
+        //             {
+        //                 result = RunPrologQuery(query, _geneticScriptPath);
+        //             }
+        //             catch (Exception ex)
+        //             {
+        //                 // Fallback to default genetic algorithm
+        //                 query = $"{facts} {craneFact} solve_genetic_schedule(Solution, TotalDelay, CranesUsed), format('SOLUTION:~w~n', [Solution]), format('TOTAL_DELAY:~w~n', [TotalDelay]), format('CRANES_USED:~w~n', [CranesUsed]), halt.";
+        //                 result = RunPrologQuery(query, _geneticScriptPath);
+
+        //             }
+
+        //             // Parse the result
+        //             var schedule = ParseGeneticResult(result, vesselsForDate, cranes);
+
+        //             dockSchedules[dockId] = new
+        //             {
+        //                 dock = dock.DockName,
+        //                 algorithm = "Genetic Algorithm",
+        //                 parameters = new
+        //                 {
+        //                     populationSize,
+        //                     generations,
+        //                     crossoverRate,
+        //                     mutationRate,
+        //                     cranes
+        //                 },
+        //                 schedule = schedule.Schedules,
+        //                 totalDelay = schedule.TotalDelay,
+        //                 cranesUsed = cranes,
+        //                 vessels = vesselsForDate,
+        //                 crane = selectedCrane?.Code,
+        //                 staff = allStaff,
+        //                 area = closestArea
+        //             };
+        //         }
+
+        //         if (!dockSchedules.Any())
+        //             return BadRequest(new { message = "No vessels arriving on that date." });
+
+        //         return Ok(dockSchedules);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, $"Error generating genetic schedule: {ex.Message}");
+        //     }
+        // }
+
+        [HttpGet("calculate-schedule-genetic")]
 public async Task<IActionResult> CalculateScheduleGenetic(
     [FromQuery] string date,
     [FromQuery] int populationSize = 30,
     [FromQuery] int generations = 50,
     [FromQuery] double crossoverRate = 0.8,
     [FromQuery] double mutationRate = 0.2,
-    [FromQuery] int cranes = 1,
-    [FromQuery] string algorithm = "genetic")
+    [FromQuery] int cranes = 1)
 {
     if (!DateTime.TryParse(date, null, DateTimeStyles.RoundtripKind, out var targetDate))
         return BadRequest(new { message = "Invalid date format. Expected ISO 8601." });
 
     try
     {
+        // --- Authorization ---
         var authHeader = Request.Headers["Authorization"].ToString();
         if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
             return Unauthorized(new { message = "Missing or invalid token." });
 
         var token = authHeader.Substring("Bearer ".Length).Trim();
-
         var client = _httpClientFactory.CreateClient();
         client.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-        var response = await client.GetAsync($"{_backendApiUrl}/api/VesselVisitNotifications");
-        response.EnsureSuccessStatusCode();
-
-        var vessels = await response.Content.ReadFromJsonAsync<List<VesselVisitNotificationDto>>();
+        // --- Fetch vessel visits ---
+        var vesselResponse = await client.GetAsync($"{_backendApiUrl}/api/VesselVisitNotifications");
+        vesselResponse.EnsureSuccessStatusCode();
+        var vessels = await vesselResponse.Content.ReadFromJsonAsync<List<VesselVisitNotificationDto>>();
         if (vessels == null)
-            return BadRequest(new { message = "No vessels received from the API." });
+            return BadRequest(new { message = "No vessels received from backend." });
 
         var approvedVessels = vessels
-            .Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue)
+            .Where(v => v.Status == "Approved" && v.AssignedDockId.HasValue && v.ETA.Date == targetDate.Date)
             .ToList();
 
         if (!approvedVessels.Any())
-            return BadRequest(new { message = "No approved vessels assigned to any dock." });
+            return BadRequest(new { message = "No approved vessels arriving on that date." });
 
-        var dockGroups = approvedVessels
-            .GroupBy(v => v.AssignedDockId)
-            .ToList();
-
-        var resourceResponse = await client.GetAsync($"{_backendApiUrl}/api/Resources");
-        resourceResponse.EnsureSuccessStatusCode();
-
-        var allResources = await resourceResponse.Content.ReadFromJsonAsync<List<ResourceDto>>();
-        var availableCranes = allResources
-            .Where(r => r.Type == "Crane" && r.Status == "active")
-            .ToList();
-
-        var staffResponse = await client.GetAsync($"{_backendApiUrl}/api/StaffMembers");
-        staffResponse.EnsureSuccessStatusCode();
-
-        var allStaff = await staffResponse.Content.ReadFromJsonAsync<List<StaffMemberDto>>();
-
-        var areaResponse = await client.GetAsync($"{_backendApiUrl}/api/StorageAreas");
-        areaResponse.EnsureSuccessStatusCode();
-
-        var allAreas = await areaResponse.Content.ReadFromJsonAsync<List<StorageAreaDto>>();
-
-        var selectedCrane = availableCranes.FirstOrDefault();
-        if (selectedCrane != null) availableCranes.Remove(selectedCrane);
-
+        // --- Group by dock ---
+        var dockGroups = approvedVessels.GroupBy(v => v.AssignedDockId).ToList();
         var dockSchedules = new Dictionary<string, object>();
 
         foreach (var dockGroup in dockGroups)
         {
-            string dockId = dockGroup.Key.Value.ToString();
+            var dockId = dockGroup.Key.Value.ToString();
 
+            // Fetch dock info
             var dockResponse = await client.GetAsync($"{_backendApiUrl}/api/Docks/{dockId}");
             dockResponse.EnsureSuccessStatusCode();
             var dock = await dockResponse.Content.ReadFromJsonAsync<DockDto>();
+            var vesselsForDock = dockGroup.ToList();
 
-            var vesselsForDate = dockGroup
-                .Where(v => v.ETA.Date == targetDate.Date)
-                .ToList();
-
-            if (!vesselsForDate.Any())
-                continue;
-
-            var closestArea = GetClosestArea(allAreas, dockGroup.Key.Value);
-
-            // Build Prolog facts for vessels
-            string facts = string.Join(Environment.NewLine, vesselsForDate.Select(v =>
+            // --- Build Prolog facts properly ---
+            var factLines = vesselsForDock.Select(v =>
             {
                 int containerCount = v.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
                 int loadTime = 2 + (containerCount * 2);
                 int unloadTime = 2 + (containerCount * 2);
-
                 int etaHour = v.ETA.Minute >= 30 ? v.ETA.Hour + 1 : v.ETA.Hour;
                 int etdHour = v.ETD.Minute >= 30 ? v.ETD.Hour + 1 : v.ETD.Hour;
+                string vesselKey = v.VesselName.ToLower().Replace(" ", "_").Replace("-", "_");
+                return $"asserta(vessel('{vesselKey}', {etaHour}, {etdHour}, {unloadTime}, {loadTime})).";
+            }).ToList();
 
-                string vesselKey = v.VesselName.ToLower().Replace(" ", "_");
+            factLines.Add($"asserta(multiple_cranes({cranes}))."); // Multiple cranes fact
 
-                return $"asserta(vessel({vesselKey}, {etaHour}, {etdHour}, {unloadTime}, {loadTime})),";
-            }));
+            string facts = string.Join("\n", factLines);
 
-            // Build crane capacity fact
-            string craneFact = $"asserta(crane_capacity({cranes})),";
-            
+            // --- Build Prolog query ---
             string query = $@"
-                {facts} 
-                asserta(multiple_cranes({cranes})),
-                solve_genetic_with_params({populationSize}, {generations}, {crossoverRate}, {mutationRate}, {cranes}, Solution, TotalDelay), 
-                format('SOLUTION:~w~n', [Solution]), 
-                format('TOTAL_DELAY:~w~n', [TotalDelay]), 
-                format('CRANES_USED:~w~n', [{cranes}]), 
-                halt.";
-                
+{facts}
+solve_genetic_with_params({populationSize},{generations},{crossoverRate},{mutationRate},{cranes},Solution,TotalDelay),
+format('SOLUTION:~w~n',[Solution]),
+format('TOTAL_DELAY:~w~n',[TotalDelay]),
+format('CRANES_USED:~w~n',[{cranes}]),
+halt.
+";
+
+            Console.WriteLine("Prolog Query:\n" + query);
+
+            // --- Run Prolog ---
             string result;
             try
             {
-                result = RunPrologQuery(query, Path.Combine(AppContext.BaseDirectory, "PrologFiles", "genetic_scheduling.pl"));
+                result = RunPrologQuery(query, _geneticScriptPath);
             }
             catch (Exception ex)
             {
-                // Fallback to default genetic algorithm
-                query = $"{facts} {craneFact} solve_genetic_schedule(Solution, TotalDelay, CranesUsed), format('SOLUTION:~w~n', [Solution]), format('TOTAL_DELAY:~w~n', [TotalDelay]), format('CRANES_USED:~w~n', [CranesUsed]), halt.";
-                result = RunPrologQuery(query, Path.Combine(AppContext.BaseDirectory, "PrologFiles", "genetic_scheduling.pl"));
+                return StatusCode(500, $"Prolog execution failed: {ex.Message}");
             }
 
-            // Parse the result
-            var schedule = ParseGeneticResult(result, vesselsForDate, cranes);
+            // --- Parse Prolog result ---
+            var schedule = ParseGeneticResult(result, vesselsForDock, cranes);
 
             dockSchedules[dockId] = new
             {
@@ -1212,120 +1340,118 @@ public async Task<IActionResult> CalculateScheduleGenetic(
                 },
                 schedule = schedule.Schedules,
                 totalDelay = schedule.TotalDelay,
-                cranesUsed = cranes,
-                vessels = vesselsForDate,
-                crane = selectedCrane?.Code,
-                staff = allStaff,
-                area = closestArea
+                cranesUsed = schedule.CranesUsed,
+                vessels = vesselsForDock
             };
         }
-
-        if (!dockSchedules.Any())
-            return BadRequest(new { message = "No vessels arriving on that date." });
 
         return Ok(dockSchedules);
     }
     catch (Exception ex)
     {
-        return StatusCode(500, $"Error generating genetic schedule: {ex.Message}");
+        Console.WriteLine($"Error generating genetic schedule: {ex}");
+        return StatusCode(500, new { message = $"Error generating genetic schedule: {ex.Message}" });
     }
 }
 
-// Helper class to parse genetic algorithm results
-private class GeneticScheduleResult
-{
-    public List<VesselSchedule> Schedules { get; set; } = new();
-    public int TotalDelay { get; set; }
-    public int CranesUsed { get; set; }
-}
 
-private GeneticScheduleResult ParseGeneticResult(string result, List<VesselVisitNotificationDto> vessels, int cranesUsed)
-{
-    var parsed = new GeneticScheduleResult
-    {
-        Schedules = new List<VesselSchedule>(),
-        TotalDelay = 0,
-        CranesUsed = cranesUsed
-    };
 
-    try
-    {
-        // Parse solution
-        var solutionMatch = Regex.Match(result, @"SOLUTION:\[([^\]]+)\]");
-        if (solutionMatch.Success)
+
+        // Helper class to parse genetic algorithm results
+        private class GeneticScheduleResult
         {
-            var vesselNames = solutionMatch.Groups[1].Value.Split(',').Select(v => v.Trim()).ToList();
-            int currentTime = 0;
+            public List<VesselSchedule> Schedules { get; set; } = new();
+            public int TotalDelay { get; set; }
+            public int CranesUsed { get; set; }
+        }
 
-            foreach (var vesselName in vesselNames)
+        private GeneticScheduleResult ParseGeneticResult(string result, List<VesselVisitNotificationDto> vessels, int cranesUsed)
+        {
+            var parsed = new GeneticScheduleResult
             {
-                var vessel = vessels.FirstOrDefault(v =>
-                    v.VesselName.ToLower().Replace(" ", "_") == vesselName);
+                Schedules = new List<VesselSchedule>(),
+                TotalDelay = 0,
+                CranesUsed = cranesUsed
+            };
 
-                if (vessel != null)
+            try
+            {
+                // Parse solution
+                var solutionMatch = Regex.Match(result, @"SOLUTION:\[([^\]]+)\]");
+                if (solutionMatch.Success)
                 {
-                    int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
-                    int loadTime = 2 + (containerCount * 2);
-                    int unloadTime = 2 + (containerCount * 2);
-                    
-                    // Adjust processing time for multiple cranes
-                    int adjustedUnload = (int)Math.Ceiling((double)unloadTime / cranesUsed);
-                    int adjustedLoad = (int)Math.Ceiling((double)loadTime / cranesUsed);
-                    int totalProcessing = adjustedUnload + adjustedLoad;
-                    
-                    int arrivalHour = vessel.ETA.Minute >= 30 ? vessel.ETA.Hour + 1 : vessel.ETA.Hour;
-                    int startSlot = Math.Max(arrivalHour, currentTime);
-                    int endSlot = startSlot + totalProcessing - 1;
-                    
-                    // Calculate delay
-                    int etdSlot = (vessel.ETD.Day - vessel.ETA.Day) * 24 + vessel.ETD.Hour;
-                    int delay = Math.Max(0, endSlot - etdSlot);
+                    var vesselNames = solutionMatch.Groups[1].Value.Split(',').Select(v => v.Trim()).ToList();
+                    int currentTime = 0;
 
-                    parsed.Schedules.Add(new VesselSchedule
+                    foreach (var vesselName in vesselNames)
                     {
-                        VesselName = vesselName,
-                        StartSlot = startSlot,
-                        EndSlot = endSlot,
-                        StartTime = SlotToTime(startSlot),
-                        EndTime = SlotToTime(endSlot),
-                        CranesUsed = cranesUsed,
-                        Delay = delay
-                    });
+                        var vessel = vessels.FirstOrDefault(v =>
+                            v.VesselName.ToLower().Replace(" ", "_") == vesselName);
 
-                    currentTime = endSlot + 1;
+                        if (vessel != null)
+                        {
+                            int containerCount = vessel.CargoManifests?.Sum(m => m.ContainerIdentifiers?.Count ?? 0) ?? 0;
+                            int loadTime = 2 + (containerCount * 2);
+                            int unloadTime = 2 + (containerCount * 2);
+
+                            // Adjust processing time for multiple cranes
+                            int adjustedUnload = (int)Math.Ceiling((double)unloadTime / cranesUsed);
+                            int adjustedLoad = (int)Math.Ceiling((double)loadTime / cranesUsed);
+                            int totalProcessing = adjustedUnload + adjustedLoad;
+
+                            int arrivalHour = vessel.ETA.Minute >= 30 ? vessel.ETA.Hour + 1 : vessel.ETA.Hour;
+                            int startSlot = Math.Max(arrivalHour, currentTime);
+                            int endSlot = startSlot + totalProcessing - 1;
+
+                            // Calculate delay
+                            int etdSlot = (vessel.ETD.Day - vessel.ETA.Day) * 24 + vessel.ETD.Hour;
+                            int delay = Math.Max(0, endSlot - etdSlot);
+
+                            parsed.Schedules.Add(new VesselSchedule
+                            {
+                                VesselName = vesselName,
+                                StartSlot = startSlot,
+                                EndSlot = endSlot,
+                                StartTime = SlotToTime(startSlot),
+                                EndTime = SlotToTime(endSlot),
+                                CranesUsed = cranesUsed,
+                                Delay = delay
+                            });
+
+                            currentTime = endSlot + 1;
+                        }
+                    }
+                }
+
+                // Parse total delay
+                var delayMatch = Regex.Match(result, @"TOTAL_DELAY:(\d+)");
+                if (delayMatch.Success)
+                {
+                    parsed.TotalDelay = int.Parse(delayMatch.Groups[1].Value);
+                }
+                else
+                {
+                    // Calculate total delay from schedules
+                    parsed.TotalDelay = parsed.Schedules.Sum(s => s.Delay);
+                }
+
+                // Parse cranes used
+                var cranesMatch = Regex.Match(result, @"CRANES_USED:(\d+)");
+                if (cranesMatch.Success)
+                {
+                    parsed.CranesUsed = int.Parse(cranesMatch.Groups[1].Value);
                 }
             }
-        }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing genetic result: {ex.Message}");
+                // Create fallback schedule
+                parsed.Schedules = CreateSimpleFallbackSchedules(vessels, cranesUsed);
+                parsed.TotalDelay = parsed.Schedules.Sum(s => s.Delay);
+            }
 
-        // Parse total delay
-        var delayMatch = Regex.Match(result, @"TOTAL_DELAY:(\d+)");
-        if (delayMatch.Success)
-        {
-            parsed.TotalDelay = int.Parse(delayMatch.Groups[1].Value);
+            return parsed;
         }
-        else
-        {
-            // Calculate total delay from schedules
-            parsed.TotalDelay = parsed.Schedules.Sum(s => s.Delay);
-        }
-
-        // Parse cranes used
-        var cranesMatch = Regex.Match(result, @"CRANES_USED:(\d+)");
-        if (cranesMatch.Success)
-        {
-            parsed.CranesUsed = int.Parse(cranesMatch.Groups[1].Value);
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error parsing genetic result: {ex.Message}");
-        // Create fallback schedule
-        parsed.Schedules = CreateSimpleFallbackSchedules(vessels, cranesUsed);
-        parsed.TotalDelay = parsed.Schedules.Sum(s => s.Delay);
-    }
-
-    return parsed;
-}
 
 
         private string SlotToTime(int slot)

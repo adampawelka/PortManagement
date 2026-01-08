@@ -38,23 +38,28 @@ export const useSchedulingService = () => {
 
     const calculateGeneticSchedule = async (date, params = {}) => {
         const queryParams = new URLSearchParams({
-        date: date,
-        populationSize: params.populationSize || 30,
-        generations: params.generations || 50,
-        crossoverRate: params.crossoverRate || 0.8,
-        mutationRate: params.mutationRate || 0.2,
-        cranes: params.cranes || 1
+            date,
+            populationSize: params.populationSize || 30,
+            generations: params.generations || 50,
+            crossoverRate: params.crossoverRate || 0.8,
+            mutationRate: params.mutationRate || 0.2,
+            cranes: params.cranes || 1
         });
 
         const response = await apiFetch(`/api/Scheduling/calculate-schedule-genetic?${queryParams}`);
-    
+
+        // Directly parse JSON once
         if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Genetic scheduling failed: ${errorText}`);
+            // We can still try reading JSON for error details
+            const errorJson = await response.json().catch(() => null);
+            throw new Error(errorJson?.message || "Genetic scheduling failed");
         }
-    
+
         return await response.json();
     };
+
+
+
 
     return {
         calculateSchedule,
