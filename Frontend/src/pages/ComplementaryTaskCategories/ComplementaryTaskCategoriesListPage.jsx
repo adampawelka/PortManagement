@@ -8,7 +8,6 @@ import { useComplementaryTaskCategoriesListVM } from '../../viewmodels/Complemen
 const ComplementaryTaskCategoriesListPage = () => {
   const { categories, loading, error, fetchCategories } = useComplementaryTaskCategoriesListVM();
 
-  // Fetch categories przy mountowaniu komponentu
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);

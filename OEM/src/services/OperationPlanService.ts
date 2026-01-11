@@ -22,7 +22,7 @@ import { AlgorithmUsed } from "../Domain/OperationPlans/AlgorithmUsed";
 import { ScheduledOperation } from "../Domain/OperationPlans/ScheduledOperation";
 
 export class OperationPlanService implements IOperationPlanService {
-  constructor(private readonly operationPlanRepo: IOperationPlanRepo) {}
+  constructor(private readonly operationPlanRepo: IOperationPlanRepo) { }
 
   private mapScheduleDTOtoVO(scheduleDTO: ScheduledOperationDTO[]): ScheduledOperation[] {
     return scheduleDTO.map(dto => {
@@ -59,7 +59,7 @@ export class OperationPlanService implements IOperationPlanService {
 
   async savePlans(plans: CreateOperationPlanDTO[], metadata: { algorithmUsed: string; createdBy: string }): Promise<OperationPlanDTO[]> {
     const savedPlans: OperationPlanDTO[] = [];
-    
+
     for (const planDto of plans) {
       if (!planDto.algorithmUsed && metadata.algorithmUsed) {
         planDto.algorithmUsed = metadata.algorithmUsed;
@@ -70,22 +70,22 @@ export class OperationPlanService implements IOperationPlanService {
       if (!planDto.createdAt) {
         planDto.createdAt = new Date();
       }
-      
+
       const planOrError = OperationPlan.create({
         vvnId: VvnId.create(planDto.vvnId).getValue(),
         createdAt: CreatedAt.create(planDto.createdAt).getValue(),
         createdBy: CreatedBy.create(planDto.createdBy).getValue(),
         algorithmUsed: AlgorithmUsed.create(planDto.algorithmUsed).getValue(),
         schedule: this.mapScheduleDTOtoVO(planDto.schedule)
-      }, new UniqueEntityID());  
+      }, new UniqueEntityID());
 
-      if (planOrError.isFailure) throw new Error(planOrError.errorValue().toString());  
+      if (planOrError.isFailure) throw new Error(planOrError.errorValue().toString());
 
       const plan = planOrError.getValue();
       await this.operationPlanRepo.save(plan);
       savedPlans.push(this.toDTO(plan));
     }
-    
+
     return savedPlans;
   }
 
@@ -117,7 +117,7 @@ export class OperationPlanService implements IOperationPlanService {
       // Validate each operation in schedule
       for (let i = 0; i < dto.schedule.length; i++) {
         const op = dto.schedule[i];
-        
+
         // Validate required fields
         if (!op.vesselName || op.vesselName.trim() === "") {
           throw new Error(`Operation ${i + 1}: vesselName is required`);
@@ -138,7 +138,7 @@ export class OperationPlanService implements IOperationPlanService {
         // Validate dates
         const startDate = new Date(op.start);
         const endDate = new Date(op.end);
-        
+
         if (isNaN(startDate.getTime())) {
           throw new Error(`Operation ${i + 1}: start time must be a valid date`);
         }
@@ -277,33 +277,33 @@ export class OperationPlanService implements IOperationPlanService {
     return results;
   }
 
-  async getMissingPlans(date: string): Promise<MissingPlanDTO[]> {
+  public async getMissingPlans(date: string, token?: string): Promise<MissingPlanDTO[]> {
     try {
-      // 1. Obtener todas las VVNs del sistema externo (Port Authority)
-      // Ajusta la URL al puerto correcto de tu backend de .NET (generalmente 5000 o 5001)
-      const response = await axios.get('http://localhost:5000/api/VesselVisitNotifications');
-      const allVvns = response.data;
-
-      // 2. Filtrar VVNs: 
-      //    - Que estén 'Approved'
-      //    - Que sean para la fecha solicitada (comparamos la parte de la fecha YYYY-MM-DD)
-      const targetDate = new Date(date).toISOString().split('T')[0];
-      
-      const approvedVvnsForDate = allVvns.filter((vvn: any) => {
-        const vvnDate = vvn.eta ? new Date(vvn.eta).toISOString().split('T')[0] : null;
-        return vvn.status === 'Approved' && vvnDate === targetDate;
+      const response = await axios.get('http://localhost:5000/api/VesselVisitNotifications', {
+        headers: { 'Authorization': token || '' }
       });
 
-      // 3. Obtener todos los planes que TÚ tienes en tu BD
+      const allVvns = response.data;
+
+      const targetDate = new Date(date).toISOString().split('T')[0];
+
       const existingPlans = await this.operationPlanRepo.findAll();
 
-      // 4. Extraer los IDs de VVNs que ya tienen plan
-      const plannedVvnIds = existingPlans.map(p => p.vvnId.toString());
+      const plannedVvnIds = existingPlans
+        .map(p => p.vvnId?.toString().toLowerCase().trim())
+        .filter(id => id); 
 
-      // 5. Encontrar los "Missing": VVNs aprobadas que NO están en tus planes
-      const missingVvns = approvedVvnsForDate.filter((vvn: any) => !plannedVvnIds.includes(vvn.id));
+      const missingVvns = allVvns.filter((vvn: any) => {
+        const vvnDate = vvn.eta ? new Date(vvn.eta).toISOString().split('T')[0] : null;
+        const isCorrectDate = vvnDate === targetDate;
+        const isApproved = vvn.status === 'Approved';
 
-      // 6. Mapear a DTO
+        const externalId = vvn.id?.toString().toLowerCase().trim();
+        const alreadyHasPlan = plannedVvnIds.includes(externalId);
+
+        return isApproved && isCorrectDate && !alreadyHasPlan;
+      });
+
       return missingVvns.map((vvn: any) => ({
         vvnId: vvn.id,
         vesselName: vvn.vesselName,
@@ -311,8 +311,11 @@ export class OperationPlanService implements IOperationPlanService {
         status: vvn.status
       }));
 
-    } catch (error) {
-      console.error("Error in getMissingPlans:", error);
+    } catch (error: any) {
+      console.error("Error in getMissingPlans Service:", error.message);
+      if (error.response?.status === 401) {
+        throw new Error("Unauthorized access to Port Authority.");
+      }
       throw new Error("Failed to fetch missing plans from Port Authority.");
     }
   }
@@ -337,44 +340,44 @@ export class OperationPlanService implements IOperationPlanService {
   }
 
   async getResourceAllocation(
-  resourceType: 'CRANE' | 'STAFF' | 'DOCK',
-  resourceId: string,
-  from: Date,
-  to: Date
-): Promise<ResourceAllocationDTO> {
-  const plans = await this.operationPlanRepo.findByOperationDateRange(from, to);
+    resourceType: 'CRANE' | 'STAFF' | 'DOCK',
+    resourceId: string,
+    from: Date,
+    to: Date
+  ): Promise<ResourceAllocationDTO> {
+    const plans = await this.operationPlanRepo.findByOperationDateRange(from, to);
 
-  let totalMinutes = 0;
-  let operations = 0;
+    let totalMinutes = 0;
+    let operations = 0;
 
-  for (const plan of plans) {
-    for (const op of plan.schedule) {
+    for (const plan of plans) {
+      for (const op of plan.schedule) {
 
-      const usesResource =
-        resourceType === 'CRANE' ? op.cranes.includes(resourceId) :
-        resourceType === 'STAFF' ? op.staff.includes(resourceId) :
-        op.dock === resourceId;
+        const usesResource =
+          resourceType === 'CRANE' ? op.cranes.includes(resourceId) :
+            resourceType === 'STAFF' ? op.staff.includes(resourceId) :
+              op.dock === resourceId;
 
-      if (!usesResource) continue;
+        if (!usesResource) continue;
 
-      const start = op.start < from ? from : op.start;
-      const end = op.end > to ? to : op.end;
+        const start = op.start < from ? from : op.start;
+        const end = op.end > to ? to : op.end;
 
-      if (start < end) {
-        totalMinutes += (end.getTime() - start.getTime()) / 60000;
-        operations++;
+        if (start < end) {
+          totalMinutes += (end.getTime() - start.getTime()) / 60000;
+          operations++;
+        }
       }
     }
-  }
 
-  return {
-    resourceType,
-    resourceId,
-    from,
-    to,
-    totalAllocatedMinutes: Math.round(totalMinutes),
-    numberOfOperations: operations
-  };
-}
+    return {
+      resourceType,
+      resourceId,
+      from,
+      to,
+      totalAllocatedMinutes: Math.round(totalMinutes),
+      numberOfOperations: operations
+    };
+  }
 
 }

@@ -125,18 +125,22 @@ export default class OperationPlanController {
 
   public async getMissingPlans(req: Request, res: Response, next: NextFunction) {
     try {
-      // Esperamos la fecha como query param: /missing?date=2025-12-23
+      // 1. Pobieramy datę z query params
       const date = req.query.date as string;
+
+      // 2. Pobieramy token autoryzacyjny z nagłówków zapytania (Token Forwarding)
+      const token = req.headers.authorization;
 
       if (!date) {
         return res.status(400).send("Date query parameter is required");
       }
 
-      const result = await this.operationPlanServiceInstance.getMissingPlans(date);
+      // 3. Przekazujemy datę ORAZ token do serwisu
+      const result = await this.operationPlanServiceInstance.getMissingPlans(date, token);
+
       return res.status(200).json(result);
     } catch (e) {
       return next(e);
     }
   }
-
 }

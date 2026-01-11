@@ -25,7 +25,7 @@ export interface IOperationPlanService {
     dto: SearchOperationPlanDTO
   ): Promise<OperationPlanDTO[]>;
 
-  getMissingPlans(date: string): Promise<MissingPlanDTO[]>;
+  getMissingPlans(date: string, token?: string): Promise<MissingPlanDTO[]>;
 
   getResourceAllocation(
     resourceType: 'CRANE' | 'STAFF' | 'DOCK',

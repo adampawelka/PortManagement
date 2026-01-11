@@ -10,25 +10,30 @@ export const useEditComplementaryTaskCategoryVM = (categoryId) => {
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    const fetchCategory = async () => {
-      setLoading(true);
-      try {
-        const data = await getComplementaryTaskCategoryById(apiOemFetch, categoryId);
-        setFormData({
-          code: data.code || '',
-          name: data.name || '',
-          description: data.description || '',
-          defaultDuration: data.defaultDuration || '',
-        });
-      } catch (err) {
-        setMessage({ type: 'error', text: err.message || 'Failed to fetch category data.' });
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchCategory = async () => {
+    if (!categoryId || categoryId === 'undefined') {
+      setLoading(false);
+      return; 
+    }
 
-    fetchCategory();
-  }, [apiOemFetch, categoryId]);
+    setLoading(true);
+    try {
+      const data = await getComplementaryTaskCategoryById(apiOemFetch, categoryId);
+      setFormData({
+        code: data.code || '',
+        name: data.name || '',
+        description: data.description || '',
+        defaultDuration: data.defaultDuration || '',
+      });
+    } catch (err) {
+      setMessage({ type: 'error', text: err.message || 'Failed to fetch category data.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCategory();
+}, [apiOemFetch, categoryId]); 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
