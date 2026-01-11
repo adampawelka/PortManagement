@@ -279,31 +279,47 @@ export class OperationPlanService implements IOperationPlanService {
 
   public async getMissingPlans(date: string, token?: string): Promise<MissingPlanDTO[]> {
     try {
+      // 1. Pobieramy dane z systemu zewnętrznego (.NET Port Authority)
+      // Przekazujemy token, aby przejść przez [Authorize] w .NET
       const response = await axios.get('http://localhost:5000/api/VesselVisitNotifications', {
-        headers: { 'Authorization': token || '' }
+        headers: {
+          'Authorization': token || ''
+        }
       });
 
       const allVvns = response.data;
 
+      // 2. Przygotowujemy datę do porównania (format YYYY-MM-DD)
       const targetDate = new Date(date).toISOString().split('T')[0];
 
+      // 3. Pobieramy istniejące plany z Twojej bazy (Node.js)
       const existingPlans = await this.operationPlanRepo.findAll();
 
-      const plannedVvnIds = existingPlans
-        .map(p => p.vvnId?.toString().toLowerCase().trim())
-        .filter(id => id); 
+      // 4. Wyciągamy ID wizyt, które JUŻ MAJĄ plany
+      // Ponieważ vvnId to Value Object (z pola OperationPlanProps), 
+      // musimy sięgnąć do .value lub użyć toString() jeśli jest tak zdefiniowany
+      const plannedVvnIds = existingPlans.map(p => {
+        // Próba pobrania wartości z obiektu domenowego VvnId
+        const idValue = p.vvnId && typeof p.vvnId === 'object' ? (p.vvnId as any).value : p.vvnId;
+        return idValue?.toString().toLowerCase().trim();
+      }).filter(id => id !== undefined && id !== null);
 
+      // 5. Filtrujemy dane z .NET, zostawiając tylko te, których BRAKUJE
       const missingVvns = allVvns.filter((vvn: any) => {
+        // Sprawdzamy status i datę
         const vvnDate = vvn.eta ? new Date(vvn.eta).toISOString().split('T')[0] : null;
-        const isCorrectDate = vvnDate === targetDate;
         const isApproved = vvn.status === 'Approved';
+        const isTargetDate = vvnDate === targetDate;
 
+        // Sprawdzamy, czy ten ID z .NET już istnieje w naszych planach
         const externalId = vvn.id?.toString().toLowerCase().trim();
         const alreadyHasPlan = plannedVvnIds.includes(externalId);
 
-        return isApproved && isCorrectDate && !alreadyHasPlan;
+        // Warunek: Zatwierdzone + Dobra data + BRAK istniejącego planu
+        return isApproved && isTargetDate && !alreadyHasPlan;
       });
 
+      // 6. Mapujemy wynik na format DTO dla frontendu
       return missingVvns.map((vvn: any) => ({
         vvnId: vvn.id,
         vesselName: vvn.vesselName,
@@ -313,10 +329,13 @@ export class OperationPlanService implements IOperationPlanService {
 
     } catch (error: any) {
       console.error("Error in getMissingPlans Service:", error.message);
+
+      // Obsługa specyficznych błędów API
       if (error.response?.status === 401) {
-        throw new Error("Unauthorized access to Port Authority.");
+        throw new Error("Port Authority: Unauthorized access. Please log in again.");
       }
-      throw new Error("Failed to fetch missing plans from Port Authority.");
+
+      throw new Error("Could not fetch or filter missing plans from Port Authority.");
     }
   }
 
