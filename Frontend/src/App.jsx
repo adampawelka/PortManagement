@@ -53,10 +53,10 @@ const ProtectedRoute = ({ children, requiredRoles = [], testUser = null }) => {
       try {
         // TEMP DEVELOPMENT USER
         // const data1 = { role: "OperationsSupervisor", status: "Active" }; //for complementary Task Categories pages
-        const data1 = { role: "LogisticsOperator", status: "Active" };
+       //const data1 = { role: "LogisticsOperator", status: "Active" };
 
         // REAL API CALL
-        // const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
+        const data1 = testUser || await fetchUserRole(user.sub, user.name, user.email, apiFetch);
 
         setUserData(data1);
 
