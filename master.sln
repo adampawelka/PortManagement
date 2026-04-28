@@ -8,6 +8,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scheduling", "Scheduling", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchedulingAPI", "Scheduling\SchedulingAPI\SchedulingAPI.csproj", "{CAA46EB1-B2C7-469D-8F55-548390771767}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackendAPI.Tests", "BackendAPI.Tests\BackendAPI.Tests.csproj", "{D3B3E501-5AEF-4795-9F7F-7F56A7691EC1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,6 +24,10 @@ Global
 		{CAA46EB1-B2C7-469D-8F55-548390771767}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAA46EB1-B2C7-469D-8F55-548390771767}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAA46EB1-B2C7-469D-8F55-548390771767}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3B3E501-5AEF-4795-9F7F-7F56A7691EC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3B3E501-5AEF-4795-9F7F-7F56A7691EC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3B3E501-5AEF-4795-9F7F-7F56A7691EC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3B3E501-5AEF-4795-9F7F-7F56A7691EC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
