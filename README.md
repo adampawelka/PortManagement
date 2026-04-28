@@ -1,39 +1,111 @@
-# Integrative Project - 5th Semester LEI-ISEP 2025-2026 - 3DL-E-04
+# Port Management System
 
-## Project Overview
+A full-stack port authority management system built with Clean Architecture and Domain-Driven Design principles. The system handles vessel visit lifecycles, dock scheduling, cargo manifests, crew management, staff allocation, and AI-driven berth scheduling — all served through a multi-service Docker deployment.
 
-This repository contains the implementation of the Integrative Project for the 5th semester (3rd year, 1st semester) of the Bachelor's Degree in Informatics Engineering (LEI) at the Instituto Superior de Engenharia do Porto (ISEP). The project integrates knowledge from the following course units (UCs):
+> Originally developed as part of the ISEP LEI-SEM5 Integrative Project (2025–26, team 3DL-E-04), now continued independently as a personal portfolio project.
 
-- **Administração de Sistemas (ASIST)**: System administration and infrastructure.
-- **Arquitetura de Sistemas (ARQSI)**: System architecture and design.
-- **Gestão (GESTA)**: Organizational and managerial analysis.
-- **Inteligência Artificial (IART)**: AI-based scheduling and optimization.
-- **Laboratório e Projeto V (LAPR5)**: Project management and integration.
-- **Sistemas Gráficos e Interação (SGRAI)**: Graphical interfaces and 3D visualization.
+---
 
-The project develops a modular web-based system for sustainable and intelligent port logistics management. It supports planning, scheduling, and monitoring of vessel visits, cargo handling, and resource allocation in a port environment. Key features include REST APIs for managing port facilities, vessels, shipping agents, and logistic resources, with a focus on efficiency, sustainability, and compliance (e.g., GDPR, ISO standards).
+## Architecture Overview
 
-The system is developed iteratively across three sprints (A, B, C), starting with a Minimum Viable Product (MVP) in Sprint A. It simulates a Request for Proposal (RFP) response, where our team acts as an IT company proposing a prototype for port management innovation.
+The system is composed of four independently deployable services:
 
-**Note**: This project is a simplification of real port logistics systems, emphasizing innovative aspects like AI scheduling and 3D visualizations while adhering to the provided specifications.
+```
+┌─────────────────┐     ┌──────────────────────┐     ┌──────────────────┐
+│  React Frontend │───▶│  ASP.NET Core 8 API   │───▶│    PostgreSQL    │
+└─────────────────┘     │  (Clean Architecture)│     └──────────────────┘
+                        └──────────────────────┘
+                                   │
+                     ┌─────────────┴─────────────┐
+                     ▼                           ▼
+           ┌──────────────────┐       ┌──────────────────────┐
+           │  Scheduling API  │       │      OEM Module      │
+           │ (Prolog + .NET 8)│       │  (Node.js, MongoDB)  │
+           └──────────────────┘       └──────────────────────┘
+```
 
-## Team Information
+---
 
-- **Repository Name**: LEI-SEM5-PI-2025-26-3DL-E-04
-- **Team Members**:
-    - Student 1: [Tiago Soares, 1231246, LAPR5;ARQSI;ASIST;GESTA;IARTI;SGRAI]
-    - Student 2: [Julia Kardasz, 1250264, LAPR5;ASIST;IARTI;SGRAI]
-    - Student 3: [Adam Pawełka, 1250184, LAPR5;ASIST;IARTI]
-    - Student 4: [Guillermo Navarro, 1250247, LAPR5;ARQSI;ASIST;SGRAI;IARTI]
-    - Student 5: [Patricia Galán, 1250311, ASIST;SGRAI;ARQSI;IARTI]
+## Tech Stack
 
-## Technologies and Tools
+| Layer | Technology |
+|---|---|
+| Backend API | ASP.NET Core 8, EF Core 8, PostgreSQL |
+| Authentication | Auth0 JWT Bearer |
+| AI Scheduling | Prolog (SWI-Prolog) + Genetic Algorithm, exposed via .NET 8 API |
+| OEM Module | Node.js, TypeScript, MongoDB |
+| Frontend | React, Vite |
+| Testing | xUnit, Moq |
+| API Docs | Swagger / OpenAPI |
+| Infrastructure | Docker, Docker Compose |
 
-- **Programming Language**: C# (.NET ecosystem)
-- **Backend**: ASP.NET Core for REST APIs
-- **Frontend**: To be implemented in later sprints
-- **Version Control**: GitHub (within DEI Organization)
-- **Project Management**: GitHub Issues, Project Boards for task tracking, sprint backlogs, and progress monitoring
-- **Other Tools**: Docker for containerization, CI/CD pipelines (e.g., GitHub Actions), testing frameworks (e.g., xUnit), and AI libraries (e.g., ML.NET for scheduling algorithms in later sprints)
+---
 
-The project follows engineering best practices: agile methodology, clean architecture, unit/integration testing, code reviews, and documentation.
+## Backend API — Domain Model
+
+The API is structured around these bounded contexts:
+
+| Aggregate | Responsibility |
+|---|---|
+| **Vessels** | Vessel registry with IMO validation and type classification |
+| **VesselVisitNotifications** | Full visit lifecycle: submission → approval/rejection, cargo manifests, crew members |
+| **Docks** | Dock registry and availability management |
+| **StorageAreas** | Storage zone definitions and operational constraints |
+| **ShippingAgents** | Agent organisations and their representatives |
+| **StaffMembers** | Port staff with qualification tracking |
+| **Qualifications** | Skill definitions assignable to staff |
+| **Resources** | Equipment and resource inventory |
+| **VesselTypes** | Type catalogue with operational constraints (rows, bays, tiers) |
+
+---
+
+
+
+## Scheduling Module
+
+The scheduling engine uses a **Genetic Algorithm implemented in Prolog** to assign vessels to docks across time slots, optimising for constraints such as dock capacity, vessel type compatibility, and visit duration. The Prolog engine is invoked from a .NET 8 API that fetches live vessel and dock data from the main backend.
+
+---
+
+## Running with Docker
+
+```bash
+docker-compose up --build
+```
+
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend API + Swagger | http://localhost:5000/swagger |
+| Scheduling API | http://localhost:5107 |
+| OEM Module | http://localhost:5161 |
+
+---
+
+## Running Locally
+
+**Prerequisites:** .NET 8 SDK, Node.js 20+, PostgreSQL
+
+```bash
+# 1. Restore and build
+dotnet build master.sln
+
+# 2. Apply database migrations
+cd BackendAPI && dotnet ef database update
+
+# 3. Run the API
+dotnet run --project BackendAPI/Backend.csproj
+
+# 4. Run tests
+dotnet test BackendAPI.Tests/BackendAPI.Tests.csproj
+
+# 5. Run the frontend
+cd Frontend && npm install && npm run dev
+```
+
+---
+
+
+## Docs
+
+Architecture diagrams (domain model, logical, physical, sequence) are in `/docs` as PlantUML sources and rendered SVGs.
